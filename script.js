@@ -230,7 +230,7 @@ function renderStats(counts, mine) {
     else { solved += c; sum += Number(k) * c; }
   }
   $('statsAvg').textContent = !total ? '' : `Average: ${(sum / total).toFixed(1)} guesses` +
-    (story ? '' : ` · ${Math.round(solved * 100 / total)}% solved (fails count as ${failAs})`);
+    (story ? '' : ` (fails count as ${failAs})\n${Math.round(solved * 100 / total)}% solved`);
   $('stats').hidden = false;
 }
 
