@@ -178,7 +178,7 @@ function record(g) {
 
 // Everyone's results for this puzzle. Your own result is sent once per mode per day.
 async function loadStats() {
-  if (!STATS_URL || maxGuesses == null) return;
+  if (!STATS_URL) return;
   const sentKey = `mapleWordle:sent:${mode}:${day}`;
   const url = `${STATS_URL}?mode=${mode}&day=${day}`;
   const shownMode = mode, shownDay = day;
@@ -196,21 +196,38 @@ async function loadStats() {
 }
 
 function renderStats(counts, mine) {
-  const keys = [...Array(maxGuesses)].map((_, i) => String(i + 1)).concat('X');
-  const total = keys.reduce((n, k) => n + (counts[k] || 0), 0);
+  // Bars: 1..max then X/max; Story (unlimited) uses 1..6 then 7+.
+  const story = maxGuesses == null;
+  const top = story ? 6 : maxGuesses;
+  const bars = [...Array(top)].map((_, i) => ({ key: String(i + 1), label: `${i + 1}/${story ? '∞' : top}`, n: counts[String(i + 1)] || 0 }));
+  if (story) {
+    const more = Object.entries(counts).filter(([k]) => Number(k) > 6).reduce((n, [, c]) => n + c, 0);
+    bars.push({ key: '7+', label: '7+', n: more });
+  } else {
+    bars.push({ key: 'X', label: `X/${top}`, n: counts.X || 0 });
+  }
+  if (story && Number(mine) > 6) mine = '7+';
+  const total = bars.reduce((n, b) => n + b.n, 0);
   $('statsTitle').textContent = `Everyone's results (${MODE_NAME[mode]}) - ${total} player${total === 1 ? '' : 's'}`;
   const box = $('statsBars');
   box.innerHTML = '';
-  for (const k of keys) {
-    const pct = total ? Math.round((counts[k] || 0) * 100 / total) : 0;
+  for (const b of bars) {
+    const pct = total ? Math.round(b.n * 100 / total) : 0;
     const row = document.createElement('div');
-    row.className = 'statrow' + (k === mine ? ' mine' : '');
+    row.className = 'statrow' + (b.key === mine ? ' mine' : '');
     row.innerHTML = `<span class="label"></span><span class="track"><span class="bar"></span></span><span class="pct"></span>`;
-    row.querySelector('.label').textContent = `${k}/${maxGuesses}`;
+    row.querySelector('.label').textContent = b.label;
     row.querySelector('.bar').style.width = pct + '%';
     row.querySelector('.pct').textContent = pct + '%';
     box.appendChild(row);
   }
+  // Average guesses over solved games (exact counts, so Story's 7+ is averaged precisely).
+  let solved = 0, sum = 0;
+  for (const [k, c] of Object.entries(counts)) {
+    if (k !== 'X') { solved += c; sum += Number(k) * c; }
+  }
+  $('statsAvg').textContent = !solved ? '' : `Average: ${(sum / solved).toFixed(1)} guesses` +
+    (story ? '' : ` · ${Math.round(solved * 100 / total)}% solved`);
   $('stats').hidden = false;
 }
 
