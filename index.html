@@ -77,6 +77,12 @@
   .card { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 90px; }
   .card img, .card .noimg { width: 56px; height: 56px; object-fit: contain; border-radius: 8px; }
   .card .noimg { display: flex; align-items: center; justify-content: center; background: #555; color: #fff; font-size: 28px; }
+  #games { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin: -8px 0 8px; }
+  #games button { padding: 6px 14px; font-size: 15px; border-radius: 8px; border: 1px solid rgba(0, 0, 0, 0.2);
+                  background: rgba(255, 255, 255, 0.5); font-family: inherit; }
+  #games button.on { font-weight: bold; outline: 2px solid #333; background: rgba(255, 255, 255, 0.8); }
+  #games button:disabled { color: #555; opacity: 0.7; cursor: not-allowed; }
+  #games small { display: block; font-size: 11px; }
   #modes .on, #archiveTabs .on { font-weight: bold; outline: 2px solid #333; }
   #picker { position: relative; display: inline-block; }
   #list { position: absolute; top: 100%; left: 0; right: 0; max-height: 240px; overflow-y: auto;
@@ -107,6 +113,11 @@
 </div>
 <div class="panel game">
 <h1>Maple Wordle</h1>
+<div id="games">
+  <button class="on">Guess the Boss</button>
+  <button disabled>Guess the Map<small>Coming soon</small></button>
+  <button disabled>Guess the Class<small>Coming soon</small></button>
+</div>
 <p id="puzzle"></p>
 <p><button id="today" hidden>Back to today</button></p>
 <div id="modes">Mode:
