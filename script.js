@@ -3,7 +3,7 @@ let data, mode, day, live, pool, answer, guesses, maxGuesses, over, matches, act
 const $ = (id) => document.getElementById(id);
 
 // Address of the stats Worker (see worker/). Leave empty to hide everyone's stats.
-const STATS_URL = '';
+const STATS_URL = 'https://maplewordle-stats.hanayuki.workers.dev/';
 const DAY_MS = 86400000;
 const today = () => Math.floor(Date.now() / DAY_MS); // resets at 00:00 UTC
 
