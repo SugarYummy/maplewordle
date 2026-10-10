@@ -221,13 +221,16 @@ function renderStats(counts, mine) {
     row.querySelector('.pct').textContent = pct + '%';
     box.appendChild(row);
   }
-  // Average guesses over solved games (exact counts, so Story's 7+ is averaged precisely).
+  // Average guesses, using exact counts (so Story's 7+ is averaged precisely).
+  // A fail counts as one more than the guess limit (7 on Normal, 6 on Hard/Extreme).
+  const failAs = story ? null : top + 1;
   let solved = 0, sum = 0;
   for (const [k, c] of Object.entries(counts)) {
-    if (k !== 'X') { solved += c; sum += Number(k) * c; }
+    if (k === 'X') sum += failAs * c;
+    else { solved += c; sum += Number(k) * c; }
   }
-  $('statsAvg').textContent = !solved ? '' : `Average: ${(sum / solved).toFixed(1)} guesses` +
-    (story ? '' : ` · ${Math.round(solved * 100 / total)}% solved`);
+  $('statsAvg').textContent = !total ? '' : `Average: ${(sum / total).toFixed(1)} guesses` +
+    (story ? '' : ` · ${Math.round(solved * 100 / total)}% solved (fails count as ${failAs})`);
   $('stats').hidden = false;
 }
 
