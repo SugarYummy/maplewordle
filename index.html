@@ -23,6 +23,9 @@
   #archive[hidden], #changelog[hidden] { display: none; }
   #changelogBody { text-align: left; max-width: 420px; }
   #changelogBody h3 { margin: 12px 0 4px; }
+  /* Close button stays visible at the bottom while the window scrolls. */
+  .closebar { position: sticky; bottom: -16px; margin: 0 -16px -16px; padding: 10px 0 14px;
+              background: rgba(255, 255, 255, 0.85); }
   #changelogBody .date { font-size: 13px; font-weight: normal; margin-left: 8px; opacity: 0.75; }
   #changelogBody ul { margin: 0; padding-left: 20px; }
   #archive .panel, #changelog .panel { margin-top: 48px; max-height: calc(100vh - 96px); overflow-y: auto; min-width: 280px; }
@@ -72,7 +75,7 @@
       <button data-mode="extreme">Extreme</button>
     </div>
     <div id="archiveList"></div>
-    <p><button id="archiveClose">Close</button></p>
+    <p class="closebar"><button id="archiveClose">Close</button></p>
   </div>
 </div>
 <div class="panel game">
@@ -115,9 +118,9 @@
   <div class="panel">
     <h2>Changelog</h2>
     <div id="changelogBody"></div>
-    <p><button id="changelogClose">Close</button></p>
+    <p class="closebar"><button id="changelogClose">Close</button></p>
   </div>
 </div>
-<script src="script.js?v=18"></script>
+<script src="script.js?v=19"></script>
 </body>
 </html>

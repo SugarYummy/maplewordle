@@ -391,6 +391,12 @@ async function openChangelog() {
 }
 $('version').addEventListener('click', openChangelog);
 $('changelogClose').addEventListener('click', () => { $('changelog').hidden = true; });
+// Esc closes whichever window is open.
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  $('changelog').hidden = true;
+  closeArchive();
+});
 $('today').addEventListener('click', () => start());
 for (const b of document.querySelectorAll('#modes button')) {
   b.addEventListener('click', () => {
