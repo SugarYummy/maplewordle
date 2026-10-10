@@ -1,0 +1,3060 @@
+{
+ "_about": "Boss data for Maple Wordle. Sources: maplestorywiki.net, Namu Wiki, Bahamut TMS HP table (Oct 2026). Normal/Hard modes use each boss's hardest non-Extreme mode (Hard > Chaos > Normal > Easy; Gollux = Hell). Extreme mode lists every difficulty as its own entry. hp = sum of all phase HP. level = entry level. Story mode uses the normal pool with unlimited guesses. null = Unknown; hpLabel overrides the HP display (e.g. 300Q+).",
+ "attempts": {
+  "story": null,
+  "normal": 6,
+  "hard": 5,
+  "extreme": 5
+ },
+ "rules": {
+  "numbers": "Phases, HP and Entry Lv: green if equal, otherwise an arrow pointing toward the answer. If the guess or the answer is Unknown, the tile is red with no arrow.",
+  "text": "World, Gender, Region: green if equal, otherwise grey.",
+  "hpValues": "GMS values are used wherever servers differ."
+ },
+ "pools": {
+  "normal": [
+   {
+    "name": "Zakum (Chaos)",
+    "boss": "Zakum",
+    "difficulty": "Chaos",
+    "world": "Maple World",
+    "gender": "Other",
+    "region": "All",
+    "phases": 2,
+    "hp": 168000000000,
+    "phaseHp": [
+     84000000000,
+     84000000000
+    ],
+    "level": 90,
+    "hpLabel": null
+   },
+   {
+    "name": "Papulatus (Chaos)",
+    "boss": "Papulatus",
+    "difficulty": "Chaos",
+    "world": "Maple World",
+    "gender": "Other",
+    "region": "All",
+    "phases": 2,
+    "hp": 504000000000,
+    "phaseHp": [
+     378000000000,
+     126000000000
+    ],
+    "level": 190,
+    "hpLabel": null
+   },
+   {
+    "name": "Magnus (Hard)",
+    "boss": "Magnus",
+    "difficulty": "Hard",
+    "world": "Grandis",
+    "gender": "Male",
+    "region": "All",
+    "phases": 1,
+    "hp": 120000000000,
+    "phaseHp": [
+     120000000000
+    ],
+    "level": 175,
+    "hpLabel": null
+   },
+   {
+    "name": "Hilla (Hard)",
+    "boss": "Hilla",
+    "difficulty": "Hard",
+    "world": "Maple World",
+    "gender": "Female",
+    "region": "All",
+    "phases": 1,
+    "hp": 16800000000,
+    "phaseHp": [
+     16800000000
+    ],
+    "level": 170,
+    "hpLabel": null
+   },
+   {
+    "name": "Mori Ranmaru (Hard)",
+    "boss": "Mori Ranmaru",
+    "difficulty": "Hard",
+    "world": "Maple World",
+    "gender": "Male",
+    "region": "All except KMS",
+    "phases": 1,
+    "hp": 2100000000,
+    "phaseHp": [
+     2100000000
+    ],
+    "level": 180,
+    "hpLabel": null
+   },
+   {
+    "name": "Horntail (Chaos)",
+    "boss": "Horntail",
+    "difficulty": "Chaos",
+    "world": "Maple World",
+    "gender": "Other",
+    "region": "All",
+    "phases": 3,
+    "hp": 26600000000,
+    "phaseHp": [
+     3300000000,
+     3300000000,
+     20000000000
+    ],
+    "level": 135,
+    "hpLabel": null
+   },
+   {
+    "name": "Pierre (Chaos)",
+    "boss": "Pierre",
+    "difficulty": "Chaos",
+    "world": "Maple World",
+    "gender": "Male",
+    "region": "All",
+    "phases": 1,
+    "hp": 80000000000,
+    "phaseHp": [
+     80000000000
+    ],
+    "level": 180,
+    "hpLabel": null
+   },
+   {
+    "name": "Von Bon (Chaos)",
+    "boss": "Von Bon",
+    "difficulty": "Chaos",
+    "world": "Maple World",
+    "gender": "Male",
+    "region": "All",
+    "phases": 1,
+    "hp": 100000000000,
+    "phaseHp": [
+     100000000000
+    ],
+    "level": 180,
+    "hpLabel": null
+   },
+   {
+    "name": "Crimson Queen (Chaos)",
+    "boss": "Crimson Queen",
+    "difficulty": "Chaos",
+    "world": "Maple World",
+    "gender": "Female",
+    "region": "All",
+    "phases": 1,
+    "hp": 140000000000,
+    "phaseHp": [
+     140000000000
+    ],
+    "level": 180,
+    "hpLabel": null
+   },
+   {
+    "name": "Vellum (Chaos)",
+    "boss": "Vellum",
+    "difficulty": "Chaos",
+    "world": "Maple World",
+    "gender": "Other",
+    "region": "All",
+    "phases": 1,
+    "hp": 200000000000,
+    "phaseHp": [
+     200000000000
+    ],
+    "level": 180,
+    "hpLabel": null
+   },
+   {
+    "name": "Von Leon (Hard)",
+    "boss": "Von Leon",
+    "difficulty": "Hard",
+    "world": "Maple World",
+    "gender": "Male",
+    "region": "All",
+    "phases": 1,
+    "hp": 10500000000,
+    "phaseHp": [
+     10500000000
+    ],
+    "level": 125,
+    "hpLabel": null
+   },
+   {
+    "name": "Arkarium (Normal)",
+    "boss": "Arkarium",
+    "difficulty": "Normal",
+    "world": "Maple World",
+    "gender": "Male",
+    "region": "All",
+    "phases": 1,
+    "hp": 12600000000,
+    "phaseHp": [
+     12600000000
+    ],
+    "level": 140,
+    "hpLabel": null
+   },
+   {
+    "name": "Gollux (Hell)",
+    "boss": "Gollux",
+    "difficulty": "Hell",
+    "world": "Masteria",
+    "gender": "Other",
+    "region": "JMS/CMS/GMS",
+    "phases": 3,
+    "hp": 770000000000,
+    "phaseHp": [
+     350000000000,
+     350000000000,
+     70000000000
+    ],
+    "level": 180,
+    "hpLabel": null
+   },
+   {
+    "name": "OMNI-CLN (Normal)",
+    "boss": "OMNI-CLN",
+    "difficulty": "Normal",
+    "world": "Maple World",
+    "gender": "Other",
+    "region": "All",
+    "phases": 1,
+    "hp": 1680000000,
+    "phaseHp": [
+     1680000000
+    ],
+    "level": 180,
+    "hpLabel": null
+   },
+   {
+    "name": "Pink Bean (Chaos)",
+    "boss": "Pink Bean",
+    "difficulty": "Chaos",
+    "world": "Maple World",
+    "gender": "Male",
+    "region": "All",
+    "phases": 3,
+    "hp": 69300000000,
+    "phaseHp": [
+     12600000000,
+     23100000000,
+     33600000000
+    ],
+    "level": 170,
+    "hpLabel": null
+   },
+   {
+    "name": "Cygnus (Normal)",
+    "boss": "Cygnus",
+    "difficulty": "Normal",
+    "world": "Maple World",
+    "gender": "Female",
+    "region": "All except KMS",
+    "phases": 1,
+    "hp": 63000000000,
+    "phaseHp": [
+     63000000000
+    ],
+    "level": 165,
+    "hpLabel": null
+   },
+   {
+    "name": "Princess No (Normal)",
+    "boss": "Princess No",
+    "difficulty": "Normal",
+    "world": "Maple World",
+    "gender": "Female",
+    "region": "All except KMS",
+    "phases": 1,
+    "hp": 500000000000,
+    "phaseHp": [
+     500000000000
+    ],
+    "level": 180,
+    "hpLabel": null
+   },
+   {
+    "name": "Akechi Mitsuhide (Normal)",
+    "boss": "Akechi Mitsuhide",
+    "difficulty": "Normal",
+    "world": "Maple World",
+    "gender": "Male",
+    "region": "JMS/GMS/MSEA",
+    "phases": 2,
+    "hp": 700000000000,
+    "phaseHp": [
+     350000000000,
+     350000000000
+    ],
+    "level": 200,
+    "hpLabel": null
+   },
+   {
+    "name": "Lotus (Hard)",
+    "boss": "Lotus",
+    "difficulty": "Hard",
+    "world": "Maple World",
+    "gender": "Male",
+    "region": "All",
+    "phases": 3,
+    "hp": 33285000000000,
+    "phaseHp": [
+     9985500000000,
+     9985500000000,
+     13314000000000
+    ],
+    "level": 190,
+    "hpLabel": null
+   },
+   {
+    "name": "Damien (Hard)",
+    "boss": "Damien",
+    "difficulty": "Hard",
+    "world": "Maple World",
+    "gender": "Male",
+    "region": "All",
+    "phases": 2,
+    "hp": 36000000000000,
+    "phaseHp": [
+     25200000000000,
+     10800000000000
+    ],
+    "level": 190,
+    "hpLabel": null
+   },
+   {
+    "name": "Guardian Angel Slime (Chaos)",
+    "boss": "Guardian Angel Slime",
+    "difficulty": "Chaos",
+    "world": "Maple World",
+    "gender": "Other",
+    "region": "All",
+    "phases": 1,
+    "hp": 90000000000000,
+    "phaseHp": [
+     90000000000000
+    ],
+    "level": 210,
+    "hpLabel": null
+   },
+   {
+    "name": "Lucid (Hard)",
+    "boss": "Lucid",
+    "difficulty": "Hard",
+    "world": "Arcane River",
+    "gender": "Female",
+    "region": "All",
+    "phases": 3,
+    "hp": 117600000000000,
+    "phaseHp": [
+     50800000000000,
+     54000000000000,
+     12800000000000
+    ],
+    "level": 220,
+    "hpLabel": null
+   },
+   {
+    "name": "Will (Hard)",
+    "boss": "Will",
+    "difficulty": "Hard",
+    "world": "Arcane River",
+    "gender": "Male",
+    "region": "All",
+    "phases": 3,
+    "hp": 126000000000000,
+    "phaseHp": [
+     42000000000000,
+     31500000000000,
+     52500000000000
+    ],
+    "level": 235,
+    "hpLabel": null
+   },
+   {
+    "name": "Gloom (Chaos)",
+    "boss": "Gloom",
+    "difficulty": "Chaos",
+    "world": "Arcane River",
+    "gender": "Other",
+    "region": "All",
+    "phases": 1,
+    "hp": 127050000000000,
+    "phaseHp": [
+     127050000000000
+    ],
+    "level": 245,
+    "hpLabel": null
+   },
+   {
+    "name": "Verus Hilla (Hard)",
+    "boss": "Verus Hilla",
+    "difficulty": "Hard",
+    "world": "Arcane River",
+    "gender": "Female",
+    "region": "All",
+    "phases": 1,
+    "hp": 178500000000000,
+    "phaseHp": [
+     178500000000000
+    ],
+    "level": 250,
+    "hpLabel": null
+   },
+   {
+    "name": "Malicia (Normal)",
+    "boss": "Malicia",
+    "difficulty": "Normal",
+    "world": "Maple World",
+    "gender": "Female",
+    "region": "JMS/CMS/TMS",
+    "phases": 4,
+    "hp": 178000000000000,
+    "phaseHp": [
+     70000000000000,
+     56000000000000,
+     24000000000000,
+     28000000000000
+    ],
+    "level": 250,
+    "hpLabel": null
+   },
+   {
+    "name": "Darknell (Hard)",
+    "boss": "Darknell",
+    "difficulty": "Hard",
+    "world": "Arcane River",
+    "gender": "Male",
+    "region": "All",
+    "phases": 1,
+    "hp": 157500000000000,
+    "phaseHp": [
+     157500000000000
+    ],
+    "level": 255,
+    "hpLabel": null
+   },
+   {
+    "name": "Black Mage (Hard)",
+    "boss": "Black Mage",
+    "difficulty": "Hard",
+    "world": "Arcane River",
+    "gender": "Male",
+    "region": "All",
+    "phases": 4,
+    "hp": 472500000000000,
+    "phaseHp": [
+     63000000000000,
+     115500000000000,
+     157500000000000,
+     136500000000000
+    ],
+    "level": 255,
+    "hpLabel": null
+   },
+   {
+    "name": "Chosen Seren (Hard)",
+    "boss": "Chosen Seren",
+    "difficulty": "Hard",
+    "world": "Grandis",
+    "gender": "Female",
+    "region": "All",
+    "phases": 2,
+    "hp": 483000000000000,
+    "phaseHp": [
+     126000000000000,
+     357000000000000
+    ],
+    "level": 260,
+    "hpLabel": null
+   },
+   {
+    "name": "Kalos (Chaos)",
+    "boss": "Kalos",
+    "difficulty": "Chaos",
+    "world": "Grandis",
+    "gender": "Male",
+    "region": "All",
+    "phases": 2,
+    "hp": 5126000000000000,
+    "phaseHp": [
+     1066000000000000,
+     4060000000000000
+    ],
+    "level": 265,
+    "hpLabel": null
+   },
+   {
+    "name": "First Adversary (Hard)",
+    "boss": "First Adversary",
+    "difficulty": "Hard",
+    "world": "Grandis",
+    "gender": "Male",
+    "region": "All",
+    "phases": 3,
+    "hp": 10450000000000000,
+    "phaseHp": [
+     3135000000000000,
+     3135000000000000,
+     4180000000000000
+    ],
+    "level": 270,
+    "hpLabel": null
+   },
+   {
+    "name": "Kaling (Hard)",
+    "boss": "Kaling",
+    "difficulty": "Hard",
+    "world": "Grandis",
+    "gender": "Female",
+    "region": "All",
+    "phases": 3,
+    "hp": 9423000000000000,
+    "phaseHp": [
+     2760000000000000,
+     1404000000000000,
+     5259000000000000
+    ],
+    "level": 275,
+    "hpLabel": null
+   },
+   {
+    "name": "Malefic Star (Hard)",
+    "boss": "Malefic Star",
+    "difficulty": "Hard",
+    "world": "Grandis",
+    "gender": "Female",
+    "region": "All",
+    "phases": 1,
+    "hp": 14740000000000000,
+    "phaseHp": [
+     14740000000000000
+    ],
+    "level": 280,
+    "hpLabel": null
+   },
+   {
+    "name": "Bellona (Hard)",
+    "boss": "Bellona",
+    "difficulty": "Hard",
+    "world": "Grandis",
+    "gender": "Female",
+    "region": "KMS only",
+    "phases": 2,
+    "hp": 13716000000000000,
+    "phaseHp": [
+     5564000000000000,
+     8152000000000000
+    ],
+    "level": 280,
+    "hpLabel": null
+   },
+   {
+    "name": "Limbo (Hard)",
+    "boss": "Limbo",
+    "difficulty": "Hard",
+    "world": "Grandis",
+    "gender": "Male",
+    "region": "All",
+    "phases": 3,
+    "hp": 12432000000000000,
+    "phaseHp": [
+     3774000000000000,
+     3774000000000000,
+     4884000000000000
+    ],
+    "level": 285,
+    "hpLabel": null
+   },
+   {
+    "name": "Baldrix (Hard)",
+    "boss": "Baldrix",
+    "difficulty": "Hard",
+    "world": "Grandis",
+    "gender": "Male",
+    "region": "All",
+    "phases": 3,
+    "hp": 20100000000000000,
+    "phaseHp": [
+     5340000000000000,
+     5688000000000000,
+     9072000000000000
+    ],
+    "level": 290,
+    "hpLabel": null
+   },
+   {
+    "name": "Jupiter (Hard)",
+    "boss": "Jupiter",
+    "difficulty": "Hard",
+    "world": "Grandis",
+    "gender": "Male",
+    "region": "All",
+    "phases": 1,
+    "hp": 49400000000000000,
+    "phaseHp": [
+     49400000000000000
+    ],
+    "level": 295,
+    "hpLabel": null
+   },
+   {
+    "name": "Kai (Hard)",
+    "boss": "Kai",
+    "difficulty": "Hard",
+    "world": "Other",
+    "gender": "Male",
+    "region": "Seasonal",
+    "phases": 2,
+    "hp": 483000000000000,
+    "phaseHp": [
+     241500000000000,
+     241500000000000
+    ],
+    "level": 280,
+    "hpLabel": null
+   },
+   {
+    "name": "Meilin (Hard)",
+    "boss": "Meilin",
+    "difficulty": "Hard",
+    "world": "Other",
+    "gender": "Female",
+    "region": "Seasonal",
+    "phases": 1,
+    "hp": 580000000000000,
+    "phaseHp": [
+     290000000000000,
+     290000000000000
+    ],
+    "level": 280,
+    "hpLabel": null
+   }
+  ],
+  "hard": [
+   {
+    "name": "Zakum (Chaos)",
+    "boss": "Zakum",
+    "difficulty": "Chaos",
+    "world": "Maple World",
+    "gender": "Other",
+    "region": "All",
+    "phases": 2,
+    "hp": 168000000000,
+    "phaseHp": [
+     84000000000,
+     84000000000
+    ],
+    "level": 90,
+    "hpLabel": null
+   },
+   {
+    "name": "Papulatus (Chaos)",
+    "boss": "Papulatus",
+    "difficulty": "Chaos",
+    "world": "Maple World",
+    "gender": "Other",
+    "region": "All",
+    "phases": 2,
+    "hp": 504000000000,
+    "phaseHp": [
+     378000000000,
+     126000000000
+    ],
+    "level": 190,
+    "hpLabel": null
+   },
+   {
+    "name": "Magnus (Hard)",
+    "boss": "Magnus",
+    "difficulty": "Hard",
+    "world": "Grandis",
+    "gender": "Male",
+    "region": "All",
+    "phases": 1,
+    "hp": 120000000000,
+    "phaseHp": [
+     120000000000
+    ],
+    "level": 175,
+    "hpLabel": null
+   },
+   {
+    "name": "Hilla (Hard)",
+    "boss": "Hilla",
+    "difficulty": "Hard",
+    "world": "Maple World",
+    "gender": "Female",
+    "region": "All",
+    "phases": 1,
+    "hp": 16800000000,
+    "phaseHp": [
+     16800000000
+    ],
+    "level": 170,
+    "hpLabel": null
+   },
+   {
+    "name": "Mori Ranmaru (Hard)",
+    "boss": "Mori Ranmaru",
+    "difficulty": "Hard",
+    "world": "Maple World",
+    "gender": "Male",
+    "region": "All except KMS",
+    "phases": 1,
+    "hp": 2100000000,
+    "phaseHp": [
+     2100000000
+    ],
+    "level": 180,
+    "hpLabel": null
+   },
+   {
+    "name": "Horntail (Chaos)",
+    "boss": "Horntail",
+    "difficulty": "Chaos",
+    "world": "Maple World",
+    "gender": "Other",
+    "region": "All",
+    "phases": 3,
+    "hp": 26600000000,
+    "phaseHp": [
+     3300000000,
+     3300000000,
+     20000000000
+    ],
+    "level": 135,
+    "hpLabel": null
+   },
+   {
+    "name": "Pierre (Chaos)",
+    "boss": "Pierre",
+    "difficulty": "Chaos",
+    "world": "Maple World",
+    "gender": "Male",
+    "region": "All",
+    "phases": 1,
+    "hp": 80000000000,
+    "phaseHp": [
+     80000000000
+    ],
+    "level": 180,
+    "hpLabel": null
+   },
+   {
+    "name": "Von Bon (Chaos)",
+    "boss": "Von Bon",
+    "difficulty": "Chaos",
+    "world": "Maple World",
+    "gender": "Male",
+    "region": "All",
+    "phases": 1,
+    "hp": 100000000000,
+    "phaseHp": [
+     100000000000
+    ],
+    "level": 180,
+    "hpLabel": null
+   },
+   {
+    "name": "Crimson Queen (Chaos)",
+    "boss": "Crimson Queen",
+    "difficulty": "Chaos",
+    "world": "Maple World",
+    "gender": "Female",
+    "region": "All",
+    "phases": 1,
+    "hp": 140000000000,
+    "phaseHp": [
+     140000000000
+    ],
+    "level": 180,
+    "hpLabel": null
+   },
+   {
+    "name": "Vellum (Chaos)",
+    "boss": "Vellum",
+    "difficulty": "Chaos",
+    "world": "Maple World",
+    "gender": "Other",
+    "region": "All",
+    "phases": 1,
+    "hp": 200000000000,
+    "phaseHp": [
+     200000000000
+    ],
+    "level": 180,
+    "hpLabel": null
+   },
+   {
+    "name": "Von Leon (Hard)",
+    "boss": "Von Leon",
+    "difficulty": "Hard",
+    "world": "Maple World",
+    "gender": "Male",
+    "region": "All",
+    "phases": 1,
+    "hp": 10500000000,
+    "phaseHp": [
+     10500000000
+    ],
+    "level": 125,
+    "hpLabel": null
+   },
+   {
+    "name": "Arkarium (Normal)",
+    "boss": "Arkarium",
+    "difficulty": "Normal",
+    "world": "Maple World",
+    "gender": "Male",
+    "region": "All",
+    "phases": 1,
+    "hp": 12600000000,
+    "phaseHp": [
+     12600000000
+    ],
+    "level": 140,
+    "hpLabel": null
+   },
+   {
+    "name": "Gollux (Hell)",
+    "boss": "Gollux",
+    "difficulty": "Hell",
+    "world": "Masteria",
+    "gender": "Other",
+    "region": "JMS/CMS/GMS",
+    "phases": 3,
+    "hp": 770000000000,
+    "phaseHp": [
+     350000000000,
+     350000000000,
+     70000000000
+    ],
+    "level": 180,
+    "hpLabel": null
+   },
+   {
+    "name": "OMNI-CLN (Normal)",
+    "boss": "OMNI-CLN",
+    "difficulty": "Normal",
+    "world": "Maple World",
+    "gender": "Other",
+    "region": "All",
+    "phases": 1,
+    "hp": 1680000000,
+    "phaseHp": [
+     1680000000
+    ],
+    "level": 180,
+    "hpLabel": null
+   },
+   {
+    "name": "Pink Bean (Chaos)",
+    "boss": "Pink Bean",
+    "difficulty": "Chaos",
+    "world": "Maple World",
+    "gender": "Male",
+    "region": "All",
+    "phases": 3,
+    "hp": 69300000000,
+    "phaseHp": [
+     12600000000,
+     23100000000,
+     33600000000
+    ],
+    "level": 170,
+    "hpLabel": null
+   },
+   {
+    "name": "Cygnus (Normal)",
+    "boss": "Cygnus",
+    "difficulty": "Normal",
+    "world": "Maple World",
+    "gender": "Female",
+    "region": "All except KMS",
+    "phases": 1,
+    "hp": 63000000000,
+    "phaseHp": [
+     63000000000
+    ],
+    "level": 165,
+    "hpLabel": null
+   },
+   {
+    "name": "Princess No (Normal)",
+    "boss": "Princess No",
+    "difficulty": "Normal",
+    "world": "Maple World",
+    "gender": "Female",
+    "region": "All except KMS",
+    "phases": 1,
+    "hp": 500000000000,
+    "phaseHp": [
+     500000000000
+    ],
+    "level": 180,
+    "hpLabel": null
+   },
+   {
+    "name": "Akechi Mitsuhide (Normal)",
+    "boss": "Akechi Mitsuhide",
+    "difficulty": "Normal",
+    "world": "Maple World",
+    "gender": "Male",
+    "region": "JMS/GMS/MSEA",
+    "phases": 2,
+    "hp": 700000000000,
+    "phaseHp": [
+     350000000000,
+     350000000000
+    ],
+    "level": 200,
+    "hpLabel": null
+   },
+   {
+    "name": "Lotus (Hard)",
+    "boss": "Lotus",
+    "difficulty": "Hard",
+    "world": "Maple World",
+    "gender": "Male",
+    "region": "All",
+    "phases": 3,
+    "hp": 33285000000000,
+    "phaseHp": [
+     9985500000000,
+     9985500000000,
+     13314000000000
+    ],
+    "level": 190,
+    "hpLabel": null
+   },
+   {
+    "name": "Damien (Hard)",
+    "boss": "Damien",
+    "difficulty": "Hard",
+    "world": "Maple World",
+    "gender": "Male",
+    "region": "All",
+    "phases": 2,
+    "hp": 36000000000000,
+    "phaseHp": [
+     25200000000000,
+     10800000000000
+    ],
+    "level": 190,
+    "hpLabel": null
+   },
+   {
+    "name": "Guardian Angel Slime (Chaos)",
+    "boss": "Guardian Angel Slime",
+    "difficulty": "Chaos",
+    "world": "Maple World",
+    "gender": "Other",
+    "region": "All",
+    "phases": 1,
+    "hp": 90000000000000,
+    "phaseHp": [
+     90000000000000
+    ],
+    "level": 210,
+    "hpLabel": null
+   },
+   {
+    "name": "Lucid (Hard)",
+    "boss": "Lucid",
+    "difficulty": "Hard",
+    "world": "Arcane River",
+    "gender": "Female",
+    "region": "All",
+    "phases": 3,
+    "hp": 117600000000000,
+    "phaseHp": [
+     50800000000000,
+     54000000000000,
+     12800000000000
+    ],
+    "level": 220,
+    "hpLabel": null
+   },
+   {
+    "name": "Will (Hard)",
+    "boss": "Will",
+    "difficulty": "Hard",
+    "world": "Arcane River",
+    "gender": "Male",
+    "region": "All",
+    "phases": 3,
+    "hp": 126000000000000,
+    "phaseHp": [
+     42000000000000,
+     31500000000000,
+     52500000000000
+    ],
+    "level": 235,
+    "hpLabel": null
+   },
+   {
+    "name": "Gloom (Chaos)",
+    "boss": "Gloom",
+    "difficulty": "Chaos",
+    "world": "Arcane River",
+    "gender": "Other",
+    "region": "All",
+    "phases": 1,
+    "hp": 127050000000000,
+    "phaseHp": [
+     127050000000000
+    ],
+    "level": 245,
+    "hpLabel": null
+   },
+   {
+    "name": "Verus Hilla (Hard)",
+    "boss": "Verus Hilla",
+    "difficulty": "Hard",
+    "world": "Arcane River",
+    "gender": "Female",
+    "region": "All",
+    "phases": 1,
+    "hp": 178500000000000,
+    "phaseHp": [
+     178500000000000
+    ],
+    "level": 250,
+    "hpLabel": null
+   },
+   {
+    "name": "Malicia (Normal)",
+    "boss": "Malicia",
+    "difficulty": "Normal",
+    "world": "Maple World",
+    "gender": "Female",
+    "region": "JMS/CMS/TMS",
+    "phases": 4,
+    "hp": 178000000000000,
+    "phaseHp": [
+     70000000000000,
+     56000000000000,
+     24000000000000,
+     28000000000000
+    ],
+    "level": 250,
+    "hpLabel": null
+   },
+   {
+    "name": "Darknell (Hard)",
+    "boss": "Darknell",
+    "difficulty": "Hard",
+    "world": "Arcane River",
+    "gender": "Male",
+    "region": "All",
+    "phases": 1,
+    "hp": 157500000000000,
+    "phaseHp": [
+     157500000000000
+    ],
+    "level": 255,
+    "hpLabel": null
+   },
+   {
+    "name": "Black Mage (Hard)",
+    "boss": "Black Mage",
+    "difficulty": "Hard",
+    "world": "Arcane River",
+    "gender": "Male",
+    "region": "All",
+    "phases": 4,
+    "hp": 472500000000000,
+    "phaseHp": [
+     63000000000000,
+     115500000000000,
+     157500000000000,
+     136500000000000
+    ],
+    "level": 255,
+    "hpLabel": null
+   },
+   {
+    "name": "Chosen Seren (Hard)",
+    "boss": "Chosen Seren",
+    "difficulty": "Hard",
+    "world": "Grandis",
+    "gender": "Female",
+    "region": "All",
+    "phases": 2,
+    "hp": 483000000000000,
+    "phaseHp": [
+     126000000000000,
+     357000000000000
+    ],
+    "level": 260,
+    "hpLabel": null
+   },
+   {
+    "name": "Kalos (Chaos)",
+    "boss": "Kalos",
+    "difficulty": "Chaos",
+    "world": "Grandis",
+    "gender": "Male",
+    "region": "All",
+    "phases": 2,
+    "hp": 5126000000000000,
+    "phaseHp": [
+     1066000000000000,
+     4060000000000000
+    ],
+    "level": 265,
+    "hpLabel": null
+   },
+   {
+    "name": "First Adversary (Hard)",
+    "boss": "First Adversary",
+    "difficulty": "Hard",
+    "world": "Grandis",
+    "gender": "Male",
+    "region": "All",
+    "phases": 3,
+    "hp": 10450000000000000,
+    "phaseHp": [
+     3135000000000000,
+     3135000000000000,
+     4180000000000000
+    ],
+    "level": 270,
+    "hpLabel": null
+   },
+   {
+    "name": "Kaling (Hard)",
+    "boss": "Kaling",
+    "difficulty": "Hard",
+    "world": "Grandis",
+    "gender": "Female",
+    "region": "All",
+    "phases": 3,
+    "hp": 9423000000000000,
+    "phaseHp": [
+     2760000000000000,
+     1404000000000000,
+     5259000000000000
+    ],
+    "level": 275,
+    "hpLabel": null
+   },
+   {
+    "name": "Malefic Star (Hard)",
+    "boss": "Malefic Star",
+    "difficulty": "Hard",
+    "world": "Grandis",
+    "gender": "Female",
+    "region": "All",
+    "phases": 1,
+    "hp": 14740000000000000,
+    "phaseHp": [
+     14740000000000000
+    ],
+    "level": 280,
+    "hpLabel": null
+   },
+   {
+    "name": "Bellona (Hard)",
+    "boss": "Bellona",
+    "difficulty": "Hard",
+    "world": "Grandis",
+    "gender": "Female",
+    "region": "KMS only",
+    "phases": 2,
+    "hp": 13716000000000000,
+    "phaseHp": [
+     5564000000000000,
+     8152000000000000
+    ],
+    "level": 280,
+    "hpLabel": null
+   },
+   {
+    "name": "Limbo (Hard)",
+    "boss": "Limbo",
+    "difficulty": "Hard",
+    "world": "Grandis",
+    "gender": "Male",
+    "region": "All",
+    "phases": 3,
+    "hp": 12432000000000000,
+    "phaseHp": [
+     3774000000000000,
+     3774000000000000,
+     4884000000000000
+    ],
+    "level": 285,
+    "hpLabel": null
+   },
+   {
+    "name": "Baldrix (Hard)",
+    "boss": "Baldrix",
+    "difficulty": "Hard",
+    "world": "Grandis",
+    "gender": "Male",
+    "region": "All",
+    "phases": 3,
+    "hp": 20100000000000000,
+    "phaseHp": [
+     5340000000000000,
+     5688000000000000,
+     9072000000000000
+    ],
+    "level": 290,
+    "hpLabel": null
+   },
+   {
+    "name": "Jupiter (Hard)",
+    "boss": "Jupiter",
+    "difficulty": "Hard",
+    "world": "Grandis",
+    "gender": "Male",
+    "region": "All",
+    "phases": 1,
+    "hp": 49400000000000000,
+    "phaseHp": [
+     49400000000000000
+    ],
+    "level": 295,
+    "hpLabel": null
+   },
+   {
+    "name": "Kai (Hard)",
+    "boss": "Kai",
+    "difficulty": "Hard",
+    "world": "Other",
+    "gender": "Male",
+    "region": "Seasonal",
+    "phases": 2,
+    "hp": 483000000000000,
+    "phaseHp": [
+     241500000000000,
+     241500000000000
+    ],
+    "level": 280,
+    "hpLabel": null
+   },
+   {
+    "name": "Meilin (Hard)",
+    "boss": "Meilin",
+    "difficulty": "Hard",
+    "world": "Other",
+    "gender": "Female",
+    "region": "Seasonal",
+    "phases": 1,
+    "hp": 580000000000000,
+    "phaseHp": [
+     290000000000000,
+     290000000000000
+    ],
+    "level": 280,
+    "hpLabel": null
+   },
+   {
+    "name": "Balrog (Easy)",
+    "boss": "Balrog",
+    "difficulty": "Easy",
+    "world": "Maple World",
+    "gender": "Male",
+    "region": "All",
+    "phases": 1,
+    "hp": 4787520,
+    "phaseHp": [
+     4787520
+    ],
+    "level": 65,
+    "hpLabel": null
+   },
+   {
+    "name": "Ursus (Normal)",
+    "boss": "Ursus",
+    "difficulty": "Normal",
+    "world": "Maple World",
+    "gender": "Other",
+    "region": "GMS only",
+    "phases": 1,
+    "hp": 2625000000000,
+    "phaseHp": [
+     2625000000000
+    ],
+    "level": 100,
+    "hpLabel": null
+   },
+   {
+    "name": "Yakuza Boss (Normal)",
+    "boss": "Yakuza Boss",
+    "difficulty": "Normal",
+    "world": "Maple World",
+    "gender": "Male",
+    "region": "All",
+    "phases": 1,
+    "hp": 1000000000,
+    "phaseHp": [
+     1000000000
+    ],
+    "level": 160,
+    "hpLabel": null
+   },
+   {
+    "name": "Frenzied Gigatoad (Hard)",
+    "boss": "Frenzied Gigatoad",
+    "difficulty": "Hard",
+    "world": "Maple World",
+    "gender": "Other",
+    "region": "All",
+    "phases": 1,
+    "hp": 900000000,
+    "phaseHp": [
+     900000000
+    ],
+    "level": 170,
+    "hpLabel": null
+   },
+   {
+    "name": "Extreme Bigfoot (Normal)",
+    "boss": "Extreme Bigfoot",
+    "difficulty": "Normal",
+    "world": "Maple World",
+    "gender": "Other",
+    "region": "All",
+    "phases": 1,
+    "hp": 15000000000000,
+    "phaseHp": [
+     15000000000000
+    ],
+    "level": 260,
+    "hpLabel": null
+   }
+  ],
+  "extreme": [
+   {
+    "name": "Zakum (Easy)",
+    "boss": "Zakum",
+    "difficulty": "Easy",
+    "world": "Maple World",
+    "gender": "Other",
+    "region": "All",
+    "phases": 2,
+    "hp": 3832000,
+    "phaseHp": [
+     1632000,
+     2200000
+    ],
+    "level": 50,
+    "hpLabel": null
+   },
+   {
+    "name": "Zakum (Normal)",
+    "boss": "Zakum",
+    "difficulty": "Normal",
+    "world": "Maple World",
+    "gender": "Other",
+    "region": "All",
+    "phases": 2,
+    "hp": 12600000,
+    "phaseHp": [
+     5600000,
+     7000000
+    ],
+    "level": 90,
+    "hpLabel": null
+   },
+   {
+    "name": "Zakum (Chaos)",
+    "boss": "Zakum",
+    "difficulty": "Chaos",
+    "world": "Maple World",
+    "gender": "Other",
+    "region": "All",
+    "phases": 2,
+    "hp": 168000000000,
+    "phaseHp": [
+     84000000000,
+     84000000000
+    ],
+    "level": 90,
+    "hpLabel": null
+   },
+   {
+    "name": "Papulatus (Easy)",
+    "boss": "Papulatus",
+    "difficulty": "Easy",
+    "world": "Maple World",
+    "gender": "Other",
+    "region": "All",
+    "phases": 2,
+    "hp": 400000000,
+    "phaseHp": [
+     300000000,
+     100000000
+    ],
+    "level": 115,
+    "hpLabel": null
+   },
+   {
+    "name": "Papulatus (Normal)",
+    "boss": "Papulatus",
+    "difficulty": "Normal",
+    "world": "Maple World",
+    "gender": "Other",
+    "region": "All",
+    "phases": 2,
+    "hp": 16800000000,
+    "phaseHp": [
+     12600000000,
+     4200000000
+    ],
+    "level": 155,
+    "hpLabel": null
+   },
+   {
+    "name": "Papulatus (Chaos)",
+    "boss": "Papulatus",
+    "difficulty": "Chaos",
+    "world": "Maple World",
+    "gender": "Other",
+    "region": "All",
+    "phases": 2,
+    "hp": 504000000000,
+    "phaseHp": [
+     378000000000,
+     126000000000
+    ],
+    "level": 190,
+    "hpLabel": null
+   },
+   {
+    "name": "Magnus (Easy)",
+    "boss": "Magnus",
+    "difficulty": "Easy",
+    "world": "Grandis",
+    "gender": "Male",
+    "region": "All",
+    "phases": 1,
+    "hp": 400000000,
+    "phaseHp": [
+     400000000
+    ],
+    "level": 115,
+    "hpLabel": null
+   },
+   {
+    "name": "Magnus (Normal)",
+    "boss": "Magnus",
+    "difficulty": "Normal",
+    "world": "Grandis",
+    "gender": "Male",
+    "region": "All",
+    "phases": 1,
+    "hp": 6000000000,
+    "phaseHp": [
+     6000000000
+    ],
+    "level": 155,
+    "hpLabel": null
+   },
+   {
+    "name": "Magnus (Hard)",
+    "boss": "Magnus",
+    "difficulty": "Hard",
+    "world": "Grandis",
+    "gender": "Male",
+    "region": "All",
+    "phases": 1,
+    "hp": 120000000000,
+    "phaseHp": [
+     120000000000
+    ],
+    "level": 175,
+    "hpLabel": null
+   },
+   {
+    "name": "Hilla (Normal)",
+    "boss": "Hilla",
+    "difficulty": "Normal",
+    "world": "Maple World",
+    "gender": "Female",
+    "region": "All",
+    "phases": 1,
+    "hp": 500000000,
+    "phaseHp": [
+     500000000
+    ],
+    "level": 85,
+    "hpLabel": null
+   },
+   {
+    "name": "Hilla (Hard)",
+    "boss": "Hilla",
+    "difficulty": "Hard",
+    "world": "Maple World",
+    "gender": "Female",
+    "region": "All",
+    "phases": 1,
+    "hp": 16800000000,
+    "phaseHp": [
+     16800000000
+    ],
+    "level": 170,
+    "hpLabel": null
+   },
+   {
+    "name": "Mori Ranmaru (Normal)",
+    "boss": "Mori Ranmaru",
+    "difficulty": "Normal",
+    "world": "Maple World",
+    "gender": "Male",
+    "region": "All except KMS",
+    "phases": 1,
+    "hp": 1000000000,
+    "phaseHp": [
+     1000000000
+    ],
+    "level": 120,
+    "hpLabel": null
+   },
+   {
+    "name": "Mori Ranmaru (Hard)",
+    "boss": "Mori Ranmaru",
+    "difficulty": "Hard",
+    "world": "Maple World",
+    "gender": "Male",
+    "region": "All except KMS",
+    "phases": 1,
+    "hp": 2100000000,
+    "phaseHp": [
+     2100000000
+    ],
+    "level": 180,
+    "hpLabel": null
+   },
+   {
+    "name": "Horntail (Easy)",
+    "boss": "Horntail",
+    "difficulty": "Easy",
+    "world": "Maple World",
+    "gender": "Other",
+    "region": "All",
+    "phases": 3,
+    "hp": 1017600000,
+    "phaseHp": [
+     100000000,
+     100000000,
+     817600000
+    ],
+    "level": 130,
+    "hpLabel": null
+   },
+   {
+    "name": "Horntail (Normal)",
+    "boss": "Horntail",
+    "difficulty": "Normal",
+    "world": "Maple World",
+    "gender": "Other",
+    "region": "All",
+    "phases": 3,
+    "hp": 2750000000,
+    "phaseHp": [
+     330000000,
+     330000000,
+     2090000000
+    ],
+    "level": 130,
+    "hpLabel": null
+   },
+   {
+    "name": "Horntail (Chaos)",
+    "boss": "Horntail",
+    "difficulty": "Chaos",
+    "world": "Maple World",
+    "gender": "Other",
+    "region": "All",
+    "phases": 3,
+    "hp": 26600000000,
+    "phaseHp": [
+     3300000000,
+     3300000000,
+     20000000000
+    ],
+    "level": 135,
+    "hpLabel": null
+   },
+   {
+    "name": "Pierre (Normal)",
+    "boss": "Pierre",
+    "difficulty": "Normal",
+    "world": "Maple World",
+    "gender": "Male",
+    "region": "All",
+    "phases": 1,
+    "hp": 315000000,
+    "phaseHp": [
+     315000000
+    ],
+    "level": 125,
+    "hpLabel": null
+   },
+   {
+    "name": "Pierre (Chaos)",
+    "boss": "Pierre",
+    "difficulty": "Chaos",
+    "world": "Maple World",
+    "gender": "Male",
+    "region": "All",
+    "phases": 1,
+    "hp": 80000000000,
+    "phaseHp": [
+     80000000000
+    ],
+    "level": 180,
+    "hpLabel": null
+   },
+   {
+    "name": "Von Bon (Normal)",
+    "boss": "Von Bon",
+    "difficulty": "Normal",
+    "world": "Maple World",
+    "gender": "Male",
+    "region": "All",
+    "phases": 1,
+    "hp": 315000000,
+    "phaseHp": [
+     315000000
+    ],
+    "level": 125,
+    "hpLabel": null
+   },
+   {
+    "name": "Von Bon (Chaos)",
+    "boss": "Von Bon",
+    "difficulty": "Chaos",
+    "world": "Maple World",
+    "gender": "Male",
+    "region": "All",
+    "phases": 1,
+    "hp": 100000000000,
+    "phaseHp": [
+     100000000000
+    ],
+    "level": 180,
+    "hpLabel": null
+   },
+   {
+    "name": "Crimson Queen (Normal)",
+    "boss": "Crimson Queen",
+    "difficulty": "Normal",
+    "world": "Maple World",
+    "gender": "Female",
+    "region": "All",
+    "phases": 1,
+    "hp": 315000000,
+    "phaseHp": [
+     315000000
+    ],
+    "level": 125,
+    "hpLabel": null
+   },
+   {
+    "name": "Crimson Queen (Chaos)",
+    "boss": "Crimson Queen",
+    "difficulty": "Chaos",
+    "world": "Maple World",
+    "gender": "Female",
+    "region": "All",
+    "phases": 1,
+    "hp": 140000000000,
+    "phaseHp": [
+     140000000000
+    ],
+    "level": 180,
+    "hpLabel": null
+   },
+   {
+    "name": "Vellum (Normal)",
+    "boss": "Vellum",
+    "difficulty": "Normal",
+    "world": "Maple World",
+    "gender": "Other",
+    "region": "All",
+    "phases": 1,
+    "hp": 550000000,
+    "phaseHp": [
+     550000000
+    ],
+    "level": 125,
+    "hpLabel": null
+   },
+   {
+    "name": "Vellum (Chaos)",
+    "boss": "Vellum",
+    "difficulty": "Chaos",
+    "world": "Maple World",
+    "gender": "Other",
+    "region": "All",
+    "phases": 1,
+    "hp": 200000000000,
+    "phaseHp": [
+     200000000000
+    ],
+    "level": 180,
+    "hpLabel": null
+   },
+   {
+    "name": "Von Leon (Easy)",
+    "boss": "Von Leon",
+    "difficulty": "Easy",
+    "world": "Maple World",
+    "gender": "Male",
+    "region": "All",
+    "phases": 1,
+    "hp": 700000000,
+    "phaseHp": [
+     700000000
+    ],
+    "level": 125,
+    "hpLabel": null
+   },
+   {
+    "name": "Von Leon (Normal)",
+    "boss": "Von Leon",
+    "difficulty": "Normal",
+    "world": "Maple World",
+    "gender": "Male",
+    "region": "All",
+    "phases": 1,
+    "hp": 6300000000,
+    "phaseHp": [
+     6300000000
+    ],
+    "level": 125,
+    "hpLabel": null
+   },
+   {
+    "name": "Von Leon (Hard)",
+    "boss": "Von Leon",
+    "difficulty": "Hard",
+    "world": "Maple World",
+    "gender": "Male",
+    "region": "All",
+    "phases": 1,
+    "hp": 10500000000,
+    "phaseHp": [
+     10500000000
+    ],
+    "level": 125,
+    "hpLabel": null
+   },
+   {
+    "name": "Arkarium (Easy)",
+    "boss": "Arkarium",
+    "difficulty": "Easy",
+    "world": "Maple World",
+    "gender": "Male",
+    "region": "All",
+    "phases": 1,
+    "hp": 2100000000,
+    "phaseHp": [
+     2100000000
+    ],
+    "level": 140,
+    "hpLabel": null
+   },
+   {
+    "name": "Arkarium (Normal)",
+    "boss": "Arkarium",
+    "difficulty": "Normal",
+    "world": "Maple World",
+    "gender": "Male",
+    "region": "All",
+    "phases": 1,
+    "hp": 12600000000,
+    "phaseHp": [
+     12600000000
+    ],
+    "level": 140,
+    "hpLabel": null
+   },
+   {
+    "name": "Gollux (Easy)",
+    "boss": "Gollux",
+    "difficulty": "Easy",
+    "world": "Masteria",
+    "gender": "Other",
+    "region": "JMS/CMS/GMS",
+    "phases": 3,
+    "hp": 110000000,
+    "phaseHp": [
+     50000000,
+     50000000,
+     10000000
+    ],
+    "level": 180,
+    "hpLabel": null
+   },
+   {
+    "name": "Gollux (Normal)",
+    "boss": "Gollux",
+    "difficulty": "Normal",
+    "world": "Masteria",
+    "gender": "Other",
+    "region": "JMS/CMS/GMS",
+    "phases": 3,
+    "hp": 6600000000,
+    "phaseHp": [
+     3000000000,
+     3000000000,
+     600000000
+    ],
+    "level": 180,
+    "hpLabel": null
+   },
+   {
+    "name": "Gollux (Hard)",
+    "boss": "Gollux",
+    "difficulty": "Hard",
+    "world": "Masteria",
+    "gender": "Other",
+    "region": "JMS/CMS/GMS",
+    "phases": 3,
+    "hp": 165000000000,
+    "phaseHp": [
+     75000000000,
+     75000000000,
+     15000000000
+    ],
+    "level": 180,
+    "hpLabel": null
+   },
+   {
+    "name": "Gollux (Hell)",
+    "boss": "Gollux",
+    "difficulty": "Hell",
+    "world": "Masteria",
+    "gender": "Other",
+    "region": "JMS/CMS/GMS",
+    "phases": 3,
+    "hp": 770000000000,
+    "phaseHp": [
+     350000000000,
+     350000000000,
+     70000000000
+    ],
+    "level": 180,
+    "hpLabel": null
+   },
+   {
+    "name": "OMNI-CLN (Normal)",
+    "boss": "OMNI-CLN",
+    "difficulty": "Normal",
+    "world": "Maple World",
+    "gender": "Other",
+    "region": "All",
+    "phases": 1,
+    "hp": 1680000000,
+    "phaseHp": [
+     1680000000
+    ],
+    "level": 180,
+    "hpLabel": null
+   },
+   {
+    "name": "Pink Bean (Normal)",
+    "boss": "Pink Bean",
+    "difficulty": "Normal",
+    "world": "Maple World",
+    "gender": "Male",
+    "region": "All",
+    "phases": 1,
+    "hp": 2100000000,
+    "phaseHp": [
+     2100000000
+    ],
+    "level": 140,
+    "hpLabel": null
+   },
+   {
+    "name": "Pink Bean (Chaos)",
+    "boss": "Pink Bean",
+    "difficulty": "Chaos",
+    "world": "Maple World",
+    "gender": "Male",
+    "region": "All",
+    "phases": 3,
+    "hp": 69300000000,
+    "phaseHp": [
+     12600000000,
+     23100000000,
+     33600000000
+    ],
+    "level": 170,
+    "hpLabel": null
+   },
+   {
+    "name": "Cygnus (Easy)",
+    "boss": "Cygnus",
+    "difficulty": "Easy",
+    "world": "Maple World",
+    "gender": "Female",
+    "region": "All except KMS",
+    "phases": 1,
+    "hp": 10500000000,
+    "phaseHp": [
+     10500000000
+    ],
+    "level": 165,
+    "hpLabel": null
+   },
+   {
+    "name": "Cygnus (Normal)",
+    "boss": "Cygnus",
+    "difficulty": "Normal",
+    "world": "Maple World",
+    "gender": "Female",
+    "region": "All except KMS",
+    "phases": 1,
+    "hp": 63000000000,
+    "phaseHp": [
+     63000000000
+    ],
+    "level": 165,
+    "hpLabel": null
+   },
+   {
+    "name": "Princess No (Normal)",
+    "boss": "Princess No",
+    "difficulty": "Normal",
+    "world": "Maple World",
+    "gender": "Female",
+    "region": "All except KMS",
+    "phases": 1,
+    "hp": 500000000000,
+    "phaseHp": [
+     500000000000
+    ],
+    "level": 180,
+    "hpLabel": null
+   },
+   {
+    "name": "Akechi Mitsuhide (Normal)",
+    "boss": "Akechi Mitsuhide",
+    "difficulty": "Normal",
+    "world": "Maple World",
+    "gender": "Male",
+    "region": "JMS/GMS/MSEA",
+    "phases": 2,
+    "hp": 700000000000,
+    "phaseHp": [
+     350000000000,
+     350000000000
+    ],
+    "level": 200,
+    "hpLabel": null
+   },
+   {
+    "name": "Lotus (Normal)",
+    "boss": "Lotus",
+    "difficulty": "Normal",
+    "world": "Maple World",
+    "gender": "Male",
+    "region": "All",
+    "phases": 3,
+    "hp": 1575000000000,
+    "phaseHp": [
+     472500000000,
+     472500000000,
+     630000000000
+    ],
+    "level": 190,
+    "hpLabel": null
+   },
+   {
+    "name": "Lotus (Hard)",
+    "boss": "Lotus",
+    "difficulty": "Hard",
+    "world": "Maple World",
+    "gender": "Male",
+    "region": "All",
+    "phases": 3,
+    "hp": 33285000000000,
+    "phaseHp": [
+     9985500000000,
+     9985500000000,
+     13314000000000
+    ],
+    "level": 190,
+    "hpLabel": null
+   },
+   {
+    "name": "Lotus (Extreme)",
+    "boss": "Lotus",
+    "difficulty": "Extreme",
+    "world": "Maple World",
+    "gender": "Male",
+    "region": "All",
+    "phases": 3,
+    "hp": 1811000000000000,
+    "phaseHp": [
+     543300000000000,
+     543300000000000,
+     724400000000000
+    ],
+    "level": 190,
+    "hpLabel": null
+   },
+   {
+    "name": "Damien (Normal)",
+    "boss": "Damien",
+    "difficulty": "Normal",
+    "world": "Maple World",
+    "gender": "Male",
+    "region": "All",
+    "phases": 2,
+    "hp": 1200000000000,
+    "phaseHp": [
+     840000000000,
+     360000000000
+    ],
+    "level": 190,
+    "hpLabel": null
+   },
+   {
+    "name": "Damien (Hard)",
+    "boss": "Damien",
+    "difficulty": "Hard",
+    "world": "Maple World",
+    "gender": "Male",
+    "region": "All",
+    "phases": 2,
+    "hp": 36000000000000,
+    "phaseHp": [
+     25200000000000,
+     10800000000000
+    ],
+    "level": 190,
+    "hpLabel": null
+   },
+   {
+    "name": "Guardian Angel Slime (Normal)",
+    "boss": "Guardian Angel Slime",
+    "difficulty": "Normal",
+    "world": "Maple World",
+    "gender": "Other",
+    "region": "All",
+    "phases": 1,
+    "hp": 5000000000000,
+    "phaseHp": [
+     5000000000000
+    ],
+    "level": 210,
+    "hpLabel": null
+   },
+   {
+    "name": "Guardian Angel Slime (Chaos)",
+    "boss": "Guardian Angel Slime",
+    "difficulty": "Chaos",
+    "world": "Maple World",
+    "gender": "Other",
+    "region": "All",
+    "phases": 1,
+    "hp": 90000000000000,
+    "phaseHp": [
+     90000000000000
+    ],
+    "level": 210,
+    "hpLabel": null
+   },
+   {
+    "name": "Lucid (Easy)",
+    "boss": "Lucid",
+    "difficulty": "Easy",
+    "world": "Arcane River",
+    "gender": "Female",
+    "region": "All",
+    "phases": 2,
+    "hp": 12000000000000,
+    "phaseHp": [
+     6000000000000,
+     6000000000000
+    ],
+    "level": 220,
+    "hpLabel": null
+   },
+   {
+    "name": "Lucid (Normal)",
+    "boss": "Lucid",
+    "difficulty": "Normal",
+    "world": "Arcane River",
+    "gender": "Female",
+    "region": "All",
+    "phases": 2,
+    "hp": 24000000000000,
+    "phaseHp": [
+     12000000000000,
+     12000000000000
+    ],
+    "level": 220,
+    "hpLabel": null
+   },
+   {
+    "name": "Lucid (Hard)",
+    "boss": "Lucid",
+    "difficulty": "Hard",
+    "world": "Arcane River",
+    "gender": "Female",
+    "region": "All",
+    "phases": 3,
+    "hp": 117600000000000,
+    "phaseHp": [
+     50800000000000,
+     54000000000000,
+     12800000000000
+    ],
+    "level": 220,
+    "hpLabel": null
+   },
+   {
+    "name": "Will (Easy)",
+    "boss": "Will",
+    "difficulty": "Easy",
+    "world": "Arcane River",
+    "gender": "Male",
+    "region": "All",
+    "phases": 3,
+    "hp": 16800000000000,
+    "phaseHp": [
+     5600000000000,
+     4200000000000,
+     7000000000000
+    ],
+    "level": 235,
+    "hpLabel": null
+   },
+   {
+    "name": "Will (Normal)",
+    "boss": "Will",
+    "difficulty": "Normal",
+    "world": "Arcane River",
+    "gender": "Male",
+    "region": "All",
+    "phases": 3,
+    "hp": 25200000000000,
+    "phaseHp": [
+     8400000000000,
+     6300000000000,
+     10500000000000
+    ],
+    "level": 235,
+    "hpLabel": null
+   },
+   {
+    "name": "Will (Hard)",
+    "boss": "Will",
+    "difficulty": "Hard",
+    "world": "Arcane River",
+    "gender": "Male",
+    "region": "All",
+    "phases": 3,
+    "hp": 126000000000000,
+    "phaseHp": [
+     42000000000000,
+     31500000000000,
+     52500000000000
+    ],
+    "level": 235,
+    "hpLabel": null
+   },
+   {
+    "name": "Gloom (Normal)",
+    "boss": "Gloom",
+    "difficulty": "Normal",
+    "world": "Arcane River",
+    "gender": "Other",
+    "region": "All",
+    "phases": 1,
+    "hp": 25410000000000,
+    "phaseHp": [
+     25410000000000
+    ],
+    "level": 245,
+    "hpLabel": null
+   },
+   {
+    "name": "Gloom (Chaos)",
+    "boss": "Gloom",
+    "difficulty": "Chaos",
+    "world": "Arcane River",
+    "gender": "Other",
+    "region": "All",
+    "phases": 1,
+    "hp": 127050000000000,
+    "phaseHp": [
+     127050000000000
+    ],
+    "level": 245,
+    "hpLabel": null
+   },
+   {
+    "name": "Verus Hilla (Normal)",
+    "boss": "Verus Hilla",
+    "difficulty": "Normal",
+    "world": "Arcane River",
+    "gender": "Female",
+    "region": "All",
+    "phases": 1,
+    "hp": 89250000000000,
+    "phaseHp": [
+     89250000000000
+    ],
+    "level": 250,
+    "hpLabel": null
+   },
+   {
+    "name": "Verus Hilla (Hard)",
+    "boss": "Verus Hilla",
+    "difficulty": "Hard",
+    "world": "Arcane River",
+    "gender": "Female",
+    "region": "All",
+    "phases": 1,
+    "hp": 178500000000000,
+    "phaseHp": [
+     178500000000000
+    ],
+    "level": 250,
+    "hpLabel": null
+   },
+   {
+    "name": "Malicia (Normal)",
+    "boss": "Malicia",
+    "difficulty": "Normal",
+    "world": "Maple World",
+    "gender": "Female",
+    "region": "JMS/CMS/TMS",
+    "phases": 4,
+    "hp": 178000000000000,
+    "phaseHp": [
+     70000000000000,
+     56000000000000,
+     24000000000000,
+     28000000000000
+    ],
+    "level": 250,
+    "hpLabel": null
+   },
+   {
+    "name": "Malicia (Extreme)",
+    "boss": "Malicia",
+    "difficulty": "Extreme",
+    "world": "Maple World",
+    "gender": "Female",
+    "region": "JMS/CMS/TMS",
+    "phases": 4,
+    "hp": 300000000000000000,
+    "phaseHp": [
+     300000000000000000
+    ],
+    "level": 250,
+    "hpLabel": "300Q+"
+   },
+   {
+    "name": "Darknell (Normal)",
+    "boss": "Darknell",
+    "difficulty": "Normal",
+    "world": "Arcane River",
+    "gender": "Male",
+    "region": "All",
+    "phases": 1,
+    "hp": 26250000000000,
+    "phaseHp": [
+     26250000000000
+    ],
+    "level": 255,
+    "hpLabel": null
+   },
+   {
+    "name": "Darknell (Hard)",
+    "boss": "Darknell",
+    "difficulty": "Hard",
+    "world": "Arcane River",
+    "gender": "Male",
+    "region": "All",
+    "phases": 1,
+    "hp": 157500000000000,
+    "phaseHp": [
+     157500000000000
+    ],
+    "level": 255,
+    "hpLabel": null
+   },
+   {
+    "name": "Black Mage (Hard)",
+    "boss": "Black Mage",
+    "difficulty": "Hard",
+    "world": "Arcane River",
+    "gender": "Male",
+    "region": "All",
+    "phases": 4,
+    "hp": 472500000000000,
+    "phaseHp": [
+     63000000000000,
+     115500000000000,
+     157500000000000,
+     136500000000000
+    ],
+    "level": 255,
+    "hpLabel": null
+   },
+   {
+    "name": "Black Mage (Extreme)",
+    "boss": "Black Mage",
+    "difficulty": "Extreme",
+    "world": "Arcane River",
+    "gender": "Male",
+    "region": "All",
+    "phases": 4,
+    "hp": 4811000000000000,
+    "phaseHp": [
+     1180000000000000,
+     1191000000000000,
+     1285000000000000,
+     1155000000000000
+    ],
+    "level": 255,
+    "hpLabel": null
+   },
+   {
+    "name": "Chosen Seren (Normal)",
+    "boss": "Chosen Seren",
+    "difficulty": "Normal",
+    "world": "Grandis",
+    "gender": "Female",
+    "region": "All",
+    "phases": 2,
+    "hp": 207900000000000,
+    "phaseHp": [
+     52500000000000,
+     155400000000000
+    ],
+    "level": 260,
+    "hpLabel": null
+   },
+   {
+    "name": "Chosen Seren (Hard)",
+    "boss": "Chosen Seren",
+    "difficulty": "Hard",
+    "world": "Grandis",
+    "gender": "Female",
+    "region": "All",
+    "phases": 2,
+    "hp": 483000000000000,
+    "phaseHp": [
+     126000000000000,
+     357000000000000
+    ],
+    "level": 260,
+    "hpLabel": null
+   },
+   {
+    "name": "Chosen Seren (Extreme)",
+    "boss": "Chosen Seren",
+    "difficulty": "Extreme",
+    "world": "Grandis",
+    "gender": "Female",
+    "region": "All",
+    "phases": 2,
+    "hp": 6480000000000000,
+    "phaseHp": [
+     1320000000000000,
+     5160000000000000
+    ],
+    "level": 260,
+    "hpLabel": null
+   },
+   {
+    "name": "Kalos (Easy)",
+    "boss": "Kalos",
+    "difficulty": "Easy",
+    "world": "Grandis",
+    "gender": "Male",
+    "region": "All",
+    "phases": 2,
+    "hp": 357000000000000,
+    "phaseHp": [
+     94500000000000,
+     262500000000000
+    ],
+    "level": 265,
+    "hpLabel": null
+   },
+   {
+    "name": "Kalos (Normal)",
+    "boss": "Kalos",
+    "difficulty": "Normal",
+    "world": "Grandis",
+    "gender": "Male",
+    "region": "All",
+    "phases": 2,
+    "hp": 1056000000000000,
+    "phaseHp": [
+     336000000000000,
+     720000000000000
+    ],
+    "level": 265,
+    "hpLabel": null
+   },
+   {
+    "name": "Kalos (Chaos)",
+    "boss": "Kalos",
+    "difficulty": "Chaos",
+    "world": "Grandis",
+    "gender": "Male",
+    "region": "All",
+    "phases": 2,
+    "hp": 5126000000000000,
+    "phaseHp": [
+     1066000000000000,
+     4060000000000000
+    ],
+    "level": 265,
+    "hpLabel": null
+   },
+   {
+    "name": "Kalos (Extreme)",
+    "boss": "Kalos",
+    "difficulty": "Extreme",
+    "world": "Grandis",
+    "gender": "Male",
+    "region": "All",
+    "phases": 2,
+    "hp": 21296000000000000,
+    "phaseHp": [
+     5798000000000000,
+     15498000000000000
+    ],
+    "level": 265,
+    "hpLabel": null
+   },
+   {
+    "name": "First Adversary (Easy)",
+    "boss": "First Adversary",
+    "difficulty": "Easy",
+    "world": "Grandis",
+    "gender": "Male",
+    "region": "All",
+    "phases": 3,
+    "hp": 570000000000000,
+    "phaseHp": [
+     171000000000000,
+     171000000000000,
+     228000000000000
+    ],
+    "level": 270,
+    "hpLabel": null
+   },
+   {
+    "name": "First Adversary (Normal)",
+    "boss": "First Adversary",
+    "difficulty": "Normal",
+    "world": "Grandis",
+    "gender": "Male",
+    "region": "All",
+    "phases": 3,
+    "hp": 1650000000000000,
+    "phaseHp": [
+     495000000000000,
+     495000000000000,
+     660000000000000
+    ],
+    "level": 270,
+    "hpLabel": null
+   },
+   {
+    "name": "First Adversary (Hard)",
+    "boss": "First Adversary",
+    "difficulty": "Hard",
+    "world": "Grandis",
+    "gender": "Male",
+    "region": "All",
+    "phases": 3,
+    "hp": 10450000000000000,
+    "phaseHp": [
+     3135000000000000,
+     3135000000000000,
+     4180000000000000
+    ],
+    "level": 270,
+    "hpLabel": null
+   },
+   {
+    "name": "First Adversary (Extreme)",
+    "boss": "First Adversary",
+    "difficulty": "Extreme",
+    "world": "Grandis",
+    "gender": "Male",
+    "region": "All",
+    "phases": 3,
+    "hp": 32180000000000000,
+    "phaseHp": [
+     9655000000000000,
+     9655000000000000,
+     12870000000000000
+    ],
+    "level": 270,
+    "hpLabel": null
+   },
+   {
+    "name": "Kaling (Easy)",
+    "boss": "Kaling",
+    "difficulty": "Easy",
+    "world": "Grandis",
+    "gender": "Female",
+    "region": "All",
+    "phases": 3,
+    "hp": 658150000000000,
+    "phaseHp": [
+     289800000000000,
+     105000000000000,
+     263350000000000
+    ],
+    "level": 275,
+    "hpLabel": null
+   },
+   {
+    "name": "Kaling (Normal)",
+    "boss": "Kaling",
+    "difficulty": "Normal",
+    "world": "Grandis",
+    "gender": "Female",
+    "region": "All",
+    "phases": 3,
+    "hp": 2790300000000000,
+    "phaseHp": [
+     1197000000000000,
+     468000000000000,
+     1125300000000000
+    ],
+    "level": 275,
+    "hpLabel": null
+   },
+   {
+    "name": "Kaling (Hard)",
+    "boss": "Kaling",
+    "difficulty": "Hard",
+    "world": "Grandis",
+    "gender": "Female",
+    "region": "All",
+    "phases": 3,
+    "hp": 9423000000000000,
+    "phaseHp": [
+     2760000000000000,
+     1404000000000000,
+     5259000000000000
+    ],
+    "level": 275,
+    "hpLabel": null
+   },
+   {
+    "name": "Kaling (Extreme)",
+    "boss": "Kaling",
+    "difficulty": "Extreme",
+    "world": "Grandis",
+    "gender": "Female",
+    "region": "All",
+    "phases": 3,
+    "hp": 39960300000000000,
+    "phaseHp": [
+     18054000000000000,
+     6930000000000000,
+     14976300000000000
+    ],
+    "level": 275,
+    "hpLabel": null
+   },
+   {
+    "name": "Malefic Star (Normal)",
+    "boss": "Malefic Star",
+    "difficulty": "Normal",
+    "world": "Grandis",
+    "gender": "Female",
+    "region": "All",
+    "phases": 1,
+    "hp": 3288000000000000,
+    "phaseHp": [
+     3288000000000000
+    ],
+    "level": 280,
+    "hpLabel": null
+   },
+   {
+    "name": "Malefic Star (Hard)",
+    "boss": "Malefic Star",
+    "difficulty": "Hard",
+    "world": "Grandis",
+    "gender": "Female",
+    "region": "All",
+    "phases": 1,
+    "hp": 14740000000000000,
+    "phaseHp": [
+     14740000000000000
+    ],
+    "level": 280,
+    "hpLabel": null
+   },
+   {
+    "name": "Bellona (Easy)",
+    "boss": "Bellona",
+    "difficulty": "Easy",
+    "world": "Grandis",
+    "gender": "Female",
+    "region": "KMS only",
+    "phases": 2,
+    "hp": 779000000000000,
+    "phaseHp": [
+     316000000000000,
+     463000000000000
+    ],
+    "level": 280,
+    "hpLabel": null
+   },
+   {
+    "name": "Bellona (Normal)",
+    "boss": "Bellona",
+    "difficulty": "Normal",
+    "world": "Grandis",
+    "gender": "Female",
+    "region": "KMS only",
+    "phases": 2,
+    "hp": 4122000000000000,
+    "phaseHp": [
+     1652000000000000,
+     2470000000000000
+    ],
+    "level": 280,
+    "hpLabel": null
+   },
+   {
+    "name": "Bellona (Hard)",
+    "boss": "Bellona",
+    "difficulty": "Hard",
+    "world": "Grandis",
+    "gender": "Female",
+    "region": "KMS only",
+    "phases": 2,
+    "hp": 13716000000000000,
+    "phaseHp": [
+     5564000000000000,
+     8152000000000000
+    ],
+    "level": 280,
+    "hpLabel": null
+   },
+   {
+    "name": "Limbo (Normal)",
+    "boss": "Limbo",
+    "difficulty": "Normal",
+    "world": "Grandis",
+    "gender": "Male",
+    "region": "All",
+    "phases": 3,
+    "hp": 6480000000000000,
+    "phaseHp": [
+     1944000000000000,
+     1944000000000000,
+     2592000000000000
+    ],
+    "level": 285,
+    "hpLabel": null
+   },
+   {
+    "name": "Limbo (Hard)",
+    "boss": "Limbo",
+    "difficulty": "Hard",
+    "world": "Grandis",
+    "gender": "Male",
+    "region": "All",
+    "phases": 3,
+    "hp": 12432000000000000,
+    "phaseHp": [
+     3774000000000000,
+     3774000000000000,
+     4884000000000000
+    ],
+    "level": 285,
+    "hpLabel": null
+   },
+   {
+    "name": "Baldrix (Normal)",
+    "boss": "Baldrix",
+    "difficulty": "Normal",
+    "world": "Grandis",
+    "gender": "Male",
+    "region": "All",
+    "phases": 3,
+    "hp": 9055000000000000,
+    "phaseHp": [
+     2379000000000000,
+     2531000000000000,
+     4145000000000000
+    ],
+    "level": 290,
+    "hpLabel": null
+   },
+   {
+    "name": "Baldrix (Hard)",
+    "boss": "Baldrix",
+    "difficulty": "Hard",
+    "world": "Grandis",
+    "gender": "Male",
+    "region": "All",
+    "phases": 3,
+    "hp": 20100000000000000,
+    "phaseHp": [
+     5340000000000000,
+     5688000000000000,
+     9072000000000000
+    ],
+    "level": 290,
+    "hpLabel": null
+   },
+   {
+    "name": "Jupiter (Normal)",
+    "boss": "Jupiter",
+    "difficulty": "Normal",
+    "world": "Grandis",
+    "gender": "Male",
+    "region": "All",
+    "phases": 1,
+    "hp": 10266000000000000,
+    "phaseHp": [
+     10266000000000000
+    ],
+    "level": 295,
+    "hpLabel": null
+   },
+   {
+    "name": "Jupiter (Hard)",
+    "boss": "Jupiter",
+    "difficulty": "Hard",
+    "world": "Grandis",
+    "gender": "Male",
+    "region": "All",
+    "phases": 1,
+    "hp": 49400000000000000,
+    "phaseHp": [
+     49400000000000000
+    ],
+    "level": 295,
+    "hpLabel": null
+   },
+   {
+    "name": "Kai (Normal)",
+    "boss": "Kai",
+    "difficulty": "Normal",
+    "world": "Other",
+    "gender": "Male",
+    "region": "Seasonal",
+    "phases": 2,
+    "hp": 126000000000000,
+    "phaseHp": [
+     63000000000000,
+     63000000000000
+    ],
+    "level": 270,
+    "hpLabel": null
+   },
+   {
+    "name": "Kai (Hard)",
+    "boss": "Kai",
+    "difficulty": "Hard",
+    "world": "Other",
+    "gender": "Male",
+    "region": "Seasonal",
+    "phases": 2,
+    "hp": 483000000000000,
+    "phaseHp": [
+     241500000000000,
+     241500000000000
+    ],
+    "level": 280,
+    "hpLabel": null
+   },
+   {
+    "name": "Meilin (Normal)",
+    "boss": "Meilin",
+    "difficulty": "Normal",
+    "world": "Other",
+    "gender": "Female",
+    "region": "Seasonal",
+    "phases": 1,
+    "hp": 117850000000000,
+    "phaseHp": [
+     58925000000000,
+     58925000000000
+    ],
+    "level": 270,
+    "hpLabel": null
+   },
+   {
+    "name": "Meilin (Hard)",
+    "boss": "Meilin",
+    "difficulty": "Hard",
+    "world": "Other",
+    "gender": "Female",
+    "region": "Seasonal",
+    "phases": 1,
+    "hp": 580000000000000,
+    "phaseHp": [
+     290000000000000,
+     290000000000000
+    ],
+    "level": 280,
+    "hpLabel": null
+   },
+   {
+    "name": "Balrog (Easy)",
+    "boss": "Balrog",
+    "difficulty": "Easy",
+    "world": "Maple World",
+    "gender": "Male",
+    "region": "All",
+    "phases": 1,
+    "hp": 4787520,
+    "phaseHp": [
+     4787520
+    ],
+    "level": 65,
+    "hpLabel": null
+   },
+   {
+    "name": "Ursus (Normal)",
+    "boss": "Ursus",
+    "difficulty": "Normal",
+    "world": "Maple World",
+    "gender": "Other",
+    "region": "GMS only",
+    "phases": 1,
+    "hp": 2625000000000,
+    "phaseHp": [
+     2625000000000
+    ],
+    "level": 100,
+    "hpLabel": null
+   },
+   {
+    "name": "Yakuza Boss (Normal)",
+    "boss": "Yakuza Boss",
+    "difficulty": "Normal",
+    "world": "Maple World",
+    "gender": "Male",
+    "region": "All",
+    "phases": 1,
+    "hp": 1000000000,
+    "phaseHp": [
+     1000000000
+    ],
+    "level": 160,
+    "hpLabel": null
+   },
+   {
+    "name": "Frenzied Gigatoad (Hard)",
+    "boss": "Frenzied Gigatoad",
+    "difficulty": "Hard",
+    "world": "Maple World",
+    "gender": "Other",
+    "region": "All",
+    "phases": 1,
+    "hp": 900000000,
+    "phaseHp": [
+     900000000
+    ],
+    "level": 170,
+    "hpLabel": null
+   },
+   {
+    "name": "Extreme Bigfoot (Normal)",
+    "boss": "Extreme Bigfoot",
+    "difficulty": "Normal",
+    "world": "Maple World",
+    "gender": "Other",
+    "region": "All",
+    "phases": 1,
+    "hp": 15000000000000,
+    "phaseHp": [
+     15000000000000
+    ],
+    "level": 260,
+    "hpLabel": null
+   },
+   {
+    "name": "Reina (Normal)",
+    "boss": "Reina",
+    "difficulty": "Normal",
+    "world": "Grandis",
+    "gender": "Female",
+    "region": "All",
+    "phases": 1,
+    "hp": 2100000000,
+    "phaseHp": [
+     2100000000
+    ],
+    "level": 280,
+    "hpLabel": null
+   },
+   {
+    "name": "Julieta (Normal)",
+    "boss": "Julieta",
+    "difficulty": "Normal",
+    "world": "Maple World",
+    "gender": "Female",
+    "region": "Removed",
+    "phases": null,
+    "hp": null,
+    "phaseHp": null,
+    "level": null,
+    "hpLabel": null
+   },
+   {
+    "name": "Cross (Normal)",
+    "boss": "Cross",
+    "difficulty": "Normal",
+    "world": "Maple World",
+    "gender": "Male",
+    "region": "Removed",
+    "phases": null,
+    "hp": null,
+    "phaseHp": null,
+    "level": null,
+    "hpLabel": null
+   },
+   {
+    "name": "Normal Inferno Wolf (Normal)",
+    "boss": "Normal Inferno Wolf",
+    "difficulty": "Normal",
+    "world": "Maple World",
+    "gender": "Other",
+    "region": "Removed",
+    "phases": 1,
+    "hp": 10000000000,
+    "phaseHp": [
+     10000000000
+    ],
+    "level": 10,
+    "hpLabel": null
+   },
+   {
+    "name": "Chaos Inferno Wolf (Normal)",
+    "boss": "Chaos Inferno Wolf",
+    "difficulty": "Normal",
+    "world": "Maple World",
+    "gender": "Other",
+    "region": "Removed",
+    "phases": 1,
+    "hp": 20000000000000,
+    "phaseHp": [
+     20000000000000
+    ],
+    "level": 200,
+    "hpLabel": null
+   },
+   {
+    "name": "Extreme Inferno Wolf (Normal)",
+    "boss": "Extreme Inferno Wolf",
+    "difficulty": "Normal",
+    "world": "Maple World",
+    "gender": "Other",
+    "region": "Removed",
+    "phases": 1,
+    "hp": 100000000000000,
+    "phaseHp": [
+     100000000000000
+    ],
+    "level": 260,
+    "hpLabel": null
+   },
+   {
+    "name": "Aufheben (Normal)",
+    "boss": "Aufheben",
+    "difficulty": "Normal",
+    "world": "Other",
+    "gender": "Female",
+    "region": "Event",
+    "phases": null,
+    "hp": null,
+    "phaseHp": null,
+    "level": null,
+    "hpLabel": null
+   },
+   {
+    "name": "Tweentona (Normal)",
+    "boss": "Tweentona",
+    "difficulty": "Normal",
+    "world": "Other",
+    "gender": "Other",
+    "region": "Event",
+    "phases": null,
+    "hp": null,
+    "phaseHp": null,
+    "level": null,
+    "hpLabel": null
+   },
+   {
+    "name": "Gerand Darmoor (Hard)",
+    "boss": "Gerand Darmoor",
+    "difficulty": "Hard",
+    "world": "Grandis",
+    "gender": "Male",
+    "region": null,
+    "phases": null,
+    "hp": null,
+    "phaseHp": null,
+    "level": null,
+    "hpLabel": null
+   },
+   {
+    "name": "Havoc (Hard)",
+    "boss": "Havoc",
+    "difficulty": "Hard",
+    "world": "Grandis",
+    "gender": "Male",
+    "region": null,
+    "phases": null,
+    "hp": null,
+    "phaseHp": null,
+    "level": null,
+    "hpLabel": null
+   }
+  ]
+ },
+ "notes": {
+  "Zakum": "Phase 1 = 8 arms, Phase 2 = body",
+  "Mori Ranmaru": "GMS HP (other servers: 84B)",
+  "Horntail": "Phase 3 = all 8 body parts",
+  "Vellum": "GMS HP (MSEA: 120B)",
+  "Gollux": "GMS HP, 3 Head phases only. Wiki only lists the 180+ requirement, so every mode uses 180",
+  "Cygnus": "Removed from KMS in the Overdrive update",
+  "Malicia": "Normal HP from Bahamut (TMS) boss HP table, Jul 2026: P1 49T + inner world 21T, P2 56T, P3 24T, P4 28T. Extreme: known phases total ~149.7Q but Phase 4 is unknown, so shown as 300Q+",
+  "Kaling": "P1 = 3 perils, P2 = Kaling, P3 = 3 perils + Frenzied Kaling",
+  "Limbo": "P2 = two separate parts",
+  "Kai": "Challenger World seasonal boss; World set to Other (Nexus Tower)",
+  "Meilin": "Challenger World Season 4 boss. One HP bar; form/map change at 50% HP is not counted as a new phase",
+  "Balrog": "Only Easy mode exists; HP = body + 2 extra parts",
+  "Yakuza Boss": "Entry level = Showa Town quest requirement",
+  "Frenzied Gigatoad": "GMS HP (other servers: 1.7B); entry level = Ninja Castle requirement",
+  "Extreme Bigfoot": "Monster Park Extreme (260+)",
+  "Reina": "Arteria quest boss; entry level = Arteria requirement",
+  "Julieta": "Removed (Monad). No HP/level/phases on any wiki",
+  "Cross": "Removed JMS/TMS boss. No HP/level/phases on any wiki",
+  "Normal Inferno Wolf": "Bounty portal boss, Lv 10-199. HP from Namu Wiki",
+  "Chaos Inferno Wolf": "Bounty portal boss, Lv 200-259. HP from Namu Wiki",
+  "Extreme Inferno Wolf": "Bounty portal boss, Lv 260+. HP from Namu Wiki",
+  "Aufheben": "Event boss",
+  "Tweentona": "Event boss",
+  "Gerand Darmoor": "No boss fight found on MapleWiki or Namu Wiki (story character only)",
+  "Havoc": "No boss fight found on MapleWiki or Namu Wiki (story character only)"
+ }
+}

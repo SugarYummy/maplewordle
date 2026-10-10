@@ -1,0 +1,77 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maple Wordle</title>
+<style>
+  body { text-align: center; margin: 0; min-height: 100vh; display: flex; flex-direction: column; align-items: center;
+         background: #3b8fe0 url("images/background.webp") center bottom / cover no-repeat fixed; }
+  .panel { background: rgba(255, 255, 255, 0.55); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+           border-radius: 12px; padding: 8px 16px 16px; margin: 16px; max-width: calc(100% - 64px); }
+  .table-wrap { overflow-x: auto; }
+  footer.panel { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); z-index: 1; margin: 0;
+                 padding: 6px 16px; border-radius: 12px 12px 0 0; font-size: 14px; white-space: nowrap; }
+  .game { position: relative; z-index: 2; margin-bottom: 80px; }
+  #archiveBtn { position: fixed; top: 12px; left: 12px; z-index: 3; padding: 6px 12px; }
+  #archive { position: fixed; inset: 0; z-index: 4; background: rgba(0, 0, 0, 0.4); display: flex;
+             align-items: flex-start; justify-content: center; }
+  #archive[hidden] { display: none; }
+  #archive .panel { margin-top: 48px; max-height: calc(100vh - 96px); overflow-y: auto; min-width: 280px; }
+  #archiveList button { display: block; width: 100%; margin: 4px 0; padding: 6px; text-align: left; }
+  th { background: rgba(255, 255, 255, 0.6); }
+  td, th { border: 1px solid #999; padding: 4px 8px; }
+  table { border-collapse: collapse; margin: 8px auto; }
+  .green { background: #6c6; }
+  .yellow { background: #ec5; }
+  .red { background: #e66; }
+  .answer td { background: #9cf; font-weight: bold; }
+  #modes .on { font-weight: bold; outline: 2px solid #333; }
+  #picker { position: relative; display: inline-block; }
+  #list { position: absolute; top: 100%; left: 0; right: 0; max-height: 240px; overflow-y: auto;
+          background: #fff; border: 1px solid #999; text-align: left; z-index: 1; }
+  #list div { padding: 4px 6px; cursor: pointer; }
+  #list div:hover, #list .active { background: #ddd; }
+</style>
+</head>
+<body>
+<button id="archiveBtn">Archive</button>
+<div id="archive" hidden>
+  <div class="panel">
+    <h2>Archive (<span id="archiveMode"></span>)</h2>
+    <div id="archiveList"></div>
+    <p><button id="archiveClose">Close</button></p>
+  </div>
+</div>
+<div class="panel game">
+<h1>Maple Wordle</h1>
+<p id="puzzle"></p>
+<p><button id="today" hidden>Back to today</button></p>
+<div id="modes">Mode:
+  <button data-mode="story">Story</button>
+  <button data-mode="normal" class="on">Normal</button>
+  <button data-mode="hard">Hard</button>
+  <button data-mode="extreme">Extreme</button>
+</div>
+<p id="timer"></p>
+<p id="status"></p>
+<p><button id="share" hidden>Share</button></p>
+<div id="picker">
+  <input id="guess" placeholder="Type a boss" autocomplete="off">
+  <div id="list" hidden></div>
+</div>
+<button id="go">Guess</button>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Boss</th><th>World</th><th>Gender</th><th>Region</th><th>Phases</th><th>HP</th><th>Entry Lv</th></tr></thead>
+  <tbody id="rows"></tbody>
+</table>
+</div>
+</div>
+<footer class="panel">
+  Want to give any suggestions or feedback?<br>
+  <a href="https://discord.gg/f22H4UJ" target="_blank" rel="noopener">Join the Discord!</a>
+</footer>
+<script src="script.js?v=8"></script>
+</body>
+</html>
