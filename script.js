@@ -358,6 +358,31 @@ $('share').addEventListener('click', share);
 $('archiveBtn').addEventListener('click', () => { if (data) openArchive(); });
 for (const t of document.querySelectorAll('#archiveTabs button')) t.addEventListener('click', () => openArchive(t.dataset.mode));
 $('archiveClose').addEventListener('click', closeArchive);
+// Changelog: read CHANGELOG.md and show "## version" headings with their "- item" lines.
+async function openChangelog() {
+  const body = $('changelogBody');
+  if (!body.childElementCount) {
+    try {
+      const md = await (await fetch('CHANGELOG.md', { cache: 'no-cache' })).text();
+      let list = null;
+      for (const line of md.split('\n')) {
+        if (line.startsWith('## ')) {
+          const h = document.createElement('h3');
+          h.textContent = line.slice(3);
+          body.appendChild(h);
+          list = body.appendChild(document.createElement('ul'));
+        } else if (line.startsWith('- ') && list) {
+          list.appendChild(document.createElement('li')).textContent = line.slice(2);
+        }
+      }
+    } catch {
+      body.textContent = 'Could not load the changelog.';
+    }
+  }
+  $('changelog').hidden = false;
+}
+$('version').addEventListener('click', openChangelog);
+$('changelogClose').addEventListener('click', () => { $('changelog').hidden = true; });
 $('today').addEventListener('click', () => start());
 for (const b of document.querySelectorAll('#modes button')) {
   b.addEventListener('click', () => {
