@@ -26,9 +26,9 @@
      so the character looks like it's coming out from behind the box. */
   .peekclip { position: absolute; z-index: 1; overflow: hidden; pointer-events: none; }
   .peekclip img { position: absolute; width: 120px; image-rendering: pixelated; transition: transform 0.35s ease; }
-  /* Layering: moeko (left) in front of sato (middle) in front of elysia (right), all behind the box. */
-  #clip-left { z-index: 4; }
-  #clip-mid { z-index: 3; }
+  /* Layering: moeko (middle) in front of sato (left) in front of elysia (right), all behind the box. */
+  #clip-left { z-index: 3; }
+  #clip-mid { z-index: 4; }
   #clip-right { z-index: 2; }
   #clip-mid, #clip-right { bottom: 12px; width: 120px; height: 110px; }
   #clip-mid { left: calc(40% - 60px); }
@@ -135,8 +135,8 @@
   <a href="https://discord.gg/f22H4UJ" target="_blank" rel="noopener">Join the Discord!</a>
 </footer>
 <div id="creditWrap">
-  <div id="clip-left" class="peekclip"><img src="images/peek/moeko.png" alt=""></div>
-  <div id="clip-mid" class="peekclip"><img src="images/peek/sato.png" alt=""></div>
+  <div id="clip-left" class="peekclip"><img src="images/peek/sato.png" alt=""></div>
+  <div id="clip-mid" class="peekclip"><img src="images/peek/moeko.png" alt=""></div>
   <div id="clip-right" class="peekclip"><img src="images/peek/elysia.png" alt=""></div>
   <div id="credit" class="panel">Made by Yuki with Love &lt;3</div>
 </div>
