@@ -26,6 +26,14 @@
   .yellow { background: #ec5; }
   .red { background: #e66; }
   .answer td { background: #9cf; font-weight: bold; }
+  #stats { max-width: 420px; margin: 12px auto 0; }
+  .statrow { display: flex; align-items: center; gap: 8px; margin: 3px 0; }
+  .statrow .label { width: 40px; text-align: right; }
+  .statrow .track { flex: 1; background: rgba(0, 0, 0, 0.12); border-radius: 4px; height: 18px; overflow: hidden; }
+  .statrow .bar { display: block; height: 100%; background: #888; }
+  .statrow.mine .bar { background: #3a3; }
+  .statrow.mine .label { font-weight: bold; }
+  .statrow .pct { width: 40px; text-align: left; }
   .card { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 90px; }
   .card img, .card .noimg { width: 56px; height: 56px; object-fit: contain; border-radius: 8px; }
   .card .noimg { display: flex; align-items: center; justify-content: center; background: #555; color: #fff; font-size: 28px; }
@@ -70,11 +78,15 @@
   <tbody id="rows"></tbody>
 </table>
 </div>
+<div id="stats" hidden>
+  <h3 id="statsTitle"></h3>
+  <div id="statsBars"></div>
+</div>
 </div>
 <footer class="panel">
   Want to give any suggestions or feedback?<br>
   <a href="https://discord.gg/f22H4UJ" target="_blank" rel="noopener">Join the Discord!</a>
 </footer>
-<script src="script.js?v=10"></script>
+<script src="script.js?v=11"></script>
 </body>
 </html>

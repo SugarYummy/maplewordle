@@ -1,6 +1,9 @@
 let data, mode, day, live, pool, answer, guesses, maxGuesses, over, matches, active;
 
 const $ = (id) => document.getElementById(id);
+
+// Address of the stats Worker (see worker/). Leave empty to hide everyone's stats.
+const STATS_URL = '';
 const DAY_MS = 86400000;
 const today = () => Math.floor(Date.now() / DAY_MS); // resets at 00:00 UTC
 
@@ -139,6 +142,7 @@ function start(d) {
   guesses = [];
   over = false;
   $('rows').innerHTML = '';
+  $('stats').hidden = true;
   $('share').hidden = true;
   $('guess').value = '';
   closeList();
@@ -147,6 +151,7 @@ function start(d) {
     if (g && !over) record(g);
   }
   if (!over) updateStatus();
+  else loadStats();
 }
 
 function updateStatus(msg) {
@@ -169,6 +174,44 @@ function record(g) {
     updateStatus();
   }
   if (over) $('share').hidden = false;
+}
+
+// Everyone's results for this puzzle. Your own result is sent once per mode per day.
+async function loadStats() {
+  if (!STATS_URL || maxGuesses == null) return;
+  const sentKey = `mapleWordle:sent:${mode}:${day}`;
+  const url = `${STATS_URL}?mode=${mode}&day=${day}`;
+  const shownMode = mode, shownDay = day;
+  let sent = false;
+  try { sent = localStorage.getItem(sentKey) === '1'; } catch {}
+  try {
+    const score = guesses.includes(answer.name) ? guesses.length : 'X';
+    const res = sent ? await fetch(url)
+      : await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ score }) });
+    if (!res.ok) return;
+    const { counts } = await res.json();
+    if (!sent) { try { localStorage.setItem(sentKey, '1'); } catch {} }
+    if (mode === shownMode && day === shownDay && over) renderStats(counts, String(score));
+  } catch {}
+}
+
+function renderStats(counts, mine) {
+  const keys = [...Array(maxGuesses)].map((_, i) => String(i + 1)).concat('X');
+  const total = keys.reduce((n, k) => n + (counts[k] || 0), 0);
+  $('statsTitle').textContent = `Everyone's results (${MODE_NAME[mode]}) - ${total} player${total === 1 ? '' : 's'}`;
+  const box = $('statsBars');
+  box.innerHTML = '';
+  for (const k of keys) {
+    const pct = total ? Math.round((counts[k] || 0) * 100 / total) : 0;
+    const row = document.createElement('div');
+    row.className = 'statrow' + (k === mine ? ' mine' : '');
+    row.innerHTML = `<span class="label"></span><span class="track"><span class="bar"></span></span><span class="pct"></span>`;
+    row.querySelector('.label').textContent = `${k}/${maxGuesses}`;
+    row.querySelector('.bar').style.width = pct + '%';
+    row.querySelector('.pct').textContent = pct + '%';
+    box.appendChild(row);
+  }
+  $('stats').hidden = false;
 }
 
 const nextHint = () => live ? 'Come back tomorrow for a new boss.' : 'Pick another day from the Archive.';
@@ -242,6 +285,7 @@ function guess(name) {
   closeList();
   record(g);
   save();
+  if (over) loadStats();
 }
 
 // Dropdown drawn inside the page (not the browser's native popup), so it shows up on screen shares.
