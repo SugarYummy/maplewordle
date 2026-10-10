@@ -95,7 +95,8 @@ function bossCard(e, label = e.name) {
 
 function guessCells(g) {
   return [
-    [{ card: g }, g.name === answer.name ? 'green' : 'red'],
+    // Same boss but a different difficulty (Extreme mode) is yellow.
+    [{ card: g }, g.name === answer.name ? 'green' : g.boss === answer.boss ? 'yellow' : 'red'],
     textCell(g.world, answer.world),
     textCell(g.gender, answer.gender),
     regionCell(g.region, answer.region),
