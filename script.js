@@ -367,8 +367,16 @@ async function openChangelog() {
       let list = null;
       for (const line of md.split('\n')) {
         if (line.startsWith('## ')) {
+          // "## alpha v1.1 - 10 October 2026": version in bold, date smaller after it.
+          const [ver, date] = line.slice(3).split(' - ');
           const h = document.createElement('h3');
-          h.textContent = line.slice(3);
+          h.textContent = ver;
+          if (date) {
+            const d = document.createElement('span');
+            d.className = 'date';
+            d.textContent = date;
+            h.appendChild(d);
+          }
           body.appendChild(h);
           list = body.appendChild(document.createElement('ul'));
         } else if (line.startsWith('- ') && list) {
