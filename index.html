@@ -20,7 +20,8 @@
   /* Credit box with characters peeking out from behind it. */
   #creditWrap { position: fixed; bottom: 8px; right: 10px; z-index: 1; }
   #credit { position: relative; z-index: 2; margin: 0; padding: 4px 10px; font-size: 12px; cursor: pointer;
-            white-space: nowrap; max-width: none; user-select: none; -webkit-user-select: none; }
+            white-space: nowrap; max-width: none; user-select: none; -webkit-user-select: none;
+            background: #d7e9f9; }  /* solid, so peeking characters stay fully hidden behind it */
   /* Each clip is a window the character slides through; its edge sits at the middle of the box,
      so the character looks like it's coming out from behind the box. */
   .peekclip { position: absolute; z-index: 1; overflow: hidden; pointer-events: none; }
