@@ -51,6 +51,9 @@
   #changelogBody .date { font-size: 13px; font-weight: normal; margin-left: 8px; opacity: 0.75; }
   #changelogBody ul { margin: 0; padding-left: 20px; }
   #archive .panel, #changelog .panel { margin-top: 48px; max-height: calc(100vh - 96px); overflow-y: auto; min-width: 280px; }
+  /* Hide the scrollbar but keep scrolling (wheel, trackpad, touch). */
+  #archive .panel, #changelog .panel { scrollbar-width: none; }
+  #archive .panel::-webkit-scrollbar, #changelog .panel::-webkit-scrollbar { display: none; }
   #archiveTabs { margin-bottom: 8px; }
   #archiveList button { display: block; width: 100%; margin: 4px 0; padding: 6px; text-align: left;
                         background: rgba(255, 255, 255, 0.4); border: 1px solid rgba(0, 0, 0, 0.15); border-radius: 6px; cursor: pointer; }
