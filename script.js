@@ -391,16 +391,15 @@ async function openChangelog() {
 }
 $('version').addEventListener('click', openChangelog);
 $('changelogClose').addEventListener('click', () => { $('changelog').hidden = true; });
-// Clicking the credit makes a random character peek up for 2 seconds, then a 4 second cooldown.
-let peeking = false;
+// Clicking the credit makes a random character peek out from behind it for 2 seconds. No cooldown:
+// each click picks again, and clicking the one already out keeps her out for another 2 seconds.
+const peekTimers = new Map();
 $('credit').addEventListener('click', () => {
-  if (peeking) return;
-  peeking = true;
-  const all = document.querySelectorAll('.peeker');
+  const all = document.querySelectorAll('.peekclip');
   const who = all[Math.floor(Math.random() * all.length)];
   who.classList.add('up');
-  setTimeout(() => who.classList.remove('up'), 400 + 2000);       // slide up, hold 2s
-  setTimeout(() => { peeking = false; }, 400 + 2000 + 400 + 4000);  // slide down, then 4s cooldown
+  clearTimeout(peekTimers.get(who));
+  peekTimers.set(who, setTimeout(() => who.classList.remove('up'), 350 + 2000));
 });
 // Esc closes whichever window is open.
 document.addEventListener('keydown', (e) => {

@@ -17,14 +17,23 @@
              border: none; cursor: pointer; font-family: inherit; }
   #archiveBtn { position: fixed; top: 12px; left: 12px; z-index: 3; margin: 0; padding: 6px 12px; font-size: 14px;
                 border: none; cursor: pointer; font-family: inherit; }
-  #credit { position: fixed; bottom: 8px; right: 10px; z-index: 1; margin: 0; padding: 4px 10px; font-size: 12px; cursor: pointer; }
-  /* Peeking characters: hidden below the screen, slide up behind the credit box when it's clicked. */
-  .peeker { position: fixed; bottom: 0; z-index: 0; width: 144px; image-rendering: pixelated; pointer-events: none;
-            transform: translateY(100%); transition: transform 0.4s ease; }
-  .peeker.up { transform: translateY(12%); }
-  #peek-sato { right: 240px; }
-  #peek-elysia { right: 130px; }
-  #peek-moeko { right: 20px; }
+  /* Credit box with characters peeking out from behind it. */
+  #creditWrap { position: fixed; bottom: 8px; right: 10px; z-index: 1; }
+  #credit { position: relative; z-index: 2; margin: 0; padding: 4px 10px; font-size: 12px; cursor: pointer;
+            white-space: nowrap; max-width: none; }
+  /* Each clip is a window the character slides through; its edge sits at the middle of the box,
+     so the character looks like it's coming out from behind the box. */
+  .peekclip { position: absolute; z-index: 1; overflow: hidden; pointer-events: none; }
+  .peekclip img { position: absolute; width: 120px; image-rendering: pixelated; transition: transform 0.35s ease; }
+  #clip-elysia, #clip-moeko { bottom: 12px; width: 50%; height: 110px; }
+  #clip-elysia { left: 0; }
+  #clip-moeko { right: 0; }
+  #clip-elysia img, #clip-moeko img { left: 50%; bottom: 0; transform: translate(-50%, 100%); }
+  #clip-elysia.up img, #clip-moeko.up img { transform: translate(-50%, 18%); }
+  /* sato leans out sideways from the left edge of the box, tilted. */
+  #clip-sato { right: calc(100% - 12px); bottom: 0; width: 110px; height: 120px; }
+  #clip-sato img { right: 0; bottom: -12px; transform-origin: bottom right; transform: translateX(100%) rotate(0deg); }
+  #clip-sato.up img { transform: translateX(30%) rotate(-20deg); }
   #archive, #changelog { position: fixed; inset: 0; z-index: 4; background: rgba(0, 0, 0, 0.4); display: flex;
              align-items: flex-start; justify-content: center; }
   #archive[hidden], #changelog[hidden] { display: none; }
@@ -65,7 +74,7 @@
   #list div:hover, #list .active { background: #ddd; }
   /* Phones: keep the corner boxes clear of the Discord box and the game panel. */
   @media (max-width: 700px) {
-    #version, #credit { bottom: 64px; }
+    #version, #creditWrap { bottom: 64px; }
     .game { margin-top: 56px; }
   }
 </style>
@@ -119,10 +128,12 @@
   Want to give any suggestions or feedback?<br>
   <a href="https://discord.gg/f22H4UJ" target="_blank" rel="noopener">Join the Discord!</a>
 </footer>
-<img id="peek-sato" class="peeker" src="images/peek/sato.png" alt="">
-<img id="peek-elysia" class="peeker" src="images/peek/elysia.png" alt="">
-<img id="peek-moeko" class="peeker" src="images/peek/moeko.png" alt="">
-<div id="credit" class="panel">Made by Yuki with Love &lt;3</div>
+<div id="creditWrap">
+  <div id="clip-sato" class="peekclip"><img src="images/peek/sato.png" alt=""></div>
+  <div id="clip-elysia" class="peekclip"><img src="images/peek/elysia.png" alt=""></div>
+  <div id="clip-moeko" class="peekclip"><img src="images/peek/moeko.png" alt=""></div>
+  <div id="credit" class="panel">Made by Yuki with Love &lt;3</div>
+</div>
 <button id="version" class="panel">alpha v1.1</button>
 <div id="changelog" hidden>
   <div class="panel">
@@ -131,6 +142,6 @@
     <p class="closebar"><button id="changelogClose">Close</button></p>
   </div>
 </div>
-<script src="script.js?v=21"></script>
+<script src="script.js?v=22"></script>
 </body>
 </html>
