@@ -20,7 +20,7 @@
   /* Credit box with characters peeking out from behind it. */
   #creditWrap { position: fixed; bottom: 8px; right: 10px; z-index: 1; }
   #credit { position: relative; z-index: 2; margin: 0; padding: 4px 10px; font-size: 12px; cursor: pointer;
-            white-space: nowrap; max-width: none; }
+            white-space: nowrap; max-width: none; user-select: none; -webkit-user-select: none; }
   /* Each clip is a window the character slides through; its edge sits at the middle of the box,
      so the character looks like it's coming out from behind the box. */
   .peekclip { position: absolute; z-index: 1; overflow: hidden; pointer-events: none; }
@@ -32,7 +32,7 @@
   #clip-elysia.up img, #clip-moeko.up img { transform: translate(-50%, 18%); }
   /* sato leans out sideways from the left edge of the box, tilted. */
   #clip-sato { right: calc(100% - 40px); bottom: 0; width: 110px; height: 120px; }
-  #clip-sato img { right: 0; bottom: -12px; transform-origin: bottom right; transform: translateX(100%) rotate(0deg); }
+  #clip-sato img { right: 0; bottom: 2px; transform-origin: bottom right; transform: translateX(100%) rotate(0deg); }
   #clip-sato.up img { transform: translateX(38%) rotate(-20deg); }
   #archive, #changelog { position: fixed; inset: 0; z-index: 4; background: rgba(0, 0, 0, 0.4); display: flex;
              align-items: flex-start; justify-content: center; }
