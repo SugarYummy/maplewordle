@@ -27,7 +27,8 @@
      84000000000
     ],
     "level": 90,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/zakum.png"
    },
    {
     "name": "Papulatus (Chaos)",
@@ -43,7 +44,8 @@
      126000000000
     ],
     "level": 190,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/papulatus.png"
    },
    {
     "name": "Magnus (Hard)",
@@ -58,7 +60,8 @@
      120000000000
     ],
     "level": 175,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/magnus.png"
    },
    {
     "name": "Hilla (Hard)",
@@ -73,7 +76,8 @@
      16800000000
     ],
     "level": 170,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/hilla.png"
    },
    {
     "name": "Mori Ranmaru (Hard)",
@@ -88,7 +92,8 @@
      2100000000
     ],
     "level": 180,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/mori-ranmaru.png"
    },
    {
     "name": "Horntail (Chaos)",
@@ -105,7 +110,8 @@
      20000000000
     ],
     "level": 135,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/horntail.png"
    },
    {
     "name": "Pierre (Chaos)",
@@ -120,7 +126,8 @@
      80000000000
     ],
     "level": 180,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/pierre.png"
    },
    {
     "name": "Von Bon (Chaos)",
@@ -135,7 +142,8 @@
      100000000000
     ],
     "level": 180,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/von-bon.png"
    },
    {
     "name": "Crimson Queen (Chaos)",
@@ -150,7 +158,8 @@
      140000000000
     ],
     "level": 180,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/crimson-queen.png"
    },
    {
     "name": "Vellum (Chaos)",
@@ -165,7 +174,8 @@
      200000000000
     ],
     "level": 180,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/vellum.png"
    },
    {
     "name": "Von Leon (Hard)",
@@ -180,7 +190,8 @@
      10500000000
     ],
     "level": 125,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/von-leon.png"
    },
    {
     "name": "Arkarium (Normal)",
@@ -195,7 +206,8 @@
      12600000000
     ],
     "level": 140,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/arkarium.png"
    },
    {
     "name": "Gollux (Hell)",
@@ -212,7 +224,8 @@
      70000000000
     ],
     "level": 180,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/gollux.png"
    },
    {
     "name": "OMNI-CLN (Normal)",
@@ -227,7 +240,8 @@
      1680000000
     ],
     "level": 180,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/omni-cln.png"
    },
    {
     "name": "Pink Bean (Chaos)",
@@ -244,7 +258,8 @@
      33600000000
     ],
     "level": 170,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/pink-bean.png"
    },
    {
     "name": "Cygnus (Normal)",
@@ -259,7 +274,8 @@
      63000000000
     ],
     "level": 165,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/cygnus.png"
    },
    {
     "name": "Princess No (Normal)",
@@ -274,7 +290,8 @@
      500000000000
     ],
     "level": 180,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/princess-no.png"
    },
    {
     "name": "Akechi Mitsuhide (Normal)",
@@ -290,7 +307,8 @@
      350000000000
     ],
     "level": 200,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/akechi-mitsuhide.png"
    },
    {
     "name": "Lotus (Hard)",
@@ -307,7 +325,8 @@
      13314000000000
     ],
     "level": 190,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/lotus.png"
    },
    {
     "name": "Damien (Hard)",
@@ -323,7 +342,8 @@
      10800000000000
     ],
     "level": 190,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/damien.png"
    },
    {
     "name": "Guardian Angel Slime (Chaos)",
@@ -338,7 +358,8 @@
      90000000000000
     ],
     "level": 210,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/guardian-angel-slime.png"
    },
    {
     "name": "Lucid (Hard)",
@@ -355,7 +376,8 @@
      12800000000000
     ],
     "level": 220,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/lucid.png"
    },
    {
     "name": "Will (Hard)",
@@ -372,7 +394,8 @@
      52500000000000
     ],
     "level": 235,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/will.png"
    },
    {
     "name": "Gloom (Chaos)",
@@ -387,7 +410,8 @@
      127050000000000
     ],
     "level": 245,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/gloom.png"
    },
    {
     "name": "Verus Hilla (Hard)",
@@ -402,7 +426,8 @@
      178500000000000
     ],
     "level": 250,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/verus-hilla.png"
    },
    {
     "name": "Malicia (Normal)",
@@ -420,7 +445,8 @@
      28000000000000
     ],
     "level": 250,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/malicia.png"
    },
    {
     "name": "Darknell (Hard)",
@@ -435,7 +461,8 @@
      157500000000000
     ],
     "level": 255,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/darknell.png"
    },
    {
     "name": "Black Mage (Hard)",
@@ -453,7 +480,8 @@
      136500000000000
     ],
     "level": 255,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/black-mage.png"
    },
    {
     "name": "Chosen Seren (Hard)",
@@ -469,7 +497,8 @@
      357000000000000
     ],
     "level": 260,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/chosen-seren.png"
    },
    {
     "name": "Kalos (Chaos)",
@@ -485,7 +514,8 @@
      4060000000000000
     ],
     "level": 265,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/kalos.png"
    },
    {
     "name": "First Adversary (Hard)",
@@ -502,7 +532,8 @@
      4180000000000000
     ],
     "level": 270,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/first-adversary.png"
    },
    {
     "name": "Kaling (Hard)",
@@ -519,7 +550,8 @@
      5259000000000000
     ],
     "level": 275,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/kaling.png"
    },
    {
     "name": "Malefic Star (Hard)",
@@ -534,7 +566,8 @@
      14740000000000000
     ],
     "level": 280,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/malefic-star.png"
    },
    {
     "name": "Bellona (Hard)",
@@ -550,7 +583,8 @@
      8152000000000000
     ],
     "level": 280,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/bellona.png"
    },
    {
     "name": "Limbo (Hard)",
@@ -567,7 +601,8 @@
      4884000000000000
     ],
     "level": 285,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/limbo.png"
    },
    {
     "name": "Baldrix (Hard)",
@@ -584,7 +619,8 @@
      9072000000000000
     ],
     "level": 290,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/baldrix.png"
    },
    {
     "name": "Jupiter (Hard)",
@@ -599,7 +635,8 @@
      49400000000000000
     ],
     "level": 295,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/jupiter.png"
    },
    {
     "name": "Kai (Hard)",
@@ -615,7 +652,8 @@
      241500000000000
     ],
     "level": 280,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/kai.png"
    },
    {
     "name": "Meilin (Hard)",
@@ -631,7 +669,8 @@
      290000000000000
     ],
     "level": 280,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": null
    }
   ],
   "hard": [
@@ -649,7 +688,8 @@
      84000000000
     ],
     "level": 90,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/zakum.png"
    },
    {
     "name": "Papulatus (Chaos)",
@@ -665,7 +705,8 @@
      126000000000
     ],
     "level": 190,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/papulatus.png"
    },
    {
     "name": "Magnus (Hard)",
@@ -680,7 +721,8 @@
      120000000000
     ],
     "level": 175,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/magnus.png"
    },
    {
     "name": "Hilla (Hard)",
@@ -695,7 +737,8 @@
      16800000000
     ],
     "level": 170,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/hilla.png"
    },
    {
     "name": "Mori Ranmaru (Hard)",
@@ -710,7 +753,8 @@
      2100000000
     ],
     "level": 180,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/mori-ranmaru.png"
    },
    {
     "name": "Horntail (Chaos)",
@@ -727,7 +771,8 @@
      20000000000
     ],
     "level": 135,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/horntail.png"
    },
    {
     "name": "Pierre (Chaos)",
@@ -742,7 +787,8 @@
      80000000000
     ],
     "level": 180,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/pierre.png"
    },
    {
     "name": "Von Bon (Chaos)",
@@ -757,7 +803,8 @@
      100000000000
     ],
     "level": 180,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/von-bon.png"
    },
    {
     "name": "Crimson Queen (Chaos)",
@@ -772,7 +819,8 @@
      140000000000
     ],
     "level": 180,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/crimson-queen.png"
    },
    {
     "name": "Vellum (Chaos)",
@@ -787,7 +835,8 @@
      200000000000
     ],
     "level": 180,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/vellum.png"
    },
    {
     "name": "Von Leon (Hard)",
@@ -802,7 +851,8 @@
      10500000000
     ],
     "level": 125,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/von-leon.png"
    },
    {
     "name": "Arkarium (Normal)",
@@ -817,7 +867,8 @@
      12600000000
     ],
     "level": 140,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/arkarium.png"
    },
    {
     "name": "Gollux (Hell)",
@@ -834,7 +885,8 @@
      70000000000
     ],
     "level": 180,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/gollux.png"
    },
    {
     "name": "OMNI-CLN (Normal)",
@@ -849,7 +901,8 @@
      1680000000
     ],
     "level": 180,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/omni-cln.png"
    },
    {
     "name": "Pink Bean (Chaos)",
@@ -866,7 +919,8 @@
      33600000000
     ],
     "level": 170,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/pink-bean.png"
    },
    {
     "name": "Cygnus (Normal)",
@@ -881,7 +935,8 @@
      63000000000
     ],
     "level": 165,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/cygnus.png"
    },
    {
     "name": "Princess No (Normal)",
@@ -896,7 +951,8 @@
      500000000000
     ],
     "level": 180,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/princess-no.png"
    },
    {
     "name": "Akechi Mitsuhide (Normal)",
@@ -912,7 +968,8 @@
      350000000000
     ],
     "level": 200,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/akechi-mitsuhide.png"
    },
    {
     "name": "Lotus (Hard)",
@@ -929,7 +986,8 @@
      13314000000000
     ],
     "level": 190,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/lotus.png"
    },
    {
     "name": "Damien (Hard)",
@@ -945,7 +1003,8 @@
      10800000000000
     ],
     "level": 190,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/damien.png"
    },
    {
     "name": "Guardian Angel Slime (Chaos)",
@@ -960,7 +1019,8 @@
      90000000000000
     ],
     "level": 210,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/guardian-angel-slime.png"
    },
    {
     "name": "Lucid (Hard)",
@@ -977,7 +1037,8 @@
      12800000000000
     ],
     "level": 220,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/lucid.png"
    },
    {
     "name": "Will (Hard)",
@@ -994,7 +1055,8 @@
      52500000000000
     ],
     "level": 235,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/will.png"
    },
    {
     "name": "Gloom (Chaos)",
@@ -1009,7 +1071,8 @@
      127050000000000
     ],
     "level": 245,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/gloom.png"
    },
    {
     "name": "Verus Hilla (Hard)",
@@ -1024,7 +1087,8 @@
      178500000000000
     ],
     "level": 250,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/verus-hilla.png"
    },
    {
     "name": "Malicia (Normal)",
@@ -1042,7 +1106,8 @@
      28000000000000
     ],
     "level": 250,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/malicia.png"
    },
    {
     "name": "Darknell (Hard)",
@@ -1057,7 +1122,8 @@
      157500000000000
     ],
     "level": 255,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/darknell.png"
    },
    {
     "name": "Black Mage (Hard)",
@@ -1075,7 +1141,8 @@
      136500000000000
     ],
     "level": 255,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/black-mage.png"
    },
    {
     "name": "Chosen Seren (Hard)",
@@ -1091,7 +1158,8 @@
      357000000000000
     ],
     "level": 260,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/chosen-seren.png"
    },
    {
     "name": "Kalos (Chaos)",
@@ -1107,7 +1175,8 @@
      4060000000000000
     ],
     "level": 265,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/kalos.png"
    },
    {
     "name": "First Adversary (Hard)",
@@ -1124,7 +1193,8 @@
      4180000000000000
     ],
     "level": 270,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/first-adversary.png"
    },
    {
     "name": "Kaling (Hard)",
@@ -1141,7 +1211,8 @@
      5259000000000000
     ],
     "level": 275,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/kaling.png"
    },
    {
     "name": "Malefic Star (Hard)",
@@ -1156,7 +1227,8 @@
      14740000000000000
     ],
     "level": 280,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/malefic-star.png"
    },
    {
     "name": "Bellona (Hard)",
@@ -1172,7 +1244,8 @@
      8152000000000000
     ],
     "level": 280,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/bellona.png"
    },
    {
     "name": "Limbo (Hard)",
@@ -1189,7 +1262,8 @@
      4884000000000000
     ],
     "level": 285,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/limbo.png"
    },
    {
     "name": "Baldrix (Hard)",
@@ -1206,7 +1280,8 @@
      9072000000000000
     ],
     "level": 290,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/baldrix.png"
    },
    {
     "name": "Jupiter (Hard)",
@@ -1221,7 +1296,8 @@
      49400000000000000
     ],
     "level": 295,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/jupiter.png"
    },
    {
     "name": "Kai (Hard)",
@@ -1237,7 +1313,8 @@
      241500000000000
     ],
     "level": 280,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/kai.png"
    },
    {
     "name": "Meilin (Hard)",
@@ -1253,7 +1330,8 @@
      290000000000000
     ],
     "level": 280,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": null
    },
    {
     "name": "Balrog (Easy)",
@@ -1268,7 +1346,8 @@
      4787520
     ],
     "level": 65,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/balrog.png"
    },
    {
     "name": "Ursus (Normal)",
@@ -1283,7 +1362,8 @@
      2625000000000
     ],
     "level": 100,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/ursus.png"
    },
    {
     "name": "Yakuza Boss (Normal)",
@@ -1298,7 +1378,8 @@
      1000000000
     ],
     "level": 160,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": null
    },
    {
     "name": "Frenzied Gigatoad (Hard)",
@@ -1313,7 +1394,8 @@
      900000000
     ],
     "level": 170,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": null
    },
    {
     "name": "Extreme Bigfoot (Normal)",
@@ -1328,7 +1410,8 @@
      15000000000000
     ],
     "level": 260,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": null
    }
   ],
   "extreme": [
@@ -1346,7 +1429,8 @@
      2200000
     ],
     "level": 50,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/zakum.png"
    },
    {
     "name": "Zakum (Normal)",
@@ -1362,7 +1446,8 @@
      7000000
     ],
     "level": 90,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/zakum.png"
    },
    {
     "name": "Zakum (Chaos)",
@@ -1378,7 +1463,8 @@
      84000000000
     ],
     "level": 90,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/zakum.png"
    },
    {
     "name": "Papulatus (Easy)",
@@ -1394,7 +1480,8 @@
      100000000
     ],
     "level": 115,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/papulatus.png"
    },
    {
     "name": "Papulatus (Normal)",
@@ -1410,7 +1497,8 @@
      4200000000
     ],
     "level": 155,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/papulatus.png"
    },
    {
     "name": "Papulatus (Chaos)",
@@ -1426,7 +1514,8 @@
      126000000000
     ],
     "level": 190,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/papulatus.png"
    },
    {
     "name": "Magnus (Easy)",
@@ -1441,7 +1530,8 @@
      400000000
     ],
     "level": 115,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/magnus.png"
    },
    {
     "name": "Magnus (Normal)",
@@ -1456,7 +1546,8 @@
      6000000000
     ],
     "level": 155,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/magnus.png"
    },
    {
     "name": "Magnus (Hard)",
@@ -1471,7 +1562,8 @@
      120000000000
     ],
     "level": 175,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/magnus.png"
    },
    {
     "name": "Hilla (Normal)",
@@ -1486,7 +1578,8 @@
      500000000
     ],
     "level": 85,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/hilla.png"
    },
    {
     "name": "Hilla (Hard)",
@@ -1501,7 +1594,8 @@
      16800000000
     ],
     "level": 170,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/hilla.png"
    },
    {
     "name": "Mori Ranmaru (Normal)",
@@ -1516,7 +1610,8 @@
      1000000000
     ],
     "level": 120,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/mori-ranmaru.png"
    },
    {
     "name": "Mori Ranmaru (Hard)",
@@ -1531,7 +1626,8 @@
      2100000000
     ],
     "level": 180,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/mori-ranmaru.png"
    },
    {
     "name": "Horntail (Easy)",
@@ -1548,7 +1644,8 @@
      817600000
     ],
     "level": 130,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/horntail.png"
    },
    {
     "name": "Horntail (Normal)",
@@ -1565,7 +1662,8 @@
      2090000000
     ],
     "level": 130,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/horntail.png"
    },
    {
     "name": "Horntail (Chaos)",
@@ -1582,7 +1680,8 @@
      20000000000
     ],
     "level": 135,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/horntail.png"
    },
    {
     "name": "Pierre (Normal)",
@@ -1597,7 +1696,8 @@
      315000000
     ],
     "level": 125,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/pierre.png"
    },
    {
     "name": "Pierre (Chaos)",
@@ -1612,7 +1712,8 @@
      80000000000
     ],
     "level": 180,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/pierre.png"
    },
    {
     "name": "Von Bon (Normal)",
@@ -1627,7 +1728,8 @@
      315000000
     ],
     "level": 125,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/von-bon.png"
    },
    {
     "name": "Von Bon (Chaos)",
@@ -1642,7 +1744,8 @@
      100000000000
     ],
     "level": 180,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/von-bon.png"
    },
    {
     "name": "Crimson Queen (Normal)",
@@ -1657,7 +1760,8 @@
      315000000
     ],
     "level": 125,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/crimson-queen.png"
    },
    {
     "name": "Crimson Queen (Chaos)",
@@ -1672,7 +1776,8 @@
      140000000000
     ],
     "level": 180,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/crimson-queen.png"
    },
    {
     "name": "Vellum (Normal)",
@@ -1687,7 +1792,8 @@
      550000000
     ],
     "level": 125,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/vellum.png"
    },
    {
     "name": "Vellum (Chaos)",
@@ -1702,7 +1808,8 @@
      200000000000
     ],
     "level": 180,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/vellum.png"
    },
    {
     "name": "Von Leon (Easy)",
@@ -1717,7 +1824,8 @@
      700000000
     ],
     "level": 125,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/von-leon.png"
    },
    {
     "name": "Von Leon (Normal)",
@@ -1732,7 +1840,8 @@
      6300000000
     ],
     "level": 125,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/von-leon.png"
    },
    {
     "name": "Von Leon (Hard)",
@@ -1747,7 +1856,8 @@
      10500000000
     ],
     "level": 125,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/von-leon.png"
    },
    {
     "name": "Arkarium (Easy)",
@@ -1762,7 +1872,8 @@
      2100000000
     ],
     "level": 140,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/arkarium.png"
    },
    {
     "name": "Arkarium (Normal)",
@@ -1777,7 +1888,8 @@
      12600000000
     ],
     "level": 140,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/arkarium.png"
    },
    {
     "name": "Gollux (Easy)",
@@ -1794,7 +1906,8 @@
      10000000
     ],
     "level": 180,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/gollux.png"
    },
    {
     "name": "Gollux (Normal)",
@@ -1811,7 +1924,8 @@
      600000000
     ],
     "level": 180,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/gollux.png"
    },
    {
     "name": "Gollux (Hard)",
@@ -1828,7 +1942,8 @@
      15000000000
     ],
     "level": 180,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/gollux.png"
    },
    {
     "name": "Gollux (Hell)",
@@ -1845,7 +1960,8 @@
      70000000000
     ],
     "level": 180,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/gollux.png"
    },
    {
     "name": "OMNI-CLN (Normal)",
@@ -1860,7 +1976,8 @@
      1680000000
     ],
     "level": 180,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/omni-cln.png"
    },
    {
     "name": "Pink Bean (Normal)",
@@ -1875,7 +1992,8 @@
      2100000000
     ],
     "level": 140,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/pink-bean.png"
    },
    {
     "name": "Pink Bean (Chaos)",
@@ -1892,7 +2010,8 @@
      33600000000
     ],
     "level": 170,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/pink-bean.png"
    },
    {
     "name": "Cygnus (Easy)",
@@ -1907,7 +2026,8 @@
      10500000000
     ],
     "level": 165,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/cygnus.png"
    },
    {
     "name": "Cygnus (Normal)",
@@ -1922,7 +2042,8 @@
      63000000000
     ],
     "level": 165,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/cygnus.png"
    },
    {
     "name": "Princess No (Normal)",
@@ -1937,7 +2058,8 @@
      500000000000
     ],
     "level": 180,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/princess-no.png"
    },
    {
     "name": "Akechi Mitsuhide (Normal)",
@@ -1953,7 +2075,8 @@
      350000000000
     ],
     "level": 200,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/akechi-mitsuhide.png"
    },
    {
     "name": "Lotus (Normal)",
@@ -1970,7 +2093,8 @@
      630000000000
     ],
     "level": 190,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/lotus.png"
    },
    {
     "name": "Lotus (Hard)",
@@ -1987,7 +2111,8 @@
      13314000000000
     ],
     "level": 190,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/lotus.png"
    },
    {
     "name": "Lotus (Extreme)",
@@ -2004,7 +2129,8 @@
      724400000000000
     ],
     "level": 190,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/lotus.png"
    },
    {
     "name": "Damien (Normal)",
@@ -2020,7 +2146,8 @@
      360000000000
     ],
     "level": 190,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/damien.png"
    },
    {
     "name": "Damien (Hard)",
@@ -2036,7 +2163,8 @@
      10800000000000
     ],
     "level": 190,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/damien.png"
    },
    {
     "name": "Guardian Angel Slime (Normal)",
@@ -2051,7 +2179,8 @@
      5000000000000
     ],
     "level": 210,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/guardian-angel-slime.png"
    },
    {
     "name": "Guardian Angel Slime (Chaos)",
@@ -2066,7 +2195,8 @@
      90000000000000
     ],
     "level": 210,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/guardian-angel-slime.png"
    },
    {
     "name": "Lucid (Easy)",
@@ -2082,7 +2212,8 @@
      6000000000000
     ],
     "level": 220,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/lucid.png"
    },
    {
     "name": "Lucid (Normal)",
@@ -2098,7 +2229,8 @@
      12000000000000
     ],
     "level": 220,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/lucid.png"
    },
    {
     "name": "Lucid (Hard)",
@@ -2115,7 +2247,8 @@
      12800000000000
     ],
     "level": 220,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/lucid.png"
    },
    {
     "name": "Will (Easy)",
@@ -2132,7 +2265,8 @@
      7000000000000
     ],
     "level": 235,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/will.png"
    },
    {
     "name": "Will (Normal)",
@@ -2149,7 +2283,8 @@
      10500000000000
     ],
     "level": 235,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/will.png"
    },
    {
     "name": "Will (Hard)",
@@ -2166,7 +2301,8 @@
      52500000000000
     ],
     "level": 235,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/will.png"
    },
    {
     "name": "Gloom (Normal)",
@@ -2181,7 +2317,8 @@
      25410000000000
     ],
     "level": 245,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/gloom.png"
    },
    {
     "name": "Gloom (Chaos)",
@@ -2196,7 +2333,8 @@
      127050000000000
     ],
     "level": 245,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/gloom.png"
    },
    {
     "name": "Verus Hilla (Normal)",
@@ -2211,7 +2349,8 @@
      89250000000000
     ],
     "level": 250,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/verus-hilla.png"
    },
    {
     "name": "Verus Hilla (Hard)",
@@ -2226,7 +2365,8 @@
      178500000000000
     ],
     "level": 250,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/verus-hilla.png"
    },
    {
     "name": "Malicia (Normal)",
@@ -2244,7 +2384,8 @@
      28000000000000
     ],
     "level": 250,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/malicia.png"
    },
    {
     "name": "Malicia (Extreme)",
@@ -2259,7 +2400,8 @@
      300000000000000000
     ],
     "level": 250,
-    "hpLabel": "300Q+"
+    "hpLabel": "300Q+",
+    "image": "images/bosses/malicia.png"
    },
    {
     "name": "Darknell (Normal)",
@@ -2274,7 +2416,8 @@
      26250000000000
     ],
     "level": 255,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/darknell.png"
    },
    {
     "name": "Darknell (Hard)",
@@ -2289,7 +2432,8 @@
      157500000000000
     ],
     "level": 255,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/darknell.png"
    },
    {
     "name": "Black Mage (Hard)",
@@ -2307,7 +2451,8 @@
      136500000000000
     ],
     "level": 255,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/black-mage.png"
    },
    {
     "name": "Black Mage (Extreme)",
@@ -2325,7 +2470,8 @@
      1155000000000000
     ],
     "level": 255,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/black-mage.png"
    },
    {
     "name": "Chosen Seren (Normal)",
@@ -2341,7 +2487,8 @@
      155400000000000
     ],
     "level": 260,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/chosen-seren.png"
    },
    {
     "name": "Chosen Seren (Hard)",
@@ -2357,7 +2504,8 @@
      357000000000000
     ],
     "level": 260,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/chosen-seren.png"
    },
    {
     "name": "Chosen Seren (Extreme)",
@@ -2373,7 +2521,8 @@
      5160000000000000
     ],
     "level": 260,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/chosen-seren.png"
    },
    {
     "name": "Kalos (Easy)",
@@ -2389,7 +2538,8 @@
      262500000000000
     ],
     "level": 265,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/kalos.png"
    },
    {
     "name": "Kalos (Normal)",
@@ -2405,7 +2555,8 @@
      720000000000000
     ],
     "level": 265,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/kalos.png"
    },
    {
     "name": "Kalos (Chaos)",
@@ -2421,7 +2572,8 @@
      4060000000000000
     ],
     "level": 265,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/kalos.png"
    },
    {
     "name": "Kalos (Extreme)",
@@ -2437,7 +2589,8 @@
      15498000000000000
     ],
     "level": 265,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/kalos.png"
    },
    {
     "name": "First Adversary (Easy)",
@@ -2454,7 +2607,8 @@
      228000000000000
     ],
     "level": 270,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/first-adversary.png"
    },
    {
     "name": "First Adversary (Normal)",
@@ -2471,7 +2625,8 @@
      660000000000000
     ],
     "level": 270,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/first-adversary.png"
    },
    {
     "name": "First Adversary (Hard)",
@@ -2488,7 +2643,8 @@
      4180000000000000
     ],
     "level": 270,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/first-adversary.png"
    },
    {
     "name": "First Adversary (Extreme)",
@@ -2505,7 +2661,8 @@
      12870000000000000
     ],
     "level": 270,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/first-adversary.png"
    },
    {
     "name": "Kaling (Easy)",
@@ -2522,7 +2679,8 @@
      263350000000000
     ],
     "level": 275,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/kaling.png"
    },
    {
     "name": "Kaling (Normal)",
@@ -2539,7 +2697,8 @@
      1125300000000000
     ],
     "level": 275,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/kaling.png"
    },
    {
     "name": "Kaling (Hard)",
@@ -2556,7 +2715,8 @@
      5259000000000000
     ],
     "level": 275,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/kaling.png"
    },
    {
     "name": "Kaling (Extreme)",
@@ -2573,7 +2733,8 @@
      14976300000000000
     ],
     "level": 275,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/kaling.png"
    },
    {
     "name": "Malefic Star (Normal)",
@@ -2588,7 +2749,8 @@
      3288000000000000
     ],
     "level": 280,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/malefic-star.png"
    },
    {
     "name": "Malefic Star (Hard)",
@@ -2603,7 +2765,8 @@
      14740000000000000
     ],
     "level": 280,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/malefic-star.png"
    },
    {
     "name": "Bellona (Easy)",
@@ -2619,7 +2782,8 @@
      463000000000000
     ],
     "level": 280,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/bellona.png"
    },
    {
     "name": "Bellona (Normal)",
@@ -2635,7 +2799,8 @@
      2470000000000000
     ],
     "level": 280,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/bellona.png"
    },
    {
     "name": "Bellona (Hard)",
@@ -2651,7 +2816,8 @@
      8152000000000000
     ],
     "level": 280,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/bellona.png"
    },
    {
     "name": "Limbo (Normal)",
@@ -2668,7 +2834,8 @@
      2592000000000000
     ],
     "level": 285,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/limbo.png"
    },
    {
     "name": "Limbo (Hard)",
@@ -2685,7 +2852,8 @@
      4884000000000000
     ],
     "level": 285,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/limbo.png"
    },
    {
     "name": "Baldrix (Normal)",
@@ -2702,7 +2870,8 @@
      4145000000000000
     ],
     "level": 290,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/baldrix.png"
    },
    {
     "name": "Baldrix (Hard)",
@@ -2719,7 +2888,8 @@
      9072000000000000
     ],
     "level": 290,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/baldrix.png"
    },
    {
     "name": "Jupiter (Normal)",
@@ -2734,7 +2904,8 @@
      10266000000000000
     ],
     "level": 295,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/jupiter.png"
    },
    {
     "name": "Jupiter (Hard)",
@@ -2749,7 +2920,8 @@
      49400000000000000
     ],
     "level": 295,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/jupiter.png"
    },
    {
     "name": "Kai (Normal)",
@@ -2765,7 +2937,8 @@
      63000000000000
     ],
     "level": 270,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/kai.png"
    },
    {
     "name": "Kai (Hard)",
@@ -2781,7 +2954,8 @@
      241500000000000
     ],
     "level": 280,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/kai.png"
    },
    {
     "name": "Meilin (Normal)",
@@ -2797,7 +2971,8 @@
      58925000000000
     ],
     "level": 270,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": null
    },
    {
     "name": "Meilin (Hard)",
@@ -2813,7 +2988,8 @@
      290000000000000
     ],
     "level": 280,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": null
    },
    {
     "name": "Balrog (Easy)",
@@ -2828,7 +3004,8 @@
      4787520
     ],
     "level": 65,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/balrog.png"
    },
    {
     "name": "Ursus (Normal)",
@@ -2843,7 +3020,8 @@
      2625000000000
     ],
     "level": 100,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/ursus.png"
    },
    {
     "name": "Yakuza Boss (Normal)",
@@ -2858,7 +3036,8 @@
      1000000000
     ],
     "level": 160,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": null
    },
    {
     "name": "Frenzied Gigatoad (Hard)",
@@ -2873,7 +3052,8 @@
      900000000
     ],
     "level": 170,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": null
    },
    {
     "name": "Extreme Bigfoot (Normal)",
@@ -2888,7 +3068,8 @@
      15000000000000
     ],
     "level": 260,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": null
    },
    {
     "name": "Reina (Normal)",
@@ -2903,7 +3084,8 @@
      2100000000
     ],
     "level": 280,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": null
    },
    {
     "name": "Julieta (Normal)",
@@ -2916,7 +3098,8 @@
     "hp": null,
     "phaseHp": null,
     "level": null,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/julieta.png"
    },
    {
     "name": "Cross (Normal)",
@@ -2929,7 +3112,8 @@
     "hp": null,
     "phaseHp": null,
     "level": null,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": "images/bosses/cross.png"
    },
    {
     "name": "Normal Inferno Wolf (Normal)",
@@ -2944,7 +3128,8 @@
      10000000000
     ],
     "level": 10,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": null
    },
    {
     "name": "Chaos Inferno Wolf (Normal)",
@@ -2959,7 +3144,8 @@
      20000000000000
     ],
     "level": 200,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": null
    },
    {
     "name": "Extreme Inferno Wolf (Normal)",
@@ -2974,7 +3160,8 @@
      100000000000000
     ],
     "level": 260,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": null
    },
    {
     "name": "Aufheben (Normal)",
@@ -2987,7 +3174,8 @@
     "hp": null,
     "phaseHp": null,
     "level": null,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": null
    },
    {
     "name": "Tweentona (Normal)",
@@ -3000,7 +3188,8 @@
     "hp": null,
     "phaseHp": null,
     "level": null,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": null
    },
    {
     "name": "Gerand Darmoor (Hard)",
@@ -3013,7 +3202,8 @@
     "hp": null,
     "phaseHp": null,
     "level": null,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": null
    },
    {
     "name": "Havoc (Hard)",
@@ -3026,7 +3216,8 @@
     "hp": null,
     "phaseHp": null,
     "level": null,
-    "hpLabel": null
+    "hpLabel": null,
+    "image": null
    }
   ]
  },

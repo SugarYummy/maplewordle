@@ -64,16 +64,38 @@ function addRow(cells, cls) {
   if (cls) tr.className = cls;
   for (const [text, c] of cells) {
     const td = document.createElement('td');
-    td.textContent = text;
+    if (text && text.card) td.appendChild(bossCard(text.card, text.label));
+    else td.textContent = text;
     td.className = c;
     tr.appendChild(td);
   }
   $('rows').prepend(tr);
 }
 
+// Boss "photo card": Maple Guide icon with the name under it ("?" when there's no icon).
+function bossCard(e, label = e.name) {
+  const card = document.createElement('div');
+  card.className = 'card';
+  if (e.image) {
+    const img = document.createElement('img');
+    img.src = e.image;
+    img.alt = e.boss;
+    card.appendChild(img);
+  } else {
+    const ph = document.createElement('div');
+    ph.className = 'noimg';
+    ph.textContent = '?';
+    card.appendChild(ph);
+  }
+  const name = document.createElement('div');
+  name.textContent = label;
+  card.appendChild(name);
+  return card;
+}
+
 function guessCells(g) {
   return [
-    [g.name, g.name === answer.name ? 'green' : 'red'],
+    [{ card: g }, g.name === answer.name ? 'green' : 'red'],
     textCell(g.world, answer.world),
     textCell(g.gender, answer.gender),
     regionCell(g.region, answer.region),
@@ -87,7 +109,7 @@ const guessRow = (g) => addRow(guessCells(g));
 function answerRow() {
   const a = answer;
   addRow([
-    ['Answer: ' + a.name], [a.world ?? 'Unknown'], [a.gender ?? 'Unknown'], [a.region ?? 'Unknown'],
+    [{ card: a, label: 'Answer: ' + a.name }], [a.world ?? 'Unknown'], [a.gender ?? 'Unknown'], [a.region ?? 'Unknown'],
     [a.phases ?? 'Unknown'], [formatHp(a)], [a.level ?? 'Unknown'],
   ], 'answer');
 }

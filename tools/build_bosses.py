@@ -185,11 +185,57 @@ bosses = [
       notes="No boss fight found on MapleWiki or Namu Wiki (story character only)"),
 ]
 
+# Maple Guide icons from maplestorywiki.net, per boss (all difficulties share one).
+IMAGES = {
+    'Zakum': 'images/bosses/zakum.png',
+    'Papulatus': 'images/bosses/papulatus.png',
+    'Magnus': 'images/bosses/magnus.png',
+    'Hilla': 'images/bosses/hilla.png',
+    'Mori Ranmaru': 'images/bosses/mori-ranmaru.png',
+    'Horntail': 'images/bosses/horntail.png',
+    'Pierre': 'images/bosses/pierre.png',
+    'Von Bon': 'images/bosses/von-bon.png',
+    'Crimson Queen': 'images/bosses/crimson-queen.png',
+    'Vellum': 'images/bosses/vellum.png',
+    'Von Leon': 'images/bosses/von-leon.png',
+    'Arkarium': 'images/bosses/arkarium.png',
+    'Gollux': 'images/bosses/gollux.png',
+    'OMNI-CLN': 'images/bosses/omni-cln.png',
+    'Pink Bean': 'images/bosses/pink-bean.png',
+    'Cygnus': 'images/bosses/cygnus.png',
+    'Princess No': 'images/bosses/princess-no.png',
+    'Akechi Mitsuhide': 'images/bosses/akechi-mitsuhide.png',
+    'Lotus': 'images/bosses/lotus.png',
+    'Damien': 'images/bosses/damien.png',
+    'Guardian Angel Slime': 'images/bosses/guardian-angel-slime.png',
+    'Lucid': 'images/bosses/lucid.png',
+    'Will': 'images/bosses/will.png',
+    'Gloom': 'images/bosses/gloom.png',
+    'Verus Hilla': 'images/bosses/verus-hilla.png',
+    'Malicia': 'images/bosses/malicia.png',
+    'Darknell': 'images/bosses/darknell.png',
+    'Black Mage': 'images/bosses/black-mage.png',
+    'Chosen Seren': 'images/bosses/chosen-seren.png',
+    'Kalos': 'images/bosses/kalos.png',
+    'First Adversary': 'images/bosses/first-adversary.png',
+    'Kaling': 'images/bosses/kaling.png',
+    'Malefic Star': 'images/bosses/malefic-star.png',
+    'Bellona': 'images/bosses/bellona.png',
+    'Limbo': 'images/bosses/limbo.png',
+    'Baldrix': 'images/bosses/baldrix.png',
+    'Jupiter': 'images/bosses/jupiter.png',
+    'Kai': 'images/bosses/kai.png',
+    'Balrog': 'images/bosses/balrog.png',
+    'Ursus': 'images/bosses/ursus.png',
+    'Julieta': 'images/bosses/julieta.png',
+    'Cross': 'images/bosses/cross.png',
+}
+
 def entry(boss, diff, label):
     lv, ph, hps, *hpLabel = boss["diffs"][diff]
     return dict(name=label, boss=boss["name"], difficulty=diff, world=boss["world"], gender=boss["gender"],
                 region=boss["region"], phases=ph, hp=sum(hps) if hps else None, phaseHp=hps, level=lv,
-                hpLabel=hpLabel[0] if hpLabel else None)
+                hpLabel=hpLabel[0] if hpLabel else None, image=IMAGES.get(boss["name"]))
 
 pools = {N: [], H: [], X: []}
 for bo in bosses:
