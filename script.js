@@ -241,25 +241,30 @@ const FIRST_DAY = Date.UTC(2026, 9, 10) / DAY_MS;
 const dateLabel = (d) => new Date(d * DAY_MS).toLocaleDateString(undefined, { timeZone: 'UTC', month: 'short', day: 'numeric', year: 'numeric' });
 
 // Archive: every puzzle from #1 to today for the current mode, with your result if you played it.
-function openArchive() {
+// Archive: every puzzle from #1 to today for the chosen mode tab, with your result if you played it.
+function openArchive(m = mode) {
+  for (const t of document.querySelectorAll('#archiveTabs button')) t.classList.toggle('on', t.dataset.mode === m);
   const list = $('archiveList');
   list.innerHTML = '';
-  $('archiveMode').textContent = MODE_NAME[mode];
-  const p = poolFor(mode);
+  const p = poolFor(m);
+  const max = data.attempts[m];
   for (let d = today(); d >= FIRST_DAY; d--) {
-    const saved = load(d, mode);
-    const ans = p[dailyIndex(p.length, d, mode)];
-    const max = data.attempts[mode];
+    const saved = load(d, m);
+    const ans = p[dailyIndex(p.length, d, m)];
     let result = 'Not played';
     if (saved.includes(ans.name)) result = `Won ${saved.length}/${max ?? '∞'}`;
     else if (max != null && saved.length >= max) result = 'Lost';
     else if (saved.length) result = `In progress (${saved.length} guesses)`;
     const btn = document.createElement('button');
     btn.textContent = `#${d - FIRST_DAY + 1} - ${dateLabel(d)}${d === today() ? ' (today)' : ''} - ${result}`;
-    btn.addEventListener('click', () => { closeArchive(); start(d); });
+    btn.addEventListener('click', () => { closeArchive(); setMode(m); start(d); });
     list.appendChild(btn);
   }
   $('archive').hidden = false;
+}
+// Highlight a mode button on the main page (start() reads the highlighted one).
+function setMode(m) {
+  for (const b of document.querySelectorAll('#modes button')) b.classList.toggle('on', b.dataset.mode === m);
 }
 const closeArchive = () => { $('archive').hidden = true; };
 const EMOJI = { green: '🟩', yellow: '🟨', red: '🟥' };
@@ -351,6 +356,7 @@ $('guess').addEventListener('keydown', (e) => {
 $('go').addEventListener('click', () => guess());
 $('share').addEventListener('click', share);
 $('archiveBtn').addEventListener('click', () => { if (data) openArchive(); });
+for (const t of document.querySelectorAll('#archiveTabs button')) t.addEventListener('click', () => openArchive(t.dataset.mode));
 $('archiveClose').addEventListener('click', closeArchive);
 $('today').addEventListener('click', () => start());
 for (const b of document.querySelectorAll('#modes button')) {

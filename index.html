@@ -18,6 +18,7 @@
              align-items: flex-start; justify-content: center; }
   #archive[hidden] { display: none; }
   #archive .panel { margin-top: 48px; max-height: calc(100vh - 96px); overflow-y: auto; min-width: 280px; }
+  #archiveTabs { margin-bottom: 8px; }
   #archiveList button { display: block; width: 100%; margin: 4px 0; padding: 6px; text-align: left; }
   th { background: rgba(255, 255, 255, 0.6); }
   td, th { border: 1px solid #999; padding: 4px 8px; }
@@ -38,7 +39,7 @@
   .card { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 90px; }
   .card img, .card .noimg { width: 56px; height: 56px; object-fit: contain; border-radius: 8px; }
   .card .noimg { display: flex; align-items: center; justify-content: center; background: #555; color: #fff; font-size: 28px; }
-  #modes .on { font-weight: bold; outline: 2px solid #333; }
+  #modes .on, #archiveTabs .on { font-weight: bold; outline: 2px solid #333; }
   #picker { position: relative; display: inline-block; }
   #list { position: absolute; top: 100%; left: 0; right: 0; max-height: 240px; overflow-y: auto;
           background: #fff; border: 1px solid #999; text-align: left; z-index: 1; }
@@ -50,7 +51,13 @@
 <button id="archiveBtn">Archive</button>
 <div id="archive" hidden>
   <div class="panel">
-    <h2>Archive (<span id="archiveMode"></span>)</h2>
+    <h2>Archive</h2>
+    <div id="archiveTabs">
+      <button data-mode="story">Story</button>
+      <button data-mode="normal">Normal</button>
+      <button data-mode="hard">Hard</button>
+      <button data-mode="extreme">Extreme</button>
+    </div>
     <div id="archiveList"></div>
     <p><button id="archiveClose">Close</button></p>
   </div>
@@ -89,6 +96,6 @@
   Want to give any suggestions or feedback?<br>
   <a href="https://discord.gg/f22H4UJ" target="_blank" rel="noopener">Join the Discord!</a>
 </footer>
-<script src="script.js?v=15"></script>
+<script src="script.js?v=16"></script>
 </body>
 </html>
