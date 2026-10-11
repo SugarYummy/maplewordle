@@ -10,6 +10,7 @@
 - Reina and Havoc have difficulty "Unknown (Apostle)"; Gerand Darmoor is "Unknown (God-King)" with entry level 300+; Darmoor and Havoc are in All regions
 - Removed Aufheben and Tweentona
 - Meilin: boss picture added, now counts as 2 phases
+- New Ursus picture
 
 ## alpha v1.2.1 - 11 October 2026
 - "Best so far" row above your guesses: every category you've found in green, and the closest guess so far for Phases, HP and Entry Lv
