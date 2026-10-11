@@ -479,7 +479,8 @@ function guess(name) {
 // Dropdown drawn inside the page (not the browser's native popup), so it shows up on screen shares.
 function openList() {
   const q = $('guess').value.trim().toLowerCase();
-  matches = pool.filter((e) => !guesses.includes(e.name) && e.name.toLowerCase().includes(q));
+  matches = pool.filter((e) => !guesses.includes(e.name) && e.name.toLowerCase().includes(q))
+    .sort((a, b) => a.name.localeCompare(b.name));   // A-Z, so the list order gives nothing away
   active = 0;
   renderList();
 }
