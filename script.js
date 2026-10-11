@@ -465,7 +465,8 @@ function guess(name) {
   if (!name) return updateStatus('Type a boss name first.');
   // Exact name, otherwise the first boss whose name contains what was typed.
   const g = pool.find((e) => e.name.toLowerCase() === name)
-    || pool.find((e) => !guesses.includes(e.name) && e.name.toLowerCase().includes(name));
+    || pool.filter((e) => !guesses.includes(e.name) && e.boss.toLowerCase().includes(name.split('(')[0].trim()))
+      .sort((a, b) => a.name.localeCompare(b.name))[0];
   if (!g) return updateStatus('Pick a boss from the list.');
   if (guesses.includes(g.name)) return updateStatus('Already guessed.');
   $('guess').value = '';
@@ -478,8 +479,9 @@ function guess(name) {
 
 // Dropdown drawn inside the page (not the browser's native popup), so it shows up on screen shares.
 function openList() {
-  const q = $('guess').value.trim().toLowerCase();
-  matches = pool.filter((e) => !guesses.includes(e.name) && e.name.toLowerCase().includes(q))
+  // Match the boss name only: the "(Hard)" / "(Chaos)" part is ignored, in the list and in what's typed.
+  const q = $('guess').value.split('(')[0].trim().toLowerCase();
+  matches = pool.filter((e) => !guesses.includes(e.name) && e.boss.toLowerCase().includes(q))
     .sort((a, b) => a.name.localeCompare(b.name));   // A-Z, so the list order gives nothing away
   active = 0;
   renderList();
