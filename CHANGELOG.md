@@ -1,5 +1,10 @@
 # Maple Wordle changelog
 
+## alpha v1.2 - 11 October 2026
+- Genshindle-style boss picker: photo + name cards and a styled scrollbar; clicking a boss guesses it (Guess button removed)
+- Win streak per mode: Normal / Hard / Extreme reset only on a loss, Story resets if you miss a day
+- Search box is hidden on the result screen
+
 ## alpha v1.1.1 - 11 October 2026
 - Story mode hints: unlock one every 3 guesses; each adds a row revealing one answer category you don't have green yet (other boxes grey), then the first letter of the boss name once every category is known; hints used are shown at the end and in Share
 - Fairer daily boss: from puzzle #3, every boss is picked once per cycle before any repeats, with no back-to-back repeats

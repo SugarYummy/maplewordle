@@ -86,11 +86,27 @@
   #games button:disabled { color: #555; opacity: 0.7; cursor: not-allowed; }
   #games small { display: block; font-size: 11px; }
   #modes .on, #archiveTabs .on { font-weight: bold; outline: 2px solid #333; }
-  #picker { position: relative; display: inline-block; }
-  #list { position: absolute; top: 100%; left: 0; right: 0; max-height: 240px; overflow-y: auto;
-          background: #fff; border: 1px solid #999; text-align: left; z-index: 1; }
-  #list div { padding: 4px 6px; cursor: pointer; }
-  #list div:hover, #list .active { background: #ddd; }
+  /* Boss picker: wide search box with a dropdown of photo cards (Genshindle style). */
+  #picker { position: relative; display: block; width: min(520px, 100%); margin: 8px auto; }
+  #picker[hidden] { display: none; }
+  #guess { box-sizing: border-box; width: 100%; padding: 12px 14px; font-size: 17px; text-align: center;
+           border: none; border-radius: 10px; background: rgba(32, 40, 70, 0.9); color: #fff; outline: none; }
+  #guess::placeholder { color: #b8c4e8; }
+  #list { position: absolute; top: calc(100% + 2px); left: 0; right: 0; max-height: 330px; overflow-y: auto; z-index: 6;
+          padding: 6px 8px; background: rgba(32, 40, 70, 0.95); border-radius: 10px; text-align: left;
+          scrollbar-width: thin; scrollbar-color: #8fa8ea rgba(255, 255, 255, 0.12); }
+  #list::-webkit-scrollbar { width: 10px; }
+  #list::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.12); border-radius: 10px; }
+  #list::-webkit-scrollbar-thumb { background: linear-gradient(#a9bdf5, #6f88d6); border-radius: 10px; }
+  #list .item { display: flex; align-items: center; height: 70px; margin: 6px 0; padding: 0 12px; cursor: pointer;
+                border-radius: 6px; border-bottom: 4px solid #5d73c0; color: #fff; font-size: 19px;
+                background: linear-gradient(90deg, #1d2444, #3a4a80); text-shadow: 0 1px 2px #000; }
+  #list .item img, #list .item .noimg { width: 58px; height: 58px; object-fit: contain; flex: none; }
+  #list .item .noimg { display: flex; align-items: center; justify-content: center; border-radius: 8px; background: #555; font-size: 26px; }
+  #list .item span { flex: 1; text-align: center; padding-right: 58px; }
+  #list .item:hover, #list .item.active { background: linear-gradient(90deg, #2b3866, #5568aa); border-bottom-color: #9fb3f0; }
+  #streak { display: inline-block; margin: 0 0 6px; padding: 4px 12px; border-radius: 8px; font-weight: bold;
+            background: rgba(32, 40, 70, 0.85); color: #fff; }
   /* Phones: keep the corner boxes clear of the Discord box and the game panel. */
   @media (max-width: 700px) {
     #version, #creditWrap { bottom: 64px; }
@@ -129,13 +145,13 @@
   <button data-mode="extreme">Extreme</button>
 </div>
 <p id="timer"></p>
+<div id="streak"></div>
 <p id="status"></p>
 <p><button id="share" hidden>Share</button></p>
 <div id="picker">
-  <input id="guess" placeholder="Type a boss" autocomplete="off">
+  <input id="guess" placeholder="Type a boss name" autocomplete="off">
   <div id="list" hidden></div>
 </div>
-<button id="go">Guess</button>
 <button id="hint" hidden>Hint</button>
 <div class="table-wrap">
 <table>
@@ -159,7 +175,7 @@
   <div id="clip-right" class="peekclip"><img src="images/peek/moeko.png" alt=""></div>
   <div id="credit" class="panel">Made by Yuki with Love &lt;3</div>
 </div>
-<button id="version" class="panel">alpha v1.1.1</button>
+<button id="version" class="panel">alpha v1.2</button>
 <div id="changelog" hidden>
   <div class="panel">
     <h2>Changelog</h2>
@@ -167,6 +183,6 @@
     <p class="closebar"><button id="changelogClose">Close</button></p>
   </div>
 </div>
-<script src="script.js?v=25"></script>
+<script src="script.js?v=26"></script>
 </body>
 </html>

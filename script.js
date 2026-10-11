@@ -181,6 +181,7 @@ function start(d) {
   $('rows').innerHTML = '';
   $('stats').hidden = true;
   $('share').hidden = true;
+  $('picker').hidden = false;
   $('guess').value = '';
   closeList();
   for (const name of load()) {
@@ -192,6 +193,7 @@ function start(d) {
   if (!over) updateStatus();
   else loadStats();
   renderHints();
+  renderStreak();
 }
 
 function updateStatus(msg) {
@@ -214,6 +216,8 @@ function record(g) {
     updateStatus();
   }
   if (over) $('share').hidden = false;
+  $('picker').hidden = over;
+  if (over) closeList();
   renderHints();
 }
 
@@ -332,6 +336,32 @@ function renderStats(counts, mine) {
   $('stats').hidden = false;
 }
 
+// Win streak, one per mode, saved in the browser. Only today's puzzle counts (not archive days).
+// Normal/Hard/Extreme: +1 per win, back to 0 on a loss. Story (can't lose): back to 0 if a day is missed.
+const streakKey = (m = mode) => `mapleWordle:streak:${m}`;
+function loadStreak(m = mode) {
+  try { return JSON.parse(localStorage.getItem(streakKey(m))) || { count: 0, last: null }; } catch { return { count: 0, last: null }; }
+}
+function currentStreak(m = mode) {
+  const s = loadStreak(m);
+  if (m === 'story' && s.last != null && s.last < today() - 1) return 0;   // missed a day
+  return s.count;
+}
+function updateStreak() {
+  if (!live) return;
+  const s = loadStreak();
+  if (s.last === day) return;                     // already counted today
+  const won = guesses.includes(answer.name);
+  if (mode === 'story') s.count = s.last === day - 1 ? s.count + 1 : 1;
+  else s.count = won ? s.count + 1 : 0;
+  s.last = day;
+  try { localStorage.setItem(streakKey(), JSON.stringify(s)); } catch {}
+  renderStreak();
+}
+function renderStreak() {
+  $('streak').textContent = `Win Streak: ${currentStreak()} 🔥`;
+}
+
 const nextHint = () => live ? 'Come back tomorrow for a new boss.' : 'Pick another day from the Archive.';
 
 // Puzzle #1 is launch day; numbers count up by one every UTC day.
@@ -409,7 +439,7 @@ function guess(name) {
   closeList();
   record(g);
   save();
-  if (over) loadStats();
+  if (over) { updateStreak(); loadStats(); }
 }
 
 // Dropdown drawn inside the page (not the browser's native popup), so it shows up on screen shares.
@@ -424,18 +454,22 @@ function renderList() {
   list.innerHTML = '';
   matches.forEach((e, i) => {
     const div = document.createElement('div');
-    div.textContent = e.name;
-    if (i === active) div.className = 'active';
-    div.addEventListener('mousedown', (ev) => { ev.preventDefault(); pick(e.name); });
+    div.className = 'item' + (i === active ? ' active' : '');
+    if (e.image) {
+      const img = document.createElement('img');
+      img.src = e.image;
+      img.alt = '';
+      div.appendChild(img);
+    } else {
+      div.appendChild(document.createElement('div')).className = 'noimg';
+      div.lastChild.textContent = '?';
+    }
+    div.appendChild(document.createElement('span')).textContent = e.name;
+    div.addEventListener('mousedown', (ev) => { ev.preventDefault(); guess(e.name); });
     list.appendChild(div);
   });
   list.hidden = matches.length === 0 || over;
   list.querySelector('.active')?.scrollIntoView({ block: 'nearest' });
-}
-// Fill the box with the chosen boss; the Guess button (or Enter) submits it.
-function pick(name) {
-  $('guess').value = name;
-  closeList();
 }
 function closeList() {
   matches = [];
@@ -450,9 +484,8 @@ $('guess').addEventListener('keydown', (e) => {
   if (e.key === 'ArrowDown' && open) { active = Math.min(active + 1, matches.length - 1); renderList(); e.preventDefault(); }
   else if (e.key === 'ArrowUp' && open) { active = Math.max(active - 1, 0); renderList(); e.preventDefault(); }
   else if (e.key === 'Escape') closeList();
-  else if (e.key === 'Enter') { if (open) pick(matches[active].name); else guess(); }
+  else if (e.key === 'Enter') guess(open && matches.length ? matches[active].name : undefined);
 });
-$('go').addEventListener('click', () => guess());
 $('hint').addEventListener('click', useHint);
 $('share').addEventListener('click', share);
 $('archiveBtn').addEventListener('click', () => { if (data) openArchive(); });
