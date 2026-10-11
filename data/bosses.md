@@ -1,179 +1,123 @@
-# Maple Wordle - boss data review
+# Maple Wordle - boss list
 
-Generated from `bosses.json`. Unknown = no data found. HP units: M = million, B = billion, T = trillion, Q = quadrillion.
+54 bosses, 108 boss + difficulty entries. Unknown = no data found.
+HP is the sum of every phase (M = million, B = billion, T = trillion, Q = quadrillion). Entry Lv = level needed to enter.
+Story/Normal and Hard use one difficulty per boss (Hard > Chaos > Normal > Easy, Gollux = Hell); Extreme uses every difficulty.
 
-## Normal / Story pool - 39 entries
-
-| Boss | Mode | World | Gender | Region | Phases | HP | Entry Lv |
-|---|---|---|---|---|---|---|---|
-| Zakum (Chaos) | Chaos | Maple World | Other | All | 2 | 168B | 90 |
-| Papulatus (Chaos) | Chaos | Maple World | Other | All | 2 | 504B | 190 |
-| Magnus (Hard) | Hard | Grandis | Male | All | 1 | 120B | 175 |
-| Hilla (Hard) | Hard | Maple World | Female | All | 1 | 16.8B | 170 |
-| Mori Ranmaru (Hard) | Hard | Maple World | Male | All except KMS | 1 | 2.1B | 180 |
-| Horntail (Chaos) | Chaos | Maple World | Other | All | 3 | 26.6B | 135 |
-| Pierre (Chaos) | Chaos | Maple World | Male | All | 1 | 80B | 180 |
-| Von Bon (Chaos) | Chaos | Maple World | Male | All | 1 | 100B | 180 |
-| Crimson Queen (Chaos) | Chaos | Maple World | Female | All | 1 | 140B | 180 |
-| Vellum (Chaos) | Chaos | Maple World | Other | All | 1 | 200B | 180 |
-| Von Leon (Hard) | Hard | Maple World | Male | All | 1 | 10.5B | 125 |
-| Arkarium (Normal) | Normal | Maple World | Male | All | 1 | 12.6B | 140 |
-| Gollux (Hell) | Hell | Masteria | Other | JMS/CMS/GMS | 3 | 770B | 180 |
-| OMNI-CLN (Normal) | Normal | Maple World | Other | All | 1 | 1.68B | 180 |
-| Pink Bean (Chaos) | Chaos | Maple World | Male | All | 3 | 69.3B | 170 |
-| Cygnus (Normal) | Normal | Maple World | Female | All except KMS | 1 | 63B | 165 |
-| Princess No (Normal) | Normal | Maple World | Female | All except KMS | 1 | 500B | 180 |
-| Akechi Mitsuhide (Normal) | Normal | Maple World | Male | JMS/GMS/MSEA | 2 | 700B | 200 |
-| Lotus (Hard) | Hard | Maple World | Male | All | 3 | 33.285T | 190 |
-| Damien (Hard) | Hard | Maple World | Male | All | 2 | 36T | 190 |
-| Guardian Angel Slime (Chaos) | Chaos | Maple World | Other | All | 1 | 90T | 210 |
-| Lucid (Hard) | Hard | Arcane River | Female | All | 3 | 117.6T | 220 |
-| Will (Hard) | Hard | Arcane River | Male | All | 3 | 126T | 235 |
-| Gloom (Chaos) | Chaos | Arcane River | Other | All | 1 | 127.05T | 245 |
-| Verus Hilla (Hard) | Hard | Arcane River | Female | All | 1 | 178.5T | 250 |
-| Malicia (Normal) | Normal | Maple World | Female | JMS/CMS/TMS | 4 | 178T | 250 |
-| Darknell (Hard) | Hard | Arcane River | Male | All | 1 | 157.5T | 255 |
-| Black Mage (Hard) | Hard | Arcane River | Male | All | 4 | 472.5T | 255 |
-| Chosen Seren (Hard) | Hard | Grandis | Female | All | 2 | 483T | 260 |
-| Kalos (Chaos) | Chaos | Grandis | Male | All | 2 | 5.126Q | 265 |
-| First Adversary (Hard) | Hard | Grandis | Male | All | 3 | 10.45Q | 270 |
-| Kaling (Hard) | Hard | Grandis | Female | All | 3 | 9.423Q | 275 |
-| Malefic Star (Hard) | Hard | Grandis | Female | All | 1 | 14.74Q | 280 |
-| Bellona (Hard) | Hard | Grandis | Female | KMS only | 2 | 13.716Q | 280 |
-| Limbo (Hard) | Hard | Grandis | Male | All | 3 | 12.432Q | 285 |
-| Baldrix (Hard) | Hard | Grandis | Male | All | 3 | 20.1Q | 290 |
-| Jupiter (Hard) | Hard | Grandis | Male | All | 1 | 49.4Q | 295 |
-| Kai (Hard) | Hard | Other | Male | Seasonal | 2 | 483T | 280 |
-| Meilin (Hard) | Hard | Other | Female | Seasonal | 1 | 580T | 280 |
-
-## Hard pool (Normal pool + extras) - 44 entries
-
-Only the extras are shown; the Normal pool is included too.
-
-| Boss | Mode | World | Gender | Region | Phases | HP | Entry Lv |
-|---|---|---|---|---|---|---|---|
-| Balrog (Easy) | Easy | Maple World | Male | All | 1 | 4.788M | 65 |
-| Ursus (Normal) | Normal | Maple World | Other | GMS only | 1 | 2.625T | 100 |
-| Yakuza Boss (Normal) | Normal | Maple World | Male | All | 1 | 1B | 160 |
-| Frenzied Gigatoad (Hard) | Hard | Maple World | Other | All | 1 | 900M | 170 |
-| Extreme Bigfoot (Normal) | Normal | Maple World | Other | All | 1 | 15T | 260 |
-
-## Extreme pool (every difficulty + extras) - 108 entries
-
-| Boss | Mode | World | Gender | Region | Phases | HP | Entry Lv |
-|---|---|---|---|---|---|---|---|
-| Zakum (Easy) | Easy | Maple World | Other | All | 2 | 3.832M | 50 |
-| Zakum (Normal) | Normal | Maple World | Other | All | 2 | 12.6M | 90 |
-| Zakum (Chaos) | Chaos | Maple World | Other | All | 2 | 168B | 90 |
-| Papulatus (Easy) | Easy | Maple World | Other | All | 2 | 400M | 115 |
-| Papulatus (Normal) | Normal | Maple World | Other | All | 2 | 16.8B | 155 |
-| Papulatus (Chaos) | Chaos | Maple World | Other | All | 2 | 504B | 190 |
-| Magnus (Easy) | Easy | Grandis | Male | All | 1 | 400M | 115 |
-| Magnus (Normal) | Normal | Grandis | Male | All | 1 | 6B | 155 |
-| Magnus (Hard) | Hard | Grandis | Male | All | 1 | 120B | 175 |
-| Hilla (Normal) | Normal | Maple World | Female | All | 1 | 500M | 85 |
-| Hilla (Hard) | Hard | Maple World | Female | All | 1 | 16.8B | 170 |
-| Mori Ranmaru (Normal) | Normal | Maple World | Male | All except KMS | 1 | 1B | 120 |
-| Mori Ranmaru (Hard) | Hard | Maple World | Male | All except KMS | 1 | 2.1B | 180 |
-| Horntail (Easy) | Easy | Maple World | Other | All | 3 | 1.018B | 130 |
-| Horntail (Normal) | Normal | Maple World | Other | All | 3 | 2.75B | 130 |
-| Horntail (Chaos) | Chaos | Maple World | Other | All | 3 | 26.6B | 135 |
-| Pierre (Normal) | Normal | Maple World | Male | All | 1 | 315M | 125 |
-| Pierre (Chaos) | Chaos | Maple World | Male | All | 1 | 80B | 180 |
-| Von Bon (Normal) | Normal | Maple World | Male | All | 1 | 315M | 125 |
-| Von Bon (Chaos) | Chaos | Maple World | Male | All | 1 | 100B | 180 |
-| Crimson Queen (Normal) | Normal | Maple World | Female | All | 1 | 315M | 125 |
-| Crimson Queen (Chaos) | Chaos | Maple World | Female | All | 1 | 140B | 180 |
-| Vellum (Normal) | Normal | Maple World | Other | All | 1 | 550M | 125 |
-| Vellum (Chaos) | Chaos | Maple World | Other | All | 1 | 200B | 180 |
-| Von Leon (Easy) | Easy | Maple World | Male | All | 1 | 700M | 125 |
-| Von Leon (Normal) | Normal | Maple World | Male | All | 1 | 6.3B | 125 |
-| Von Leon (Hard) | Hard | Maple World | Male | All | 1 | 10.5B | 125 |
-| Arkarium (Easy) | Easy | Maple World | Male | All | 1 | 2.1B | 140 |
-| Arkarium (Normal) | Normal | Maple World | Male | All | 1 | 12.6B | 140 |
-| Gollux (Easy) | Easy | Masteria | Other | JMS/CMS/GMS | 3 | 110M | 180 |
-| Gollux (Normal) | Normal | Masteria | Other | JMS/CMS/GMS | 3 | 6.6B | 180 |
-| Gollux (Hard) | Hard | Masteria | Other | JMS/CMS/GMS | 3 | 165B | 180 |
-| Gollux (Hell) | Hell | Masteria | Other | JMS/CMS/GMS | 3 | 770B | 180 |
-| OMNI-CLN (Normal) | Normal | Maple World | Other | All | 1 | 1.68B | 180 |
-| Pink Bean (Normal) | Normal | Maple World | Male | All | 1 | 2.1B | 140 |
-| Pink Bean (Chaos) | Chaos | Maple World | Male | All | 3 | 69.3B | 170 |
-| Cygnus (Easy) | Easy | Maple World | Female | All except KMS | 1 | 10.5B | 165 |
-| Cygnus (Normal) | Normal | Maple World | Female | All except KMS | 1 | 63B | 165 |
-| Princess No (Normal) | Normal | Maple World | Female | All except KMS | 1 | 500B | 180 |
-| Akechi Mitsuhide (Normal) | Normal | Maple World | Male | JMS/GMS/MSEA | 2 | 700B | 200 |
-| Lotus (Normal) | Normal | Maple World | Male | All | 3 | 1.575T | 190 |
-| Lotus (Hard) | Hard | Maple World | Male | All | 3 | 33.285T | 190 |
-| Lotus (Extreme) | Extreme | Maple World | Male | All | 3 | 1.811Q | 190 |
-| Damien (Normal) | Normal | Maple World | Male | All | 2 | 1.2T | 190 |
-| Damien (Hard) | Hard | Maple World | Male | All | 2 | 36T | 190 |
-| Guardian Angel Slime (Normal) | Normal | Maple World | Other | All | 1 | 5T | 210 |
-| Guardian Angel Slime (Chaos) | Chaos | Maple World | Other | All | 1 | 90T | 210 |
-| Lucid (Easy) | Easy | Arcane River | Female | All | 2 | 12T | 220 |
-| Lucid (Normal) | Normal | Arcane River | Female | All | 2 | 24T | 220 |
-| Lucid (Hard) | Hard | Arcane River | Female | All | 3 | 117.6T | 220 |
-| Will (Easy) | Easy | Arcane River | Male | All | 3 | 16.8T | 235 |
-| Will (Normal) | Normal | Arcane River | Male | All | 3 | 25.2T | 235 |
-| Will (Hard) | Hard | Arcane River | Male | All | 3 | 126T | 235 |
-| Gloom (Normal) | Normal | Arcane River | Other | All | 1 | 25.41T | 245 |
-| Gloom (Chaos) | Chaos | Arcane River | Other | All | 1 | 127.05T | 245 |
-| Verus Hilla (Normal) | Normal | Arcane River | Female | All | 1 | 89.25T | 250 |
-| Verus Hilla (Hard) | Hard | Arcane River | Female | All | 1 | 178.5T | 250 |
-| Malicia (Normal) | Normal | Maple World | Female | JMS/CMS/TMS | 4 | 178T | 250 |
-| Malicia (Extreme) | Extreme | Maple World | Female | JMS/CMS/TMS | 4 | 300Q+ | 250 |
-| Darknell (Normal) | Normal | Arcane River | Male | All | 1 | 26.25T | 255 |
-| Darknell (Hard) | Hard | Arcane River | Male | All | 1 | 157.5T | 255 |
-| Black Mage (Hard) | Hard | Arcane River | Male | All | 4 | 472.5T | 255 |
-| Black Mage (Extreme) | Extreme | Arcane River | Male | All | 4 | 4.811Q | 255 |
-| Chosen Seren (Normal) | Normal | Grandis | Female | All | 2 | 207.9T | 260 |
-| Chosen Seren (Hard) | Hard | Grandis | Female | All | 2 | 483T | 260 |
-| Chosen Seren (Extreme) | Extreme | Grandis | Female | All | 2 | 6.48Q | 260 |
-| Kalos (Easy) | Easy | Grandis | Male | All | 2 | 357T | 265 |
-| Kalos (Normal) | Normal | Grandis | Male | All | 2 | 1.056Q | 265 |
-| Kalos (Chaos) | Chaos | Grandis | Male | All | 2 | 5.126Q | 265 |
-| Kalos (Extreme) | Extreme | Grandis | Male | All | 2 | 21.296Q | 265 |
-| First Adversary (Easy) | Easy | Grandis | Male | All | 3 | 570T | 270 |
-| First Adversary (Normal) | Normal | Grandis | Male | All | 3 | 1.65Q | 270 |
-| First Adversary (Hard) | Hard | Grandis | Male | All | 3 | 10.45Q | 270 |
-| First Adversary (Extreme) | Extreme | Grandis | Male | All | 3 | 32.18Q | 270 |
-| Kaling (Easy) | Easy | Grandis | Female | All | 3 | 658.15T | 275 |
-| Kaling (Normal) | Normal | Grandis | Female | All | 3 | 2.79Q | 275 |
-| Kaling (Hard) | Hard | Grandis | Female | All | 3 | 9.423Q | 275 |
-| Kaling (Extreme) | Extreme | Grandis | Female | All | 3 | 39.96Q | 275 |
-| Malefic Star (Normal) | Normal | Grandis | Female | All | 1 | 3.288Q | 280 |
-| Malefic Star (Hard) | Hard | Grandis | Female | All | 1 | 14.74Q | 280 |
-| Bellona (Easy) | Easy | Grandis | Female | KMS only | 2 | 779T | 280 |
-| Bellona (Normal) | Normal | Grandis | Female | KMS only | 2 | 4.122Q | 280 |
-| Bellona (Hard) | Hard | Grandis | Female | KMS only | 2 | 13.716Q | 280 |
-| Limbo (Normal) | Normal | Grandis | Male | All | 3 | 6.48Q | 285 |
-| Limbo (Hard) | Hard | Grandis | Male | All | 3 | 12.432Q | 285 |
-| Baldrix (Normal) | Normal | Grandis | Male | All | 3 | 9.055Q | 290 |
-| Baldrix (Hard) | Hard | Grandis | Male | All | 3 | 20.1Q | 290 |
-| Jupiter (Normal) | Normal | Grandis | Male | All | 1 | 10.266Q | 295 |
-| Jupiter (Hard) | Hard | Grandis | Male | All | 1 | 49.4Q | 295 |
-| Kai (Normal) | Normal | Other | Male | Seasonal | 2 | 126T | 270 |
-| Kai (Hard) | Hard | Other | Male | Seasonal | 2 | 483T | 280 |
-| Meilin (Normal) | Normal | Other | Female | Seasonal | 1 | 117.85T | 270 |
-| Meilin (Hard) | Hard | Other | Female | Seasonal | 1 | 580T | 280 |
-| Balrog (Easy) | Easy | Maple World | Male | All | 1 | 4.788M | 65 |
-| Ursus (Normal) | Normal | Maple World | Other | GMS only | 1 | 2.625T | 100 |
-| Yakuza Boss (Normal) | Normal | Maple World | Male | All | 1 | 1B | 160 |
-| Frenzied Gigatoad (Hard) | Hard | Maple World | Other | All | 1 | 900M | 170 |
-| Extreme Bigfoot (Normal) | Normal | Maple World | Other | All | 1 | 15T | 260 |
-| Reina (Normal) | Normal | Grandis | Female | All | 1 | 2.1B | 280 |
-| Julieta (Normal) | Normal | Maple World | Female | Removed | Unknown | Unknown | Unknown |
-| Cross (Normal) | Normal | Maple World | Male | Removed | Unknown | Unknown | Unknown |
-| Normal Inferno Wolf (Normal) | Normal | Maple World | Other | Removed | 1 | 10B | 10 |
-| Chaos Inferno Wolf (Normal) | Normal | Maple World | Other | Removed | 1 | 20T | 200 |
-| Extreme Inferno Wolf (Normal) | Normal | Maple World | Other | Removed | 1 | 100T | 260 |
-| Aufheben (Normal) | Normal | Other | Female | Event | Unknown | Unknown | Unknown |
-| Tweentona (Normal) | Normal | Other | Other | Event | Unknown | Unknown | Unknown |
-| Gerand Darmoor (Hard) | Hard | Grandis | Male | Unknown | Unknown | Unknown | Unknown |
-| Havoc (Hard) | Hard | Grandis | Male | Unknown | Unknown | Unknown | Unknown |
+| # | Boss | Difficulty | World | Gender | Region | Phases | HP | Entry Lv | In modes |
+|---|---|---|---|---|---|---|---|---|---|
+| 1 | Zakum | Easy | Maple World | Other | All | 1 | 3.832M | 50 | Extreme |
+| 2 | Zakum | Normal | Maple World | Other | All | 1 | 12.6M | 90 | Extreme |
+| 3 | Zakum | Chaos | Maple World | Other | All | 1 | 168B | 90 | Story/Normal / Hard / Extreme |
+| 4 | Papulatus | Easy | Maple World | Other | All | 2 | 400M | 115 | Extreme |
+| 5 | Papulatus | Normal | Maple World | Other | All | 2 | 16.8B | 155 | Extreme |
+| 6 | Papulatus | Chaos | Maple World | Other | All | 2 | 504B | 190 | Story/Normal / Hard / Extreme |
+| 7 | Magnus | Easy | Grandis | Male | All | 1 | 400M | 115 | Extreme |
+| 8 | Magnus | Normal | Grandis | Male | All | 1 | 6B | 155 | Extreme |
+| 9 | Magnus | Hard | Grandis | Male | All | 1 | 120B | 175 | Story/Normal / Hard / Extreme |
+| 10 | Hilla | Normal | Maple World | Female | All | 1 | 500M | 85 | Extreme |
+| 11 | Hilla | Hard | Maple World | Female | All | 1 | 16.8B | 170 | Story/Normal / Hard / Extreme |
+| 12 | Mori Ranmaru | Normal | Maple World | Male | All except KMS | 1 | 1B | 120 | Extreme |
+| 13 | Mori Ranmaru | Hard | Maple World | Male | All except KMS | 1 | 2.1B | 180 | Story/Normal / Hard / Extreme |
+| 14 | Horntail | Easy | Maple World | Other | All | 3 | 1.018B | 130 | Extreme |
+| 15 | Horntail | Normal | Maple World | Other | All | 3 | 2.75B | 130 | Extreme |
+| 16 | Horntail | Chaos | Maple World | Other | All | 3 | 26.6B | 135 | Story/Normal / Hard / Extreme |
+| 17 | Pierre | Normal | Maple World | Male | All | 1 | 315M | 125 | Extreme |
+| 18 | Pierre | Chaos | Maple World | Male | All | 1 | 80B | 180 | Story/Normal / Hard / Extreme |
+| 19 | Von Bon | Normal | Maple World | Male | All | 1 | 315M | 125 | Extreme |
+| 20 | Von Bon | Chaos | Maple World | Male | All | 1 | 100B | 180 | Story/Normal / Hard / Extreme |
+| 21 | Crimson Queen | Normal | Maple World | Female | All | 1 | 315M | 125 | Extreme |
+| 22 | Crimson Queen | Chaos | Maple World | Female | All | 1 | 140B | 180 | Story/Normal / Hard / Extreme |
+| 23 | Vellum | Normal | Maple World | Other | All | 1 | 550M | 125 | Extreme |
+| 24 | Vellum | Chaos | Maple World | Other | All | 1 | 200B | 180 | Story/Normal / Hard / Extreme |
+| 25 | Von Leon | Easy | Maple World | Male | All | 1 | 700M | 125 | Extreme |
+| 26 | Von Leon | Normal | Maple World | Male | All | 1 | 6.3B | 125 | Extreme |
+| 27 | Von Leon | Hard | Maple World | Male | All | 1 | 10.5B | 125 | Story/Normal / Hard / Extreme |
+| 28 | Arkarium | Easy | Maple World | Male | All | 1 | 2.1B | 140 | Extreme |
+| 29 | Arkarium | Normal | Maple World | Male | All | 1 | 12.6B | 140 | Story/Normal / Hard / Extreme |
+| 30 | Gollux | Easy | Masteria | Other | JMS/CMS/GMS | 3 | 110M | 180 | Extreme |
+| 31 | Gollux | Normal | Masteria | Other | JMS/CMS/GMS | 3 | 6.6B | 180 | Extreme |
+| 32 | Gollux | Hard | Masteria | Other | JMS/CMS/GMS | 3 | 165B | 180 | Extreme |
+| 33 | Gollux | Hell | Masteria | Other | JMS/CMS/GMS | 3 | 770B | 180 | Story/Normal / Hard / Extreme |
+| 34 | OMNI-CLN | Normal | Maple World | Other | All | 1 | 1.68B | 180 | Story/Normal / Hard / Extreme |
+| 35 | Pink Bean | Normal | Maple World | Male | All | 1 | 2.1B | 140 | Extreme |
+| 36 | Pink Bean | Chaos | Maple World | Male | All | 3 | 69.3B | 170 | Story/Normal / Hard / Extreme |
+| 37 | Cygnus | Easy | Maple World | Female | All except KMS | 1 | 10.5B | 165 | Extreme |
+| 38 | Cygnus | Normal | Maple World | Female | All except KMS | 1 | 63B | 165 | Story/Normal / Hard / Extreme |
+| 39 | Princess No | Normal | Maple World | Female | All except KMS | 1 | 500B | 180 | Story/Normal / Hard / Extreme |
+| 40 | Akechi Mitsuhide | Normal | Maple World | Male | JMS/GMS/MSEA | 2 | 700B | 200 | Story/Normal / Hard / Extreme |
+| 41 | Lotus | Normal | Maple World | Male | All | 3 | 1.575T | 190 | Extreme |
+| 42 | Lotus | Hard | Maple World | Male | All | 3 | 33.285T | 190 | Story/Normal / Hard / Extreme |
+| 43 | Lotus | Extreme | Maple World | Male | All | 3 | 1.811Q | 190 | Extreme |
+| 44 | Damien | Normal | Maple World | Male | All | 2 | 1.2T | 190 | Extreme |
+| 45 | Damien | Hard | Maple World | Male | All | 2 | 36T | 190 | Story/Normal / Hard / Extreme |
+| 46 | Guardian Angel Slime | Normal | Maple World | Other | All | 1 | 5T | 210 | Extreme |
+| 47 | Guardian Angel Slime | Chaos | Maple World | Other | All | 1 | 90T | 210 | Story/Normal / Hard / Extreme |
+| 48 | Lucid | Easy | Arcane River | Female | All | 2 | 12T | 220 | Extreme |
+| 49 | Lucid | Normal | Arcane River | Female | All | 2 | 24T | 220 | Extreme |
+| 50 | Lucid | Hard | Arcane River | Female | All | 3 | 117.6T | 220 | Story/Normal / Hard / Extreme |
+| 51 | Will | Easy | Arcane River | Male | All | 3 | 16.8T | 235 | Extreme |
+| 52 | Will | Normal | Arcane River | Male | All | 3 | 25.2T | 235 | Extreme |
+| 53 | Will | Hard | Arcane River | Male | All | 3 | 126T | 235 | Story/Normal / Hard / Extreme |
+| 54 | Gloom | Normal | Arcane River | Other | All | 1 | 25.41T | 245 | Extreme |
+| 55 | Gloom | Chaos | Arcane River | Other | All | 1 | 127.05T | 245 | Story/Normal / Hard / Extreme |
+| 56 | Verus Hilla | Normal | Arcane River | Female | All | 1 | 89.25T | 250 | Extreme |
+| 57 | Verus Hilla | Hard | Arcane River | Female | All | 1 | 178.5T | 250 | Story/Normal / Hard / Extreme |
+| 58 | Malicia | Normal | Maple World | Female | JMS/CMS/TMS | 4 | 178T | 250 | Story/Normal / Hard / Extreme |
+| 59 | Malicia | Extreme | Maple World | Female | JMS/CMS/TMS | 4 | 300Q+ | 250 | Extreme |
+| 60 | Darknell | Normal | Arcane River | Male | All | 1 | 26.25T | 255 | Extreme |
+| 61 | Darknell | Hard | Arcane River | Male | All | 1 | 157.5T | 255 | Story/Normal / Hard / Extreme |
+| 62 | Black Mage | Hard | Arcane River | Male | All | 4 | 472.5T | 255 | Story/Normal / Hard / Extreme |
+| 63 | Black Mage | Extreme | Arcane River | Male | All | 4 | 4.811Q | 255 | Extreme |
+| 64 | Chosen Seren | Normal | Grandis | Female | All | 2 | 207.9T | 260 | Extreme |
+| 65 | Chosen Seren | Hard | Grandis | Female | All | 2 | 483T | 260 | Story/Normal / Hard / Extreme |
+| 66 | Chosen Seren | Extreme | Grandis | Female | All | 2 | 6.48Q | 260 | Extreme |
+| 67 | Kalos | Easy | Grandis | Male | All | 2 | 357T | 265 | Extreme |
+| 68 | Kalos | Normal | Grandis | Male | All | 2 | 1.056Q | 265 | Extreme |
+| 69 | Kalos | Chaos | Grandis | Male | All | 2 | 5.126Q | 265 | Story/Normal / Hard / Extreme |
+| 70 | Kalos | Extreme | Grandis | Male | All | 2 | 21.296Q | 265 | Extreme |
+| 71 | First Adversary | Easy | Grandis | Male | All | 3 | 570T | 270 | Extreme |
+| 72 | First Adversary | Normal | Grandis | Male | All | 3 | 1.65Q | 270 | Extreme |
+| 73 | First Adversary | Hard | Grandis | Male | All | 3 | 10.45Q | 270 | Story/Normal / Hard / Extreme |
+| 74 | First Adversary | Extreme | Grandis | Male | All | 3 | 32.18Q | 270 | Extreme |
+| 75 | Kaling | Easy | Grandis | Female | All | 3 | 658.15T | 275 | Extreme |
+| 76 | Kaling | Normal | Grandis | Female | All | 3 | 2.79Q | 275 | Extreme |
+| 77 | Kaling | Hard | Grandis | Female | All | 3 | 9.423Q | 275 | Story/Normal / Hard / Extreme |
+| 78 | Kaling | Extreme | Grandis | Female | All | 3 | 39.96Q | 275 | Extreme |
+| 79 | Malefic Star | Normal | Grandis | Female | All | 1 | 3.288Q | 280 | Extreme |
+| 80 | Malefic Star | Hard | Grandis | Female | All | 1 | 14.74Q | 280 | Story/Normal / Hard / Extreme |
+| 81 | Bellona | Easy | Grandis | Female | KMS only | 2 | 779T | 280 | Extreme |
+| 82 | Bellona | Normal | Grandis | Female | KMS only | 2 | 4.122Q | 280 | Extreme |
+| 83 | Bellona | Hard | Grandis | Female | KMS only | 2 | 13.716Q | 280 | Story/Normal / Hard / Extreme |
+| 84 | Limbo | Normal | Grandis | Male | All | 3 | 6.48Q | 285 | Extreme |
+| 85 | Limbo | Hard | Grandis | Male | All | 3 | 12.432Q | 285 | Story/Normal / Hard / Extreme |
+| 86 | Baldrix | Normal | Grandis | Male | All | 3 | 9.055Q | 290 | Extreme |
+| 87 | Baldrix | Hard | Grandis | Male | All | 3 | 20.1Q | 290 | Story/Normal / Hard / Extreme |
+| 88 | Jupiter | Normal | Grandis | Male | All | 1 | 10.266Q | 295 | Extreme |
+| 89 | Jupiter | Hard | Grandis | Male | All | 1 | 49.4Q | 295 | Story/Normal / Hard / Extreme |
+| 90 | Kai | Normal | Other | Male | Seasonal | 2 | 126T | 270 | Extreme |
+| 91 | Kai | Hard | Other | Male | Seasonal | 2 | 483T | 280 | Story/Normal / Hard / Extreme |
+| 92 | Meilin | Normal | Other | Female | Seasonal | 1 | 117.85T | 270 | Extreme |
+| 93 | Meilin | Hard | Other | Female | Seasonal | 1 | 580T | 280 | Story/Normal / Hard / Extreme |
+| 94 | Balrog | Easy | Maple World | Male | All | 1 | 4.788M | 65 | Hard / Extreme |
+| 95 | Ursus | Normal | Maple World | Other | GMS only | 1 | 2.625T | 100 | Hard / Extreme |
+| 96 | Yakuza Boss | Normal | Maple World | Male | All | 1 | 1B | 160 | Hard / Extreme |
+| 97 | Frenzied Gigatoad | Hard | Maple World | Other | All | 1 | 900M | 170 | Hard / Extreme |
+| 98 | Extreme Bigfoot | Normal | Maple World | Other | All | 1 | 15T | 260 | Hard / Extreme |
+| 99 | Reina | Normal | Grandis | Female | All | 1 | 2.1B | 280 | Extreme |
+| 100 | Julieta | Normal | Maple World | Female | Removed | Unknown | Unknown | Unknown | Extreme |
+| 101 | Cross | Normal | Maple World | Male | Removed | Unknown | Unknown | Unknown | Extreme |
+| 102 | Normal Inferno Wolf | Normal | Maple World | Other | Removed | 1 | 10B | 10 | Extreme |
+| 103 | Chaos Inferno Wolf | Normal | Maple World | Other | Removed | 1 | 20T | 200 | Extreme |
+| 104 | Extreme Inferno Wolf | Normal | Maple World | Other | Removed | 1 | 100T | 260 | Extreme |
+| 105 | Aufheben | Normal | Other | Female | Event | Unknown | Unknown | Unknown | Extreme |
+| 106 | Tweentona | Normal | Other | Other | Event | Unknown | Unknown | Unknown | Extreme |
+| 107 | Gerand Darmoor | Hard | Grandis | Male | Unknown | Unknown | Unknown | Unknown | Extreme |
+| 108 | Havoc | Hard | Grandis | Male | Unknown | Unknown | Unknown | Unknown | Extreme |
 
 ## Notes
 
-- **Zakum**: Phase 1 = 8 arms, Phase 2 = body
+- **Zakum**: 1 phase; HP = 8 arms + body
 - **Mori Ranmaru**: GMS HP (other servers: 84B)
 - **Horntail**: Phase 3 = all 8 body parts
 - **Vellum**: GMS HP (MSEA: 120B)

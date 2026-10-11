@@ -20,11 +20,10 @@
     "world": "Maple World",
     "gender": "Other",
     "region": "All",
-    "phases": 2,
+    "phases": 1,
     "hp": 168000000000,
     "phaseHp": [
-     84000000000,
-     84000000000
+     168000000000
     ],
     "level": 90,
     "hpLabel": null,
@@ -681,11 +680,10 @@
     "world": "Maple World",
     "gender": "Other",
     "region": "All",
-    "phases": 2,
+    "phases": 1,
     "hp": 168000000000,
     "phaseHp": [
-     84000000000,
-     84000000000
+     168000000000
     ],
     "level": 90,
     "hpLabel": null,
@@ -1422,11 +1420,10 @@
     "world": "Maple World",
     "gender": "Other",
     "region": "All",
-    "phases": 2,
+    "phases": 1,
     "hp": 3832000,
     "phaseHp": [
-     1632000,
-     2200000
+     3832000
     ],
     "level": 50,
     "hpLabel": null,
@@ -1439,11 +1436,10 @@
     "world": "Maple World",
     "gender": "Other",
     "region": "All",
-    "phases": 2,
+    "phases": 1,
     "hp": 12600000,
     "phaseHp": [
-     5600000,
-     7000000
+     12600000
     ],
     "level": 90,
     "hpLabel": null,
@@ -1456,11 +1452,10 @@
     "world": "Maple World",
     "gender": "Other",
     "region": "All",
-    "phases": 2,
+    "phases": 1,
     "hp": 168000000000,
     "phaseHp": [
-     84000000000,
-     84000000000
+     168000000000
     ],
     "level": 90,
     "hpLabel": null,
@@ -3222,7 +3217,7 @@
   ]
  },
  "notes": {
-  "Zakum": "Phase 1 = 8 arms, Phase 2 = body",
+  "Zakum": "1 phase; HP = 8 arms + body",
   "Mori Ranmaru": "GMS HP (other servers: 84B)",
   "Horntail": "Phase 3 = all 8 body parts",
   "Vellum": "GMS HP (MSEA: 120B)",

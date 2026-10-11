@@ -22,9 +22,9 @@ def b(name, world, gender, region, pools, diffs, main=None, notes=""):
 MW, GR, AR = "Maple World", "Grandis", "Arcane River"
 bosses = [
     b("Zakum", MW, "Other", "All", ALLP, {
-        "Easy": (50, 2, [8*204_000, 2_200_000]),
-        "Normal": (90, 2, [8*700_000, 7_000_000]),
-        "Chaos": (90, 2, [8*10_500_000_000, 84*B])}, notes="Phase 1 = 8 arms, Phase 2 = body"),
+        "Easy": (50, 1, [8*204_000 + 2_200_000]),
+        "Normal": (90, 1, [8*700_000 + 7_000_000]),
+        "Chaos": (90, 1, [8*10_500_000_000 + 84*B])}, notes="1 phase; HP = 8 arms + body"),
     b("Papulatus", MW, "Other", "All", ALLP, {
         "Easy": (115, 2, [300_000_000, 100_000_000]),
         "Normal": (155, 2, [12_600_000_000, 4_200_000_000]),
@@ -275,19 +275,22 @@ def fmt(n, label=None):
 
 def q(v): return "Unknown" if v is None else str(v)
 
-md = ["# Maple Wordle - boss data review", "",
-      "Generated from `bosses.json`. Unknown = no data found. HP units: M = million, B = billion, T = trillion, Q = quadrillion.", ""]
-titles = {N: "Normal / Story pool", H: "Hard pool (Normal pool + extras)", X: "Extreme pool (every difficulty + extras)"}
+# Clean review list: one row per boss and difficulty, with the modes it appears in.
+in_mode = {}
 for p in (N, H, X):
-    md += [f"## {titles[p]} - {len(pools[p])} entries", "",
-           "| Boss | Mode | World | Gender | Region | Phases | HP | Entry Lv |", "|---|---|---|---|---|---|---|---|"]
-    rows = pools[p]
-    if p == H:
-        rows = [r for r in rows if r["boss"] not in {e["boss"] for e in pools[N]}]
-        md.insert(len(md) - 2, "Only the extras are shown; the Normal pool is included too.\n")
-    for r in rows:
-        md.append(f'| {r["name"]} | {q(r["difficulty"])} | {q(r["world"])} | {q(r["gender"])} | {q(r["region"])} | {q(r["phases"])} | {fmt(r["hp"], r["hpLabel"])} | {q(r["level"])} |')
-    md.append("")
+    for e in pools[p]:
+        in_mode.setdefault((e["boss"], e["difficulty"]), set()).add(p)
+mode_label = lambda ms: " / ".join(m.capitalize() for m in (N, H, X) if m in ms).replace("Normal", "Story/Normal")
+md = ["# Maple Wordle - boss list", "",
+      f"{len(bosses)} bosses, {len(pools[X])} boss + difficulty entries. Unknown = no data found.",
+      "HP is the sum of every phase (M = million, B = billion, T = trillion, Q = quadrillion). Entry Lv = level needed to enter.",
+      "Story/Normal and Hard use one difficulty per boss (Hard > Chaos > Normal > Easy, Gollux = Hell); Extreme uses every difficulty.", "",
+      "| # | Boss | Difficulty | World | Gender | Region | Phases | HP | Entry Lv | In modes |",
+      "|---|---|---|---|---|---|---|---|---|---|"]
+for i, r in enumerate(pools[X], 1):
+    md.append(f'| {i} | {r["boss"]} | {q(r["difficulty"])} | {q(r["world"])} | {q(r["gender"])} | {q(r["region"])} | '
+              f'{q(r["phases"])} | {fmt(r["hp"], r["hpLabel"])} | {q(r["level"])} | {mode_label(in_mode[(r["boss"], r["difficulty"])])} |')
+md.append("")
 md += ["## Notes", ""] + [f"- **{k}**: {v}" for k, v in data["notes"].items()] + [""]
 with open(os.path.join(OUT, "bosses.md"), "w") as f:
     f.write("\n".join(md))
