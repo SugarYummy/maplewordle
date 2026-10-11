@@ -436,6 +436,7 @@ function guess(name) {
   if (!g) return updateStatus('Pick a boss from the list.');
   if (guesses.includes(g.name)) return updateStatus('Already guessed.');
   $('guess').value = '';
+  $('guess').blur();   // unfocus, so the next click on the box opens the list again
   closeList();
   record(g);
   save();
@@ -478,6 +479,7 @@ function closeList() {
 
 $('guess').addEventListener('input', openList);
 $('guess').addEventListener('focus', openList);
+$('guess').addEventListener('click', openList);
 $('guess').addEventListener('blur', closeList);
 $('guess').addEventListener('keydown', (e) => {
   const open = !$('list').hidden;
