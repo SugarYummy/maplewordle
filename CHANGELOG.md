@@ -11,6 +11,7 @@
 - Removed Aufheben and Tweentona
 - Meilin: boss picture added, now counts as 2 phases
 - New Ursus picture
+- Game selector: Guess the Class (working on it) now sits between Guess the Boss and Guess the Map
 
 ## alpha v1.2.1 - 11 October 2026
 - "Best so far" row above your guesses: every category you've found in green, and the closest guess so far for Phases, HP and Entry Lv
