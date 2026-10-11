@@ -22,9 +22,9 @@ def b(name, world, gender, region, pools, diffs, main=None, notes=""):
 MW, GR, AR = "Maple World", "Grandis", "Arcane River"
 bosses = [
     b("Zakum", MW, "Other", "All", ALLP, {
-        "Easy": (50, 1, [8*204_000 + 2_200_000]),
-        "Normal": (90, 1, [8*700_000 + 7_000_000]),
-        "Chaos": (90, 1, [8*10_500_000_000 + 84*B])}, notes="1 phase; HP = 8 arms + body"),
+        "Easy": (50, 1, [2_200_000]),
+        "Normal": (90, 1, [7_000_000]),
+        "Chaos": (90, 1, [84*B])}, notes="1 phase; HP = body only (arms don't count)"),
     b("Papulatus", MW, "Other", "All", ALLP, {
         "Easy": (115, 2, [300_000_000, 100_000_000]),
         "Normal": (155, 2, [12_600_000_000, 4_200_000_000]),

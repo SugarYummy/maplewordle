@@ -6,9 +6,9 @@ Story/Normal and Hard use one difficulty per boss (Hard > Chaos > Normal > Easy,
 
 | # | Boss | Difficulty | World | Gender | Region | Phases | HP | Entry Lv | In modes |
 |---|---|---|---|---|---|---|---|---|---|
-| 1 | Zakum | Easy | Maple World | Other | All | 1 | 3.832M | 50 | Extreme |
-| 2 | Zakum | Normal | Maple World | Other | All | 1 | 12.6M | 90 | Extreme |
-| 3 | Zakum | Chaos | Maple World | Other | All | 1 | 168B | 90 | Story/Normal / Hard / Extreme |
+| 1 | Zakum | Easy | Maple World | Other | All | 1 | 2.2M | 50 | Extreme |
+| 2 | Zakum | Normal | Maple World | Other | All | 1 | 7M | 90 | Extreme |
+| 3 | Zakum | Chaos | Maple World | Other | All | 1 | 84B | 90 | Story/Normal / Hard / Extreme |
 | 4 | Papulatus | Easy | Maple World | Other | All | 2 | 400M | 115 | Extreme |
 | 5 | Papulatus | Normal | Maple World | Other | All | 2 | 16.8B | 155 | Extreme |
 | 6 | Papulatus | Chaos | Maple World | Other | All | 2 | 504B | 190 | Story/Normal / Hard / Extreme |
@@ -117,7 +117,7 @@ Story/Normal and Hard use one difficulty per boss (Hard > Chaos > Normal > Easy,
 
 ## Notes
 
-- **Zakum**: 1 phase; HP = 8 arms + body
+- **Zakum**: 1 phase; HP = body only (arms don't count)
 - **Mori Ranmaru**: GMS HP (other servers: 84B)
 - **Horntail**: Phase 3 = all 8 body parts
 - **Vellum**: GMS HP (MSEA: 120B)
