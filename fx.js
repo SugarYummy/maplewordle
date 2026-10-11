@@ -25,7 +25,7 @@ function revealAfter(el, ms) {
   el.classList.add('later');
 }
 
-// Confetti pieces are the in-game meso drops (sprites from maplestorywiki.net), drawn at 2x and kept pixel-sharp.
+// Confetti pieces are the in-game meso drops (sprites from maplestorywiki.net), drawn at their in-game size and kept pixel-sharp.
 // [file, width, height] in sprite pixels; gold coins are the most common, bags the rarest.
 const PIECES = [
   ['meso-gold', 23, 24], ['meso-gold', 23, 24], ['meso-gold', 23, 24],
@@ -39,10 +39,10 @@ for (const [file] of PIECES) new Image().src = `images/fx/${file}.png`;   // pre
 function confetti() {
   const box = document.createElement('div');
   box.className = 'confetti';
-  for (let i = 0; i < 40; i++) {
+  for (let i = 0; i < 120; i++) {
     const bit = document.createElement('i');
     const [file, w, h] = PIECES[Math.floor(Math.random() * PIECES.length)];
-    const scale = 2;   // a whole-number size keeps the pixel art crisp
+    const scale = 1;   // actual in-game size (a whole number keeps the pixel art crisp)
     bit.style.width = w * scale + 'px';
     bit.style.height = h * scale + 'px';
     bit.style.left = Math.random() * 100 + 'vw';
