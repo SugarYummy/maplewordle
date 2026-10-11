@@ -7,6 +7,9 @@ const STATS_URL = 'https://maplewordle-stats.hanayuki.workers.dev/';
 const DAY_MS = 86400000;
 const today = () => Math.floor(Date.now() / DAY_MS); // resets at 00:00 UTC
 
+// Entry level text, e.g. "300+" when only a minimum is known.
+const levelText = (e) => e.levelLabel ?? e.level ?? 'Unknown';
+
 function formatHp(entry) {
   if (entry.hpLabel) return entry.hpLabel;
   const n = entry.hp;
@@ -147,7 +150,7 @@ function guessCells(g) {
     regionCell(g.region, answer.region),
     numberCell(g.phases, answer.phases, g.phases ?? 'Unknown', closePhases),
     numberCell(g.hp, answer.hp, formatHp(g), closeHp),
-    numberCell(g.level, answer.level, g.level ?? 'Unknown', closeLevel),
+    numberCell(g.level, answer.level, levelText(g), closeLevel),
     ...(mode === 'extreme' ? [diffCell(g)] : []),
   ];
 }
@@ -160,7 +163,7 @@ function answerRow() {
   const a = answer;
   addRow([
     [{ card: a, label: 'Answer: ' + cardName(a) }], [a.world ?? 'Unknown'], [a.gender ?? 'Unknown'], [a.region ?? 'Unknown'],
-    [a.phases ?? 'Unknown'], [formatHp(a)], [a.level ?? 'Unknown'],
+    [a.phases ?? 'Unknown'], [formatHp(a)], [levelText(a)],
     ...(mode === 'extreme' ? [[a.difficulty ?? 'Unknown']] : []),
   ], 'answer');
 }
@@ -253,7 +256,7 @@ function renderBest() {
   }
   const dist = { phases: (a, b) => Math.abs(a - b), level: (a, b) => Math.abs(a - b), hp: (a, b) => Math.abs(Math.log(a / b)) };
   for (const [key, i] of [['phases', 4], ['hp', 5], ['level', 6]]) {
-    const show = key === 'hp' ? formatHp(answer) : answer[key] ?? 'Unknown';
+    const show = key === 'hp' ? formatHp(answer) : key === 'level' ? levelText(answer) : answer[key] ?? 'Unknown';
     if (hinted.has(key) || gs.some((c) => c[i][1] === 'green')) { cells.push([show, 'green']); continue; }
     let best = -1;
     vals.forEach((v, j) => {
@@ -282,7 +285,7 @@ const HINT_CATS = [
   { key: 'region', cell: 3, show: (e) => e.region ?? 'Unknown' },
   { key: 'phases', cell: 4, show: (e) => e.phases ?? 'Unknown' },
   { key: 'hp', cell: 5, show: (e) => formatHp(e) },
-  { key: 'level', cell: 6, show: (e) => e.level ?? 'Unknown' },
+  { key: 'level', cell: 6, show: (e) => levelText(e) },
 ];
 const hintKey = () => `${saveKey()}:hints`;
 function loadHints() {

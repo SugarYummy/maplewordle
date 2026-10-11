@@ -7,7 +7,7 @@
 - Region fixes: Yakuza Boss and Frenzied Gigatoad are JMS / GMS / MSEA only, Malicia is also in MSEA
 - Boss pictures for Yakuza Boss, Frenzied Gigatoad, Extreme Bigfoot, Inferno Wolf, Reina, Gerand Darmoor and Havoc
 - Inferno Wolf is now one boss with Normal / Chaos / Extreme difficulties
-- Reina, Gerand Darmoor and Havoc have difficulty "Unknown (Apostle)"
+- Reina and Havoc have difficulty "Unknown (Apostle)"; Gerand Darmoor is "Unknown (God-King)" with entry level 300+; Darmoor and Havoc are in All regions
 - Removed Aufheben and Tweentona
 
 ## alpha v1.2.1 - 11 October 2026

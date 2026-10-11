@@ -186,9 +186,9 @@ bosses = [
         "Chaos": (200, 1, [20*T]),
         "Extreme": (260, 1, [100*T])},
       notes="Bounty portal boss: Normal Lv 10-199, Chaos Lv 200-259, Extreme Lv 260+. HP from Namu Wiki"),
-    b("Gerand Darmoor", GR, "Male", None, XO, {"Unknown (Apostle)": (None, None, None)},
-      notes="No boss fight found on MapleWiki or Namu Wiki (story character only)"),
-    b("Havoc", GR, "Male", None, XO, {"Unknown (Apostle)": (None, None, None)},
+    b("Gerand Darmoor", GR, "Male", "All", XO, {"Unknown (God-King)": (300, None, None, None, "300+")},
+      notes="God-King of the High Flora; no boss fight yet. Entry level assumed 300+ (highest in the game)"),
+    b("Havoc", GR, "Male", "All", XO, {"Unknown (Apostle)": (None, None, None)},
       notes="Apostle of Darmoor; no boss fight found on MapleWiki or Namu Wiki (story character only)"),
 ]
 
@@ -249,10 +249,13 @@ IMAGES = {
 }
 
 def entry(boss, diff, label):
-    lv, ph, hps, *hpLabel = boss["diffs"][diff]
+    lv, ph, hps, *labels = boss["diffs"][diff]
+    hpLabel = labels[:1]
+    levelLabel = labels[1] if len(labels) > 1 else None
     return dict(name=label, boss=boss["name"], difficulty=diff, world=boss["world"], gender=boss["gender"],
                 region=boss["region"], phases=ph, hp=sum(hps) if hps else None, phaseHp=hps, level=lv,
-                hpLabel=hpLabel[0] if hpLabel else None, image=IMAGES.get(f'{boss["name"]}|{diff}') or IMAGES.get(boss["name"]),
+                hpLabel=hpLabel[0] if hpLabel and hpLabel[0] else None,
+                **({"levelLabel": levelLabel} if levelLabel else {}), image=IMAGES.get(f'{boss["name"]}|{diff}') or IMAGES.get(boss["name"]),
                 **({"since": boss["since"]} if boss["since"] else {}))
 
 def label(name, d):
@@ -310,7 +313,7 @@ md = ["# Maple Wordle - boss list", "",
       "|---|---|---|---|---|---|---|---|---|---|"]
 for i, r in enumerate(pools[X], 1):
     md.append(f'| {i} | {r["boss"]} | {q(r["difficulty"])} | {q(r["world"])} | {q(r["gender"])} | {q(r["region"])} | '
-              f'{q(r["phases"])} | {fmt(r["hp"], r["hpLabel"])} | {q(r["level"])} | {mode_label(in_mode[(r["boss"], r["difficulty"])])} |')
+              f'{q(r["phases"])} | {fmt(r["hp"], r["hpLabel"])} | {q(r.get("levelLabel") or r["level"])} | {mode_label(in_mode[(r["boss"], r["difficulty"])])} |')
 md.append("")
 md += ["## Notes", ""] + [f"- **{k}**: {v}" for k, v in data["notes"].items()] + [""]
 # Same list as an HTML page (opens at /data/bosses.html on the site).
@@ -318,7 +321,7 @@ import html as _h
 rows = []
 for i, r in enumerate(pools[X], 1):
     cells = [i, r["boss"], q(r["difficulty"]), q(r["world"]), q(r["gender"]), q(r["region"]), q(r["phases"]),
-             fmt(r["hp"], r["hpLabel"]), q(r["level"]), mode_label(in_mode[(r["boss"], r["difficulty"])])]
+             fmt(r["hp"], r["hpLabel"]), q(r.get("levelLabel") or r["level"]), mode_label(in_mode[(r["boss"], r["difficulty"])])]
     rows.append("<tr>" + "".join(f"<td>{_h.escape(str(c))}</td>" for c in cells) + "</tr>")
 notes = "".join(f"<li><b>{_h.escape(k)}</b>: {_h.escape(v)}</li>" for k, v in data["notes"].items())
 page = f"""<!doctype html>

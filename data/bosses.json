@@ -3151,17 +3151,18 @@
     "image": "images/bosses/inferno-wolf-extreme.png"
    },
    {
-    "name": "Gerand Darmoor (Apostle)",
+    "name": "Gerand Darmoor (God-King)",
     "boss": "Gerand Darmoor",
-    "difficulty": "Unknown (Apostle)",
+    "difficulty": "Unknown (God-King)",
     "world": "Grandis",
     "gender": "Male",
-    "region": null,
+    "region": "All",
     "phases": null,
     "hp": null,
     "phaseHp": null,
-    "level": null,
+    "level": 300,
     "hpLabel": null,
+    "levelLabel": "300+",
     "image": "images/bosses/gerand-darmoor.png"
    },
    {
@@ -3170,7 +3171,7 @@
     "difficulty": "Unknown (Apostle)",
     "world": "Grandis",
     "gender": "Male",
-    "region": null,
+    "region": "All",
     "phases": null,
     "hp": null,
     "phaseHp": null,
@@ -3200,7 +3201,7 @@
   "Julieta": "Removed (Monad). No HP/level/phases on any wiki",
   "Cross": "Removed JMS/TMS boss. No HP/level/phases on any wiki",
   "Inferno Wolf": "Bounty portal boss: Normal Lv 10-199, Chaos Lv 200-259, Extreme Lv 260+. HP from Namu Wiki",
-  "Gerand Darmoor": "No boss fight found on MapleWiki or Namu Wiki (story character only)",
+  "Gerand Darmoor": "God-King of the High Flora; no boss fight yet. Entry level assumed 300+ (highest in the game)",
   "Havoc": "Apostle of Darmoor; no boss fight found on MapleWiki or Namu Wiki (story character only)"
  }
 }

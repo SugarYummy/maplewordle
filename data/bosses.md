@@ -110,8 +110,8 @@ Story/Normal and Hard use one difficulty per boss (Hard/Chaos > Extreme > Normal
 | 102 | Inferno Wolf | Normal | Maple World | Other | Removed | 1 | 10B | 10 | Extreme |
 | 103 | Inferno Wolf | Chaos | Maple World | Other | Removed | 1 | 20T | 200 | Extreme |
 | 104 | Inferno Wolf | Extreme | Maple World | Other | Removed | 1 | 100T | 260 | Extreme |
-| 105 | Gerand Darmoor | Unknown (Apostle) | Grandis | Male | Unknown | Unknown | Unknown | Unknown | Extreme |
-| 106 | Havoc | Unknown (Apostle) | Grandis | Male | Unknown | Unknown | Unknown | Unknown | Extreme |
+| 105 | Gerand Darmoor | Unknown (God-King) | Grandis | Male | All | Unknown | Unknown | 300+ | Extreme |
+| 106 | Havoc | Unknown (Apostle) | Grandis | Male | All | Unknown | Unknown | Unknown | Extreme |
 
 ## Notes
 
@@ -134,5 +134,5 @@ Story/Normal and Hard use one difficulty per boss (Hard/Chaos > Extreme > Normal
 - **Julieta**: Removed (Monad). No HP/level/phases on any wiki
 - **Cross**: Removed JMS/TMS boss. No HP/level/phases on any wiki
 - **Inferno Wolf**: Bounty portal boss: Normal Lv 10-199, Chaos Lv 200-259, Extreme Lv 260+. HP from Namu Wiki
-- **Gerand Darmoor**: No boss fight found on MapleWiki or Namu Wiki (story character only)
+- **Gerand Darmoor**: God-King of the High Flora; no boss fight yet. Entry level assumed 300+ (highest in the game)
 - **Havoc**: Apostle of Darmoor; no boss fight found on MapleWiki or Namu Wiki (story character only)
