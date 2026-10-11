@@ -1363,7 +1363,7 @@
     "difficulty": "Normal",
     "world": "Maple World",
     "gender": "Male",
-    "region": "All",
+    "region": "JMS/GMS/MSEA",
     "phases": 1,
     "hp": 1000000000,
     "phaseHp": [
@@ -1379,7 +1379,7 @@
     "difficulty": "Hard",
     "world": "Maple World",
     "gender": "Other",
-    "region": "All",
+    "region": "JMS/GMS/MSEA",
     "phases": 1,
     "hp": 900000000,
     "phaseHp": [
@@ -3018,7 +3018,7 @@
     "difficulty": "Normal",
     "world": "Maple World",
     "gender": "Male",
-    "region": "All",
+    "region": "JMS/GMS/MSEA",
     "phases": 1,
     "hp": 1000000000,
     "phaseHp": [
@@ -3034,7 +3034,7 @@
     "difficulty": "Hard",
     "world": "Maple World",
     "gender": "Other",
-    "region": "All",
+    "region": "JMS/GMS/MSEA",
     "phases": 1,
     "hp": 900000000,
     "phaseHp": [
@@ -3221,8 +3221,8 @@
   "Kai": "Challenger World seasonal boss; World set to Other (Nexus Tower)",
   "Meilin": "Challenger World Season 4 boss. One HP bar; form/map change at 50% HP is not counted as a new phase",
   "Balrog": "Only Easy mode exists; HP = body + 2 extra parts",
-  "Yakuza Boss": "Entry level = Showa Town quest requirement",
-  "Frenzied Gigatoad": "GMS HP (other servers: 1.7B); entry level = Ninja Castle requirement",
+  "Yakuza Boss": "Showa Town (Zipangu): in JMS, GMS and MSEA only; entry level = Showa Town quest requirement",
+  "Frenzied Gigatoad": "Ninja Castle (Zipangu): in JMS, GMS and MSEA only; GMS HP (other servers: 1.7B); entry level = Ninja Castle requirement",
   "Extreme Bigfoot": "Monster Park Extreme (260+)",
   "Reina": "Arteria quest boss; phases, HP and entry level unknown",
   "Julieta": "Removed (Monad). No HP/level/phases on any wiki",

@@ -170,9 +170,9 @@ bosses = [
     b("Balrog", MW, "Male", "All", HX, {"Easy": (65, 1, [2_400_000 + 1_152_000 + 1_235_520])},
       notes="Only Easy mode exists; HP = body + 2 extra parts"),
     b("Ursus", MW, "Other", "GMS only", HX, {"Normal": (100, 1, [2_625*B])}),
-    b("Yakuza Boss", MW, "Male", "All", HX, {"Normal": (160, 1, [1*B])}, notes="Entry level = Showa Town quest requirement"),
-    b("Frenzied Gigatoad", MW, "Other", "All", HX, {"Hard": (170, 1, [900_000_000])},
-      notes="GMS HP (other servers: 1.7B); entry level = Ninja Castle requirement"),
+    b("Yakuza Boss", MW, "Male", "JMS/GMS/MSEA", HX, {"Normal": (160, 1, [1*B])}, notes="Showa Town (Zipangu): in JMS, GMS and MSEA only; entry level = Showa Town quest requirement"),
+    b("Frenzied Gigatoad", MW, "Other", "JMS/GMS/MSEA", HX, {"Hard": (170, 1, [900_000_000])},
+      notes="Ninja Castle (Zipangu): in JMS, GMS and MSEA only; GMS HP (other servers: 1.7B); entry level = Ninja Castle requirement"),
     b("Extreme Bigfoot", MW, "Other", "All", HX, {"Normal": (260, 1, [15*T])}, notes="Monster Park Extreme (260+)"),
 
     # Extreme-only additions

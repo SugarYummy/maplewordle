@@ -101,8 +101,8 @@ Story/Normal and Hard use one difficulty per boss (Hard/Chaos > Extreme > Normal
 | 93 | Meilin | Hard | Other | Female | Seasonal | 1 | 580T | 280 | Story/Normal / Hard / Extreme |
 | 94 | Balrog | Easy | Maple World | Male | All | 1 | 4.788M | 65 | Hard / Extreme |
 | 95 | Ursus | Normal | Maple World | Other | GMS only | 1 | 2.625T | 100 | Hard / Extreme |
-| 96 | Yakuza Boss | Normal | Maple World | Male | All | 1 | 1B | 160 | Hard / Extreme |
-| 97 | Frenzied Gigatoad | Hard | Maple World | Other | All | 1 | 900M | 170 | Hard / Extreme |
+| 96 | Yakuza Boss | Normal | Maple World | Male | JMS/GMS/MSEA | 1 | 1B | 160 | Hard / Extreme |
+| 97 | Frenzied Gigatoad | Hard | Maple World | Other | JMS/GMS/MSEA | 1 | 900M | 170 | Hard / Extreme |
 | 98 | Extreme Bigfoot | Normal | Maple World | Other | All | 1 | 15T | 260 | Hard / Extreme |
 | 99 | Reina | Normal | Grandis | Female | All | Unknown | Unknown | Unknown | Extreme |
 | 100 | Julieta | Normal | Maple World | Female | Removed | Unknown | Unknown | Unknown | Extreme |
@@ -129,8 +129,8 @@ Story/Normal and Hard use one difficulty per boss (Hard/Chaos > Extreme > Normal
 - **Kai**: Challenger World seasonal boss; World set to Other (Nexus Tower)
 - **Meilin**: Challenger World Season 4 boss. One HP bar; form/map change at 50% HP is not counted as a new phase
 - **Balrog**: Only Easy mode exists; HP = body + 2 extra parts
-- **Yakuza Boss**: Entry level = Showa Town quest requirement
-- **Frenzied Gigatoad**: GMS HP (other servers: 1.7B); entry level = Ninja Castle requirement
+- **Yakuza Boss**: Showa Town (Zipangu): in JMS, GMS and MSEA only; entry level = Showa Town quest requirement
+- **Frenzied Gigatoad**: Ninja Castle (Zipangu): in JMS, GMS and MSEA only; GMS HP (other servers: 1.7B); entry level = Ninja Castle requirement
 - **Extreme Bigfoot**: Monster Park Extreme (260+)
 - **Reina**: Arteria quest boss; phases, HP and entry level unknown
 - **Julieta**: Removed (Monad). No HP/level/phases on any wiki
