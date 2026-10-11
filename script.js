@@ -569,6 +569,10 @@ $('credit').addEventListener('click', () => {
   clearTimeout(peekTimers.get(who));
   peekTimers.set(who, setTimeout(() => who.classList.remove('up'), 350 + 2000));
 });
+// Clicking the dark area outside a window (not the window itself) closes it.
+for (const id of ['archive', 'changelog']) {
+  $(id).addEventListener('click', (e) => { if (e.target === $(id)) $(id).hidden = true; });
+}
 // Esc closes whichever window is open.
 document.addEventListener('keydown', (e) => {
   if (e.key !== 'Escape') return;
