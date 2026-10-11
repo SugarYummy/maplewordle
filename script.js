@@ -466,7 +466,7 @@ function guess(name) {
   // Exact name, otherwise the first boss whose name contains what was typed.
   const g = pool.find((e) => e.name.toLowerCase() === name)
     || pool.filter((e) => !guesses.includes(e.name) && e.boss.toLowerCase().includes(name.split('(')[0].trim()))
-      .sort((a, b) => a.name.localeCompare(b.name))[0];
+      .sort(byNameThenDifficulty)[0];
   if (!g) return updateStatus('Pick a boss from the list.');
   if (guesses.includes(g.name)) return updateStatus('Already guessed.');
   $('guess').value = '';
@@ -478,11 +478,15 @@ function guess(name) {
 }
 
 // Dropdown drawn inside the page (not the browser's native popup), so it shows up on screen shares.
+// Dropdown order: boss name A-Z, then difficulty from easiest to hardest (matters in Extreme).
+const DIFF_ORDER = { Easy: 0, Normal: 1, Hard: 2, Chaos: 2, Hell: 3, Extreme: 4 };
+const byNameThenDifficulty = (a, b) =>
+  a.boss.localeCompare(b.boss) || (DIFF_ORDER[a.difficulty] ?? 9) - (DIFF_ORDER[b.difficulty] ?? 9);
 function openList() {
   // Match the boss name only: the "(Hard)" / "(Chaos)" part is ignored, in the list and in what's typed.
   const q = $('guess').value.split('(')[0].trim().toLowerCase();
   matches = pool.filter((e) => !guesses.includes(e.name) && e.boss.toLowerCase().includes(q))
-    .sort((a, b) => a.name.localeCompare(b.name));   // A-Z, so the list order gives nothing away
+    .sort(byNameThenDifficulty);   // A-Z, so the list order gives nothing away
   active = 0;
   renderList();
 }
