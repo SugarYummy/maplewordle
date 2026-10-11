@@ -458,7 +458,7 @@ function shareText() {
   const grid = guesses.map((name) =>
     columnOrder(guessCells(pool.find((e) => e.name === name))).map(([, c]) => EMOJI[c]).join(''));
   const hintNote = mode === 'story' ? ` (${hints.length} hint${hints.length === 1 ? '' : 's'})` : '';
-  return [`Maple Wordle #${day - FIRST_DAY + 1} (${MODE_NAME[mode]}) ${score}${hintNote}`, ...grid, location.href.split('#')[0]].join('\n');
+  return [`Maple Wordle #${day - FIRST_DAY + 1} (${MODE_NAME[mode]}) ${score}${hintNote}`, ...grid, 'https://ima.moe/maplewordle/'].join('\n');
 }
 
 function share() {
