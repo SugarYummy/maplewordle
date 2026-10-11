@@ -4,7 +4,7 @@
 - "Best so far" row above your guesses: every category you've found in green, and the closest guess so far for Phases, HP and Entry Lv
 - Search box unfocuses after a guess, so one click reopens the boss list
 - Click outside the Changelog or Archive window to close it
-- Extreme mode: new Difficulty column (Easy < Normal < Hard/Chaos < Extreme/Hell) with arrows, yellow when one tier off
+- Extreme mode: new Difficulty column right after Boss (Easy < Normal < Hard/Chaos < Extreme/Hell) with arrows, yellow when one tier off; boss names in the table drop the "(difficulty)" part
 - Boss dropdown is in alphabetical order (difficulties listed Easy, Normal, Hard/Chaos, Extreme), and searching matches the boss name only (not "(Hard)" / "(Chaos)")
 
 ## alpha v1.2 - 11 October 2026

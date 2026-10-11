@@ -98,10 +98,12 @@ const closePhases = (g, a) => Math.abs(g - a) <= 1;
 const closeHp = (g, a) => Math.max(g, a) / Math.min(g, a) <= 3;
 const closeLevel = (g, a) => Math.abs(g - a) <= 10;
 
+// In Extreme the Difficulty cell is built last; show it right after Boss.
+const columnOrder = (cells) => cells.length === 8 ? [cells[0], cells[7], ...cells.slice(1, 7)] : cells;
 function addRow(cells, cls) {
   const tr = document.createElement('tr');
   if (cls) tr.className = cls;
-  for (const [text, c] of cells) {
+  for (const [text, c] of columnOrder(cells)) {
     const td = document.createElement('td');
     if (text && text.card) td.appendChild(bossCard(text.card, text.label));
     else td.textContent = text;
@@ -112,7 +114,9 @@ function addRow(cells, cls) {
 }
 
 // Boss "photo card": Maple Guide icon with the name under it ("?" when there's no icon).
-function bossCard(e, label = e.name) {
+// In Extreme the Difficulty column shows the difficulty, so cards show just the boss name.
+const cardName = (e) => mode === 'extreme' ? e.boss : e.name;
+function bossCard(e, label = cardName(e)) {
   const card = document.createElement('div');
   card.className = 'card';
   if (e.image) {
@@ -153,7 +157,7 @@ const guessRow = (g) => addRow(guessCells(g));
 function answerRow() {
   const a = answer;
   addRow([
-    [{ card: a, label: 'Answer: ' + a.name }], [a.world ?? 'Unknown'], [a.gender ?? 'Unknown'], [a.region ?? 'Unknown'],
+    [{ card: a, label: 'Answer: ' + cardName(a) }], [a.world ?? 'Unknown'], [a.gender ?? 'Unknown'], [a.region ?? 'Unknown'],
     [a.phases ?? 'Unknown'], [formatHp(a)], [a.level ?? 'Unknown'],
     ...(mode === 'extreme' ? [[a.difficulty ?? 'Unknown']] : []),
   ], 'answer');
@@ -447,7 +451,7 @@ function shareText() {
   const won = guesses.includes(answer.name);
   const score = (won ? guesses.length : 'X') + '/' + (maxGuesses ?? '∞');
   const grid = guesses.map((name) =>
-    guessCells(pool.find((e) => e.name === name)).map(([, c]) => EMOJI[c]).join(''));
+    columnOrder(guessCells(pool.find((e) => e.name === name))).map(([, c]) => EMOJI[c]).join(''));
   const hintNote = mode === 'story' ? ` (${hints.length} hint${hints.length === 1 ? '' : 's'})` : '';
   return [`Maple Wordle #${day - FIRST_DAY + 1} (${MODE_NAME[mode]}) ${score}${hintNote}`, ...grid, location.href.split('#')[0]].join('\n');
 }
