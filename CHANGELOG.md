@@ -1,11 +1,14 @@
 # Maple Wordle changelog
 
+## alpha v1.2.2 - 11 October 2026
+- Extreme mode: new Difficulty column right after Boss (Easy < Normal < Hard/Chaos < Extreme/Hell) with arrows, yellow when one tier off; boss names in the table drop the "(difficulty)" part
+- Boss dropdown is in alphabetical order (difficulties listed Easy, Normal, Hard/Chaos, Extreme), and searching matches the boss name only (not "(Hard)" / "(Chaos)")
+- Click outside the Changelog or Archive window to close it
+- Region fixes: Yakuza Boss and Frenzied Gigatoad are JMS / GMS / MSEA only, Malicia is also in MSEA
+
 ## alpha v1.2.1 - 11 October 2026
 - "Best so far" row above your guesses: every category you've found in green, and the closest guess so far for Phases, HP and Entry Lv
 - Search box unfocuses after a guess, so one click reopens the boss list
-- Click outside the Changelog or Archive window to close it
-- Extreme mode: new Difficulty column right after Boss (Easy < Normal < Hard/Chaos < Extreme/Hell) with arrows, yellow when one tier off; boss names in the table drop the "(difficulty)" part
-- Boss dropdown is in alphabetical order (difficulties listed Easy, Normal, Hard/Chaos, Extreme), and searching matches the boss name only (not "(Hard)" / "(Chaos)")
 
 ## alpha v1.2 - 11 October 2026
 - Boss picker shows each boss's photo + name; clicking a boss guesses it (Guess button removed)
