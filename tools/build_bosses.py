@@ -292,6 +292,38 @@ for i, r in enumerate(pools[X], 1):
               f'{q(r["phases"])} | {fmt(r["hp"], r["hpLabel"])} | {q(r["level"])} | {mode_label(in_mode[(r["boss"], r["difficulty"])])} |')
 md.append("")
 md += ["## Notes", ""] + [f"- **{k}**: {v}" for k, v in data["notes"].items()] + [""]
+# Same list as an HTML page (opens at /data/bosses.html on the site).
+import html as _h
+rows = []
+for i, r in enumerate(pools[X], 1):
+    cells = [i, r["boss"], q(r["difficulty"]), q(r["world"]), q(r["gender"]), q(r["region"]), q(r["phases"]),
+             fmt(r["hp"], r["hpLabel"]), q(r["level"]), mode_label(in_mode[(r["boss"], r["difficulty"])])]
+    rows.append("<tr>" + "".join(f"<td>{_h.escape(str(c))}</td>" for c in cells) + "</tr>")
+notes = "".join(f"<li><b>{_h.escape(k)}</b>: {_h.escape(v)}</li>" for k, v in data["notes"].items())
+page = f"""<!doctype html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maple Wordle boss list</title>
+<style>
+  body {{ font-family: system-ui, sans-serif; margin: 16px; background: #fff; color: #111; }}
+  .wrap {{ overflow-x: auto; }}
+  table {{ border-collapse: collapse; font-size: 14px; }}
+  th, td {{ border: 1px solid #bbb; padding: 4px 8px; text-align: left; white-space: nowrap; }}
+  th {{ background: #e8eef6; position: sticky; top: 0; }}
+  tr:nth-child(even) td {{ background: #f6f8fb; }}
+</style></head><body>
+<h1>Maple Wordle boss list</h1>
+<p>{len(bosses)} bosses, {len(pools[X])} boss + difficulty entries. Unknown = no data found.<br>
+HP is the sum of every phase (M = million, B = billion, T = trillion, Q = quadrillion). Entry Lv = level needed to enter.<br>
+Story/Normal and Hard use one difficulty per boss (Hard &gt; Chaos &gt; Normal &gt; Easy, Gollux = Hell); Extreme uses every difficulty.</p>
+<div class="wrap"><table>
+<tr><th>#</th><th>Boss</th><th>Difficulty</th><th>World</th><th>Gender</th><th>Region</th><th>Phases</th><th>HP</th><th>Entry Lv</th><th>In modes</th></tr>
+{chr(10).join(rows)}
+</table></div>
+<h2>Notes</h2><ul>{notes}</ul>
+</body></html>
+"""
+with open(os.path.join(OUT, "bosses.html"), "w") as f:
+    f.write(page)
 with open(os.path.join(OUT, "bosses.md"), "w") as f:
     f.write("\n".join(md))
 print({k: len(v) for k, v in pools.items()})
