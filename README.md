@@ -1,6 +1,7 @@
 # Maple Wordle
 
-A daily MapleStory boss guessing game. Play at **https://sugaryummy.github.io/maplewordle/**
+A daily MapleStory boss guessing game. Play at **https://ima.moe/maplewordle/**
+(the github.io address redirects there and carries saves along, see `move.js`)
 
 Guess the boss using hints for World, Gender, Region, Phases, HP and Entry Level.
 Modes: Story (unlimited guesses), Normal, Hard and Extreme. A new boss every day at 00:00 UTC.

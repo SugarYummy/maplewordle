@@ -8,6 +8,7 @@
 - Class pictures: newest NPC portraits, plus artwork for classes without one
 - Archive, win streak, Share, Best so far row and everyone's results, same as Guess the Boss
 - Animation Attack mode for Guess the Class: coming soon
+- Share links point to ima.moe; the github.io address now sends you to ima.moe and brings your saves and streaks along
 
 ## alpha v1.2.2 - 11 October 2026
 - Extreme mode: new Difficulty column right after Boss (Easy < Normal < Hard/Chaos < Extreme/Hell) with arrows, yellow when one tier off; boss names in the table drop the "(difficulty)" part
