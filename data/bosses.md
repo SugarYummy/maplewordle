@@ -63,8 +63,8 @@ Story/Normal and Hard use one difficulty per boss (Hard/Chaos > Extreme > Normal
 | 55 | Gloom | Chaos | Arcane River | Other | All | 1 | 127.05T | 245 | Story/Normal / Hard / Extreme |
 | 56 | Verus Hilla | Normal | Arcane River | Female | All | 1 | 89.25T | 250 | Extreme |
 | 57 | Verus Hilla | Hard | Arcane River | Female | All | 1 | 178.5T | 250 | Story/Normal / Hard / Extreme |
-| 58 | Malicia | Normal | Maple World | Female | JMS/CMS/TMS | 4 | 178T | 250 | Extreme |
-| 59 | Malicia | Extreme | Maple World | Female | JMS/CMS/TMS | 4 | 300Q+ | 250 | Story/Normal / Hard / Extreme |
+| 58 | Malicia | Normal | Maple World | Female | JMS/CMS/TMS/MSEA | 4 | 178T | 250 | Extreme |
+| 59 | Malicia | Extreme | Maple World | Female | JMS/CMS/TMS/MSEA | 4 | 300Q+ | 250 | Story/Normal / Hard / Extreme |
 | 60 | Darknell | Normal | Arcane River | Male | All | 1 | 26.25T | 255 | Extreme |
 | 61 | Darknell | Hard | Arcane River | Male | All | 1 | 157.5T | 255 | Story/Normal / Hard / Extreme |
 | 62 | Black Mage | Hard | Arcane River | Male | All | 4 | 472.5T | 255 | Story/Normal / Hard / Extreme |
@@ -123,7 +123,7 @@ Story/Normal and Hard use one difficulty per boss (Hard/Chaos > Extreme > Normal
 - **Vellum**: GMS HP (MSEA: 120B)
 - **Gollux**: GMS HP, 3 Head phases only. Wiki only lists the 180+ requirement, so every mode uses 180
 - **Cygnus**: Removed from KMS in the Overdrive update
-- **Malicia**: Normal HP from Bahamut (TMS) boss HP table, Jul 2026: P1 49T + inner world 21T, P2 56T, P3 24T, P4 28T. Extreme: known phases total ~149.7Q but Phase 4 is unknown, so shown as 300Q+
+- **Malicia**: MSEA added Lian Plateau (Li-an Highlands) in Nov 2025, and her wiki page lists MSEA names and drops. Normal HP from Bahamut (TMS) boss HP table, Jul 2026: P1 49T + inner world 21T, P2 56T, P3 24T, P4 28T. Extreme: known phases total ~149.7Q but Phase 4 is unknown, so shown as 300Q+
 - **Kaling**: P1 = 3 perils, P2 = Kaling, P3 = 3 perils + Frenzied Kaling
 - **Limbo**: P2 = two separate parts
 - **Kai**: Challenger World seasonal boss; World set to Other (Nexus Tower)

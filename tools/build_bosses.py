@@ -109,10 +109,10 @@ bosses = [
     b("Verus Hilla", AR, "Female", "All", ALLP, {
         "Normal": (250, 1, [89_250*B]),
         "Hard": (250, 1, [178_500*B])}),
-    b("Malicia", MW, "Female", "JMS/CMS/TMS", ALLP, {
+    b("Malicia", MW, "Female", "JMS/CMS/TMS/MSEA", ALLP, {
         "Normal": (250, 4, [49*T + 21*T, 56*T, 24*T, 28*T]),
         "Extreme": (250, 4, [300*Q], "300Q+")},
-        notes="Normal HP from Bahamut (TMS) boss HP table, Jul 2026: P1 49T + inner world 21T, P2 56T, P3 24T, P4 28T. "
+        notes="MSEA added Lian Plateau (Li-an Highlands) in Nov 2025, and her wiki page lists MSEA names and drops. Normal HP from Bahamut (TMS) boss HP table, Jul 2026: P1 49T + inner world 21T, P2 56T, P3 24T, P4 28T. "
               "Extreme: known phases total ~149.7Q but Phase 4 is unknown, so shown as 300Q+"),
     b("Darknell", AR, "Male", "All", ALLP, {
         "Normal": (255, 1, [26_250*B]),

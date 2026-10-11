@@ -434,7 +434,7 @@
     "difficulty": "Extreme",
     "world": "Maple World",
     "gender": "Female",
-    "region": "JMS/CMS/TMS",
+    "region": "JMS/CMS/TMS/MSEA",
     "phases": 4,
     "hp": 300000000000000000,
     "phaseHp": [
@@ -1091,7 +1091,7 @@
     "difficulty": "Extreme",
     "world": "Maple World",
     "gender": "Female",
-    "region": "JMS/CMS/TMS",
+    "region": "JMS/CMS/TMS/MSEA",
     "phases": 4,
     "hp": 300000000000000000,
     "phaseHp": [
@@ -2363,7 +2363,7 @@
     "difficulty": "Normal",
     "world": "Maple World",
     "gender": "Female",
-    "region": "JMS/CMS/TMS",
+    "region": "JMS/CMS/TMS/MSEA",
     "phases": 4,
     "hp": 178000000000000,
     "phaseHp": [
@@ -2382,7 +2382,7 @@
     "difficulty": "Extreme",
     "world": "Maple World",
     "gender": "Female",
-    "region": "JMS/CMS/TMS",
+    "region": "JMS/CMS/TMS/MSEA",
     "phases": 4,
     "hp": 300000000000000000,
     "phaseHp": [
@@ -3215,7 +3215,7 @@
   "Vellum": "GMS HP (MSEA: 120B)",
   "Gollux": "GMS HP, 3 Head phases only. Wiki only lists the 180+ requirement, so every mode uses 180",
   "Cygnus": "Removed from KMS in the Overdrive update",
-  "Malicia": "Normal HP from Bahamut (TMS) boss HP table, Jul 2026: P1 49T + inner world 21T, P2 56T, P3 24T, P4 28T. Extreme: known phases total ~149.7Q but Phase 4 is unknown, so shown as 300Q+",
+  "Malicia": "MSEA added Lian Plateau (Li-an Highlands) in Nov 2025, and her wiki page lists MSEA names and drops. Normal HP from Bahamut (TMS) boss HP table, Jul 2026: P1 49T + inner world 21T, P2 56T, P3 24T, P4 28T. Extreme: known phases total ~149.7Q but Phase 4 is unknown, so shown as 300Q+",
   "Kaling": "P1 = 3 perils, P2 = Kaling, P3 = 3 perils + Frenzied Kaling",
   "Limbo": "P2 = two separate parts",
   "Kai": "Challenger World seasonal boss; World set to Other (Nexus Tower)",
