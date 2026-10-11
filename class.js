@@ -71,9 +71,9 @@ function regionCell(g, a) {
   return [g, gs && as && gs.some((s) => as.includes(s)) ? 'yellow' : 'red'];
 }
 
-// Release year: arrow towards the answer, yellow within 2 years. No year (Not in GMS) = red, no arrow.
+// Release year: arrow towards the answer, yellow within 4 years. No year (Not in GMS) = red, no arrow.
 const yearText = (e) => e.yearLabel ?? e.year ?? 'Unknown';
-const YEAR_CLOSE = 2;
+const YEAR_CLOSE = 4;
 function yearCell(g, a) {
   const show = yearText(g);
   if (g.year == null || a.year == null) return [show, g.year === a.year && g.yearLabel === a.yearLabel ? 'green' : 'red'];

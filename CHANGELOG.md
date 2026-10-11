@@ -2,7 +2,7 @@
 
 ## alpha v2.0 - 11 October 2026
 - New game: Guess the Class (Wordle style), 5 guesses, a new class every day at 00:00 UTC
-- Columns: Faction, Job Branch, Main Stat, Release Year (GMS) and Region; Job Branch, Main Stat and Region show yellow when they partly match, Release Year has arrows and is yellow within 2 years
+- Columns: Faction, Job Branch, Main Stat, Release Year (GMS) and Region; Job Branch, Main Stat and Region show yellow when they partly match, Release Year has arrows and is yellow within 4 years
 - 56 answers, including removed classes (Jett, Beast Tamer, Zen), event classes (Pink Bean, Yeti, Tanjiro, Saitama) and upcoming Iel
 - Classes that match in every column share one card (Hero / Paladin / Dark Knight, Arch Mage (F/P) / Arch Mage (I/L) / Bishop, Bow Master / Marksman, Night Lord / Shadower); type any of their names to find it
 - Class pictures: newest NPC portraits, plus artwork for classes without one
