@@ -4,106 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Maple Wordle</title>
-<style>
-  body { text-align: center; margin: 0; min-height: 100vh; display: flex; flex-direction: column; align-items: center;
-         background: #3b8fe0 url("images/background.webp") center bottom / cover no-repeat fixed; }
-  .panel { background: rgba(255, 255, 255, 0.55); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-           border-radius: 12px; padding: 8px 16px 16px; margin: 16px; max-width: calc(100% - 64px); }
-  .table-wrap { overflow-x: auto; }
-  footer.panel { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); z-index: 1; margin: 0;
-                 padding: 6px 16px; border-radius: 12px 12px 0 0; font-size: 14px; white-space: nowrap; }
-  .game { position: relative; z-index: 2; margin-bottom: 80px; }
-  #version { position: fixed; bottom: 8px; left: 10px; z-index: 1; margin: 0; padding: 4px 10px; font-size: 12px;
-             border: none; cursor: pointer; font-family: inherit; }
-  #archiveBtn { position: fixed; top: 12px; left: 12px; z-index: 3; margin: 0; padding: 6px 12px; font-size: 14px;
-                border: none; cursor: pointer; font-family: inherit; }
-  /* Credit box with characters peeking out from behind it. */
-  #creditWrap { position: fixed; bottom: 8px; right: 10px; z-index: 1; }
-  #credit { position: relative; z-index: 5; margin: 0; padding: 4px 10px; font-size: 12px; cursor: pointer;
-            white-space: nowrap; max-width: none; user-select: none; -webkit-user-select: none;
-            background: #d7e9f9; }  /* solid, so peeking characters stay fully hidden behind it */
-  /* Each clip is a window the character slides through; its edge sits at the middle of the box,
-     so the character looks like it's coming out from behind the box. */
-  .peekclip { position: absolute; z-index: 1; overflow: hidden; pointer-events: none; }
-  .peekclip img { position: absolute; width: 120px; image-rendering: pixelated; transition: transform 0.35s ease; }
-  /* Layering: sato (left) in front of elysia (middle) in front of moeko (right), all behind the box. */
-  #clip-left { z-index: 4; }
-  #clip-mid { z-index: 3; }
-  #clip-right { z-index: 2; }
-  #clip-mid, #clip-right { bottom: 12px; width: 120px; height: 110px; }
-  #clip-mid { left: calc(40% - 54px); }
-  #clip-right { left: calc(78% - 60px); }
-  #clip-mid img, #clip-right img { left: 50%; bottom: 0; transform: translate(-50%, 100%); }
-  #clip-mid.up img, #clip-right.up img { transform: translate(-50%, 8%); }
-  /* The left one isn't cropped at all: she fades in while sliding out from behind the box's left side and tilting. */
-  #clip-left { right: calc(100% - 95px); bottom: 0; width: 170px; height: 150px; overflow: visible; }
-  #clip-left img { right: 0; bottom: 18px; transform-origin: bottom right; opacity: 0;
-                   transform: translateX(35%) rotate(0deg); transition: transform 0.35s ease, opacity 0.25s ease; }
-  #clip-left.up img { opacity: 1; transform: translateX(-8%) rotate(-20deg); }
-  #archive, #changelog { position: fixed; inset: 0; z-index: 4; background: rgba(0, 0, 0, 0.4); display: flex;
-             align-items: flex-start; justify-content: center; }
-  #archive[hidden], #changelog[hidden] { display: none; }
-  #changelogBody { text-align: left; max-width: 420px; }
-  #changelogBody h3 { margin: 12px 0 4px; }
-  /* Close button stays visible at the bottom while the window scrolls. */
-  .closebar { position: sticky; bottom: -16px; margin: 0 -16px -16px; padding: 10px 0 14px;
-              background: rgba(255, 255, 255, 0.35); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
-  #changelogBody .date { font-size: 13px; font-weight: normal; margin-left: 8px; opacity: 0.75; }
-  #changelogBody ul { margin: 0; padding-left: 20px; }
-  #archive .panel, #changelog .panel { margin-top: 48px; max-height: calc(100vh - 96px); overflow-y: auto; min-width: 280px; }
-  /* Hide the scrollbar but keep scrolling (wheel, trackpad, touch). */
-  #archive .panel, #changelog .panel { scrollbar-width: none; }
-  #archive .panel::-webkit-scrollbar, #changelog .panel::-webkit-scrollbar { display: none; }
-  #archiveTabs { margin-bottom: 8px; }
-  #archiveList button { display: block; width: 100%; margin: 4px 0; padding: 6px; text-align: left;
-                        background: rgba(255, 255, 255, 0.4); border: 1px solid rgba(0, 0, 0, 0.15); border-radius: 6px; cursor: pointer; }
-  #archiveList button:hover { background: rgba(255, 255, 255, 0.65); }
-  th { background: rgba(255, 255, 255, 0.6); }
-  td, th { border: 1px solid #999; padding: 4px 8px; }
-  table { border-collapse: collapse; margin: 8px auto; }
-  .green { background: #6c6; }
-  .yellow { background: #ec5; }
-  .red { background: #e66; }
-  .answer td { background: #9cf; font-weight: bold; }
-  #stats { max-width: 420px; margin: 12px auto 0; }
-  .statrow { display: flex; align-items: center; gap: 8px; margin: 3px 0; }
-  .statrow .label { width: 44px; text-align: right; }
-  .statrow .track { flex: 1; background: rgba(0, 0, 0, 0.12); border-radius: 4px; height: 18px; overflow: hidden; }
-  .statrow .bar { display: block; height: 100%; background: #888; }
-  .statrow.mine .bar { background: #3a3; }
-  .statrow.mine .label { font-weight: bold; }
-  #statsAvg { white-space: pre-line; }
-  .grey { background: #9a9a9a; }
-  .bestrow td { border-bottom: 3px solid #333; }
-  .bestrow .best { font-weight: bold; background: rgba(255, 255, 255, 0.7); }
-  .hintrow .card .noimg { font-size: 22px; }
-  .statrow .pct { width: 40px; text-align: left; }
-  .card { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 90px; }
-  .card img, .card .noimg { width: 56px; height: 56px; object-fit: contain; border-radius: 8px; }
-  .card .noimg { display: flex; align-items: center; justify-content: center; background: #555; color: #fff; font-size: 28px; }
-  #games { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin: -8px 0 8px; }
-  #games button { padding: 6px 14px; font-size: 15px; border-radius: 8px; border: 1px solid rgba(0, 0, 0, 0.2);
-                  background: rgba(255, 255, 255, 0.5); font-family: inherit; }
-  #games button.on { font-weight: bold; outline: 2px solid #333; background: rgba(255, 255, 255, 0.8); }
-  #games button:disabled { color: #555; opacity: 0.7; cursor: not-allowed; }
-  #games small { display: block; font-size: 11px; }
-  #modes .on, #archiveTabs .on { font-weight: bold; outline: 2px solid #333; }
-  /* Boss picker: search box with a dropdown of photo + name rows (plain styling for now). */
-  #picker { position: relative; display: block; width: min(420px, 100%); margin: 8px auto; }
-  #picker[hidden] { display: none; }
-  #guess { box-sizing: border-box; width: 100%; padding: 6px 8px; font-size: 15px; }
-  #list { position: absolute; top: 100%; left: 0; right: 0; max-height: 300px; overflow-y: auto; z-index: 6;
-          background: #fff; border: 1px solid #999; text-align: left; }
-  #list .item { display: flex; align-items: center; gap: 10px; padding: 4px 8px; cursor: pointer; }
-  #list .item img, #list .item .noimg { width: 40px; height: 40px; object-fit: contain; flex: none; }
-  #list .item .noimg { display: flex; align-items: center; justify-content: center; background: #ddd; }
-  #list .item:hover, #list .item.active { background: #ddd; }
-  /* Phones: keep the corner boxes clear of the Discord box and the game panel. */
-  @media (max-width: 700px) {
-    #version, #creditWrap { bottom: 64px; }
-    .game { margin-top: 56px; }
-  }
-</style>
+<link rel="stylesheet" href="style.css?v=1">
 </head>
 <body>
 <button id="archiveBtn" class="panel">Archive</button>
@@ -124,7 +25,7 @@
 <h1>Maple Wordle</h1>
 <div id="games">
   <button class="on">Guess the Boss</button>
-  <button disabled>Guess the Class<small>Working on it</small></button>
+  <button onclick="location.href='class.html'">Guess the Class</button>
   <button disabled>Guess the Map<small>Coming soon</small></button>
 </div>
 <p id="puzzle"></p>
@@ -166,7 +67,7 @@
   <div id="clip-right" class="peekclip"><img src="images/peek/moeko.png" alt=""></div>
   <div id="credit" class="panel">Made by Yuki with Love &lt;3</div>
 </div>
-<button id="version" class="panel">alpha v1.2.2</button>
+<button id="version" class="panel">alpha v2.0</button>
 <div id="changelog" hidden>
   <div class="panel">
     <h2>Changelog</h2>
@@ -174,6 +75,6 @@
     <p class="closebar"><button id="changelogClose">Close</button></p>
   </div>
 </div>
-<script src="script.js?v=37"></script>
+<script src="script.js?v=38"></script>
 </body>
 </html>

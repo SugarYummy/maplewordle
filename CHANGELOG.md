@@ -1,5 +1,14 @@
 # Maple Wordle changelog
 
+## alpha v2.0 - 11 October 2026
+- New game: Guess the Class (Wordle style), 5 guesses, a new class every day at 00:00 UTC
+- Columns: Faction, Job Branch, Main Stat, Release Year (GMS) and Region; Job Branch, Main Stat and Region show yellow when they partly match, Release Year has arrows and is yellow within 2 years
+- 56 answers, including removed classes (Jett, Beast Tamer, Zen), event classes (Pink Bean, Yeti, Tanjiro, Saitama) and upcoming Iel
+- Classes that match in every column share one card (Hero / Paladin / Dark Knight, Arch Mage (F/P) / Arch Mage (I/L) / Bishop, Bow Master / Marksman, Night Lord / Shadower); type any of their names to find it
+- Class pictures: newest NPC portraits, plus artwork for classes without one
+- Archive, win streak, Share, Best so far row and everyone's results, same as Guess the Boss
+- Animation Attack mode for Guess the Class: coming soon
+
 ## alpha v1.2.2 - 11 October 2026
 - Extreme mode: new Difficulty column right after Boss (Easy < Normal < Hard/Chaos < Extreme/Hell) with arrows, yellow when one tier off; boss names in the table drop the "(difficulty)" part
 - Boss dropdown is in alphabetical order (difficulties listed Easy, Normal, Hard/Chaos, Extreme), and searching matches the boss name only (not "(Hard)" / "(Chaos)")

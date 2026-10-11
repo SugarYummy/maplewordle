@@ -1,0 +1,757 @@
+{
+ "_about": "Guess the Class word bank. Sources: maplestorywiki.net (class pages, Availability tables, Class Release Dates). year = GMS release year (null = unknown or not in GMS; yearLabel explains). branch/stat are lists (Xenon has several). members = classes sharing one card because they match in every column.",
+ "attempts": 5,
+ "classes": [
+  {
+   "name": "Hero / Paladin / Dark Knight",
+   "faction": "Explorer",
+   "branch": [
+    "Warrior"
+   ],
+   "stat": [
+    "STR"
+   ],
+   "year": 2005,
+   "region": "All",
+   "image": "images/classes/hero-paladin-dark-knight.png",
+   "members": [
+    "Hero",
+    "Paladin",
+    "Dark Knight"
+   ]
+  },
+  {
+   "name": "Arch Mage (F/P) / Arch Mage (I/L) / Bishop",
+   "faction": "Explorer",
+   "branch": [
+    "Magician"
+   ],
+   "stat": [
+    "INT"
+   ],
+   "year": 2005,
+   "region": "All",
+   "image": "images/classes/arch-mage-f-p-arch-mage-i-l-bishop.png",
+   "members": [
+    "Arch Mage (F/P)",
+    "Arch Mage (I/L)",
+    "Bishop"
+   ]
+  },
+  {
+   "name": "Bow Master / Marksman",
+   "faction": "Explorer",
+   "branch": [
+    "Bowman"
+   ],
+   "stat": [
+    "DEX"
+   ],
+   "year": 2005,
+   "region": "All",
+   "image": "images/classes/bow-master-marksman.png",
+   "members": [
+    "Bow Master",
+    "Marksman"
+   ]
+  },
+  {
+   "name": "Pathfinder",
+   "faction": "Explorer",
+   "branch": [
+    "Bowman"
+   ],
+   "stat": [
+    "DEX"
+   ],
+   "year": 2019,
+   "region": "All",
+   "image": "images/classes/pathfinder.png"
+  },
+  {
+   "name": "Night Lord / Shadower",
+   "faction": "Explorer",
+   "branch": [
+    "Thief"
+   ],
+   "stat": [
+    "LUK"
+   ],
+   "year": 2005,
+   "region": "All",
+   "image": "images/classes/night-lord-shadower.png",
+   "members": [
+    "Night Lord",
+    "Shadower"
+   ]
+  },
+  {
+   "name": "Dual Blade",
+   "faction": "Explorer",
+   "branch": [
+    "Thief"
+   ],
+   "stat": [
+    "LUK"
+   ],
+   "year": 2010,
+   "region": "All",
+   "image": "images/classes/dual-blade.png"
+  },
+  {
+   "name": "Buccaneer",
+   "faction": "Explorer",
+   "branch": [
+    "Pirate"
+   ],
+   "stat": [
+    "STR"
+   ],
+   "year": 2008,
+   "region": "All",
+   "image": "images/classes/buccaneer.png"
+  },
+  {
+   "name": "Corsair",
+   "faction": "Explorer",
+   "branch": [
+    "Pirate"
+   ],
+   "stat": [
+    "DEX"
+   ],
+   "year": 2008,
+   "region": "All",
+   "image": "images/classes/corsair.png"
+  },
+  {
+   "name": "Cannoneer",
+   "faction": "Explorer",
+   "branch": [
+    "Pirate"
+   ],
+   "stat": [
+    "STR"
+   ],
+   "year": 2011,
+   "region": "All",
+   "image": "images/classes/cannoneer.png"
+  },
+  {
+   "name": "Dawn Warrior",
+   "faction": "Cygnus Knights",
+   "branch": [
+    "Warrior"
+   ],
+   "stat": [
+    "STR"
+   ],
+   "year": 2009,
+   "region": "All",
+   "image": "images/classes/dawn-warrior.png"
+  },
+  {
+   "name": "Blaze Wizard",
+   "faction": "Cygnus Knights",
+   "branch": [
+    "Magician"
+   ],
+   "stat": [
+    "INT"
+   ],
+   "year": 2009,
+   "region": "All",
+   "image": "images/classes/blaze-wizard.png"
+  },
+  {
+   "name": "Wind Archer",
+   "faction": "Cygnus Knights",
+   "branch": [
+    "Bowman"
+   ],
+   "stat": [
+    "DEX"
+   ],
+   "year": 2009,
+   "region": "All",
+   "image": "images/classes/wind-archer.png"
+  },
+  {
+   "name": "Night Walker",
+   "faction": "Cygnus Knights",
+   "branch": [
+    "Thief"
+   ],
+   "stat": [
+    "LUK"
+   ],
+   "year": 2009,
+   "region": "All",
+   "image": "images/classes/night-walker.png"
+  },
+  {
+   "name": "Thunder Breaker",
+   "faction": "Cygnus Knights",
+   "branch": [
+    "Pirate"
+   ],
+   "stat": [
+    "STR"
+   ],
+   "year": 2009,
+   "region": "All",
+   "image": "images/classes/thunder-breaker.png"
+  },
+  {
+   "name": "Mihile",
+   "faction": "Cygnus Knights",
+   "branch": [
+    "Warrior"
+   ],
+   "stat": [
+    "STR"
+   ],
+   "year": 2012,
+   "region": "All",
+   "image": "images/classes/mihile.png"
+  },
+  {
+   "name": "Aran",
+   "faction": "Heroes",
+   "branch": [
+    "Warrior"
+   ],
+   "stat": [
+    "STR"
+   ],
+   "year": 2009,
+   "region": "All",
+   "image": "images/classes/aran.png"
+  },
+  {
+   "name": "Evan",
+   "faction": "Heroes",
+   "branch": [
+    "Magician"
+   ],
+   "stat": [
+    "INT"
+   ],
+   "year": 2010,
+   "region": "All",
+   "image": "images/classes/evan.png"
+  },
+  {
+   "name": "Mercedes",
+   "faction": "Heroes",
+   "branch": [
+    "Bowman"
+   ],
+   "stat": [
+    "DEX"
+   ],
+   "year": 2011,
+   "region": "All",
+   "image": "images/classes/mercedes.png"
+  },
+  {
+   "name": "Phantom",
+   "faction": "Heroes",
+   "branch": [
+    "Thief"
+   ],
+   "stat": [
+    "LUK"
+   ],
+   "year": 2012,
+   "region": "All",
+   "image": "images/classes/phantom.png"
+  },
+  {
+   "name": "Luminous",
+   "faction": "Heroes",
+   "branch": [
+    "Magician"
+   ],
+   "stat": [
+    "INT"
+   ],
+   "year": 2012,
+   "region": "All",
+   "image": "images/classes/luminous.png"
+  },
+  {
+   "name": "Shade",
+   "faction": "Heroes",
+   "branch": [
+    "Pirate"
+   ],
+   "stat": [
+    "STR"
+   ],
+   "year": 2014,
+   "region": "All",
+   "image": "images/classes/shade.png"
+  },
+  {
+   "name": "Demon Slayer",
+   "faction": "Resistance",
+   "branch": [
+    "Warrior"
+   ],
+   "stat": [
+    "STR"
+   ],
+   "year": 2012,
+   "region": "All",
+   "image": "images/classes/demon-slayer.png"
+  },
+  {
+   "name": "Demon Avenger",
+   "faction": "Resistance",
+   "branch": [
+    "Warrior"
+   ],
+   "stat": [
+    "HP"
+   ],
+   "year": 2013,
+   "region": "All",
+   "image": "images/classes/demon-avenger.png"
+  },
+  {
+   "name": "Battle Mage",
+   "faction": "Resistance",
+   "branch": [
+    "Magician"
+   ],
+   "stat": [
+    "INT"
+   ],
+   "year": 2010,
+   "region": "All",
+   "image": "images/classes/battle-mage.png"
+  },
+  {
+   "name": "Wild Hunter",
+   "faction": "Resistance",
+   "branch": [
+    "Bowman"
+   ],
+   "stat": [
+    "DEX"
+   ],
+   "year": 2010,
+   "region": "All",
+   "image": "images/classes/wild-hunter.png"
+  },
+  {
+   "name": "Mechanic",
+   "faction": "Resistance",
+   "branch": [
+    "Pirate"
+   ],
+   "stat": [
+    "DEX"
+   ],
+   "year": 2011,
+   "region": "All",
+   "image": "images/classes/mechanic.png"
+  },
+  {
+   "name": "Xenon",
+   "faction": "Resistance",
+   "branch": [
+    "Thief",
+    "Pirate"
+   ],
+   "stat": [
+    "STR",
+    "DEX",
+    "LUK"
+   ],
+   "year": 2013,
+   "region": "All",
+   "image": "images/classes/xenon.png"
+  },
+  {
+   "name": "Blaster",
+   "faction": "Resistance",
+   "branch": [
+    "Warrior"
+   ],
+   "stat": [
+    "STR"
+   ],
+   "year": 2016,
+   "region": "All",
+   "image": "images/classes/blaster.png"
+  },
+  {
+   "name": "Hayato",
+   "faction": "Sengoku",
+   "branch": [
+    "Warrior"
+   ],
+   "stat": [
+    "STR"
+   ],
+   "year": 2013,
+   "region": "All except KMS",
+   "image": "images/classes/hayato.png"
+  },
+  {
+   "name": "Kanna",
+   "faction": "Sengoku",
+   "branch": [
+    "Magician"
+   ],
+   "stat": [
+    "INT"
+   ],
+   "year": 2013,
+   "region": "All except KMS",
+   "image": "images/classes/kanna.png"
+  },
+  {
+   "name": "Kaiser",
+   "faction": "Nova",
+   "branch": [
+    "Warrior"
+   ],
+   "stat": [
+    "STR"
+   ],
+   "year": 2012,
+   "region": "All",
+   "image": "images/classes/kaiser.png"
+  },
+  {
+   "name": "Kain",
+   "faction": "Nova",
+   "branch": [
+    "Bowman"
+   ],
+   "stat": [
+    "DEX"
+   ],
+   "year": 2021,
+   "region": "All",
+   "image": "images/classes/kain.png"
+  },
+  {
+   "name": "Cadena",
+   "faction": "Nova",
+   "branch": [
+    "Thief"
+   ],
+   "stat": [
+    "LUK"
+   ],
+   "year": 2017,
+   "region": "All",
+   "image": "images/classes/cadena.png"
+  },
+  {
+   "name": "Angelic Buster",
+   "faction": "Nova",
+   "branch": [
+    "Pirate"
+   ],
+   "stat": [
+    "DEX"
+   ],
+   "year": 2013,
+   "region": "All",
+   "image": "images/classes/angelic-buster.png"
+  },
+  {
+   "name": "Zero",
+   "faction": "Transcendent",
+   "branch": [
+    "Warrior"
+   ],
+   "stat": [
+    "STR"
+   ],
+   "year": 2013,
+   "region": "All",
+   "image": "images/classes/zero.png"
+  },
+  {
+   "name": "Kinesis",
+   "faction": "Friends World",
+   "branch": [
+    "Magician"
+   ],
+   "stat": [
+    "INT"
+   ],
+   "year": 2015,
+   "region": "All",
+   "image": "images/classes/kinesis.png"
+  },
+  {
+   "name": "Adele",
+   "faction": "Flora",
+   "branch": [
+    "Warrior"
+   ],
+   "stat": [
+    "STR"
+   ],
+   "year": 2020,
+   "region": "All",
+   "image": "images/classes/adele.png"
+  },
+  {
+   "name": "Illium",
+   "faction": "Flora",
+   "branch": [
+    "Magician"
+   ],
+   "stat": [
+    "INT"
+   ],
+   "year": 2017,
+   "region": "All",
+   "image": "images/classes/illium.png"
+  },
+  {
+   "name": "Khali",
+   "faction": "Flora",
+   "branch": [
+    "Thief"
+   ],
+   "stat": [
+    "LUK"
+   ],
+   "year": 2023,
+   "region": "All",
+   "image": "images/classes/khali.png"
+  },
+  {
+   "name": "Ark",
+   "faction": "Flora",
+   "branch": [
+    "Pirate"
+   ],
+   "stat": [
+    "STR"
+   ],
+   "year": 2018,
+   "region": "All",
+   "image": "images/classes/ark.png"
+  },
+  {
+   "name": "Ren",
+   "faction": "Anima",
+   "branch": [
+    "Warrior"
+   ],
+   "stat": [
+    "STR"
+   ],
+   "year": 2025,
+   "region": "All",
+   "image": "images/classes/ren.png"
+  },
+  {
+   "name": "Lara",
+   "faction": "Anima",
+   "branch": [
+    "Magician"
+   ],
+   "stat": [
+    "INT"
+   ],
+   "year": 2021,
+   "region": "All",
+   "image": "images/classes/lara.png"
+  },
+  {
+   "name": "Hoyoung",
+   "faction": "Anima",
+   "branch": [
+    "Thief"
+   ],
+   "stat": [
+    "LUK"
+   ],
+   "year": 2019,
+   "region": "All",
+   "image": "images/classes/hoyoung.png"
+  },
+  {
+   "name": "Lynn",
+   "faction": "Jianghu",
+   "branch": [
+    "Magician"
+   ],
+   "stat": [
+    "INT"
+   ],
+   "year": 2024,
+   "region": "All except KMS",
+   "image": "images/classes/lynn.png"
+  },
+  {
+   "name": "Mo Xuan",
+   "faction": "Jianghu",
+   "branch": [
+    "Pirate"
+   ],
+   "stat": [
+    "DEX"
+   ],
+   "year": 2025,
+   "region": "GMS/CMS/TMS/MSEA",
+   "image": "images/classes/mo-xuan.png"
+  },
+  {
+   "name": "Erel Light",
+   "faction": "Shine",
+   "branch": [
+    "Warrior"
+   ],
+   "stat": [
+    "STR"
+   ],
+   "year": 2026,
+   "region": "GMS",
+   "image": "images/classes/erel-light.png"
+  },
+  {
+   "name": "Sia Astelle",
+   "faction": "Shine",
+   "branch": [
+    "Magician"
+   ],
+   "stat": [
+    "INT"
+   ],
+   "year": 2025,
+   "region": "GMS",
+   "image": "images/classes/sia-astelle.png"
+  },
+  {
+   "name": "Iel",
+   "faction": "Shine",
+   "branch": [
+    "Bowman"
+   ],
+   "stat": [
+    "DEX"
+   ],
+   "year": 2027,
+   "region": "GMS",
+   "image": "images/classes/iel.png",
+   "yearLabel": "2027 (Upcoming)"
+  },
+  {
+   "name": "Lethe",
+   "faction": "Demon",
+   "branch": [
+    "Magician"
+   ],
+   "stat": [
+    "INT"
+   ],
+   "year": 2026,
+   "region": "KMS",
+   "image": "images/classes/lethe.png"
+  },
+  {
+   "name": "Jett",
+   "faction": "Explorer",
+   "branch": [
+    "Pirate"
+   ],
+   "stat": [
+    "DEX"
+   ],
+   "year": 2012,
+   "region": "Removed",
+   "image": "images/classes/jett.png"
+  },
+  {
+   "name": "Beast Tamer",
+   "faction": "Beast Tamer",
+   "branch": [
+    "Magician"
+   ],
+   "stat": [
+    "INT"
+   ],
+   "year": 2014,
+   "region": "Removed",
+   "image": "images/classes/beast-tamer.png"
+  },
+  {
+   "name": "Zen",
+   "faction": "Explorer",
+   "branch": [
+    "Pirate"
+   ],
+   "stat": [
+    "DEX"
+   ],
+   "year": null,
+   "region": "Removed",
+   "image": "images/classes/zen.png",
+   "yearLabel": "Not in GMS"
+  },
+  {
+   "name": "Pink Bean",
+   "faction": "Monster",
+   "branch": [
+    "Warrior"
+   ],
+   "stat": [
+    "STR"
+   ],
+   "year": 2015,
+   "region": "Event",
+   "image": "images/classes/pink-bean.png"
+  },
+  {
+   "name": "Yeti",
+   "faction": "Monster",
+   "branch": [
+    "Pirate"
+   ],
+   "stat": [
+    "STR"
+   ],
+   "year": 2021,
+   "region": "Event",
+   "image": "images/classes/yeti.png"
+  },
+  {
+   "name": "Tanjiro Kamado",
+   "faction": "Collab",
+   "branch": [
+    "Warrior"
+   ],
+   "stat": [
+    "STR"
+   ],
+   "year": 2025,
+   "region": "Event",
+   "image": "images/classes/tanjiro-kamado.png"
+  },
+  {
+   "name": "Saitama",
+   "faction": "Collab",
+   "branch": [
+    "Pirate"
+   ],
+   "stat": [
+    "STR"
+   ],
+   "year": 2026,
+   "region": "Event",
+   "image": "images/classes/saitama.png"
+  }
+ ]
+}

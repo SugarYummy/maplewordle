@@ -2,7 +2,7 @@
 //   GET  ?mode=normal&day=20736          -> { counts: { "1": 3, "4": 7, "X": 2 } }
 //   POST ?mode=normal&day=20736  {"score": 4 | "X"}   records one result, returns the same shape.
 // Story has unlimited guesses, so it accepts any guess count (capped at 999) and never "X".
-const MAX_GUESSES = { story: 999, normal: 6, hard: 5, extreme: 5 };
+const MAX_GUESSES = { story: 999, normal: 6, hard: 5, extreme: 5, class: 5 };   // class = Guess the Class
 const FIRST_DAY = Date.UTC(2026, 9, 10) / 86400000;
 
 const CORS = {

@@ -7,6 +7,11 @@ Modes: Story (unlimited guesses), Normal, Hard and Extreme. A new boss every day
 
 Boss data lives in `data/bosses.json` (sources: maplestorywiki.net, Namu Wiki, Bahamut TMS HP table).
 
+**Guess the Class** (`class.html`, `class.js`): guess the class from Faction, Job Branch, Main Stat,
+Release Year (GMS) and Region, 5 guesses. The word bank is in `tools/build_classes.py`; run
+`python3 tools/build_classes.py data` to rebuild `data/classes.json` and `data/classes.md`.
+Puzzle #1 is `FIRST_DAY` in `class.js`.
+
 Suggestions or feedback? [Join the Discord!](https://discord.gg/f22H4UJ)
 
 ## Everyone's stats (Cloudflare Worker)

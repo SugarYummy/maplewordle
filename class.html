@@ -1,0 +1,71 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maple Wordle - Guess the Class</title>
+<link rel="stylesheet" href="style.css?v=1">
+</head>
+<body>
+<button id="archiveBtn" class="panel">Archive</button>
+<div id="archive" hidden>
+  <div class="panel">
+    <h2>Archive</h2>
+    <div id="archiveList"></div>
+    <p class="closebar"><button id="archiveClose">Close</button></p>
+  </div>
+</div>
+<div class="panel game">
+<h1>Maple Wordle</h1>
+<div id="games">
+  <button onclick="location.href='./'">Guess the Boss</button>
+  <button class="on">Guess the Class</button>
+  <button disabled>Guess the Map<small>Coming soon</small></button>
+</div>
+<div id="subgames">
+  <button class="on">Wordle</button>
+  <button disabled>Animation Attack<small>Coming soon</small></button>
+</div>
+<p id="puzzle"></p>
+<p><button id="today" hidden>Back to today</button></p>
+<p id="timer"></p>
+<div id="streak"></div>
+<p id="status"></p>
+<p><button id="share" hidden>Share</button></p>
+<div id="picker">
+  <input id="guess" placeholder="Type a class name" autocomplete="off">
+  <div id="list" hidden></div>
+</div>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Class</th><th>Faction</th><th>Job Branch</th><th>Main Stat</th><th>Release Year (GMS)</th><th>Region</th></tr></thead>
+  <tbody id="rows"></tbody>
+</table>
+</div>
+<div id="stats" hidden>
+  <h3 id="statsTitle"></h3>
+  <div id="statsBars"></div>
+  <p id="statsAvg"></p>
+</div>
+</div>
+<footer class="panel">
+  Want to give any suggestions or feedback?<br>
+  <a href="https://discord.gg/f22H4UJ" target="_blank" rel="noopener">Join the Discord!</a>
+</footer>
+<div id="creditWrap">
+  <div id="clip-left" class="peekclip"><img src="images/peek/sato.png" alt=""></div>
+  <div id="clip-mid" class="peekclip"><img src="images/peek/elysia.png" alt=""></div>
+  <div id="clip-right" class="peekclip"><img src="images/peek/moeko.png" alt=""></div>
+  <div id="credit" class="panel">Made by Yuki with Love &lt;3</div>
+</div>
+<button id="version" class="panel">alpha v2.0</button>
+<div id="changelog" hidden>
+  <div class="panel">
+    <h2>Changelog</h2>
+    <div id="changelogBody"></div>
+    <p class="closebar"><button id="changelogClose">Close</button></p>
+  </div>
+</div>
+<script src="class.js?v=1"></script>
+</body>
+</html>
