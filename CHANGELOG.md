@@ -1,5 +1,10 @@
 # Maple Wordle changelog
 
+## alpha v2.1 - 11 October 2026
+- Each new guess flips in one card at a time, left to right (the answer flips in after your last guess if you run out); the result text and Best so far row wait until the flip is done
+- Confetti when you win
+- Game buttons light up when you hover over them
+
 ## alpha v2.0 - 11 October 2026
 - New game: Guess the Class (Wordle style), 5 guesses, a new class every day at 00:00 UTC
 - Columns: Faction, Job Branch, Main Stat, Release Year (GMS) and Region; Job Branch, Main Stat and Region show yellow when they partly match, Release Year has arrows and is yellow within 4 years

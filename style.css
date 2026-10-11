@@ -113,3 +113,15 @@ table { border-collapse: collapse; margin: 8px auto; }
   transition: background 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease; }
 #games button:not(.on):not(:disabled):hover, #subgames button:not(.on):not(:disabled):hover {
   background: rgba(255, 255, 255, 0.85); transform: translateY(-2px); box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2); }
+/* A new guess row flips in cell by cell (fx.js sets each cell's delay). */
+td.flip { animation: flip 0.5s ease both; }
+@keyframes flip { from { transform: rotateX(90deg); } to { transform: rotateX(0); } }
+/* Win confetti (fx.js). */
+.confetti { position: fixed; inset: 0; pointer-events: none; z-index: 10; overflow: hidden; }
+.confetti i { position: absolute; top: -12px; width: 8px; height: 12px; border-radius: 2px;
+              animation: confetti-fall linear both; }
+@keyframes confetti-fall { to { transform: translate(var(--drift), 105vh) rotate(var(--spin)); } }
+@media (prefers-reduced-motion: reduce) { td.flip { animation: none; } .confetti { display: none; } }
+.later { animation: appear 0.3s ease both; }
+@keyframes appear { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .later { animation: none; } }

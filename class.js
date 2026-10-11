@@ -120,6 +120,7 @@ function addRow(cells, cls) {
     tr.appendChild(td);
   }
   $('rows').prepend(tr);
+  return tr;
 }
 const byName = (n) => pool.find((e) => e.name === n);
 const guessRow = (g) => addRow(guessCells(g));
@@ -222,6 +223,11 @@ function guess(name) {
   closeList();
   record(g);
   save();
+  // Flip the new row in; on a win, confetti once the last cell has turned over.
+  let flipMs = flipRow($('rows').querySelector('tr:not(.bestrow):not(.hintrow):not(.answer)'));
+  flipMs = flipRow($('rows').querySelector('tr.answer'), flipMs);   // out of guesses: the answer turns over next
+  if (over && guesses.includes(answer.name)) setTimeout(confetti, flipMs);
+  for (const el of [$('status'), $('share'), $('rows').querySelector('.bestrow')]) revealAfter(el, flipMs);
   if (over) { updateStreak(); loadStats(); }
 }
 
