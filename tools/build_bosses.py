@@ -14,7 +14,7 @@ XO = [X]
 
 def b(name, world, gender, region, pools, diffs, main=None, notes=""):
     if main is None:
-        for d in ["Hard", "Chaos", "Normal", "Easy"]:
+        for d in ["Hard", "Chaos", "Extreme", "Normal", "Easy"]:  # Chaos is the non-humanoid name for Hard
             if d in diffs:
                 main = d; break
     return dict(name=name, world=world, gender=gender, region=region, pools=pools, diffs=diffs, main=main, notes=notes)
@@ -248,7 +248,7 @@ for bo in bosses:
 
 data = {
     "_about": "Boss data for Maple Wordle. Sources: maplestorywiki.net, Namu Wiki, Bahamut TMS HP table (Oct 2026). "
-              "Normal/Hard modes use each boss's hardest non-Extreme mode (Hard > Chaos > Normal > Easy; Gollux = Hell). "
+              "Normal/Hard modes use one difficulty per boss (Hard/Chaos > Extreme > Normal > Easy; Gollux = Hell). "
               "Extreme mode lists every difficulty as its own entry. hp = sum of all phase HP. level = entry level. "
               "Story mode uses the normal pool with unlimited guesses. null = Unknown; hpLabel overrides the HP display (e.g. 300Q+).",
     "attempts": {"story": None, "normal": 6, "hard": 5, "extreme": 5},
@@ -284,7 +284,7 @@ mode_label = lambda ms: " / ".join(m.capitalize() for m in (N, H, X) if m in ms)
 md = ["# Maple Wordle - boss list", "",
       f"{len(bosses)} bosses, {len(pools[X])} boss + difficulty entries. Unknown = no data found.",
       "HP is the sum of every phase (M = million, B = billion, T = trillion, Q = quadrillion). Entry Lv = level needed to enter.",
-      "Story/Normal and Hard use one difficulty per boss (Hard > Chaos > Normal > Easy, Gollux = Hell); Extreme uses every difficulty.", "",
+      "Story/Normal and Hard use one difficulty per boss (Hard/Chaos > Extreme > Normal > Easy, Gollux = Hell); Extreme uses every difficulty.", "",
       "| # | Boss | Difficulty | World | Gender | Region | Phases | HP | Entry Lv | In modes |",
       "|---|---|---|---|---|---|---|---|---|---|"]
 for i, r in enumerate(pools[X], 1):
@@ -314,7 +314,7 @@ page = f"""<!doctype html>
 <h1>Maple Wordle boss list</h1>
 <p>{len(bosses)} bosses, {len(pools[X])} boss + difficulty entries. Unknown = no data found.<br>
 HP is the sum of every phase (M = million, B = billion, T = trillion, Q = quadrillion). Entry Lv = level needed to enter.<br>
-Story/Normal and Hard use one difficulty per boss (Hard &gt; Chaos &gt; Normal &gt; Easy, Gollux = Hell); Extreme uses every difficulty.</p>
+Story/Normal and Hard use one difficulty per boss (Hard/Chaos &gt; Extreme &gt; Normal &gt; Easy, Gollux = Hell); Extreme uses every difficulty.</p>
 <div class="wrap"><table>
 <tr><th>#</th><th>Boss</th><th>Difficulty</th><th>World</th><th>Gender</th><th>Region</th><th>Phases</th><th>HP</th><th>Entry Lv</th><th>In modes</th></tr>
 {chr(10).join(rows)}

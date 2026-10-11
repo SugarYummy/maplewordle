@@ -2,7 +2,7 @@
 
 54 bosses, 108 boss + difficulty entries. Unknown = no data found.
 HP is the sum of every phase (M = million, B = billion, T = trillion, Q = quadrillion). Entry Lv = level needed to enter.
-Story/Normal and Hard use one difficulty per boss (Hard > Chaos > Normal > Easy, Gollux = Hell); Extreme uses every difficulty.
+Story/Normal and Hard use one difficulty per boss (Hard/Chaos > Extreme > Normal > Easy, Gollux = Hell); Extreme uses every difficulty.
 
 | # | Boss | Difficulty | World | Gender | Region | Phases | HP | Entry Lv | In modes |
 |---|---|---|---|---|---|---|---|---|---|
@@ -63,8 +63,8 @@ Story/Normal and Hard use one difficulty per boss (Hard > Chaos > Normal > Easy,
 | 55 | Gloom | Chaos | Arcane River | Other | All | 1 | 127.05T | 245 | Story/Normal / Hard / Extreme |
 | 56 | Verus Hilla | Normal | Arcane River | Female | All | 1 | 89.25T | 250 | Extreme |
 | 57 | Verus Hilla | Hard | Arcane River | Female | All | 1 | 178.5T | 250 | Story/Normal / Hard / Extreme |
-| 58 | Malicia | Normal | Maple World | Female | JMS/CMS/TMS | 4 | 178T | 250 | Story/Normal / Hard / Extreme |
-| 59 | Malicia | Extreme | Maple World | Female | JMS/CMS/TMS | 4 | 300Q+ | 250 | Extreme |
+| 58 | Malicia | Normal | Maple World | Female | JMS/CMS/TMS | 4 | 178T | 250 | Extreme |
+| 59 | Malicia | Extreme | Maple World | Female | JMS/CMS/TMS | 4 | 300Q+ | 250 | Story/Normal / Hard / Extreme |
 | 60 | Darknell | Normal | Arcane River | Male | All | 1 | 26.25T | 255 | Extreme |
 | 61 | Darknell | Hard | Arcane River | Male | All | 1 | 157.5T | 255 | Story/Normal / Hard / Extreme |
 | 62 | Black Mage | Hard | Arcane River | Male | All | 4 | 472.5T | 255 | Story/Normal / Hard / Extreme |

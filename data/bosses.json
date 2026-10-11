@@ -1,5 +1,5 @@
 {
- "_about": "Boss data for Maple Wordle. Sources: maplestorywiki.net, Namu Wiki, Bahamut TMS HP table (Oct 2026). Normal/Hard modes use each boss's hardest non-Extreme mode (Hard > Chaos > Normal > Easy; Gollux = Hell). Extreme mode lists every difficulty as its own entry. hp = sum of all phase HP. level = entry level. Story mode uses the normal pool with unlimited guesses. null = Unknown; hpLabel overrides the HP display (e.g. 300Q+).",
+ "_about": "Boss data for Maple Wordle. Sources: maplestorywiki.net, Namu Wiki, Bahamut TMS HP table (Oct 2026). Normal/Hard modes use one difficulty per boss (Hard/Chaos > Extreme > Normal > Easy; Gollux = Hell). Extreme mode lists every difficulty as its own entry. hp = sum of all phase HP. level = entry level. Story mode uses the normal pool with unlimited guesses. null = Unknown; hpLabel overrides the HP display (e.g. 300Q+).",
  "attempts": {
   "story": null,
   "normal": 6,
@@ -429,22 +429,19 @@
     "image": "images/bosses/verus-hilla.png"
    },
    {
-    "name": "Malicia (Normal)",
+    "name": "Malicia (Extreme)",
     "boss": "Malicia",
-    "difficulty": "Normal",
+    "difficulty": "Extreme",
     "world": "Maple World",
     "gender": "Female",
     "region": "JMS/CMS/TMS",
     "phases": 4,
-    "hp": 178000000000000,
+    "hp": 300000000000000000,
     "phaseHp": [
-     70000000000000,
-     56000000000000,
-     24000000000000,
-     28000000000000
+     300000000000000000
     ],
     "level": 250,
-    "hpLabel": null,
+    "hpLabel": "300Q+",
     "image": "images/bosses/malicia.png"
    },
    {
@@ -1089,22 +1086,19 @@
     "image": "images/bosses/verus-hilla.png"
    },
    {
-    "name": "Malicia (Normal)",
+    "name": "Malicia (Extreme)",
     "boss": "Malicia",
-    "difficulty": "Normal",
+    "difficulty": "Extreme",
     "world": "Maple World",
     "gender": "Female",
     "region": "JMS/CMS/TMS",
     "phases": 4,
-    "hp": 178000000000000,
+    "hp": 300000000000000000,
     "phaseHp": [
-     70000000000000,
-     56000000000000,
-     24000000000000,
-     28000000000000
+     300000000000000000
     ],
     "level": 250,
-    "hpLabel": null,
+    "hpLabel": "300Q+",
     "image": "images/bosses/malicia.png"
    },
    {
