@@ -107,3 +107,8 @@ table { border-collapse: collapse; margin: 8px auto; }
 #subgames button:disabled { color: #555; opacity: 0.7; cursor: not-allowed; }
 #subgames small { display: block; font-size: 11px; }
 #games a { text-decoration: none; color: inherit; }
+/* Game buttons you can switch to: pointer + highlight on hover. */
+#games button:not(.on):not(:disabled), #subgames button:not(.on):not(:disabled) { cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease; }
+#games button:not(.on):not(:disabled):hover, #subgames button:not(.on):not(:disabled):hover {
+  background: rgba(255, 255, 255, 0.85); transform: translateY(-2px); box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2); }
