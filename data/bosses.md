@@ -1,6 +1,6 @@
 # Maple Wordle - boss list
 
-54 bosses, 108 boss + difficulty entries. Unknown = no data found.
+50 bosses, 106 boss + difficulty entries. Unknown = no data found.
 HP is the sum of every phase (M = million, B = billion, T = trillion, Q = quadrillion). Entry Lv = level needed to enter.
 Story/Normal and Hard use one difficulty per boss (Hard/Chaos > Extreme > Normal > Easy, Gollux = Hell); Extreme uses every difficulty.
 
@@ -104,16 +104,14 @@ Story/Normal and Hard use one difficulty per boss (Hard/Chaos > Extreme > Normal
 | 96 | Yakuza Boss | Normal | Maple World | Male | JMS/GMS/MSEA | 1 | 1B | 160 | Hard / Extreme |
 | 97 | Frenzied Gigatoad | Hard | Maple World | Other | JMS/GMS/MSEA | 1 | 900M | 170 | Hard / Extreme |
 | 98 | Extreme Bigfoot | Normal | Maple World | Other | All | 1 | 15T | 260 | Hard / Extreme |
-| 99 | Reina | Normal | Grandis | Female | All | Unknown | Unknown | Unknown | Extreme |
+| 99 | Reina | Unknown (Apostle) | Grandis | Female | All | Unknown | Unknown | Unknown | Extreme |
 | 100 | Julieta | Normal | Maple World | Female | Removed | Unknown | Unknown | Unknown | Extreme |
 | 101 | Cross | Normal | Maple World | Male | Removed | Unknown | Unknown | Unknown | Extreme |
-| 102 | Normal Inferno Wolf | Normal | Maple World | Other | Removed | 1 | 10B | 10 | Extreme |
-| 103 | Chaos Inferno Wolf | Normal | Maple World | Other | Removed | 1 | 20T | 200 | Extreme |
-| 104 | Extreme Inferno Wolf | Normal | Maple World | Other | Removed | 1 | 100T | 260 | Extreme |
-| 105 | Aufheben | Normal | Other | Female | Event | Unknown | Unknown | Unknown | Extreme |
-| 106 | Tweentona | Normal | Other | Other | Event | Unknown | Unknown | Unknown | Extreme |
-| 107 | Gerand Darmoor | Hard | Grandis | Male | Unknown | Unknown | Unknown | Unknown | Extreme |
-| 108 | Havoc | Hard | Grandis | Male | Unknown | Unknown | Unknown | Unknown | Extreme |
+| 102 | Inferno Wolf | Normal | Maple World | Other | Removed | 1 | 10B | 10 | Extreme |
+| 103 | Inferno Wolf | Chaos | Maple World | Other | Removed | 1 | 20T | 200 | Extreme |
+| 104 | Inferno Wolf | Extreme | Maple World | Other | Removed | 1 | 100T | 260 | Extreme |
+| 105 | Gerand Darmoor | Unknown (Apostle) | Grandis | Male | Unknown | Unknown | Unknown | Unknown | Extreme |
+| 106 | Havoc | Unknown (Apostle) | Grandis | Male | Unknown | Unknown | Unknown | Unknown | Extreme |
 
 ## Notes
 
@@ -132,13 +130,9 @@ Story/Normal and Hard use one difficulty per boss (Hard/Chaos > Extreme > Normal
 - **Yakuza Boss**: Showa Town (Zipangu): in JMS, GMS and MSEA only; entry level = Showa Town quest requirement
 - **Frenzied Gigatoad**: Ninja Castle (Zipangu): in JMS, GMS and MSEA only; GMS HP (other servers: 1.7B); entry level = Ninja Castle requirement
 - **Extreme Bigfoot**: Monster Park Extreme (260+)
-- **Reina**: Arteria quest boss; phases, HP and entry level unknown
+- **Reina**: Apostle of Darmoor, fought in an Arteria quest; difficulty, phases, HP and entry level unknown
 - **Julieta**: Removed (Monad). No HP/level/phases on any wiki
 - **Cross**: Removed JMS/TMS boss. No HP/level/phases on any wiki
-- **Normal Inferno Wolf**: Bounty portal boss, Lv 10-199. HP from Namu Wiki
-- **Chaos Inferno Wolf**: Bounty portal boss, Lv 200-259. HP from Namu Wiki
-- **Extreme Inferno Wolf**: Bounty portal boss, Lv 260+. HP from Namu Wiki
-- **Aufheben**: Event boss
-- **Tweentona**: Event boss
+- **Inferno Wolf**: Bounty portal boss: Normal Lv 10-199, Chaos Lv 200-259, Extreme Lv 260+. HP from Namu Wiki
 - **Gerand Darmoor**: No boss fight found on MapleWiki or Namu Wiki (story character only)
-- **Havoc**: No boss fight found on MapleWiki or Namu Wiki (story character only)
+- **Havoc**: Apostle of Darmoor; no boss fight found on MapleWiki or Namu Wiki (story character only)

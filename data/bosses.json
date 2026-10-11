@@ -1371,7 +1371,7 @@
     ],
     "level": 160,
     "hpLabel": null,
-    "image": null
+    "image": "images/bosses/yakuza-boss.png"
    },
    {
     "name": "Frenzied Gigatoad (Hard)",
@@ -1387,7 +1387,7 @@
     ],
     "level": 170,
     "hpLabel": null,
-    "image": null
+    "image": "images/bosses/frenzied-gigatoad.png"
    },
    {
     "name": "Extreme Bigfoot (Normal)",
@@ -1403,7 +1403,7 @@
     ],
     "level": 260,
     "hpLabel": null,
-    "image": null
+    "image": "images/bosses/extreme-bigfoot.png"
    }
   ],
   "extreme": [
@@ -3026,7 +3026,7 @@
     ],
     "level": 160,
     "hpLabel": null,
-    "image": null
+    "image": "images/bosses/yakuza-boss.png"
    },
    {
     "name": "Frenzied Gigatoad (Hard)",
@@ -3042,7 +3042,7 @@
     ],
     "level": 170,
     "hpLabel": null,
-    "image": null
+    "image": "images/bosses/frenzied-gigatoad.png"
    },
    {
     "name": "Extreme Bigfoot (Normal)",
@@ -3058,12 +3058,12 @@
     ],
     "level": 260,
     "hpLabel": null,
-    "image": null
+    "image": "images/bosses/extreme-bigfoot.png"
    },
    {
-    "name": "Reina (Normal)",
+    "name": "Reina (Apostle)",
     "boss": "Reina",
-    "difficulty": "Normal",
+    "difficulty": "Unknown (Apostle)",
     "world": "Grandis",
     "gender": "Female",
     "region": "All",
@@ -3072,7 +3072,7 @@
     "phaseHp": null,
     "level": null,
     "hpLabel": null,
-    "image": null
+    "image": "images/bosses/reina.png"
    },
    {
     "name": "Julieta (Normal)",
@@ -3103,8 +3103,8 @@
     "image": "images/bosses/cross.png"
    },
    {
-    "name": "Normal Inferno Wolf (Normal)",
-    "boss": "Normal Inferno Wolf",
+    "name": "Inferno Wolf (Normal)",
+    "boss": "Inferno Wolf",
     "difficulty": "Normal",
     "world": "Maple World",
     "gender": "Other",
@@ -3116,12 +3116,12 @@
     ],
     "level": 10,
     "hpLabel": null,
-    "image": null
+    "image": "images/bosses/inferno-wolf-normal.png"
    },
    {
-    "name": "Chaos Inferno Wolf (Normal)",
-    "boss": "Chaos Inferno Wolf",
-    "difficulty": "Normal",
+    "name": "Inferno Wolf (Chaos)",
+    "boss": "Inferno Wolf",
+    "difficulty": "Chaos",
     "world": "Maple World",
     "gender": "Other",
     "region": "Removed",
@@ -3132,12 +3132,12 @@
     ],
     "level": 200,
     "hpLabel": null,
-    "image": null
+    "image": "images/bosses/inferno-wolf-chaos.png"
    },
    {
-    "name": "Extreme Inferno Wolf (Normal)",
-    "boss": "Extreme Inferno Wolf",
-    "difficulty": "Normal",
+    "name": "Inferno Wolf (Extreme)",
+    "boss": "Inferno Wolf",
+    "difficulty": "Extreme",
     "world": "Maple World",
     "gender": "Other",
     "region": "Removed",
@@ -3148,40 +3148,12 @@
     ],
     "level": 260,
     "hpLabel": null,
-    "image": null
+    "image": "images/bosses/inferno-wolf-extreme.png"
    },
    {
-    "name": "Aufheben (Normal)",
-    "boss": "Aufheben",
-    "difficulty": "Normal",
-    "world": "Other",
-    "gender": "Female",
-    "region": "Event",
-    "phases": null,
-    "hp": null,
-    "phaseHp": null,
-    "level": null,
-    "hpLabel": null,
-    "image": null
-   },
-   {
-    "name": "Tweentona (Normal)",
-    "boss": "Tweentona",
-    "difficulty": "Normal",
-    "world": "Other",
-    "gender": "Other",
-    "region": "Event",
-    "phases": null,
-    "hp": null,
-    "phaseHp": null,
-    "level": null,
-    "hpLabel": null,
-    "image": null
-   },
-   {
-    "name": "Gerand Darmoor (Hard)",
+    "name": "Gerand Darmoor (Apostle)",
     "boss": "Gerand Darmoor",
-    "difficulty": "Hard",
+    "difficulty": "Unknown (Apostle)",
     "world": "Grandis",
     "gender": "Male",
     "region": null,
@@ -3190,12 +3162,12 @@
     "phaseHp": null,
     "level": null,
     "hpLabel": null,
-    "image": null
+    "image": "images/bosses/gerand-darmoor.png"
    },
    {
-    "name": "Havoc (Hard)",
+    "name": "Havoc (Apostle)",
     "boss": "Havoc",
-    "difficulty": "Hard",
+    "difficulty": "Unknown (Apostle)",
     "world": "Grandis",
     "gender": "Male",
     "region": null,
@@ -3204,7 +3176,7 @@
     "phaseHp": null,
     "level": null,
     "hpLabel": null,
-    "image": null
+    "image": "images/bosses/havoc.png"
    }
   ]
  },
@@ -3224,15 +3196,11 @@
   "Yakuza Boss": "Showa Town (Zipangu): in JMS, GMS and MSEA only; entry level = Showa Town quest requirement",
   "Frenzied Gigatoad": "Ninja Castle (Zipangu): in JMS, GMS and MSEA only; GMS HP (other servers: 1.7B); entry level = Ninja Castle requirement",
   "Extreme Bigfoot": "Monster Park Extreme (260+)",
-  "Reina": "Arteria quest boss; phases, HP and entry level unknown",
+  "Reina": "Apostle of Darmoor, fought in an Arteria quest; difficulty, phases, HP and entry level unknown",
   "Julieta": "Removed (Monad). No HP/level/phases on any wiki",
   "Cross": "Removed JMS/TMS boss. No HP/level/phases on any wiki",
-  "Normal Inferno Wolf": "Bounty portal boss, Lv 10-199. HP from Namu Wiki",
-  "Chaos Inferno Wolf": "Bounty portal boss, Lv 200-259. HP from Namu Wiki",
-  "Extreme Inferno Wolf": "Bounty portal boss, Lv 260+. HP from Namu Wiki",
-  "Aufheben": "Event boss",
-  "Tweentona": "Event boss",
+  "Inferno Wolf": "Bounty portal boss: Normal Lv 10-199, Chaos Lv 200-259, Extreme Lv 260+. HP from Namu Wiki",
   "Gerand Darmoor": "No boss fight found on MapleWiki or Namu Wiki (story character only)",
-  "Havoc": "No boss fight found on MapleWiki or Namu Wiki (story character only)"
+  "Havoc": "Apostle of Darmoor; no boss fight found on MapleWiki or Namu Wiki (story character only)"
  }
 }

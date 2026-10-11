@@ -5,6 +5,10 @@
 - Boss dropdown is in alphabetical order (difficulties listed Easy, Normal, Hard/Chaos, Extreme), and searching matches the boss name only (not "(Hard)" / "(Chaos)")
 - Click outside the Changelog or Archive window to close it
 - Region fixes: Yakuza Boss and Frenzied Gigatoad are JMS / GMS / MSEA only, Malicia is also in MSEA
+- Boss pictures for Yakuza Boss, Frenzied Gigatoad, Extreme Bigfoot, Inferno Wolf, Reina, Gerand Darmoor and Havoc
+- Inferno Wolf is now one boss with Normal / Chaos / Extreme difficulties
+- Reina, Gerand Darmoor and Havoc have difficulty "Unknown (Apostle)"
+- Removed Aufheben and Tweentona
 
 ## alpha v1.2.1 - 11 October 2026
 - "Best so far" row above your guesses: every category you've found in green, and the closest guess so far for Phases, HP and Entry Lv

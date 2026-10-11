@@ -18,12 +18,14 @@ function formatHp(entry) {
   return n.toLocaleString();
 }
 
-// Puzzles #1 and #2 used this original formula; kept so those days never change.
-function legacyIndex(size, d, m) {
-  let h = d;
-  for (const c of m) h = (h * 31 + c.charCodeAt(0)) % 1000003;
-  return h % size;
-}
+// Puzzles #1 and #2 came from the original formula; their answers are fixed here by name so later
+// changes to the boss list can never change them.
+const FIXED_ANSWERS = {
+  story: ['Kalos (Chaos)', 'Darknell (Hard)'],
+  normal: ['Papulatus (Chaos)', 'Black Mage (Hard)'],
+  hard: ['Crimson Queen (Chaos)', 'Frenzied Gigatoad (Hard)'],
+  extreme: ['Zakum (Chaos)', 'Zakum (Normal)'],
+};
 
 // From puzzle #3 on, each mode works through its whole pool in a shuffled order: every boss is the
 // answer exactly once per cycle, then the pool reshuffles. The order comes from a hash of
@@ -40,7 +42,7 @@ function hash(str) {
 const schedules = {};
 function answerFor(m, d) {
   const p = data.pools[m === 'story' ? 'normal' : m];
-  if (d < SHUFFLE_FROM) return p[legacyIndex(p.length, d, m)];
+  if (d < SHUFFLE_FROM) return p.find((e) => e.name === FIXED_ANSWERS[m][d - (SHUFFLE_FROM - 2)]);
   const s = schedules[m] || (schedules[m] = { days: [], used: new Set() });
   while (SHUFFLE_FROM + s.days.length <= d) {
     const day = SHUFFLE_FROM + s.days.length;
@@ -261,7 +263,7 @@ function renderBest() {
     cells.push(best < 0 ? ['', 'grey'] : gs[best][i]);
   }
   if (mode === 'extreme') {
-    const tierDist = (j) => Math.abs(DIFF_TIER[vals[j].difficulty] - DIFF_TIER[answer.difficulty]);
+    const tierDist = (j) => Math.abs(DIFF_TIER[vals[j].difficulty] - DIFF_TIER[answer.difficulty]) || (DIFF_TIER[vals[j].difficulty] === DIFF_TIER[answer.difficulty] ? 0 : Infinity);
     let best = 0;
     vals.forEach((_, j) => { if (tierDist(j) < tierDist(best)) best = j; });
     cells.push(tierDist(best) === 0 ? [answer.difficulty, 'green'] : gs[best][7]);

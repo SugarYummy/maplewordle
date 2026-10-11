@@ -19,6 +19,8 @@ def b(name, world, gender, region, pools, diffs, main=None, notes="", since=None
         for d in ["Hard", "Chaos", "Extreme", "Normal", "Easy"]:  # Chaos is the non-humanoid name for Hard
             if d in diffs:
                 main = d; break
+        else:
+            main = next(iter(diffs), None)
     if since:
         import datetime
         since = (datetime.date.fromisoformat(since) - datetime.date(1970, 1, 1)).days
@@ -176,22 +178,32 @@ bosses = [
     b("Extreme Bigfoot", MW, "Other", "All", HX, {"Normal": (260, 1, [15*T])}, notes="Monster Park Extreme (260+)"),
 
     # Extreme-only additions
-    b("Reina", GR, "Female", "All", XO, {"Normal": (None, None, None)}, notes="Arteria quest boss; phases, HP and entry level unknown"),
+    b("Reina", GR, "Female", "All", XO, {"Unknown (Apostle)": (None, None, None)}, notes="Apostle of Darmoor, fought in an Arteria quest; difficulty, phases, HP and entry level unknown"),
     b("Julieta", MW, "Female", "Removed", XO, {"Normal": (None, None, None)}, notes="Removed (Monad). No HP/level/phases on any wiki"),
     b("Cross", MW, "Male", "Removed", XO, {"Normal": (None, None, None)}, notes="Removed JMS/TMS boss. No HP/level/phases on any wiki"),
-    b("Normal Inferno Wolf", MW, "Other", "Removed", XO, {"Normal": (10, 1, [10*B])}, notes="Bounty portal boss, Lv 10-199. HP from Namu Wiki"),
-    b("Chaos Inferno Wolf", MW, "Other", "Removed", XO, {"Normal": (200, 1, [20*T])}, notes="Bounty portal boss, Lv 200-259. HP from Namu Wiki"),
-    b("Extreme Inferno Wolf", MW, "Other", "Removed", XO, {"Normal": (260, 1, [100*T])}, notes="Bounty portal boss, Lv 260+. HP from Namu Wiki"),
-    b("Aufheben", "Other", "Female", "Event", XO, {"Normal": (None, None, None)}, notes="Event boss"),
-    b("Tweentona", "Other", "Other", "Event", XO, {"Normal": (None, None, None)}, notes="Event boss"),
-    b("Gerand Darmoor", GR, "Male", None, XO, {"Hard": (None, None, None)},
+    b("Inferno Wolf", MW, "Other", "Removed", XO, {
+        "Normal": (10, 1, [10*B]),
+        "Chaos": (200, 1, [20*T]),
+        "Extreme": (260, 1, [100*T])},
+      notes="Bounty portal boss: Normal Lv 10-199, Chaos Lv 200-259, Extreme Lv 260+. HP from Namu Wiki"),
+    b("Gerand Darmoor", GR, "Male", None, XO, {"Unknown (Apostle)": (None, None, None)},
       notes="No boss fight found on MapleWiki or Namu Wiki (story character only)"),
-    b("Havoc", GR, "Male", None, XO, {"Hard": (None, None, None)},
-      notes="No boss fight found on MapleWiki or Namu Wiki (story character only)"),
+    b("Havoc", GR, "Male", None, XO, {"Unknown (Apostle)": (None, None, None)},
+      notes="Apostle of Darmoor; no boss fight found on MapleWiki or Namu Wiki (story character only)"),
 ]
 
 # Maple Guide icons from maplestorywiki.net, per boss (all difficulties share one).
 IMAGES = {
+    'Yakuza Boss': 'images/bosses/yakuza-boss.png',
+    'Frenzied Gigatoad': 'images/bosses/frenzied-gigatoad.png',
+    'Extreme Bigfoot': 'images/bosses/extreme-bigfoot.png',
+    'Reina': 'images/bosses/reina.png',
+    'Gerand Darmoor': 'images/bosses/gerand-darmoor.png',
+    'Havoc': 'images/bosses/havoc.png',
+    'Inferno Wolf|Normal': 'images/bosses/inferno-wolf-normal.png',
+    'Inferno Wolf|Chaos': 'images/bosses/inferno-wolf-chaos.png',
+    'Inferno Wolf|Extreme': 'images/bosses/inferno-wolf-extreme.png',
+    # In-game sprites above (no Maple Guide icon exists); 'Boss|Difficulty' keys override per difficulty.
     'Zakum': 'images/bosses/zakum.png',
     'Papulatus': 'images/bosses/papulatus.png',
     'Magnus': 'images/bosses/magnus.png',
@@ -240,17 +252,20 @@ def entry(boss, diff, label):
     lv, ph, hps, *hpLabel = boss["diffs"][diff]
     return dict(name=label, boss=boss["name"], difficulty=diff, world=boss["world"], gender=boss["gender"],
                 region=boss["region"], phases=ph, hp=sum(hps) if hps else None, phaseHp=hps, level=lv,
-                hpLabel=hpLabel[0] if hpLabel else None, image=IMAGES.get(boss["name"]),
+                hpLabel=hpLabel[0] if hpLabel else None, image=IMAGES.get(f'{boss["name"]}|{diff}') or IMAGES.get(boss["name"]),
                 **({"since": boss["since"]} if boss["since"] else {}))
+
+def label(name, d):
+    return f"{name} ({d[len('Unknown ('):-1] if d.startswith('Unknown (') else d})"
 
 pools = {N: [], H: [], X: []}
 for bo in bosses:
     for p in bo["pools"]:
         if p == X and len(bo["diffs"]) > 1:
             for d in bo["diffs"]:
-                pools[p].append(entry(bo, d, f'{bo["name"]} ({d})'))
+                pools[p].append(entry(bo, d, label(bo['name'], d)))
         else:
-            pools[p].append(entry(bo, bo["main"], f'{bo["name"]} ({bo["main"]})'))
+            pools[p].append(entry(bo, bo['main'], label(bo['name'], bo['main'])))
 
 data = {
     "_about": "Boss data for Maple Wordle. Sources: maplestorywiki.net, Namu Wiki, Bahamut TMS HP table (Oct 2026). "
