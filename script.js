@@ -142,8 +142,12 @@ function guessCells(g) {
     numberCell(g.phases, answer.phases, g.phases ?? 'Unknown', closePhases),
     numberCell(g.hp, answer.hp, formatHp(g), closeHp),
     numberCell(g.level, answer.level, g.level ?? 'Unknown', closeLevel),
+    ...(mode === 'extreme' ? [diffCell(g)] : []),
   ];
 }
+// Extreme mode only: Difficulty column comparing tiers (Easy < Normal < Hard/Chaos < Extreme/Hell).
+const DIFF_TIER = { Easy: 1, Normal: 2, Hard: 3, Chaos: 3, Extreme: 4, Hell: 4 };
+const diffCell = (g) => numberCell(DIFF_TIER[g.difficulty], DIFF_TIER[answer.difficulty], g.difficulty ?? 'Unknown', (a, b) => Math.abs(a - b) <= 1);
 const guessRow = (g) => addRow(guessCells(g));
 
 function answerRow() {
@@ -151,6 +155,7 @@ function answerRow() {
   addRow([
     [{ card: a, label: 'Answer: ' + a.name }], [a.world ?? 'Unknown'], [a.gender ?? 'Unknown'], [a.region ?? 'Unknown'],
     [a.phases ?? 'Unknown'], [formatHp(a)], [a.level ?? 'Unknown'],
+    ...(mode === 'extreme' ? [[a.difficulty ?? 'Unknown']] : []),
   ], 'answer');
 }
 
@@ -175,6 +180,7 @@ function start(d) {
   $('puzzle').textContent = `Puzzle #${day - FIRST_DAY + 1} (${dateLabel(day)})` + (live ? '' : ' - Archive');
   $('today').hidden = live;
   maxGuesses = data.attempts[mode];
+  $('diffHead').hidden = mode !== 'extreme';
   guesses = [];
   hints = loadHints();
   over = false;
@@ -249,6 +255,12 @@ function renderBest() {
       if (best < 0 || dist[key](v[key], answer[key]) < dist[key](vals[best][key], answer[key])) best = j;
     });
     cells.push(best < 0 ? ['', 'grey'] : gs[best][i]);
+  }
+  if (mode === 'extreme') {
+    const tierDist = (j) => Math.abs(DIFF_TIER[vals[j].difficulty] - DIFF_TIER[answer.difficulty]);
+    let best = 0;
+    vals.forEach((_, j) => { if (tierDist(j) < tierDist(best)) best = j; });
+    cells.push(tierDist(best) === 0 ? [answer.difficulty, 'green'] : gs[best][7]);
   }
   addRow(cells, 'bestrow');
 }
