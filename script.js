@@ -190,6 +190,7 @@ function start(d) {
     for (const h of hints) if (h.at === guesses.length) hintRow(h.key);
   }
   for (const h of hints) if (h.at === Infinity) hintRow(h.key);
+  renderBest();
   if (!over) updateStatus();
   else loadStats();
   renderHints();
@@ -219,6 +220,37 @@ function record(g) {
   $('picker').hidden = over;
   if (over) closeList();
   renderHints();
+  renderBest();
+}
+
+// "Best so far" row pinned above the guesses: every category already found (green, from a guess or a hint),
+// otherwise the best clue so far (Region: a yellow overlap; numbers: the closest guess with its arrow).
+// Removed once the game is over.
+function renderBest() {
+  $('rows').querySelector('.bestrow')?.remove();
+  if (over || !guesses.length) return;
+  const gs = guesses.map((n) => guessCells(pool.find((e) => e.name === n)));
+  const vals = guesses.map((n) => pool.find((e) => e.name === n));
+  const hinted = new Set(hints.map((h) => h.key));
+  const cells = [['Best so far', 'best']];
+  for (const [key, i] of [['world', 1], ['gender', 2], ['region', 3]]) {
+    const yellow = gs.find((c) => c[i][1] === 'yellow');
+    if (hinted.has(key) || gs.some((c) => c[i][1] === 'green')) cells.push([answer[key] ?? 'Unknown', 'green']);
+    else if (yellow) cells.push(yellow[i]);
+    else cells.push(['', 'grey']);
+  }
+  const dist = { phases: (a, b) => Math.abs(a - b), level: (a, b) => Math.abs(a - b), hp: (a, b) => Math.abs(Math.log(a / b)) };
+  for (const [key, i] of [['phases', 4], ['hp', 5], ['level', 6]]) {
+    const show = key === 'hp' ? formatHp(answer) : answer[key] ?? 'Unknown';
+    if (hinted.has(key) || gs.some((c) => c[i][1] === 'green')) { cells.push([show, 'green']); continue; }
+    let best = -1;
+    vals.forEach((v, j) => {
+      if (v[key] == null || answer[key] == null) return;
+      if (best < 0 || dist[key](v[key], answer[key]) < dist[key](vals[best][key], answer[key])) best = j;
+    });
+    cells.push(best < 0 ? ['', 'grey'] : gs[best][i]);
+  }
+  addRow(cells, 'bestrow');
 }
 
 // Story mode hints: one hint unlocks for every 3 guesses. A hint adds a row to the table that shows
@@ -275,6 +307,7 @@ function useHint() {
   try { localStorage.setItem(hintKey(), JSON.stringify(hints)); } catch {}
   hintRow(key);
   renderHints();
+  renderBest();
 }
 const hintsUsedText = () => mode !== 'story' ? '' : hints.length ? ` You used ${hints.length} hint${hints.length === 1 ? '' : 's'}.` : ' No hints used!';
 

@@ -1,5 +1,9 @@
 # Maple Wordle changelog
 
+## alpha v1.2.1 - 11 October 2026
+- "Best so far" row above your guesses: every category you've found in green, and the closest guess so far for Phases, HP and Entry Lv
+- Search box unfocuses after a guess, so one click reopens the boss list
+
 ## alpha v1.2 - 11 October 2026
 - Boss picker shows each boss's photo + name; clicking a boss guesses it (Guess button removed)
 - Win streak per mode: Normal / Hard / Extreme reset only on a loss, Story resets if you miss a day
