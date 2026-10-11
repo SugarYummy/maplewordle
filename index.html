@@ -73,7 +73,8 @@
   .statrow.mine .bar { background: #3a3; }
   .statrow.mine .label { font-weight: bold; }
   #statsAvg { white-space: pre-line; }
-  #hints { font-weight: bold; }
+  .grey { background: #9a9a9a; }
+  .hintrow .card .noimg { font-size: 22px; }
   .statrow .pct { width: 40px; text-align: left; }
   .card { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 90px; }
   .card img, .card .noimg { width: 56px; height: 56px; object-fit: contain; border-radius: 8px; }
@@ -136,7 +137,6 @@
 </div>
 <button id="go">Guess</button>
 <button id="hint" hidden>Hint</button>
-<p id="hints" hidden></p>
 <div class="table-wrap">
 <table>
   <thead><tr><th>Boss</th><th>World</th><th>Gender</th><th>Region</th><th>Phases</th><th>HP</th><th>Entry Lv</th></tr></thead>
@@ -167,6 +167,6 @@
     <p class="closebar"><button id="changelogClose">Close</button></p>
   </div>
 </div>
-<script src="script.js?v=24"></script>
+<script src="script.js?v=25"></script>
 </body>
 </html>

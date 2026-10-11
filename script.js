@@ -186,7 +186,9 @@ function start(d) {
   for (const name of load()) {
     const g = pool.find((e) => e.name === name);
     if (g && !over) record(g);
+    for (const h of hints) if (h.at === guesses.length) hintRow(h.key);
   }
+  for (const h of hints) if (h.at === Infinity) hintRow(h.key);
   if (!over) updateStatus();
   else loadStats();
   renderHints();
@@ -215,48 +217,59 @@ function record(g) {
   renderHints();
 }
 
-// Story mode hints: one hint unlocks for every 3 guesses. A hint reveals one random answer category
-// that no guess has already got right. Revealed hints are saved with the day's progress.
+// Story mode hints: one hint unlocks for every 3 guesses. A hint adds a row to the table that shows
+// one answer category in green (one no guess has already got green) and greys out everything else.
+// When every category is green but the boss still isn't found, the hint gives the name's first letter.
+// Hints are saved as { key, at } (at = number of guesses when used) so they replay in the right place.
 const HINT_EVERY = 3;
 const HINT_CATS = [
-  { key: 'world', label: 'World', cell: 1, show: (e) => e.world ?? 'Unknown' },
-  { key: 'gender', label: 'Gender', cell: 2, show: (e) => e.gender ?? 'Unknown' },
-  { key: 'region', label: 'Region', cell: 3, show: (e) => e.region ?? 'Unknown' },
-  { key: 'phases', label: 'Phases', cell: 4, show: (e) => e.phases ?? 'Unknown' },
-  { key: 'hp', label: 'HP', cell: 5, show: (e) => formatHp(e) },
-  { key: 'level', label: 'Entry Lv', cell: 6, show: (e) => e.level ?? 'Unknown' },
+  { key: 'world', cell: 1, show: (e) => e.world ?? 'Unknown' },
+  { key: 'gender', cell: 2, show: (e) => e.gender ?? 'Unknown' },
+  { key: 'region', cell: 3, show: (e) => e.region ?? 'Unknown' },
+  { key: 'phases', cell: 4, show: (e) => e.phases ?? 'Unknown' },
+  { key: 'hp', cell: 5, show: (e) => formatHp(e) },
+  { key: 'level', cell: 6, show: (e) => e.level ?? 'Unknown' },
 ];
 const hintKey = () => `${saveKey()}:hints`;
 function loadHints() {
-  try { return JSON.parse(localStorage.getItem(hintKey())) || []; } catch { return []; }
+  try {
+    return (JSON.parse(localStorage.getItem(hintKey())) || [])
+      .map((h) => typeof h === 'string' ? { key: h, at: Infinity } : h);   // older saves had no position
+  } catch { return []; }
 }
-function hintChoices() {
-  const solved = new Set();
+function nextHintOptions() {
+  const used = new Set(hints.map((h) => h.key));
+  const green = new Set();
   for (const name of guesses) {
     const cells = guessCells(pool.find((e) => e.name === name));
-    for (const c of HINT_CATS) if (cells[c.cell][1] === 'green') solved.add(c.key);
+    for (const c of HINT_CATS) if (cells[c.cell][1] === 'green') green.add(c.key);
   }
-  return HINT_CATS.filter((c) => !hints.includes(c.key) && !solved.has(c.key));
+  const cats = HINT_CATS.filter((c) => !used.has(c.key) && !green.has(c.key)).map((c) => c.key);
+  return cats.length ? cats : used.has('name') ? [] : ['name'];
+}
+function hintRow(key) {
+  const cells = [[{ card: { image: null, boss: '' }, label: 'Hint' }, 'grey'], ...HINT_CATS.map(() => ['', 'grey'])];
+  if (key === 'name') cells[0] = [`Starts with "${answer.boss[0]}"`, 'green'];
+  else { const c = HINT_CATS.find((x) => x.key === key); cells[c.cell] = [c.show(answer), 'green']; }
+  addRow(cells, 'hintrow');
 }
 function renderHints() {
-  const story = mode === 'story';
   const earned = Math.floor(guesses.length / HINT_EVERY);
   const avail = earned - hints.length;
+  const left = nextHintOptions().length;
+  const wait = HINT_EVERY - (guesses.length % HINT_EVERY);
   const btn = $('hint');
-  btn.hidden = !story || over;
-  btn.disabled = avail <= 0 || !hintChoices().length;
-  btn.textContent = !hintChoices().length ? 'Hint (none left)'
-    : avail > 0 ? `Hint (${avail} available)`
-    : `Hint (in ${HINT_EVERY - (guesses.length % HINT_EVERY)} guess${HINT_EVERY - (guesses.length % HINT_EVERY) === 1 ? '' : 'es'})`;
-  const shown = HINT_CATS.filter((c) => hints.includes(c.key));
-  $('hints').hidden = !story || !shown.length;
-  $('hints').textContent = 'Hints: ' + shown.map((c) => `${c.label} = ${c.show(answer)}`).join(' · ');
+  btn.hidden = mode !== 'story' || over;
+  btn.disabled = avail <= 0 || !left;
+  btn.textContent = !left ? 'Hint (none left)' : avail > 0 ? `Hint (${avail} available)` : `Hint (in ${wait} guess${wait === 1 ? '' : 'es'})`;
 }
 function useHint() {
-  const choices = hintChoices();
-  if (over || !choices.length || Math.floor(guesses.length / HINT_EVERY) <= hints.length) return;
-  hints.push(choices[Math.floor(Math.random() * choices.length)].key);
+  const options = nextHintOptions();
+  if (over || !options.length || Math.floor(guesses.length / HINT_EVERY) <= hints.length) return;
+  const key = options[Math.floor(Math.random() * options.length)];
+  hints.push({ key, at: guesses.length });
   try { localStorage.setItem(hintKey(), JSON.stringify(hints)); } catch {}
+  hintRow(key);
   renderHints();
 }
 const hintsUsedText = () => mode !== 'story' ? '' : hints.length ? ` You used ${hints.length} hint${hints.length === 1 ? '' : 's'}.` : ' No hints used!';
