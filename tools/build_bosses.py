@@ -164,9 +164,9 @@ bosses = [
         "Hard": (280, 2, [241_500*B, 241_500*B])},
         notes="Challenger World seasonal boss; World set to Other (Nexus Tower)"),
     b("Meilin", "Other", "Female", "Seasonal", ALLP, {
-        "Normal": (270, 1, [58_925*B, 58_925*B]),
-        "Hard": (280, 1, [290*T, 290*T])},
-        notes="Challenger World Season 4 boss. One HP bar; form/map change at 50% HP is not counted as a new phase"),
+        "Normal": (270, 2, [58_925*B, 58_925*B]),
+        "Hard": (280, 2, [290*T, 290*T])},
+        notes="Challenger World Season 4 boss (Namu Wiki). One HP bar split into 2 phases: she changes form at 50% HP"),
 
     # Hard/Extreme-only additions
     b("Balrog", MW, "Male", "All", HX, {"Easy": (65, 1, [2_400_000 + 1_152_000 + 1_235_520])},
@@ -194,6 +194,7 @@ bosses = [
 
 # Maple Guide icons from maplestorywiki.net, per boss (all difficulties share one).
 IMAGES = {
+    'Meilin': 'images/bosses/meilin.png',
     'Yakuza Boss': 'images/bosses/yakuza-boss.png',
     'Frenzied Gigatoad': 'images/bosses/frenzied-gigatoad.png',
     'Extreme Bigfoot': 'images/bosses/extreme-bigfoot.png',
