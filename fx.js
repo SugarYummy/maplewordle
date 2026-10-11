@@ -56,3 +56,57 @@ function confetti() {
   document.body.appendChild(box);
   setTimeout(() => box.remove(), 4500);
 }
+
+// ---- Result sounds (today's puzzle only): Star Force Success on a win, Star Force Destroy on a loss ----
+// The files are full ~1 minute tracks, so only the start plays, quietly, then fades out.
+// Played through Web Audio so the volume also works on iPhones (they ignore <audio> volume).
+const SOUND_VOLUME = 0.25;   // 0 = silent, 1 = full
+const SOUND_SECONDS = 10;    // how long to play before fading out
+const SOUND_FADE = 2;        // seconds of fade-out
+const SOUNDS = { win: 'sounds/star-force-success.mp3', lose: 'sounds/star-force-destroy.mp3' };
+const muteKey = 'mapleWordle:muted';
+let audioCtx;
+const muted = () => { try { return localStorage.getItem(muteKey) === '1'; } catch { return false; } };
+
+// Call during the click / Enter that ends the game: browsers only allow sound that starts from a user action.
+// Starts downloading the sound right away and plays it after `delay` ms (when the cards have flipped).
+function resultSound(won, delay) {
+  if (muted()) return;
+  try {
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    audioCtx.resume();
+  } catch { return; }
+  const ctx = audioCtx;
+  const ready = fetch(won ? SOUNDS.win : SOUNDS.lose).then((r) => r.arrayBuffer()).then((b) => ctx.decodeAudioData(b));
+  const due = Date.now() + delay;
+  ready.then((buffer) => {
+    const start = ctx.currentTime + Math.max(0, due - Date.now()) / 1000;
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(SOUND_VOLUME, start);
+    gain.gain.setValueAtTime(SOUND_VOLUME, start + SOUND_SECONDS);
+    gain.gain.linearRampToValueAtTime(0, start + SOUND_SECONDS + SOUND_FADE);
+    const src = ctx.createBufferSource();
+    src.buffer = buffer;
+    src.connect(gain).connect(ctx.destination);
+    src.start(start);
+    src.stop(start + SOUND_SECONDS + SOUND_FADE);
+  }).catch(() => {});
+}
+
+// Sound on/off button in the top right corner (remembered per browser). Turning it off also stops a sound playing now.
+(() => {
+  const btn = document.createElement('button');
+  btn.id = 'soundBtn';
+  btn.className = 'panel';
+  const show = () => {
+    btn.textContent = muted() ? '🔇' : '🔊';
+    btn.title = muted() ? 'Sound off (click to turn on)' : 'Sound on (click to turn off)';
+  };
+  btn.addEventListener('click', () => {
+    try { localStorage.setItem(muteKey, muted() ? '0' : '1'); } catch {}
+    if (muted() && audioCtx) { audioCtx.close(); audioCtx = null; }
+    show();
+  });
+  show();
+  document.body.appendChild(btn);
+})();

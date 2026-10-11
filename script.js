@@ -500,6 +500,7 @@ function guess(name) {
   let flipMs = flipRow($('rows').querySelector('tr:not(.bestrow):not(.hintrow):not(.answer)'));
   flipMs = flipRow($('rows').querySelector('tr.answer'), flipMs);   // out of guesses: the answer turns over next
   if (over && guesses.includes(answer.name)) setTimeout(confetti, flipMs);
+  if (over && live) resultSound(guesses.includes(answer.name), flipMs);   // today's puzzle only
   for (const el of [$('status'), $('share'), $('rows').querySelector('.bestrow')]) revealAfter(el, flipMs);
   if (over) { updateStreak(); loadStats(); }
 }
