@@ -1,4 +1,4 @@
-let data, mode, day, live, pool, answer, guesses, maxGuesses, over, matches, active;
+let data, mode, day, live, pool, answer, guesses, maxGuesses, over, matches, active, hints;
 
 const $ = (id) => document.getElementById(id);
 
@@ -176,6 +176,7 @@ function start(d) {
   $('today').hidden = live;
   maxGuesses = data.attempts[mode];
   guesses = [];
+  hints = loadHints();
   over = false;
   $('rows').innerHTML = '';
   $('stats').hidden = true;
@@ -188,6 +189,7 @@ function start(d) {
   }
   if (!over) updateStatus();
   else loadStats();
+  renderHints();
 }
 
 function updateStatus(msg) {
@@ -201,7 +203,7 @@ function record(g) {
   $('share').hidden = true;
   if (g.name === answer.name) {
     over = true;
-    updateStatus(`Correct! It was ${answer.name}. ${nextHint()}`);
+    updateStatus(`Correct! It was ${answer.name}.${hintsUsedText()} ${nextHint()}`);
   } else if (maxGuesses != null && guesses.length >= maxGuesses) {
     over = true;
     answerRow();
@@ -210,7 +212,54 @@ function record(g) {
     updateStatus();
   }
   if (over) $('share').hidden = false;
+  renderHints();
 }
+
+// Story mode hints: one hint unlocks for every 3 guesses. A hint reveals one random answer category
+// that no guess has already got right. Revealed hints are saved with the day's progress.
+const HINT_EVERY = 3;
+const HINT_CATS = [
+  { key: 'world', label: 'World', cell: 1, show: (e) => e.world ?? 'Unknown' },
+  { key: 'gender', label: 'Gender', cell: 2, show: (e) => e.gender ?? 'Unknown' },
+  { key: 'region', label: 'Region', cell: 3, show: (e) => e.region ?? 'Unknown' },
+  { key: 'phases', label: 'Phases', cell: 4, show: (e) => e.phases ?? 'Unknown' },
+  { key: 'hp', label: 'HP', cell: 5, show: (e) => formatHp(e) },
+  { key: 'level', label: 'Entry Lv', cell: 6, show: (e) => e.level ?? 'Unknown' },
+];
+const hintKey = () => `${saveKey()}:hints`;
+function loadHints() {
+  try { return JSON.parse(localStorage.getItem(hintKey())) || []; } catch { return []; }
+}
+function hintChoices() {
+  const solved = new Set();
+  for (const name of guesses) {
+    const cells = guessCells(pool.find((e) => e.name === name));
+    for (const c of HINT_CATS) if (cells[c.cell][1] === 'green') solved.add(c.key);
+  }
+  return HINT_CATS.filter((c) => !hints.includes(c.key) && !solved.has(c.key));
+}
+function renderHints() {
+  const story = mode === 'story';
+  const earned = Math.floor(guesses.length / HINT_EVERY);
+  const avail = earned - hints.length;
+  const btn = $('hint');
+  btn.hidden = !story || over;
+  btn.disabled = avail <= 0 || !hintChoices().length;
+  btn.textContent = !hintChoices().length ? 'Hint (none left)'
+    : avail > 0 ? `Hint (${avail} available)`
+    : `Hint (in ${HINT_EVERY - (guesses.length % HINT_EVERY)} guess${HINT_EVERY - (guesses.length % HINT_EVERY) === 1 ? '' : 'es'})`;
+  const shown = HINT_CATS.filter((c) => hints.includes(c.key));
+  $('hints').hidden = !story || !shown.length;
+  $('hints').textContent = 'Hints: ' + shown.map((c) => `${c.label} = ${c.show(answer)}`).join(' · ');
+}
+function useHint() {
+  const choices = hintChoices();
+  if (over || !choices.length || Math.floor(guesses.length / HINT_EVERY) <= hints.length) return;
+  hints.push(choices[Math.floor(Math.random() * choices.length)].key);
+  try { localStorage.setItem(hintKey(), JSON.stringify(hints)); } catch {}
+  renderHints();
+}
+const hintsUsedText = () => mode !== 'story' ? '' : hints.length ? ` You used ${hints.length} hint${hints.length === 1 ? '' : 's'}.` : ' No hints used!';
 
 // Everyone's results for this puzzle. Your own result is sent once per mode per day.
 async function loadStats() {
@@ -311,7 +360,8 @@ function shareText() {
   const score = (won ? guesses.length : 'X') + '/' + (maxGuesses ?? '∞');
   const grid = guesses.map((name) =>
     guessCells(pool.find((e) => e.name === name)).map(([, c]) => EMOJI[c]).join(''));
-  return [`Maple Wordle #${day - FIRST_DAY + 1} (${MODE_NAME[mode]}) ${score}`, ...grid, location.href.split('#')[0]].join('\n');
+  const hintNote = mode === 'story' ? ` (${hints.length} hint${hints.length === 1 ? '' : 's'})` : '';
+  return [`Maple Wordle #${day - FIRST_DAY + 1} (${MODE_NAME[mode]}) ${score}${hintNote}`, ...grid, location.href.split('#')[0]].join('\n');
 }
 
 function share() {
@@ -390,6 +440,7 @@ $('guess').addEventListener('keydown', (e) => {
   else if (e.key === 'Enter') { if (open) pick(matches[active].name); else guess(); }
 });
 $('go').addEventListener('click', () => guess());
+$('hint').addEventListener('click', useHint);
 $('share').addEventListener('click', share);
 $('archiveBtn').addEventListener('click', () => { if (data) openArchive(); });
 for (const t of document.querySelectorAll('#archiveTabs button')) t.addEventListener('click', () => openArchive(t.dataset.mode));
