@@ -12,12 +12,17 @@ ALLP = [N, H, X]
 HX = [H, X]
 XO = [X]
 
-def b(name, world, gender, region, pools, diffs, main=None, notes=""):
+# since="YYYY-MM-DD": first day (UTC) the boss can be a daily answer. Use it for every boss added after launch,
+# so past days never change; the boss joins the bosses still left in the current cycle.
+def b(name, world, gender, region, pools, diffs, main=None, notes="", since=None):
     if main is None:
         for d in ["Hard", "Chaos", "Extreme", "Normal", "Easy"]:  # Chaos is the non-humanoid name for Hard
             if d in diffs:
                 main = d; break
-    return dict(name=name, world=world, gender=gender, region=region, pools=pools, diffs=diffs, main=main, notes=notes)
+    if since:
+        import datetime
+        since = (datetime.date.fromisoformat(since) - datetime.date(1970, 1, 1)).days
+    return dict(name=name, world=world, gender=gender, region=region, pools=pools, diffs=diffs, main=main, notes=notes, since=since)
 
 MW, GR, AR = "Maple World", "Grandis", "Arcane River"
 bosses = [
@@ -235,7 +240,8 @@ def entry(boss, diff, label):
     lv, ph, hps, *hpLabel = boss["diffs"][diff]
     return dict(name=label, boss=boss["name"], difficulty=diff, world=boss["world"], gender=boss["gender"],
                 region=boss["region"], phases=ph, hp=sum(hps) if hps else None, phaseHp=hps, level=lv,
-                hpLabel=hpLabel[0] if hpLabel else None, image=IMAGES.get(boss["name"]))
+                hpLabel=hpLabel[0] if hpLabel else None, image=IMAGES.get(boss["name"]),
+                **({"since": boss["since"]} if boss["since"] else {}))
 
 pools = {N: [], H: [], X: []}
 for bo in bosses:
