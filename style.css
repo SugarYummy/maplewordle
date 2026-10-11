@@ -118,7 +118,7 @@ td.flip { animation: flip 0.5s ease both; }
 @keyframes flip { from { transform: rotateX(90deg); } to { transform: rotateX(0); } }
 /* Win confetti (fx.js). */
 .confetti { position: fixed; inset: 0; pointer-events: none; z-index: 10; overflow: hidden; }
-.confetti i { position: absolute; top: -36px; background: center / contain no-repeat;
+.confetti i { position: absolute; top: -80px; background: center / contain no-repeat; image-rendering: pixelated;
               animation: confetti-fall linear both; }
 @keyframes confetti-fall { to { transform: translate(var(--drift), 105vh) rotate(var(--spin)); } }
 @media (prefers-reduced-motion: reduce) { td.flip { animation: none; } .confetti { display: none; } }
