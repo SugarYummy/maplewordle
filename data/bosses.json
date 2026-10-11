@@ -3073,12 +3073,10 @@
     "world": "Grandis",
     "gender": "Female",
     "region": "All",
-    "phases": 1,
-    "hp": 2100000000,
-    "phaseHp": [
-     2100000000
-    ],
-    "level": 280,
+    "phases": null,
+    "hp": null,
+    "phaseHp": null,
+    "level": null,
     "hpLabel": null,
     "image": null
    },
@@ -3232,7 +3230,7 @@
   "Yakuza Boss": "Entry level = Showa Town quest requirement",
   "Frenzied Gigatoad": "GMS HP (other servers: 1.7B); entry level = Ninja Castle requirement",
   "Extreme Bigfoot": "Monster Park Extreme (260+)",
-  "Reina": "Arteria quest boss; entry level = Arteria requirement",
+  "Reina": "Arteria quest boss; phases, HP and entry level unknown",
   "Julieta": "Removed (Monad). No HP/level/phases on any wiki",
   "Cross": "Removed JMS/TMS boss. No HP/level/phases on any wiki",
   "Normal Inferno Wolf": "Bounty portal boss, Lv 10-199. HP from Namu Wiki",

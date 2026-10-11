@@ -171,7 +171,7 @@ bosses = [
     b("Extreme Bigfoot", MW, "Other", "All", HX, {"Normal": (260, 1, [15*T])}, notes="Monster Park Extreme (260+)"),
 
     # Extreme-only additions
-    b("Reina", GR, "Female", "All", XO, {"Normal": (280, 1, [2_100_000_000])}, notes="Arteria quest boss; entry level = Arteria requirement"),
+    b("Reina", GR, "Female", "All", XO, {"Normal": (None, None, None)}, notes="Arteria quest boss; phases, HP and entry level unknown"),
     b("Julieta", MW, "Female", "Removed", XO, {"Normal": (None, None, None)}, notes="Removed (Monad). No HP/level/phases on any wiki"),
     b("Cross", MW, "Male", "Removed", XO, {"Normal": (None, None, None)}, notes="Removed JMS/TMS boss. No HP/level/phases on any wiki"),
     b("Normal Inferno Wolf", MW, "Other", "Removed", XO, {"Normal": (10, 1, [10*B])}, notes="Bounty portal boss, Lv 10-199. HP from Namu Wiki"),

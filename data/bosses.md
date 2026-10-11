@@ -104,7 +104,7 @@ Story/Normal and Hard use one difficulty per boss (Hard > Chaos > Normal > Easy,
 | 96 | Yakuza Boss | Normal | Maple World | Male | All | 1 | 1B | 160 | Hard / Extreme |
 | 97 | Frenzied Gigatoad | Hard | Maple World | Other | All | 1 | 900M | 170 | Hard / Extreme |
 | 98 | Extreme Bigfoot | Normal | Maple World | Other | All | 1 | 15T | 260 | Hard / Extreme |
-| 99 | Reina | Normal | Grandis | Female | All | 1 | 2.1B | 280 | Extreme |
+| 99 | Reina | Normal | Grandis | Female | All | Unknown | Unknown | Unknown | Extreme |
 | 100 | Julieta | Normal | Maple World | Female | Removed | Unknown | Unknown | Unknown | Extreme |
 | 101 | Cross | Normal | Maple World | Male | Removed | Unknown | Unknown | Unknown | Extreme |
 | 102 | Normal Inferno Wolf | Normal | Maple World | Other | Removed | 1 | 10B | 10 | Extreme |
@@ -132,7 +132,7 @@ Story/Normal and Hard use one difficulty per boss (Hard > Chaos > Normal > Easy,
 - **Yakuza Boss**: Entry level = Showa Town quest requirement
 - **Frenzied Gigatoad**: GMS HP (other servers: 1.7B); entry level = Ninja Castle requirement
 - **Extreme Bigfoot**: Monster Park Extreme (260+)
-- **Reina**: Arteria quest boss; entry level = Arteria requirement
+- **Reina**: Arteria quest boss; phases, HP and entry level unknown
 - **Julieta**: Removed (Monad). No HP/level/phases on any wiki
 - **Cross**: Removed JMS/TMS boss. No HP/level/phases on any wiki
 - **Normal Inferno Wolf**: Bounty portal boss, Lv 10-199. HP from Namu Wiki
