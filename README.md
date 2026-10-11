@@ -33,3 +33,10 @@ Add it to the list in `tools/build_bosses.py` with `since="YYYY-MM-DD"` (the fir
 
 then run `python3 tools/build_bosses.py data`. Past days stay the same, and the new boss joins the bosses still
 left in the current cycle (it doesn't wait for the next one).
+
+## Adding a new game mode
+
+Each game is its own page (like `index.html` and `class.html`). Put the same `#games` button row on every page:
+the current game gets `class="on"`, the others link to their page (`onclick="location.href='class'"`), and ones that
+aren't ready are `disabled` with `<small>Coming soon</small>`. When a game goes live, replace its `disabled` button
+with a link on **every** page. The hover highlight comes from `style.css` automatically.

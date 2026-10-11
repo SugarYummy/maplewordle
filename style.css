@@ -107,7 +107,8 @@ table { border-collapse: collapse; margin: 8px auto; }
 #subgames button:disabled { color: #555; opacity: 0.7; cursor: not-allowed; }
 #subgames small { display: block; font-size: 11px; }
 #games a { text-decoration: none; color: inherit; }
-/* Game buttons you can switch to: pointer + highlight on hover. */
+/* Game buttons you can switch to: pointer + highlight on hover. Automatic for every button in #games / #subgames
+   that isn't the current one (.on) or a "Coming soon" one (disabled), so new game modes get it for free. */
 #games button:not(.on):not(:disabled), #subgames button:not(.on):not(:disabled) { cursor: pointer;
   transition: background 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease; }
 #games button:not(.on):not(:disabled):hover, #subgames button:not(.on):not(:disabled):hover {
