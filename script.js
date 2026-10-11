@@ -18,11 +18,47 @@ function formatHp(entry) {
   return n.toLocaleString();
 }
 
-// Same answer for everyone on the same day; each mode gets a different one.
-function dailyIndex(size, d = day, m = mode) {
+// Puzzles #1 and #2 used this original formula; kept so those days never change.
+function legacyIndex(size, d, m) {
   let h = d;
   for (const c of m) h = (h * 31 + c.charCodeAt(0)) % 1000003;
   return h % size;
+}
+
+// From puzzle #3 on, each mode works through its whole pool in a shuffled order: every boss is the
+// answer exactly once per cycle, then the pool reshuffles. The order comes from a hash of
+// (mode, day, boss name), so everyone gets the same boss on the same day. The same boss is never the
+// answer two days in a row (in Extreme, that includes other difficulties of the same boss).
+// A boss with "since" (a day number) in bosses.json only joins from that day, so adding bosses later
+// never changes past answers.
+const SHUFFLE_FROM = Date.UTC(2026, 9, 12) / 86400000;   // puzzle #3
+function hash(str) {
+  let h = 2166136261;
+  for (let i = 0; i < str.length; i++) h = Math.imul(h ^ str.charCodeAt(i), 16777619);
+  return h >>> 0;
+}
+const schedules = {};
+function answerFor(m, d) {
+  const p = data.pools[m === 'story' ? 'normal' : m];
+  if (d < SHUFFLE_FROM) return p[legacyIndex(p.length, d, m)];
+  const s = schedules[m] || (schedules[m] = { days: [], used: new Set() });
+  while (SHUFFLE_FROM + s.days.length <= d) {
+    const day = SHUFFLE_FROM + s.days.length;
+    const prev = s.days[s.days.length - 1];
+    const eligible = p.filter((e) => (e.since ?? 0) <= day);
+    let left = eligible.filter((e) => !s.used.has(e.name));
+    if (!left.length) { s.used.clear(); left = eligible; }        // cycle done: everyone is back in
+    const fresh = left.filter((e) => !prev || e.boss !== prev.boss);
+    if (fresh.length) left = fresh;
+    let pick = left[0], best = Infinity;
+    for (const e of left) {
+      const v = hash(`${m}|${day}|${e.name}`);
+      if (v < best) { best = v; pick = e; }
+    }
+    s.used.add(pick.name);
+    s.days.push(pick);
+  }
+  return s.days[d - SHUFFLE_FROM];
 }
 
 function textCell(g, a) {
@@ -135,7 +171,7 @@ function start(d) {
   live = d == null || d === today();
   day = live ? today() : d;
   pool = poolFor(mode);
-  answer = pool[dailyIndex(pool.length)];
+  answer = answerFor(mode, day);
   $('puzzle').textContent = `Puzzle #${day - FIRST_DAY + 1} (${dateLabel(day)})` + (live ? '' : ' - Archive');
   $('today').hidden = live;
   maxGuesses = data.attempts[mode];
@@ -250,7 +286,7 @@ function openArchive(m = mode) {
   const max = data.attempts[m];
   for (let d = today(); d >= FIRST_DAY; d--) {
     const saved = load(d, m);
-    const ans = p[dailyIndex(p.length, d, m)];
+    const ans = answerFor(m, d);
     let result = 'Not played';
     if (saved.includes(ans.name)) result = `Won ${saved.length}/${max ?? '∞'}`;
     else if (max != null && saved.length >= max) result = 'Lost';

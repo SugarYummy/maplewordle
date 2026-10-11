@@ -1,5 +1,11 @@
 # Maple Wordle changelog
 
+## alpha v1.1.1 - 11 October 2026
+- Fairer daily boss: from puzzle #3, every boss is picked once per cycle before any repeats, with no back-to-back repeats
+- Zakum counts as 1 phase, HP is body only
+- Difficulty priority: Hard/Chaos > Extreme > Normal > Easy
+- Game selector (Guess the Map / Class coming soon)
+
 ## alpha v1.1 - 10 October 2026
 - Everyone's results: bar chart of how many guesses players needed, with averages (Cloudflare Worker + D1 database)
 - Custom domain: ima.moe/maplewordle
