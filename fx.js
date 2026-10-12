@@ -26,35 +26,118 @@ function revealAfter(el, ms) {
 }
 
 // Confetti pieces are the in-game meso drops (sprites from maplestorywiki.net), drawn at their in-game size and kept pixel-sharp.
-// [file, width, height] in sprite pixels; gold coins are the most common, bags the rarest.
+// [file, width, height, coin] in sprite pixels; gold coins are the most common, bags the rarest.
+// Coins flip like real coins as they fly; bundles and bags don't turn at all.
 const PIECES = [
-  ['meso-gold', 23, 24], ['meso-gold', 23, 24], ['meso-gold', 23, 24],
-  ['meso-bronze', 23, 24], ['meso-bronze', 23, 24],
+  ['meso-gold', 23, 24, true], ['meso-gold', 23, 24, true], ['meso-gold', 23, 24, true],
+  ['meso-bronze', 23, 24, true], ['meso-bronze', 23, 24, true],
   ['meso-bundle', 31, 30], ['meso-bundle', 31, 30],
   ['meso-bag', 32, 31],
 ];
 for (const [file] of PIECES) new Image().src = `images/fx/${file}.png`;   // preload, so they're ready on a win
+const rand = (a, b) => a + Math.random() * (b - a);
 
-// A short burst of meso confetti falling from the top of the screen. A first-guess win gets 5x as much.
-function confetti(firstTry = false) {
+// One meso: an outer box that moves, holding the sprite (which flips if it's a coin).
+function meso(box) {
+  const [file, w, h, coin] = PIECES[Math.floor(Math.random() * PIECES.length)];
+  const outer = document.createElement('b');
+  const img = document.createElement('i');
+  img.style.width = w + 'px';
+  img.style.height = h + 'px';
+  img.style.backgroundImage = `url("images/fx/${file}.png")`;
+  if (coin) {
+    img.className = 'coin';
+    img.style.animationDuration = rand(0.4, 0.9) + 's';
+  }
+  outer.appendChild(img);
+  box.appendChild(outer);
+  return outer;
+}
+
+// A meso falling from the top of the screen, starting `delay` seconds from now.
+function fall(box, delay = 0) {
+  const el = meso(box);
+  el.className = 'fall';
+  el.style.left = Math.random() * 100 + 'vw';
+  el.style.animationDelay = delay + 's';
+  el.style.animationDuration = rand(2.2, 3.6) + 's';
+  el.style.setProperty('--drift', rand(-10, 10) + 'vw');
+  setTimeout(() => el.remove(), (delay + 3.7) * 1000);
+}
+
+function fxLayer(ms) {
   const box = document.createElement('div');
   box.className = 'confetti';
-  for (let i = 0; i < (firstTry ? 600 : 120); i++) {
-    const bit = document.createElement('i');
-    const [file, w, h] = PIECES[Math.floor(Math.random() * PIECES.length)];
-    const scale = 1;   // actual in-game size (a whole number keeps the pixel art crisp)
-    bit.style.width = w * scale + 'px';
-    bit.style.height = h * scale + 'px';
-    bit.style.left = Math.random() * 100 + 'vw';
-    bit.style.backgroundImage = `url("images/fx/${file}.png")`;
-    bit.style.animationDelay = Math.random() * 0.6 + 's';
-    bit.style.animationDuration = 2 + Math.random() * 1.5 + 's';
-    bit.style.setProperty('--drift', (Math.random() * 30 - 15) + 'vw');
-    bit.style.setProperty('--spin', (Math.random() * 720 - 360) + 'deg');
-    box.appendChild(bit);
-  }
   document.body.appendChild(box);
-  setTimeout(() => box.remove(), 4500);
+  setTimeout(() => box.remove(), ms);
+  return box;
+}
+
+// A short burst of meso confetti falling from the top of the screen. A first-guess win gets the big show instead.
+function confetti(firstTry = false) {
+  if (firstTry) return bigWin();
+  const box = fxLayer(4500);
+  for (let i = 0; i < 120; i++) fall(box, Math.random() * 0.6);
+}
+
+// First-guess win, timed to its music (35 s): the game box shakes and glows gold, meso fountains spray up from both
+// bottom corners for 5 s, then mesos rain from the top, getting lighter until just before the music fades out.
+function bigWin() {
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const game = document.querySelector('.game');
+  if (game) {
+    game.classList.remove('shake', 'glow');
+    void game.offsetWidth;   // restart the animations if they're already running
+    game.classList.add('shake', 'glow');
+  }
+  const box = fxLayer(33000);
+  fountain(box, 5);
+  rain(box, 2, 6, 300);     // 2-8 s
+  rain(box, 8, 5, 120);     // 8-13 s
+  rain(box, 13, 5, 60);     // 13-18 s
+  rain(box, 18, 10, 30);    // 18-28 s
+}
+
+// `perSecond` mesos a second falling nonstop, from `at` seconds for `seconds` seconds.
+function rain(box, at, seconds, perSecond) {
+  let begin, made = 0, last = 0;
+  const frame = (now) => {
+    begin ??= now;
+    const due = Math.floor((Math.min(now - begin, seconds * 1000)) / 1000 * perSecond);   // how many should have started by now
+    if (now - last > 250) made = Math.max(made, due - 10);   // tab was in the background: don't dump them all at once
+    last = now;
+    for (; made < due; made++) fall(box);
+    if (now - begin < seconds * 1000) requestAnimationFrame(frame);
+  };
+  setTimeout(() => requestAnimationFrame(frame), at * 1000);
+}
+
+// Mesos thrown up from both bottom corners for `seconds`, arcing over and falling back down (simple physics).
+function fountain(box, seconds) {
+  const flying = [];
+  const end = performance.now() + seconds * 1000;
+  let last = performance.now();
+  const throwOne = (x, dir) => {
+    const el = meso(box);
+    el.className = 'fly';
+    flying.push({ el, x, y: innerHeight, vx: dir * (rand(250, 650) * innerWidth / 1000 + 120),
+                  vy: -rand(1000, 1500) * Math.sqrt(innerHeight / 800) });
+  };
+  const frame = (now) => {
+    const dt = Math.min(0.05, (now - last) / 1000);
+    last = now;
+    if (now < end) for (let k = 0; k < 8; k++) { throwOne(-10, 1); throwOne(innerWidth - 20, -1); }
+    for (let i = flying.length - 1; i >= 0; i--) {
+      const p = flying[i];
+      p.vy += 1400 * dt;
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.el.style.transform = `translate(${p.x}px, ${p.y}px)`;
+      if (p.y > innerHeight + 60) { p.el.remove(); flying.splice(i, 1); }
+    }
+    if (now < end || flying.length) requestAnimationFrame(frame);
+  };
+  requestAnimationFrame(frame);
 }
 
 // ---- Result sounds (today's puzzle only): Star Force Success on a win, Star Force Destroy on a loss ----
