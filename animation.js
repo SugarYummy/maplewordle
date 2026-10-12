@@ -23,8 +23,14 @@ function hash(str) {
   for (let i = 0; i < str.length; i++) h = Math.imul(h ^ str.charCodeAt(i), 16777619);
   return h >>> 0;
 }
-const schedule = { days: [], used: new Set() };
+// data/animation.json "days" fixes the answers of the first puzzles by name (["Ren", "Corsair"] = #1 Ren, #2 Corsair);
+// after those, the shuffled cycle over every class with a clip takes over.
+let schedule;
 function answerFor(d) {
+  if (!schedule) {
+    const fixed = (data.fixedDays || []).map((n) => pool.find((e) => e.name === n)).filter(Boolean);
+    schedule = { days: fixed, used: new Set(fixed.map((e) => e.name)) };
+  }
   const s = schedule;
   while (FIRST_DAY + s.days.length <= d) {
     const day = FIRST_DAY + s.days.length;
@@ -453,6 +459,7 @@ Promise.all(['data/classes.json', 'data/animation.json'].map((u) => fetch(u, { c
     data = c;
     all = c.solo;
     clips = a.classes;
+    data.fixedDays = a.days;
     // Answer pool: classes that have clip 1. "since" (YYYY-MM-DD) -> day number.
     pool = all.filter((e) => clips[e.name]?.clips.includes(1)).map((e) => ({
       ...e, clips: clips[e.name].clips, credit: clips[e.name].credit, creditImage: clips[e.name].creditImage,

@@ -1,5 +1,5 @@
 {
- "_about": "Animation Attack clips: videos/anim/<class slug>-<1|2>.webm/.mp4/.jpg (added with tools/add_clip.py). clips = which clip numbers exist; since = first day the class can be the answer. credit / creditImage = who recorded the clips; shown on the win screen.",
+ "_about": "Animation Attack clips: videos/anim/<class slug>-<1|2>.webm/.mp4/.jpg (added with tools/add_clip.py). clips = which clip numbers exist; since = first day the class can be the answer. credit / creditImage = who recorded the clips; shown on the win screen. days = fixed answers for puzzles #1, #2, ... by class name; after them a shuffled cycle over every class with a clip.",
  "classes": {
   "Ren": {
    "clips": [
@@ -9,5 +9,8 @@
    "credit": "Snowmoon",
    "creditImage": "videos/anim/ren-credit.jpg"
   }
- }
+ },
+ "days": [
+  "Ren"
+ ]
 }
