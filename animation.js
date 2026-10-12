@@ -65,7 +65,15 @@ const CATS = [
 const catOrder = (d) => CATS.map((c) => c.key).sort((x, y) => hash(`${MODE}|${d}|${x}`) - hash(`${MODE}|${d}|${y}`));
 
 // Hints after clip 1, one per wrong guess: clip 2 if the class has one, the categories, then the first letter.
-const hintOrder = () => [...(answer.videos.length > 1 ? ['clip2'] : []), ...catOrder(day), 'letter'];
+// Hint order after clip 1: clip 2 -> clip 1's skill name -> clip 2's skill name -> categories (random order) -> first letter.
+// Steps the puzzle doesn't have (no clip 2, no skill names) are skipped.
+const hasClip2 = () => answer.videos.length > 1;
+const hintOrder = () => [
+  ...(hasClip2() ? ['clip2'] : []),
+  ...(answer.skills?.[0] ? ['skill1'] : []),
+  ...(hasClip2() && answer.skills?.[1] ? ['skill2'] : []),
+  ...catOrder(day), 'letter',
+];
 // What you can see while making guess number n. Everything once the game is over.
 function cluesFor(n) {
   return new Set(over ? hintOrder() : hintOrder().slice(0, n - 1));
@@ -102,8 +110,17 @@ function showClip(n, open) {
 function renderClues() {
   const c = cluesFor(guesses.length + 1);
   showClip(1, true);
-  $('clip2').hidden = answer.videos.length < 2;   // one-clip classes just show the one
+  $('clip2').hidden = !hasClip2();   // one-clip classes just show the one
   if (!$('clip2').hidden) showClip(2, c.has('clip2'));
+  // Skill name under each clip, in the same green / locked style as the categories.
+  [1, 2].forEach((n) => {
+    const td = $('skill' + n), sk = answer.skills?.[n - 1];
+    td.parentElement.hidden = !sk;
+    if (!sk) return;
+    const open = c.has('skill' + n);
+    td.textContent = open ? sk : '🔒';
+    td.className = open ? 'green' : 'grey';
+  });
   const row = $('clueRow');
   row.innerHTML = '';
   for (const cat of [...CATS, { key: 'letter', show: (e) => e.name[0] }]) {
@@ -129,12 +146,6 @@ function guessRow(g) {
 
 // Win screen: the class, and a thank-you to whoever recorded the clips (with their character, if there's a picture).
 function renderCongrats() {
-  // Under each clip: "Clip 1", or "Clip 1 - <skill>" once the game is won (no spoilers before).
-  const won = over && guesses.includes(answer.name);
-  [1, 2].forEach((n) => {
-    const sk = won && answer.skills?.[n - 1];
-    $('clip' + n).querySelector('figcaption').textContent = sk ? `Clip ${n} - ${sk}` : `Clip ${n}`;
-  });
   const box = $('congrats');
   box.hidden = !(over && guesses.includes(answer.name));
   if (box.hidden) return;
@@ -422,7 +433,7 @@ function openInfo() {
   const rules = [
     "Watch the skill clip and guess today's class. <b>Unlimited</b> guesses. New class every day at 00:00 UTC (same as Maple reset).",
     'A wrong guess only tells you it\'s wrong, but each one unlocks the next hint:<ul>' +
-      '<li>a second clip (some classes)</li><li>then one category per guess (Faction, Job Branch, Main Stat, Release Year, Region), in a random order</li>' +
+      '<li>a second clip (some classes)</li><li>the name of each clip\'s skill</li><li>then one category per guess (Faction, Job Branch, Main Stat, Release Year, Region), in a random order</li>' +
       "<li>last: the class's first letter</li></ul>",
     `Win within ${CELEBRATE_UP_TO} guesses for confetti and the win sound.`,
     'Every class is on its own here (Hero, Paladin and Dark Knight are separate answers).',

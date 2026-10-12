@@ -2,7 +2,7 @@
 
 ## alpha v3.0 - 12 October 2026
 - New game: Guess the Class - Attack Animation. Watch a class's skill clip and guess the class, unlimited guesses
-- Wrong guesses only say wrong, but each one unlocks a surprise hint: a second clip (some classes), then a category (Faction, Job Branch, Main Stat, Release Year, Region), then the class's first letter
+- Wrong guesses only say wrong, but each one unlocks a surprise hint: a second clip (some classes), the skill names, then a category (Faction, Job Branch, Main Stat, Release Year, Region), then the class's first letter
 - Win within 3 guesses for confetti and the win sound
 - Win screen shows the class and thanks the player who recorded the clip
 - Every class is its own answer here (Hero, Paladin and Dark Knight are separate)
