@@ -54,6 +54,9 @@ footer.panel { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%
 #archiveList button { display: block; width: 100%; margin: 4px 0; padding: 6px; text-align: left;
                       background: rgba(255, 255, 255, 0.4); border: 1px solid rgba(0, 0, 0, 0.15); border-radius: 6px; cursor: pointer; }
 #archiveList button:hover { background: rgba(255, 255, 255, 0.65); }
+#archiveList button.firsttry { border-color: rgba(230, 160, 0, 0.9); background: rgba(255, 236, 160, 0.55); animation: rowglow 0.8s ease-in-out infinite alternate; }
+@keyframes rowglow { from { box-shadow: 0 0 2px 1px rgba(255, 200, 40, .5); } to { box-shadow: 0 0 10px 4px rgba(255, 200, 40, 1); } }
+@media (prefers-reduced-motion: reduce) { #archiveList button.firsttry { animation: none; box-shadow: 0 0 8px 3px rgba(255, 200, 40, .95); } }
 th { background: rgba(255, 255, 255, 0.6); }
 td, th { border: 1px solid #999; padding: 4px 8px; }
 table { border-collapse: collapse; margin: 8px auto; }

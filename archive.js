@@ -43,7 +43,9 @@
     for (let d = today(); d >= t.first; d--) {
       const btn = document.createElement('button');
       const r = result(t, d);
-      const star = /^Won (1\/|in 1$)/.test(r) ? ' ⭐' : '';   // won on the first guess
+      const firstTry = /^Won (1\/|in 1$)/.test(r);   // won on the first guess: a star and a gold glow
+      const star = firstTry ? ' ⭐' : '';
+      if (firstTry) btn.className = 'firsttry';
       btn.textContent = `#${d - t.first + 1} - ${dateLabel(d)}${d === today() ? ' (today)' : ''} - ${r}${star}`;
       btn.addEventListener('click', () => {
         const here = window.archiveHere;
