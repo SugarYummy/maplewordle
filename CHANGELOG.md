@@ -5,7 +5,7 @@
 - Win on your first guess for 5x the meso confetti and a ⭐ next to that day in the Archive
 - Extreme has its own music: Kaling's Four Auspicious Beasts when you win on guess 2-5, Seren's Burning City when you lose
 - Attack Animation: winning on guess 2-3 plays Radiant Malefic Star's Rest of the Broken Truth
-- Guess the Class - Wordle: losing plays Malitia's The Breeze That Carried Sorrow
+- Guess the Class - Wordle: winning on guess 2-5 plays First Adversary's Succession Bloom, losing plays Malitia's The Breeze That Carried Sorrow
 - Win on your first guess in any mode and Meilin's The Unblessed Cathedral -Descend- plays
 - Typing a boss's full name with its difficulty (e.g. "Gollux (Normal)") now picks that exact one
 

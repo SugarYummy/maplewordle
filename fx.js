@@ -68,9 +68,10 @@ const SOUNDS = { win: 'sounds/star-force-success.mp3', lose: 'sounds/star-force-
   extremeWin: 'sounds/four-auspicious-beasts.mp3',  // Kaling's Four Auspicious Beasts from 0:16 (1 s fade-in), Extreme win on guess 2+
   animWin: 'sounds/rest-of-the-broken-truth.mp3',   // Malefic Star's Rest of the Broken Truth 0:15-0:36, Attack Animation win on guess 2-3
   classLose: 'sounds/the-breeze-that-carried-sorrow.mp3',   // Malitia's The Breeze That Carried Sorrow 0:00-0:18 (1 s fade-in), Class Wordle loss
-  firstTry: 'sounds/the-unblessed-cathedral-descend.mp3' };   // Meilin's The Unblessed Cathedral -Descend- 1:07-1:42 (1 s fade-in), any first-guess win
+  firstTry: 'sounds/the-unblessed-cathedral-descend.mp3',   // Meilin's The Unblessed Cathedral -Descend- 1:07-1:42 (1 s fade-in), any first-guess win
+  classWin: 'sounds/succession-bloom.mp3' };   // First Adversary's Succession Bloom 1:03-1:27 (1 s fade-in), Class Wordle win on guess 2-5
 // Tracks that play longer than SOUND_SECONDS: seconds before the fade-out starts (fade-out is SOUND_FADE).
-const SOUND_LENGTH = { animWin: 19, classLose: 16, firstTry: 33 };
+const SOUND_LENGTH = { animWin: 19, classLose: 16, firstTry: 33, classWin: 22 };
 // Tracks louder than SOUND_VOLUME.
 const SOUND_LOUDER = { firstTry: 0.03 };
 const muteKey = 'mapleWordle:muted';
