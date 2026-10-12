@@ -66,9 +66,10 @@ const SOUND_FADE = 2;        // seconds of fade-out
 const SOUNDS = { win: 'sounds/star-force-success.mp3', lose: 'sounds/star-force-destroy.mp3',
   extremeLose: 'sounds/burning-city.mp3',         // Seren's Burning City (first 12.5 s), for an Extreme loss
   extremeWin: 'sounds/four-auspicious-beasts.mp3',  // Kaling's Four Auspicious Beasts from 0:16 (1 s fade-in), Extreme win on guess 2+
-  animWin: 'sounds/rest-of-the-broken-truth.mp3' };   // Malefic Star's Rest of the Broken Truth 0:15-0:36, Attack Animation win on guess 2-3
+  animWin: 'sounds/rest-of-the-broken-truth.mp3',   // Malefic Star's Rest of the Broken Truth 0:15-0:36, Attack Animation win on guess 2-3
+  classLose: 'sounds/the-breeze-that-carried-sorrow.mp3' };   // Malitia's The Breeze That Carried Sorrow 0:00-0:18 (1 s fade-in), Class Wordle loss
 // Tracks that play longer than SOUND_SECONDS: seconds before the fade-out starts (fade-out is SOUND_FADE).
-const SOUND_LENGTH = { animWin: 19 };
+const SOUND_LENGTH = { animWin: 19, classLose: 16 };
 const muteKey = 'mapleWordle:muted';
 let audioCtx;
 const muted = () => { try { return localStorage.getItem(muteKey) === '1'; } catch { return false; } };
