@@ -604,6 +604,38 @@ async function openChangelog() {
   }
   $('changelog').hidden = false;
 }
+// "?" How to play window. Same for every tab except the guess count and the Story / Extreme only lines.
+const DISCORD = 'https://discord.gg/f22H4UJ';
+function infoHtml(m) {
+  const guesses = { story: '<b>unlimited</b> guesses', normal: '<b>6</b> guesses', hard: '<b>5</b> guesses', extreme: '<b>5</b> guesses' }[m];
+  const rules = [
+    `Guess today's boss in ${guesses}. New boss every day at 00:00 UTC (same as Maple reset).`,
+    'Each guess shows how close you are:<ul><li>🟩 right · 🟨 close · 🟥 wrong</li><li>↑ / ↓ = the answer is higher / lower</li></ul>',
+    'Close = Phases ±1, HP within 3×, Entry Lv ±10, Region partly overlaps.',
+    'HP is all phases added together. Entry Lv = level needed to enter.',
+    'Unknown = red with no arrow (no data for it yet).',
+    'Seasonal and KMS-only bosses can appear.',
+    ...(m === 'extreme' ? ['You also guess the difficulty. Hard = Chaos and Extreme = Hell count as the same.',
+                           'Unreleased, removed and special bosses can appear.'] : []),
+    ...(m === 'story' ? ['A hint unlocks every 3 guesses.'] : []),
+    'The <b>Best so far</b> row shows your best clue for each column.',
+    m === 'story' ? 'Win streak resets if you miss a day.' : 'Win streak resets when you lose.',
+  ];
+  const phases = [
+    'Kalos P2 segments count as 1 phase, and so do Kaling P3 segments and P1 perils.',
+    'Kai and Meilin have 1 HP bar but count as 2 phases.',
+    'Malefic Star and Jupiter count as 1 phase, even with 3 sub-phases.',
+  ];
+  const ul = (items) => '<ul>' + items.map((x) => `<li>${x}</li>`).join('') + '</ul>';
+  return `<h3>${MODE_NAME[m]}</h3>${ul(rules)}<h3>Phases</h3>${ul(phases)}` +
+    `<p class="warn">⚠️ Some info may not be accurate. If you spot a mistake, please report it on the <a href="${DISCORD}" target="_blank" rel="noopener">Discord</a>.</p>`;
+}
+function openInfo() {
+  $('infoBody').innerHTML = infoHtml(document.querySelector('#modes .on').dataset.mode);
+  $('info').hidden = false;
+}
+$('infoBtn').addEventListener('click', openInfo);
+$('infoClose').addEventListener('click', () => { $('info').hidden = true; });
 $('version').addEventListener('click', openChangelog);
 $('changelogClose').addEventListener('click', () => { $('changelog').hidden = true; });
 // Clicking the credit makes a random character peek out from behind it for 2 seconds. No cooldown:
@@ -617,13 +649,14 @@ $('credit').addEventListener('click', () => {
   peekTimers.set(who, setTimeout(() => who.classList.remove('up'), 350 + 2000));
 });
 // Clicking the dark area outside a window (not the window itself) closes it.
-for (const id of ['archive', 'changelog']) {
+for (const id of ['archive', 'changelog', 'info']) {
   $(id).addEventListener('click', (e) => { if (e.target === $(id)) $(id).hidden = true; });
 }
 // Esc closes whichever window is open.
 document.addEventListener('keydown', (e) => {
   if (e.key !== 'Escape') return;
   $('changelog').hidden = true;
+  $('info').hidden = true;
   closeArchive();
 });
 $('today').addEventListener('click', () => start());

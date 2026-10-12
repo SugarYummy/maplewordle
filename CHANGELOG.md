@@ -4,6 +4,7 @@
 - Guess list: only a left click picks an option (right / middle clicks do nothing), and Enter picks the option you're pointing at
 - Win / lose sounds are much quieter (1% volume)
 - Story mode: winning on your 7th guess or later has no confetti or win sound
+- New "?" button next to the search box: a short How to play guide for each game and mode
 
 ## alpha v2.1 - 11 October 2026
 - Each new guess flips in one card at a time, left to right (the answer flips in after your last guess if you run out); the result text and Best so far row wait until the flip is done

@@ -436,17 +436,38 @@ $('credit').addEventListener('click', () => {
   clearTimeout(peekTimers.get(who));
   peekTimers.set(who, setTimeout(() => who.classList.remove('up'), 350 + 2000));
 });
+// "?" How to play window.
+const DISCORD = 'https://discord.gg/f22H4UJ';
+function openInfo() {
+  const rules = [
+    "Guess today's class in <b>5</b> guesses. New class every day at 00:00 UTC (same as Maple reset).",
+    'Each guess shows how close you are:<ul><li>🟩 right · 🟨 close · 🟥 wrong</li><li>↑ / ↓ = the answer is newer / older</li></ul>',
+    '🟨 Job Branch, Main Stat, Region: partly matches (e.g. Xenon is Thief / Pirate).',
+    '🟨 Release Year: within 4 years.',
+    'Release Year is when the class came to GMS. Not in GMS = red with no arrow.',
+    'Classes that match in every column share one card (e.g. Hero / Paladin / Dark Knight). Type any of their names.',
+    'Removed, event and upcoming classes can appear.',
+    'The <b>Best so far</b> row shows your best clue for each column.',
+    'Win streak resets when you lose.',
+  ];
+  $('infoBody').innerHTML = '<ul>' + rules.map((x) => `<li>${x}</li>`).join('') + '</ul>' +
+    `<p class="warn">⚠️ Some info may not be accurate. If you spot a mistake, please report it on the <a href="${DISCORD}" target="_blank" rel="noopener">Discord</a>.</p>`;
+  $('info').hidden = false;
+}
+$('infoBtn').addEventListener('click', openInfo);
+$('infoClose').addEventListener('click', () => { $('info').hidden = true; });
 $('version').addEventListener('click', openChangelog);
 $('changelogClose').addEventListener('click', () => { $('changelog').hidden = true; });
 $('share').addEventListener('click', share);
 $('archiveBtn').addEventListener('click', () => { if (data) openArchive(); });
 $('archiveClose').addEventListener('click', closeArchive);
-for (const id of ['archive', 'changelog']) {
+for (const id of ['archive', 'changelog', 'info']) {
   $(id).addEventListener('click', (e) => { if (e.target === $(id)) $(id).hidden = true; });
 }
 document.addEventListener('keydown', (e) => {
   if (e.key !== 'Escape') return;
   $('changelog').hidden = true;
+  $('info').hidden = true;
   closeArchive();
 });
 $('today').addEventListener('click', () => start());

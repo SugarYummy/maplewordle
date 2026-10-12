@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Maple Wordle</title>
 <script src="move.js?v=1"></script>
-<link rel="stylesheet" href="style.css?v=9">
+<link rel="stylesheet" href="style.css?v=11">
 </head>
 <body>
 <button id="archiveBtn" class="panel">Archive</button>
@@ -41,9 +41,12 @@
 <div id="streak"></div>
 <p id="status"></p>
 <p><button id="share" hidden>Share</button></p>
+<div class="pickrow">
 <div id="picker">
   <input id="guess" placeholder="Type a boss name" autocomplete="off">
   <div id="list" hidden></div>
+</div>
+<button id="infoBtn" title="How to play">?</button>
 </div>
 <button id="hint" hidden>Hint</button>
 <div class="table-wrap">
@@ -69,6 +72,13 @@
   <div id="credit" class="panel">Made by Yuki with Love &lt;3</div>
 </div>
 <button id="version" class="panel">alpha v2.1.1</button>
+<div id="info" hidden>
+  <div class="panel">
+    <h2>How to play</h2>
+    <div id="infoBody"></div>
+    <p class="closebar"><button id="infoClose">Close</button></p>
+  </div>
+</div>
 <div id="changelog" hidden>
   <div class="panel">
     <h2>Changelog</h2>
@@ -77,6 +87,6 @@
   </div>
 </div>
 <script src="fx.js?v=10"></script>
-<script src="script.js?v=44"></script>
+<script src="script.js?v=45"></script>
 </body>
 </html>
