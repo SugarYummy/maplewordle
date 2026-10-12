@@ -133,6 +133,10 @@ function renderCongrats() {
   box.hidden = !(over && guesses.includes(answer.name));
   if (box.hidden) return;
   $('congratsClass').textContent = `Their class was ${answer.name}!`;
+  const skills = answer.skills || [];
+  $('congratsSkills').innerHTML = '';
+  skills.forEach((sk, i) => { if (sk) $('congratsSkills').appendChild(document.createElement('div')).textContent = `Clip ${i + 1} - ${sk}`; });
+  $('congratsSkills').hidden = !skills.length;
   $('congratsThanks').textContent = answer.credit ? `Thank you ${answer.credit}!` : '';
   $('congratsThanks').hidden = !answer.credit;
   $('congratsImg').hidden = !answer.creditImage;
@@ -484,7 +488,7 @@ Promise.all(['data/classes.json', 'data/animation.json'].map((u) => fetch(u, { c
     data.fixedDays = a.days;
     // Answer pool: one entry per puzzle, carrying its class's data. "since" (YYYY-MM-DD) -> day number.
     pool = a.puzzles.filter((p) => p.videos?.length && all.some((e) => e.name === p.class)).map((p) => ({
-      ...all.find((e) => e.name === p.class), id: p.id, videos: p.videos, credit: p.credit, creditImage: p.creditImage,
+      ...all.find((e) => e.name === p.class), id: p.id, videos: p.videos, skills: p.skills, credit: p.credit, creditImage: p.creditImage,
       ...(p.since ? { since: Date.parse(p.since) / DAY_MS } : {}),
     }));
     if (!pool.length) {

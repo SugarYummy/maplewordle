@@ -1,8 +1,32 @@
 {
- "_about": "Attack Animation puzzles. Each puzzle = one class + its clips: videos/anim/video<N>.webm/.mp4/.jpg (numbers just count up, so file names give nothing away; a class can have several puzzles). videos: clip 1 [, clip 2]. credit / creditImage: who recorded it, shown on the win screen. since (YYYY-MM-DD): first day it can be the answer. days: fixed puzzle ids for puzzles #1, #2, ...; after them a shuffled cycle over every puzzle. Add clips with tools/add_clip.py.",
+ "_about": "Attack Animation puzzles. Each puzzle = one class + its clips: videos/anim/video<N>.webm/.mp4/.jpg (numbers just count up, so file names give nothing away; a class can have several puzzles). videos: clip 1 [, clip 2]. credit / creditImage: who recorded it, shown on the win screen. skills: the skill shown in each clip, listed on the win screen. since (YYYY-MM-DD): first day it can be the answer. days: fixed puzzle ids for puzzles #1, #2, ...; after them a shuffled cycle over every puzzle. Add clips with tools/add_clip.py.",
  "puzzles": [
-  {"id": 1, "class": "Ren", "videos": [1, 2], "credit": "Snowmoon", "creditImage": "videos/anim/credit1.jpg"},
-  {"id": 2, "class": "Corsair", "videos": [3], "credit": "Axar", "creditImage": "videos/anim/credit2.jpg"}
+  {
+   "id": 1,
+   "class": "Ren",
+   "videos": [
+    1,
+    2
+   ],
+   "credit": "Snowmoon",
+   "creditImage": "videos/anim/credit1.jpg",
+   "skills": [
+    "Wish Unending (4th attack)",
+    "Plum Blossom Sword: Storm (Hold down)"
+   ]
+  },
+  {
+   "id": 2,
+   "class": "Corsair",
+   "videos": [
+    3
+   ],
+   "credit": "Axar",
+   "creditImage": "videos/anim/credit2.jpg"
+  }
  ],
- "days": [1, 2]
+ "days": [
+  1,
+  2
+ ]
 }
