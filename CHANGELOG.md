@@ -1,13 +1,15 @@
 # Maple Wordle changelog
 
+## alpha v3.2 - 12 October 2026
+- Win on your first guess in any mode for a meso fountain, a meso rain and Meilin's The Unblessed Cathedral -Descend-
+- Guess the Class - Wordle: winning on guess 2-5 plays First Adversary's Succession Bloom, losing plays Malitia's The Breeze That Carried Sorrow
+- Falling meso coins now spin like real coins
+
 ## alpha v3.1 - 12 October 2026
 - One Archive for every game: tabs for each Boss mode, Class Wordle and Attack Animation; pick a day to jump straight to it
-- Win on your first guess for a meso fountain, a meso rain and a ⭐ next to that day in the Archive
+- Win on your first guess for 5x the meso confetti and a ⭐ next to that day in the Archive
 - Extreme has its own music: Kaling's Four Auspicious Beasts when you win on guess 2-5, Seren's Burning City when you lose
 - Attack Animation: winning on guess 2-3 plays Radiant Malefic Star's Rest of the Broken Truth
-- Guess the Class - Wordle: winning on guess 2-5 plays First Adversary's Succession Bloom, losing plays Malitia's The Breeze That Carried Sorrow
-- Win on your first guess in any mode and Meilin's The Unblessed Cathedral -Descend- plays
-- Falling meso coins now spin like real coins
 - Typing a boss's full name with its difficulty (e.g. "Gollux (Normal)") now picks that exact one
 
 ## alpha v3.0 - 12 October 2026
