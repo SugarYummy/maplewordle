@@ -499,8 +499,11 @@ function guess(name) {
   // Flip the new row in; on a win, confetti once the last cell has turned over.
   let flipMs = flipRow($('rows').querySelector('tr:not(.bestrow):not(.hintrow):not(.answer)'));
   flipMs = flipRow($('rows').querySelector('tr.answer'), flipMs);   // out of guesses: the answer turns over next
-  if (over && guesses.includes(answer.name)) setTimeout(confetti, flipMs);
-  if (over && live) resultSound(guesses.includes(answer.name), flipMs);   // today's puzzle only
+  // A Story win that took 7+ guesses gets no confetti and no win sound. Sounds are for today's puzzle only.
+  const won = guesses.includes(answer.name);
+  const quietWin = won && mode === 'story' && guesses.length >= 7;
+  if (over && won && !quietWin) setTimeout(confetti, flipMs);
+  if (over && live && !quietWin) resultSound(won, flipMs);
   for (const el of [$('status'), $('share'), $('rows').querySelector('.bestrow')]) revealAfter(el, flipMs);
   if (over) { updateStreak(); loadStats(); }
 }
