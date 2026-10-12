@@ -34,6 +34,18 @@ Add it to the list in `tools/build_bosses.py` with `since="YYYY-MM-DD"` (the fir
 then run `python3 tools/build_bosses.py data`. Past days stay the same, and the new boss joins the bosses still
 left in the current cycle (it doesn't wait for the next one).
 
+## Animation Attack (Guess the Class)
+
+`animation.html` / `animation.js`: guess the class from its skill clips. Unlimited guesses; each wrong guess unlocks
+a clue (guess 2: clip 2, guesses 3-7: one category each in a random order per day, guess 8: first letter). A class
+can be the answer once it has clip 1. Add a clip (needs ffmpeg; makes a small WebM, an MP4 for older iPhones and a
+poster image under `videos/anim/`, and records it in `data/animation.json`):
+
+    python3 tools/add_clip.py "Hero" 1 raw-video.mp4 --start 2.5 --end 7
+
+Classes added after launch: add `--since YYYY-MM-DD` so past days keep their answers. Puzzle #1 is `FIRST_DAY` in
+`animation.js`. The stats Worker needs the `anim` mode (`worker/stats.js`).
+
 ## Adding a new game mode
 
 Each game is its own page (like `index.html` and `class.html`). Put the same `#games` button row on every page:

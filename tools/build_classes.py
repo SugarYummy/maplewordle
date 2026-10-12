@@ -88,12 +88,23 @@ for name, faction, branch, stat, year, year_label, region, *since in CLASSES:
         e["since"] = (datetime.date.fromisoformat(since[0]) - datetime.date(1970, 1, 1)).days
     pool.append(e)
 
+# Animation Attack needs every class on its own (each has its own skill animation), so group cards are split back
+# into their member classes there. Member pictures: images/classes/<member slug>.png.
+solo = []
+for e in pool:
+    for m in e.get("members", [e["name"]]):
+        x = {k: v for k, v in e.items() if k != "members"}
+        x["name"] = m
+        x["image"] = f"images/classes/{slug(m)}.png"
+        solo.append(x)
+
 data = {
     "_about": "Guess the Class word bank. Sources: maplestorywiki.net (class pages, Availability tables, Class Release Dates). "
               "year = GMS release year (null = unknown or not in GMS; yearLabel explains). branch/stat are lists (Xenon has several). "
-              "members = classes sharing one card because they match in every column.",
+              "members = classes sharing one card because they match in every column. solo = every class on its own (Animation Attack).",
     "attempts": 5,
     "classes": pool,
+    "solo": solo,
 }
 os.makedirs(OUT, exist_ok=True)
 with open(os.path.join(OUT, "classes.json"), "w") as f:
@@ -105,4 +116,4 @@ for i, e in enumerate(pool, 1):
               f"{e.get('yearLabel') or e['year'] or 'Unknown'} | {e['region']} |")
 with open(os.path.join(OUT, "classes.md"), "w") as f:
     f.write("\n".join(md) + "\n")
-print(len(pool), "classes")
+print(len(pool), "classes,", len(solo), "on their own")

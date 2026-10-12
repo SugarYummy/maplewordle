@@ -135,3 +135,13 @@ td.flip { animation: flip 0.5s ease both; }
 #infoBtn { flex: none; width: 34px; height: 34px; border-radius: 4px; border: 1px solid rgba(0, 0, 0, 0.25);
            background: rgba(255, 255, 255, 0.7); font-family: inherit; font-size: 17px; font-weight: bold; cursor: pointer; }
 #infoBtn:hover { background: rgba(255, 255, 255, 0.95); }
+/* Animation Attack: the two skill clips side by side (stacked on narrow screens). */
+#clips { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin: 12px 0; }
+#clips[hidden] { display: none; }
+#clips figure { margin: 0; width: min(360px, 100%); }
+#clips figcaption { font-size: 13px; margin-top: 2px; opacity: 0.8; }
+#clips video, #clips .locked { display: block; width: 100%; aspect-ratio: 16 / 9; border-radius: 8px; background: #222; object-fit: contain; }
+#clips .locked { display: flex; align-items: center; justify-content: center; color: #ddd; background: rgba(0, 0, 0, 0.45); font-size: 14px; }
+#clues td { min-width: 70px; }
+#clues[hidden], #guessTable[hidden] { display: none; }
+#guessTable .card { flex-direction: row; gap: 8px; }
