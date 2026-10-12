@@ -162,7 +162,9 @@ td.flip { animation: flip 0.5s ease both; }
 #clips video, #congrats img { cursor: zoom-in; }
 #zoom { position: fixed; inset: 0; z-index: 7; background: rgba(0, 0, 0, 0.6); display: flex; align-items: center; justify-content: center; }
 #zoom[hidden] { display: none; }
-#zoom .panel { margin: 0; padding: 12px 12px 16px; max-width: calc(100vw - 32px); }
-#zoomBody video, #zoomBody img { display: block; width: min(calc(100vw - 56px), calc((100vh - 150px) * 16 / 9)); max-height: calc(100vh - 150px);
+#zoom .panel { position: relative; margin: 0; padding: 12px; max-width: calc(100vw - 32px); }
+#zoomClose { position: absolute; top: 2px; right: 4px; z-index: 1; border: none; background: none; padding: 0 4px;
+             font-size: 20px; line-height: 1; color: #fff; text-shadow: 0 0 3px #000; cursor: pointer; }
+#zoomBody video, #zoomBody img { display: block; width: min(calc(100vw - 56px), calc((100vh - 80px) * 16 / 9)); max-height: calc(100vh - 80px);
                                  object-fit: contain; border-radius: 8px; background: #000; }
-#zoomBody img { width: auto; height: min(calc(100vh - 150px), 900px); max-width: calc(100vw - 56px); background: none; }
+#zoomBody img { width: auto; height: min(calc(100vh - 80px), 900px); max-width: calc(100vw - 56px); background: none; }
