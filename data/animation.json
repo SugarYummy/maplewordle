@@ -22,7 +22,10 @@
     3
    ],
    "credit": "Axar",
-   "creditImage": "videos/anim/credit2.jpg"
+   "creditImage": "videos/anim/credit2.jpg",
+   "skills": [
+    "Rapid Fire (Hold)"
+   ]
   }
  ],
  "days": [
