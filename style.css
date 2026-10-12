@@ -7,12 +7,12 @@ body { text-align: center; margin: 0; min-height: 100vh; display: flex; flex-dir
 footer.panel { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); z-index: 1; margin: 0;
                padding: 6px 16px; border-radius: 12px 12px 0 0; font-size: 14px; white-space: nowrap; }
 .game { position: relative; z-index: 2; margin-bottom: 80px; }
-#version { position: fixed; bottom: 8px; left: 10px; z-index: 1; margin: 0; padding: 4px 10px; font-size: 12px;
+#version { position: fixed; bottom: 8px; left: 10px; z-index: 3; margin: 0; padding: 4px 10px; font-size: 12px;
            border: none; cursor: pointer; font-family: inherit; }
 #archiveBtn { position: fixed; top: 12px; left: 12px; z-index: 3; margin: 0; padding: 6px 12px; font-size: 14px;
               border: none; cursor: pointer; font-family: inherit; }
 /* Credit box with characters peeking out from behind it. */
-#creditWrap { position: fixed; bottom: 8px; right: 10px; z-index: 1; }
+#creditWrap { position: fixed; bottom: 8px; right: 10px; z-index: 3; }
 #credit { position: relative; z-index: 5; margin: 0; padding: 4px 10px; font-size: 12px; cursor: pointer;
           white-space: nowrap; max-width: none; user-select: none; -webkit-user-select: none;
           background: #d7e9f9; }  /* solid, so peeking characters stay fully hidden behind it */
