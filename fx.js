@@ -1,5 +1,5 @@
-// Small effects shared by every game page: flipping in a new guess row, and confetti on a win.
-// Kept deliberately simple for now (no libraries, no sound).
+// Small effects shared by every game page: flipping in a new guess row, confetti and sound when a game ends.
+// Kept deliberately simple for now (no libraries).
 
 const FLIP_STEP = 250;   // ms between one cell flipping and the next
 const FLIP_TIME = 500;   // ms one cell takes to flip (matches style.css)
@@ -60,7 +60,7 @@ function confetti() {
 // ---- Result sounds (today's puzzle only): Star Force Success on a win, Star Force Destroy on a loss ----
 // The files are full ~1 minute tracks, so only the start plays, quietly, then fades out.
 // Played through Web Audio so the volume also works on iPhones (they ignore <audio> volume).
-const SOUND_VOLUME = 0.125;   // 0 = silent, 1 = full
+const SOUND_VOLUME = 0.03125;   // 0 = silent, 1 = full
 const SOUND_SECONDS = 10;    // how long to play before fading out
 const SOUND_FADE = 2;        // seconds of fade-out
 const SOUNDS = { win: 'sounds/star-force-success.mp3', lose: 'sounds/star-force-destroy.mp3' };
