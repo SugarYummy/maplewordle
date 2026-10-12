@@ -26,10 +26,22 @@
    "skills": [
     "Rapid Fire (Hold down)"
    ]
+  },
+  {
+   "id": 3,
+   "class": "Lynn",
+   "videos": [
+    4
+   ],
+   "credit": "MagicalFair",
+   "creditImage": "videos/anim/credit3.jpg",
+   "skills": [
+    "Strike"
+   ]
   }
  ],
  "days": [
   1,
-  2
+  3
  ]
 }
