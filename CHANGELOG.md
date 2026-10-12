@@ -1,5 +1,8 @@
 # Maple Wordle changelog
 
+## alpha v3.1 - 12 October 2026
+- One Archive for every game: tabs for each Boss mode, Class Wordle and Attack Animation; pick a day to jump straight to it
+
 ## alpha v3.0 - 12 October 2026
 - New game: Guess the Class - Attack Animation. Watch a class's skill clip and guess the class, unlimited guesses
 - Wrong guesses only say wrong, but each one unlocks a surprise hint: a second clip (some classes), the skill names, then a category (Faction, Job Branch, Main Stat, Release Year, Region), then the class's first letter

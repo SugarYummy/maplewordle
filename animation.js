@@ -191,6 +191,7 @@ function start(d) {
   if (!over) updateStatus();
   else loadStats();
   renderStreak();
+  noteResult();
 }
 
 function updateStatus(msg) {
@@ -232,7 +233,7 @@ function guess(name) {
     setTimeout(confetti, flipMs);
     if (live) resultSound(true, flipMs);
   }
-  if (over) { updateStreak(); loadStats(); }
+  if (over) { updateStreak(); loadStats(); noteResult(); }
 }
 
 // ---- Class picker (all 62 classes, A-Z) ----
@@ -349,22 +350,14 @@ function renderStreak() {
 
 // ---- Archive ----
 
-function openArchive() {
-  const list = $('archiveList');
-  list.innerHTML = '';
-  for (let d = today(); d >= FIRST_DAY; d--) {
-    const saved = load(d);
-    const ans = answerFor(d);
-    let result = 'Not played';
-    if (saved.includes(ans.name)) result = `Won in ${saved.length}`;
-    else if (saved.length) result = `In progress (${saved.length} guesses)`;
-    const btn = document.createElement('button');
-    btn.textContent = `#${d - FIRST_DAY + 1} - ${dateLabel(d)}${d === today() ? ' (today)' : ''} - ${result}`;
-    btn.addEventListener('click', () => { closeArchive(); start(d); });
-    list.appendChild(btn);
-  }
-  $('archive').hidden = false;
+// Archive (the shared window is archive.js): this page's result for a day.
+function resultFor(m, d) {
+  const saved = load(d), ans = answerFor(d);
+  if (saved.includes(ans.name)) return `Won in ${saved.length}`;
+  return saved.length ? `In progress (${saved.length} guesses)` : 'Not played';
 }
+window.archiveHere = { modes: [MODE], current: () => MODE, result: resultFor, play: (m, d) => start(d) };
+const noteResult = () => { if (over) try { localStorage.setItem(`mapleWordle:result:${MODE}:${day}`, resultFor(MODE, day)); } catch {} };
 const closeArchive = () => { $('archive').hidden = true; };
 
 // ---- Share ----
@@ -472,7 +465,6 @@ $('infoClose').addEventListener('click', () => { $('info').hidden = true; });
 $('version').addEventListener('click', openChangelog);
 $('changelogClose').addEventListener('click', () => { $('changelog').hidden = true; });
 $('share').addEventListener('click', share);
-$('archiveBtn').addEventListener('click', () => { if (pool && pool.length) openArchive(); });
 $('archiveClose').addEventListener('click', closeArchive);
 for (const id of ['archive', 'changelog', 'info']) {
   $(id).addEventListener('click', (e) => { if (e.target === $(id)) $(id).hidden = true; });
@@ -511,6 +503,6 @@ Promise.all(['data/classes.json', 'data/animation.json'].map((u) => fetch(u, { c
       $('clips').hidden = $('clues').hidden = true;
       return;
     }
-    start();
+    start(window.archiveRequest?.mode === MODE ? window.archiveRequest.day : undefined);
   })
   .catch(() => { $('status').textContent = 'Could not load the class data.'; });

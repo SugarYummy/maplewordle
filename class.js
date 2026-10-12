@@ -185,6 +185,7 @@ function start(d) {
   if (!over) updateStatus();
   else loadStats();
   renderStreak();
+  noteResult();
 }
 
 function updateStatus(msg) {
@@ -229,7 +230,7 @@ function guess(name) {
   if (over && guesses.includes(answer.name)) setTimeout(confetti, flipMs);
   if (over && live) resultSound(guesses.includes(answer.name), flipMs);   // today's puzzle only
   for (const el of [$('status'), $('share'), $('rows').querySelector('.bestrow')]) revealAfter(el, flipMs);
-  if (over) { updateStreak(); loadStats(); }
+  if (over) { updateStreak(); loadStats(); noteResult(); }
 }
 
 // ---- Class picker: search box with a dropdown of picture + name rows (A-Z, so the order gives nothing away) ----
@@ -352,23 +353,15 @@ const renderStreak = () => { $('streak').textContent = `Win Streak: ${loadStreak
 
 // ---- Archive: every puzzle from #1 to today, with your result if you played it ----
 
-function openArchive() {
-  const list = $('archiveList');
-  list.innerHTML = '';
-  for (let d = today(); d >= FIRST_DAY; d--) {
-    const saved = load(d);
-    const ans = answerFor(d);
-    let result = 'Not played';
-    if (saved.includes(ans.name)) result = `Won ${saved.length}/${maxGuesses}`;
-    else if (saved.length >= maxGuesses) result = 'Lost';
-    else if (saved.length) result = `In progress (${saved.length} guesses)`;
-    const btn = document.createElement('button');
-    btn.textContent = `#${d - FIRST_DAY + 1} - ${dateLabel(d)}${d === today() ? ' (today)' : ''} - ${result}`;
-    btn.addEventListener('click', () => { closeArchive(); start(d); });
-    list.appendChild(btn);
-  }
-  $('archive').hidden = false;
+// Archive (the shared window is archive.js): this page's result for a day.
+function resultFor(m, d) {
+  const saved = load(d), ans = answerFor(d);
+  if (saved.includes(ans.name)) return `Won ${saved.length}/${maxGuesses}`;
+  if (saved.length >= maxGuesses) return 'Lost';
+  return saved.length ? `In progress (${saved.length} guesses)` : 'Not played';
 }
+window.archiveHere = { modes: [MODE], current: () => MODE, result: resultFor, play: (m, d) => start(d) };
+const noteResult = () => { if (over) try { localStorage.setItem(`mapleWordle:result:${MODE}:${day}`, resultFor(MODE, day)); } catch {} };
 const closeArchive = () => { $('archive').hidden = true; };
 
 // ---- Share ----
@@ -459,7 +452,6 @@ $('infoClose').addEventListener('click', () => { $('info').hidden = true; });
 $('version').addEventListener('click', openChangelog);
 $('changelogClose').addEventListener('click', () => { $('changelog').hidden = true; });
 $('share').addEventListener('click', share);
-$('archiveBtn').addEventListener('click', () => { if (data) openArchive(); });
 $('archiveClose').addEventListener('click', closeArchive);
 for (const id of ['archive', 'changelog', 'info']) {
   $(id).addEventListener('click', (e) => { if (e.target === $(id)) $(id).hidden = true; });
@@ -483,5 +475,5 @@ setInterval(tick, 1000);
 
 fetch('data/classes.json', { cache: 'no-cache' })
   .then((r) => r.json())
-  .then((d) => { data = d; pool = d.classes; maxGuesses = d.attempts; start(); })
+  .then((d) => { data = d; pool = d.classes; maxGuesses = d.attempts; start(window.archiveRequest?.mode === MODE ? window.archiveRequest.day : undefined); })
   .catch(() => { $('status').textContent = 'Could not load data/classes.json'; });

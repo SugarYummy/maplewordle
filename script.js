@@ -211,6 +211,7 @@ function start(d) {
   else loadStats();
   renderHints();
   renderStreak();
+  noteResult();
 }
 
 function updateStatus(msg) {
@@ -423,28 +424,21 @@ const nextHint = () => live ? 'Come back tomorrow for a new boss.' : 'Pick anoth
 const FIRST_DAY = Date.UTC(2026, 9, 10) / DAY_MS;
 const dateLabel = (d) => new Date(d * DAY_MS).toLocaleDateString(undefined, { timeZone: 'UTC', month: 'short', day: 'numeric', year: 'numeric' });
 
-// Archive: every puzzle from #1 to today for the current mode, with your result if you played it.
-// Archive: every puzzle from #1 to today for the chosen mode tab, with your result if you played it.
-function openArchive(m = mode) {
-  for (const t of document.querySelectorAll('#archiveTabs button')) t.classList.toggle('on', t.dataset.mode === m);
-  const list = $('archiveList');
-  list.innerHTML = '';
-  const p = poolFor(m);
-  const max = data.attempts[m];
-  for (let d = today(); d >= FIRST_DAY; d--) {
-    const saved = load(d, m);
-    const ans = answerFor(m, d);
-    let result = 'Not played';
-    if (saved.includes(ans.name)) result = `Won ${saved.length}/${max ?? '∞'}`;
-    else if (max != null && saved.length >= max) result = 'Lost';
-    else if (saved.length) result = `In progress (${saved.length} guesses)`;
-    const btn = document.createElement('button');
-    btn.textContent = `#${d - FIRST_DAY + 1} - ${dateLabel(d)}${d === today() ? ' (today)' : ''} - ${result}`;
-    btn.addEventListener('click', () => { closeArchive(); setMode(m); start(d); });
-    list.appendChild(btn);
-  }
-  $('archive').hidden = false;
+// Archive (the shared window is archive.js): this page's result for a mode and day.
+function resultFor(m, d) {
+  const saved = load(d, m), ans = answerFor(m, d), max = data.attempts[m];
+  if (saved.includes(ans.name)) return `Won ${saved.length}/${max ?? '∞'}`;
+  if (max != null && saved.length >= max) return 'Lost';
+  return saved.length ? `In progress (${saved.length} guesses)` : 'Not played';
 }
+window.archiveHere = {
+  modes: ['story', 'normal', 'hard', 'extreme'],
+  current: () => document.querySelector('#modes .on').dataset.mode,
+  result: resultFor,
+  play: (m, d) => { setMode(m); start(d); },
+};
+// Remember finished results so the archive on other pages can show them.
+const noteResult = () => { if (over) try { localStorage.setItem(`mapleWordle:result:${mode}:${day}`, resultFor(mode, day)); } catch {} };
 // Highlight a mode button on the main page (start() reads the highlighted one).
 function setMode(m) {
   for (const b of document.querySelectorAll('#modes button')) b.classList.toggle('on', b.dataset.mode === m);
@@ -505,7 +499,7 @@ function guess(name) {
   if (over && won && !quietWin) setTimeout(confetti, flipMs);
   if (over && live && !quietWin) resultSound(won, flipMs);
   for (const el of [$('status'), $('share'), $('rows').querySelector('.bestrow')]) revealAfter(el, flipMs);
-  if (over) { updateStreak(); loadStats(); }
+  if (over) { updateStreak(); loadStats(); noteResult(); }
 }
 
 // Dropdown drawn inside the page (not the browser's native popup), so it shows up on screen shares.
@@ -570,8 +564,6 @@ $('guess').addEventListener('keydown', (e) => {
 });
 $('hint').addEventListener('click', useHint);
 $('share').addEventListener('click', share);
-$('archiveBtn').addEventListener('click', () => { if (data) openArchive(); });
-for (const t of document.querySelectorAll('#archiveTabs button')) t.addEventListener('click', () => openArchive(t.dataset.mode));
 $('archiveClose').addEventListener('click', closeArchive);
 // Changelog: read CHANGELOG.md and show "## version" headings with their "- item" lines.
 async function openChangelog() {
@@ -680,5 +672,10 @@ setInterval(tick, 1000);
 
 fetch('data/bosses.json', { cache: 'no-cache' })
   .then((r) => r.json())
-  .then((d) => { data = d; start(); })
+  .then((d) => {
+    data = d;
+    const req = window.archiveRequest;   // opened from the archive on another page
+    if (req && window.archiveHere.modes.includes(req.mode)) { setMode(req.mode); start(req.day); }
+    else start();
+  })
   .catch(() => { $('status').textContent = 'Could not load data/bosses.json'; });
