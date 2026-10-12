@@ -88,7 +88,7 @@ for name, faction, branch, stat, year, year_label, region, *since in CLASSES:
         e["since"] = (datetime.date.fromisoformat(since[0]) - datetime.date(1970, 1, 1)).days
     pool.append(e)
 
-# Animation Attack needs every class on its own (each has its own skill animation), so group cards are split back
+# Attack Animation needs every class on its own (each has its own skill animation), so group cards are split back
 # into their member classes there. Member pictures: images/classes/<member slug>.png.
 solo = []
 for e in pool:
@@ -101,7 +101,7 @@ for e in pool:
 data = {
     "_about": "Guess the Class word bank. Sources: maplestorywiki.net (class pages, Availability tables, Class Release Dates). "
               "year = GMS release year (null = unknown or not in GMS; yearLabel explains). branch/stat are lists (Xenon has several). "
-              "members = classes sharing one card because they match in every column. solo = every class on its own (Animation Attack).",
+              "members = classes sharing one card because they match in every column. solo = every class on its own (Attack Animation).",
     "attempts": 5,
     "classes": pool,
     "solo": solo,

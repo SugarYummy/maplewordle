@@ -1,8 +1,8 @@
 // Maple Wordle stats API (Cloudflare Worker + D1 database bound as DB).
 //   GET  ?mode=normal&day=20736          -> { counts: { "1": 3, "4": 7, "X": 2 } }
 //   POST ?mode=normal&day=20736  {"score": 4 | "X"}   records one result, returns the same shape.
-// Story and Animation Attack have unlimited guesses, so they accept any guess count (capped at 999) and never "X".
-const MAX_GUESSES = { story: 999, normal: 6, hard: 5, extreme: 5, class: 5, anim: 999 };   // class = Guess the Class, anim = Animation Attack
+// Story and Attack Animation have unlimited guesses, so they accept any guess count (capped at 999) and never "X".
+const MAX_GUESSES = { story: 999, normal: 6, hard: 5, extreme: 5, class: 5, anim: 999 };   // class = Guess the Class, anim = Attack Animation
 const UNLIMITED = new Set(['story', 'anim']);   // can't lose, so never "X"
 const FIRST_DAY = Date.UTC(2026, 9, 10) / 86400000;
 

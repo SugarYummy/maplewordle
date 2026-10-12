@@ -1,7 +1,7 @@
 # Maple Wordle changelog
 
 ## alpha v3.0 - 12 October 2026
-- New game: Guess the Class - Animation Attack. Watch a class's skill clip and guess the class, unlimited guesses
+- New game: Guess the Class - Attack Animation. Watch a class's skill clip and guess the class, unlimited guesses
 - Wrong guesses only say wrong, but each one unlocks a surprise hint: a second clip (some classes), then a category (Faction, Job Branch, Main Stat, Release Year, Region), then the class's first letter
 - Win within 3 guesses for confetti and the win sound
 - Win screen shows the class and thanks the player who recorded the clip
@@ -28,7 +28,7 @@
 - Classes that match in every column share one card (Hero / Paladin / Dark Knight, Arch Mage (F/P) / Arch Mage (I/L) / Bishop, Bow Master / Marksman, Night Lord / Shadower); type any of their names to find it
 - Class pictures: newest NPC portraits, plus artwork for classes without one
 - Archive, win streak, Share, Best so far row and everyone's results, same as Guess the Boss
-- Animation Attack mode for Guess the Class: coming soon
+- Attack Animation mode for Guess the Class: coming soon
 - Share links point to ima.moe; the github.io address now sends you to ima.moe and brings your saves and streaks along
 
 ## alpha v1.2.2 - 11 October 2026

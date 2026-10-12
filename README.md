@@ -34,7 +34,7 @@ Add it to the list in `tools/build_bosses.py` with `since="YYYY-MM-DD"` (the fir
 then run `python3 tools/build_bosses.py data`. Past days stay the same, and the new boss joins the bosses still
 left in the current cycle (it doesn't wait for the next one).
 
-## Animation Attack (Guess the Class)
+## Attack Animation (Guess the Class)
 
 `animation.html` / `animation.js`: guess the class from its skill clips. Unlimited guesses; each wrong guess unlocks
 the next hint (clip 2 if the class has one, then one category each in a random order per day, then the first letter). A class

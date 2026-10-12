@@ -1,4 +1,4 @@
-// Guess the Class - Animation Attack. Watch the skill clip and guess the class. Unlimited guesses; a wrong guess
+// Guess the Class - Attack Animation. Watch the skill clip and guess the class. Unlimited guesses; a wrong guess
 // only says "wrong", but each one unlocks the next hint, in this order:
 //   clip 1 (from the start) -> clip 2 (only if the class has one) -> one category per guess (random order per day)
 //   -> the class's first letter (last hint)
@@ -353,7 +353,7 @@ const closeArchive = () => { $('archive').hidden = true; };
 
 function shareText() {
   const grid = guesses.map((n) => n === answer.name ? '🟩' : '🟥').join('');
-  return [`Maple Wordle - Animation Attack #${day - FIRST_DAY + 1} ${guesses.length} guess${guesses.length === 1 ? '' : 'es'}`,
+  return [`Maple Wordle - Attack Animation #${day - FIRST_DAY + 1} ${guesses.length} guess${guesses.length === 1 ? '' : 'es'}`,
     grid, 'https://ima.moe/maplewordle/animation'].join('\n');
 }
 function share() {
@@ -490,7 +490,7 @@ Promise.all(['data/classes.json', 'data/animation.json'].map((u) => fetch(u, { c
     }));
     all = all.map((e) => pool.find((p) => p.name === e.name) ?? e);   // answers carry their clip list
     if (!pool.length) {
-      $('status').textContent = 'Animation Attack is coming soon: clips are still being added.';
+      $('status').textContent = 'Attack Animation is coming soon: clips are still being added.';
       $('picker').hidden = true;
       $('clips').hidden = $('clues').hidden = true;
       return;

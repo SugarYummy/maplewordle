@@ -1,4 +1,4 @@
-# Adds an Animation Attack clip: compresses a video into a small WebM (VP9) + MP4 (H.264, for older iPhones)
+# Adds an Attack Animation clip: compresses a video into a small WebM (VP9) + MP4 (H.264, for older iPhones)
 # and a still poster image, then records it in data/animation.json.
 #
 #   python3 tools/add_clip.py "Hero" 1 input.mp4 [--start 2.5] [--end 7] [--since 2026-11-01]
@@ -36,7 +36,7 @@ run("-an", "-vf", f"scale='min({MAX_WIDTH},iw)':-2:flags=lanczos", "-frames:v", 
 
 path = "data/animation.json"
 m = json.load(open(path)) if os.path.exists(path) else {}
-m.setdefault("_about", "Animation Attack clips: videos/anim/<class slug>-<1|2>.webm/.mp4/.jpg (added with tools/add_clip.py). "
+m.setdefault("_about", "Attack Animation clips: videos/anim/<class slug>-<1|2>.webm/.mp4/.jpg (added with tools/add_clip.py). "
                        "clips = which clip numbers exist; since = first day the class can be the answer.")
 entry = m.setdefault("classes", {}).setdefault(a.name, {"clips": []})
 if a.clip not in entry["clips"]:
