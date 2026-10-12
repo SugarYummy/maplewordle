@@ -4,6 +4,7 @@
 - One Archive for every game: tabs for each Boss mode, Class Wordle and Attack Animation; pick a day to jump straight to it
 - Win on your first guess for 5x the meso confetti and a ⭐ next to that day in the Archive
 - Extreme has its own music: Kaling's Four Auspicious Beasts when you win on guess 2-5, Seren's Burning City when you lose
+- Attack Animation: winning on guess 2-3 plays Radiant Malefic Star's Rest of the Broken Truth
 - Typing a boss's full name with its difficulty (e.g. "Gollux (Normal)") now picks that exact one
 
 ## alpha v3.0 - 12 October 2026

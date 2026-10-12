@@ -231,7 +231,7 @@ function guess(name) {
   const won = over && g.name === answer.name;
   if (won && guesses.length <= CELEBRATE_UP_TO) {
     setTimeout(() => confetti(guesses.length === 1), flipMs);
-    if (live) resultSound(true, flipMs);
+    if (live) resultSound(true, flipMs, guesses.length > 1 ? 'animWin' : undefined);   // guess 1 keeps the Star Force jingle
   }
   if (over) { updateStreak(); loadStats(); noteResult(); }
 }

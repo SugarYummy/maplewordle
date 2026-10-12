@@ -65,7 +65,10 @@ const SOUND_SECONDS = 10;    // how long to play before fading out
 const SOUND_FADE = 2;        // seconds of fade-out
 const SOUNDS = { win: 'sounds/star-force-success.mp3', lose: 'sounds/star-force-destroy.mp3',
   extremeLose: 'sounds/burning-city.mp3',         // Seren's Burning City (first 12.5 s), for an Extreme loss
-  extremeWin: 'sounds/four-auspicious-beasts.mp3' };  // Kaling's Four Auspicious Beasts from 0:16 (1 s fade-in), Extreme win on guess 2+
+  extremeWin: 'sounds/four-auspicious-beasts.mp3',  // Kaling's Four Auspicious Beasts from 0:16 (1 s fade-in), Extreme win on guess 2+
+  animWin: 'sounds/rest-of-the-broken-truth.mp3' };   // Malefic Star's Rest of the Broken Truth 0:15-0:36, Attack Animation win on guess 2-3
+// Tracks that play longer than SOUND_SECONDS: seconds before the fade-out starts (fade-out is SOUND_FADE).
+const SOUND_LENGTH = { animWin: 19 };
 const muteKey = 'mapleWordle:muted';
 let audioCtx;
 const muted = () => { try { return localStorage.getItem(muteKey) === '1'; } catch { return false; } };
@@ -86,13 +89,14 @@ function resultSound(won, delay, file) {
     const start = ctx.currentTime + Math.max(0, due - Date.now()) / 1000;
     const gain = ctx.createGain();
     gain.gain.setValueAtTime(SOUND_VOLUME, start);
-    gain.gain.setValueAtTime(SOUND_VOLUME, start + SOUND_SECONDS);
-    gain.gain.linearRampToValueAtTime(0, start + SOUND_SECONDS + SOUND_FADE);
+    const len = SOUND_LENGTH[file] ?? SOUND_SECONDS;
+    gain.gain.setValueAtTime(SOUND_VOLUME, start + len);
+    gain.gain.linearRampToValueAtTime(0, start + len + SOUND_FADE);
     const src = ctx.createBufferSource();
     src.buffer = buffer;
     src.connect(gain).connect(ctx.destination);
     src.start(start);
-    src.stop(start + SOUND_SECONDS + SOUND_FADE);
+    src.stop(start + len + SOUND_FADE);
   }).catch(() => {});
 }
 
