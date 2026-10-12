@@ -37,7 +37,7 @@ left in the current cycle (it doesn't wait for the next one).
 ## Animation Attack (Guess the Class)
 
 `animation.html` / `animation.js`: guess the class from its skill clips. Unlimited guesses; each wrong guess unlocks
-a clue (guess 2: clip 2, guesses 3-7: one category each in a random order per day, guess 8: first letter). A class
+the next hint (clip 2 if the class has one, then one category each in a random order per day, then the first letter). A class
 can be the answer once it has clip 1. Add a clip (needs ffmpeg; makes a small WebM, an MP4 for older iPhones and a
 poster image under `videos/anim/`, and records it in `data/animation.json`):
 

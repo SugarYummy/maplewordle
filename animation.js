@@ -1,6 +1,7 @@
 // Guess the Class - Animation Attack. Watch the skill clip and guess the class. Unlimited guesses; a wrong guess
-// only says "wrong", but each one unlocks the next clue:
-//   guess 1: clip 1 · guess 2: + clip 2 · guesses 3-7: + one category each (random order per day) · guess 8+: + first letter
+// only says "wrong", but each one unlocks the next hint, in this order:
+//   clip 1 (from the start) -> clip 2 (only if the class has one) -> one category per guess (random order per day)
+//   -> the class's first letter (last hint)
 // Winning within 3 guesses gets confetti and the win sound.
 let data, pool, all, clips, day, live, answer, guesses, over, matches, active;
 
@@ -15,7 +16,6 @@ const today = () => Math.floor(Date.now() / DAY_MS); // resets at 00:00 UTC
 const FIRST_DAY = Date.UTC(2026, 9, 12) / DAY_MS;
 const dateLabel = (d) => new Date(d * DAY_MS).toLocaleDateString(undefined, { timeZone: 'UTC', month: 'short', day: 'numeric', year: 'numeric' });
 const CELEBRATE_UP_TO = 3;   // confetti + win sound only for a win within this many guesses
-const LETTER_AT = 8;         // the guess on which the first letter shows
 
 // Daily answer: same shuffled-cycle rules as the other games, over the classes that have clips.
 function hash(str) {
@@ -58,14 +58,13 @@ const CATS = [
 // The order categories unlock in: shuffled per day, the same for everyone.
 const catOrder = (d) => CATS.map((c) => c.key).sort((x, y) => hash(`${MODE}|${d}|${x}`) - hash(`${MODE}|${d}|${y}`));
 
-// What you can see while making guess number n (n = wrong guesses so far + 1). Everything once the game is over.
+// Hints after clip 1, one per wrong guess: clip 2 if the class has one, the categories, then the first letter.
+const hintOrder = () => [...(answer.clips.includes(2) ? ['clip2'] : []), ...catOrder(day), 'letter'];
+// The guess number each hint shows on (guess 1 = clip 1 only).
+const hintGuess = (key) => hintOrder().indexOf(key) + 2;
+// What you can see while making guess number n. Everything once the game is over.
 function cluesFor(n) {
-  if (over) n = Infinity;
-  return {
-    clip2: n >= 2,
-    cats: new Set(catOrder(day).slice(0, Math.max(0, Math.min(5, n - 2)))),
-    letter: n >= LETTER_AT,
-  };
+  return new Set(over ? hintOrder() : hintOrder().slice(0, n - 1));
 }
 
 const clipSrc = (e, n) => `videos/anim/${e.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}-${n}`;
@@ -92,25 +91,22 @@ function showClip(n, open) {
   } else {
     const lock = document.createElement('div');
     lock.className = 'locked';
-    lock.textContent = has ? '🔒 Unlocks after your first guess' : 'No second clip for this class';
+    lock.textContent = '🔒 Unlocks on guess 2';
     fig.prepend(lock);
   }
 }
 function renderClues() {
   const c = cluesFor(guesses.length + 1);
   showClip(1, true);
-  showClip(2, c.clip2);
+  $('clip2').hidden = !answer.clips.includes(2);   // one-clip classes just show the one
+  if (!$('clip2').hidden) showClip(2, c.has('clip2'));
   const row = $('clueRow');
   row.innerHTML = '';
-  const order = catOrder(day);
-  for (const cat of CATS) {
+  for (const cat of [...CATS, { key: 'letter', show: (e) => e.name[0] }]) {
     const td = row.insertCell();
-    if (c.cats.has(cat.key)) { td.textContent = cat.show(answer); td.className = 'green'; }
-    else { td.textContent = `🔒 guess ${order.indexOf(cat.key) + 3}`; td.className = 'grey'; }
+    if (c.has(cat.key)) { td.textContent = cat.show(answer); td.className = 'green'; }
+    else { td.textContent = `🔒 guess ${hintGuess(cat.key)}`; td.className = 'grey'; }
   }
-  const td = row.insertCell();
-  if (c.letter) { td.textContent = answer.name[0]; td.className = 'green'; }
-  else { td.textContent = `🔒 guess ${LETTER_AT}`; td.className = 'grey'; }
 }
 
 // ---- Guess rows: just right or wrong ----
@@ -408,9 +404,10 @@ const DISCORD = 'https://discord.gg/f22H4UJ';
 function openInfo() {
   const rules = [
     "Watch the skill clip and guess today's class. <b>Unlimited</b> guesses. New class every day at 00:00 UTC (same as Maple reset).",
-    'A wrong guess only tells you it\'s wrong, but each one unlocks a new clue:<ul>' +
-      '<li>Guess 2: a second clip</li><li>Guesses 3-7: one category each (Faction, Job Branch, Main Stat, Release Year, Region), in a random order</li>' +
-      `<li>Guess ${LETTER_AT}: the class's first letter</li></ul>`,
+    'A wrong guess only tells you it\'s wrong, but each one unlocks the next hint:<ul>' +
+      '<li>a second clip (some classes)</li><li>then one category per guess (Faction, Job Branch, Main Stat, Release Year, Region), in a random order</li>' +
+      "<li>last: the class's first letter</li></ul>",
+    'The hint row shows which guess unlocks each hint.',
     `Win within ${CELEBRATE_UP_TO} guesses for confetti and the win sound.`,
     'Every class is on its own here (Hero, Paladin and Dark Knight are separate answers).',
     'Removed, event and upcoming classes can appear.',
