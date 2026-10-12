@@ -139,7 +139,7 @@ td.flip { animation: flip 0.5s ease both; }
 #clips { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin: 12px 0; }
 #clips[hidden] { display: none; }
 #clips figure { margin: 0; width: min(360px, 100%); }
-#clips figcaption { font-size: 13px; margin-top: 2px; opacity: 0.8; }
+#clips figcaption { font-size: 15px; margin-top: 2px; }
 #clips video, #clips .locked { display: block; width: 100%; aspect-ratio: 16 / 9; border-radius: 8px; background: #222; object-fit: contain; }
 #clips .locked { display: flex; align-items: center; justify-content: center; color: #ddd; background: rgba(0, 0, 0, 0.45); font-size: 14px; }
 #clues td { min-width: 70px; }
@@ -170,5 +170,3 @@ td.flip { animation: flip 0.5s ease both; }
 #zoomBody video, #zoomBody img { display: block; width: min(calc(100vw - 56px), calc((100vh - 80px) * 16 / 9)); max-height: calc(100vh - 80px);
                                  object-fit: contain; border-radius: 8px; background: #000; }
 #zoomBody img { width: auto; height: min(calc(100vh - 80px), 900px); max-width: calc(100vw - 56px); background: none; }
-#congratsSkills { font-size: 15px !important; opacity: 0.85; }
-#congratsSkills[hidden] { display: none; }

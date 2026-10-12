@@ -129,14 +129,16 @@ function guessRow(g) {
 
 // Win screen: the class, and a thank-you to whoever recorded the clips (with their character, if there's a picture).
 function renderCongrats() {
+  // Under each clip: "Clip 1", or "Clip 1 - <skill>" once the game is won (no spoilers before).
+  const won = over && guesses.includes(answer.name);
+  [1, 2].forEach((n) => {
+    const sk = won && answer.skills?.[n - 1];
+    $('clip' + n).querySelector('figcaption').textContent = sk ? `Clip ${n} - ${sk}` : `Clip ${n}`;
+  });
   const box = $('congrats');
   box.hidden = !(over && guesses.includes(answer.name));
   if (box.hidden) return;
   $('congratsClass').textContent = `Their class was ${answer.name}!`;
-  const skills = answer.skills || [];
-  $('congratsSkills').innerHTML = '';
-  skills.forEach((sk, i) => { if (sk) $('congratsSkills').appendChild(document.createElement('div')).textContent = `Clip ${i + 1} - ${sk}`; });
-  $('congratsSkills').hidden = !skills.length;
   $('congratsThanks').textContent = answer.credit ? `Thank you ${answer.credit}!` : '';
   $('congratsThanks').hidden = !answer.credit;
   $('congratsImg').hidden = !answer.creditImage;
