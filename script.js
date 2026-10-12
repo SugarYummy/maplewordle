@@ -497,7 +497,7 @@ function guess(name) {
   const won = guesses.includes(answer.name);
   const quietWin = won && mode === 'story' && guesses.length >= 7;
   if (over && won && !quietWin) setTimeout(() => confetti(guesses.length === 1), flipMs);
-  if (over && live && !quietWin) resultSound(won, flipMs, !won && mode === 'extreme' ? 'extremeLose' : undefined);
+  if (over && live && !quietWin) resultSound(won, flipMs, mode !== 'extreme' ? undefined : !won ? 'extremeLose' : guesses.length > 1 ? 'extremeWin' : undefined);
   for (const el of [$('status'), $('share'), $('rows').querySelector('.bestrow')]) revealAfter(el, flipMs);
   if (over) { updateStreak(); loadStats(); noteResult(); }
 }

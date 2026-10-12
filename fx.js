@@ -64,7 +64,8 @@ const SOUND_VOLUME = 0.01;   // 0 = silent, 1 = full
 const SOUND_SECONDS = 10;    // how long to play before fading out
 const SOUND_FADE = 2;        // seconds of fade-out
 const SOUNDS = { win: 'sounds/star-force-success.mp3', lose: 'sounds/star-force-destroy.mp3',
-  extremeLose: 'sounds/burning-city.mp3' };   // Seren's Burning City (first 12.5 s), for an Extreme loss
+  extremeLose: 'sounds/burning-city.mp3',         // Seren's Burning City (first 12.5 s), for an Extreme loss
+  extremeWin: 'sounds/four-auspicious-beasts.mp3' };  // Kaling's Four Auspicious Beasts from 0:16 (1 s fade-in), Extreme win on guess 2+
 const muteKey = 'mapleWordle:muted';
 let audioCtx;
 const muted = () => { try { return localStorage.getItem(muteKey) === '1'; } catch { return false; } };
