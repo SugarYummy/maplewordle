@@ -1,11 +1,14 @@
 # Maple Wordle changelog
 
+## alpha v2.1.1 - 12 October 2026
+- Guess list: only a left click picks an option (right / middle clicks do nothing), and Enter picks the option you're pointing at
+- Win / lose sounds are much quieter (1% volume)
+
 ## alpha v2.1 - 11 October 2026
 - Each new guess flips in one card at a time, left to right (the answer flips in after your last guess if you run out); the result text and Best so far row wait until the flip is done
 - Meso confetti when you win (bronze and gold coins, meso bundles and meso bags)
 - Sound on today's puzzle: Star Force Success when you win, Star Force Destroy when you lose (quiet, about 10 seconds); 🔊 button in the top right turns sound off
 - Game buttons light up when you hover over them
-- Guess list: only a left click picks an option (right / middle clicks do nothing), and Enter picks the option you're pointing at
 
 ## alpha v2.0 - 11 October 2026
 - New game: Guess the Class (Wordle style), 5 guesses, a new class every day at 00:00 UTC
