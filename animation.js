@@ -69,6 +69,7 @@ const catOrder = (d) => CATS.map((c) => c.key).sort((x, y) => hash(`${MODE}|${d}
 // Steps the puzzle doesn't have (no clip 2, no skill names) are skipped.
 const hasClip2 = () => answer.videos.length > 1;
 const hintOrder = () => [
+  ...Array(answer.hintDelay || 0).fill('wait'),   // some puzzles hold back the first hint for a guess or more
   ...(hasClip2() ? ['clip2'] : []),
   ...(answer.skills?.[0] ? ['skill1'] : []),
   ...(hasClip2() && answer.skills?.[1] ? ['skill2'] : []),
@@ -501,7 +502,7 @@ Promise.all(['data/classes.json', 'data/animation.json'].map((u) => fetch(u, { c
     data.fixedDays = a.days;
     // Answer pool: one entry per puzzle, carrying its class's data. "since" (YYYY-MM-DD) -> day number.
     pool = a.puzzles.filter((p) => p.videos?.length && all.some((e) => e.name === p.class)).map((p) => ({
-      ...all.find((e) => e.name === p.class), id: p.id, videos: p.videos, skills: p.skills, skillsFull: p.skillsFull, credit: p.credit, creditImage: p.creditImage,
+      ...all.find((e) => e.name === p.class), id: p.id, videos: p.videos, skills: p.skills, skillsFull: p.skillsFull, hintDelay: p.hintDelay, credit: p.credit, creditImage: p.creditImage,
       ...(p.since ? { since: Date.parse(p.since) / DAY_MS } : {}),
     }));
     if (!pool.length) {
