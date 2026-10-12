@@ -80,7 +80,13 @@ function confetti(firstTry = false) {
   for (let i = 0; i < 120; i++) fall(box, Math.random() * 0.6);
 }
 
-// First-guess win, timed to its music (35 s): the game box shakes and glows gold, meso fountains spray up from both
+// A puzzle won on the first guess keeps its game box glowing gold, also after a reload. Pages call this whenever
+// the shown puzzle changes or gets a new guess.
+function firstTryGlow(on) {
+  document.querySelector('.game')?.classList.toggle('glow', on);
+}
+
+// First-guess win, timed to its music (35 s): the game box shakes (and starts glowing), meso fountains spray up from both
 // bottom corners for 5 s, then mesos rain from the top, getting lighter until just before the music fades out.
 function bigWin() {
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;

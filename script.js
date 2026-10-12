@@ -194,6 +194,7 @@ function start(d) {
   guesses = [];
   hints = loadHints();
   over = false;
+  firstTryGlow(false);
   $('rows').innerHTML = '';
   $('stats').hidden = true;
   $('share').hidden = true;
@@ -237,6 +238,7 @@ function record(g) {
   $('picker').hidden = over;
   if (over) closeList();
   renderHints();
+  firstTryGlow(over && guesses.length === 1 && guesses[0] === answer.name);
   renderBest();
 }
 

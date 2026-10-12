@@ -176,6 +176,7 @@ function start(d) {
   $('today').hidden = live;
   guesses = [];
   over = false;
+  firstTryGlow(false);
   $('rows').innerHTML = '';
   $('stats').hidden = true;
   $('share').hidden = true;
@@ -210,6 +211,7 @@ function record(g) {
   $('share').hidden = !over;
   $('picker').hidden = over;
   if (over) closeList();
+  firstTryGlow(over && guesses.length === 1 && guesses[0] === answer.name);
 }
 const nextHint = () => live ? 'Come back tomorrow for a new class.' : 'Pick another day from the Archive.';
 

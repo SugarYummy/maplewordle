@@ -3,6 +3,7 @@
 ## alpha v3.2 - 12 October 2026
 - Win on your first guess in any mode for a meso fountain, a meso rain and Meilin's The Unblessed Cathedral -Descend-
 - Guess the Class - Wordle: winning on guess 2-5 plays First Adversary's Succession Bloom, losing plays Malitia's The Breeze That Carried Sorrow
+- A puzzle you won on your first guess keeps glowing gold, even after a reload
 - Falling meso coins now spin like real coins
 
 ## alpha v3.1 - 12 October 2026
