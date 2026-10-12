@@ -8,9 +8,15 @@
    ],
    "credit": "Snowmoon",
    "creditImage": "videos/anim/ren-credit.jpg"
+  },
+  "Corsair": {
+   "clips": [
+    1
+   ]
   }
  },
  "days": [
-  "Ren"
+  "Ren",
+  "Corsair"
  ]
 }
