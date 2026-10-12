@@ -73,11 +73,11 @@ function fxLayer(ms) {
   return box;
 }
 
-// A short burst of meso confetti falling from the top of the screen. A first-guess win gets the big show instead.
+// Meso confetti falling from the top of the screen: a steady 120 a second for 3 s (360 in all).
+// A first-guess win gets the big show instead.
 function confetti(firstTry = false) {
   if (firstTry) return bigWin();
-  const box = fxLayer(4500);
-  for (let i = 0; i < 120; i++) fall(box, Math.random() * 0.6);
+  rain(fxLayer(7000), 0, 3, 120);
 }
 
 // A puzzle won on the first guess keeps its game box glowing gold, also after a reload. Pages call this whenever
