@@ -132,6 +132,6 @@ td.flip { animation: flip 0.5s ease both; }
 /* Search box with the "?" (how to play) button beside it. */
 .pickrow { display: flex; justify-content: center; align-items: center; gap: 8px; margin: 8px auto; }
 .pickrow #picker { margin: 0; width: min(420px, calc(100% - 44px)); }
-#infoBtn { flex: none; width: 32px; height: 32px; border-radius: 50%; border: 1px solid rgba(0, 0, 0, 0.25);
+#infoBtn { flex: none; width: 34px; height: 34px; border-radius: 4px; border: 1px solid rgba(0, 0, 0, 0.25);
            background: rgba(255, 255, 255, 0.7); font-family: inherit; font-size: 17px; font-weight: bold; cursor: pointer; }
 #infoBtn:hover { background: rgba(255, 255, 255, 0.95); }
