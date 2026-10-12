@@ -131,6 +131,18 @@ function guessRow(g) {
   return tr;
 }
 
+// Win screen: the class, and a thank-you to whoever recorded the clips (with their character, if there's a picture).
+function renderCongrats() {
+  const box = $('congrats');
+  box.hidden = !(over && guesses.includes(answer.name));
+  if (box.hidden) return;
+  $('congratsClass').textContent = `Their class was ${answer.name}!`;
+  $('congratsThanks').textContent = answer.credit ? `Thank you ${answer.credit}!` : '';
+  $('congratsThanks').hidden = !answer.credit;
+  $('congratsImg').hidden = !answer.creditImage;
+  if (answer.creditImage) $('congratsImg').src = answer.creditImage;
+}
+
 // ---- Game flow ----
 
 const byName = (n) => all.find((e) => e.name === n);
@@ -161,6 +173,7 @@ function start(d) {
     if (g && !over) record(g);
   }
   renderClues();
+  renderCongrats();
   if (!over) updateStatus();
   else loadStats();
   renderStreak();
@@ -195,7 +208,8 @@ function guess(name) {
   record(g);
   save();
   const flipMs = flipRow($('rows').firstElementChild);
-  for (const el of [$('status'), $('share')]) revealAfter(el, flipMs);
+  renderCongrats();
+  for (const el of [$('status'), $('share'), $('congrats')]) revealAfter(el, flipMs);
   // The next clue (clip 2 / a category / the letter) appears once the row has turned over.
   setTimeout(renderClues, flipMs);
   const won = over && g === answer;
@@ -451,7 +465,7 @@ Promise.all(['data/classes.json', 'data/animation.json'].map((u) => fetch(u, { c
     clips = a.classes;
     // Answer pool: classes that have clip 1. "since" (YYYY-MM-DD) -> day number.
     pool = all.filter((e) => clips[e.name]?.clips.includes(1)).map((e) => ({
-      ...e, clips: clips[e.name].clips,
+      ...e, clips: clips[e.name].clips, credit: clips[e.name].credit, creditImage: clips[e.name].creditImage,
       ...(clips[e.name].since ? { since: Date.parse(clips[e.name].since) / DAY_MS } : {}),
     }));
     all = all.map((e) => pool.find((p) => p.name === e.name) ?? e);   // answers carry their clip list

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Maple Wordle - Animation Attack</title>
 <script src="move.js?v=1"></script>
-<link rel="stylesheet" href="style.css?v=13">
+<link rel="stylesheet" href="style.css?v=14">
 </head>
 <body>
 <button id="archiveBtn" class="panel">Archive</button>
@@ -39,6 +39,12 @@
   <div id="list" hidden></div>
 </div>
 <button id="infoBtn" title="How to play">?</button>
+</div>
+<div id="congrats" hidden>
+  <h2>You guessed it!</h2>
+  <p id="congratsClass"></p>
+  <p id="congratsThanks"></p>
+  <img id="congratsImg" alt="">
 </div>
 <div id="clips">
   <figure id="clip1"><figcaption>Clip 1</figcaption></figure>
@@ -86,6 +92,6 @@
   </div>
 </div>
 <script src="fx.js?v=10"></script>
-<script src="animation.js?v=2"></script>
+<script src="animation.js?v=3"></script>
 </body>
 </html>

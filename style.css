@@ -145,3 +145,10 @@ td.flip { animation: flip 0.5s ease both; }
 #clues td { min-width: 70px; }
 #clues[hidden], #guessTable[hidden] { display: none; }
 #guessTable .card { flex-direction: row; gap: 8px; }
+/* Animation Attack win screen. */
+#congrats { margin: 12px auto; padding: 10px 16px 14px; max-width: 420px; border-radius: 12px; background: rgba(255, 255, 255, 0.6); }
+#congrats[hidden] { display: none; }
+#congrats h2 { margin: 4px 0; }
+#congrats p { margin: 4px 0; font-size: 17px; }
+#congrats img { display: block; margin: 8px auto 0; max-width: 100%; border-radius: 8px; }
+#congrats img[hidden] { display: none; }
