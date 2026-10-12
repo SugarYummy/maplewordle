@@ -38,6 +38,18 @@
    "skills": [
     "Strike"
    ]
+  },
+  {
+   "id": 4,
+   "class": "Adele",
+   "videos": [
+    5
+   ],
+   "credit": "Scäll",
+   "creditImage": "videos/anim/credit4.jpg",
+   "skills": [
+    "Cleave"
+   ]
   }
  ],
  "days": [
