@@ -42,7 +42,9 @@
     list.innerHTML = '';
     for (let d = today(); d >= t.first; d--) {
       const btn = document.createElement('button');
-      btn.textContent = `#${d - t.first + 1} - ${dateLabel(d)}${d === today() ? ' (today)' : ''} - ${result(t, d)}`;
+      const r = result(t, d);
+      const star = /^Won (1\/|in 1$)/.test(r) ? ' ⭐' : '';   // won on the first guess
+      btn.textContent = `#${d - t.first + 1} - ${dateLabel(d)}${d === today() ? ' (today)' : ''} - ${r}${star}`;
       btn.addEventListener('click', () => {
         const here = window.archiveHere;
         if (here && here.modes.includes(t.mode)) { $('archive').hidden = true; here.play(t.mode, d); }

@@ -496,7 +496,7 @@ function guess(name) {
   // A Story win that took 7+ guesses gets no confetti and no win sound. Sounds are for today's puzzle only.
   const won = guesses.includes(answer.name);
   const quietWin = won && mode === 'story' && guesses.length >= 7;
-  if (over && won && !quietWin) setTimeout(confetti, flipMs);
+  if (over && won && !quietWin) setTimeout(() => confetti(guesses.length === 1), flipMs);
   if (over && live && !quietWin) resultSound(won, flipMs);
   for (const el of [$('status'), $('share'), $('rows').querySelector('.bestrow')]) revealAfter(el, flipMs);
   if (over) { updateStreak(); loadStats(); noteResult(); }

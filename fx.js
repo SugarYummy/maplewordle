@@ -35,11 +35,11 @@ const PIECES = [
 ];
 for (const [file] of PIECES) new Image().src = `images/fx/${file}.png`;   // preload, so they're ready on a win
 
-// A short burst of meso confetti falling from the top of the screen.
-function confetti() {
+// A short burst of meso confetti falling from the top of the screen. A first-guess win gets 5x as much.
+function confetti(firstTry = false) {
   const box = document.createElement('div');
   box.className = 'confetti';
-  for (let i = 0; i < 120; i++) {
+  for (let i = 0; i < (firstTry ? 600 : 120); i++) {
     const bit = document.createElement('i');
     const [file, w, h] = PIECES[Math.floor(Math.random() * PIECES.length)];
     const scale = 1;   // actual in-game size (a whole number keeps the pixel art crisp)

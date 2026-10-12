@@ -230,7 +230,7 @@ function guess(name) {
   setTimeout(renderClues, flipMs);
   const won = over && g.name === answer.name;
   if (won && guesses.length <= CELEBRATE_UP_TO) {
-    setTimeout(confetti, flipMs);
+    setTimeout(() => confetti(guesses.length === 1), flipMs);
     if (live) resultSound(true, flipMs);
   }
   if (over) { updateStreak(); loadStats(); noteResult(); }
