@@ -67,9 +67,12 @@ const SOUNDS = { win: 'sounds/star-force-success.mp3', lose: 'sounds/star-force-
   extremeLose: 'sounds/burning-city.mp3',         // Seren's Burning City (first 12.5 s), for an Extreme loss
   extremeWin: 'sounds/four-auspicious-beasts.mp3',  // Kaling's Four Auspicious Beasts from 0:16 (1 s fade-in), Extreme win on guess 2+
   animWin: 'sounds/rest-of-the-broken-truth.mp3',   // Malefic Star's Rest of the Broken Truth 0:15-0:36, Attack Animation win on guess 2-3
-  classLose: 'sounds/the-breeze-that-carried-sorrow.mp3' };   // Malitia's The Breeze That Carried Sorrow 0:00-0:18 (1 s fade-in), Class Wordle loss
+  classLose: 'sounds/the-breeze-that-carried-sorrow.mp3',   // Malitia's The Breeze That Carried Sorrow 0:00-0:18 (1 s fade-in), Class Wordle loss
+  firstTry: 'sounds/the-unblessed-cathedral-descend.mp3' };   // Meilin's The Unblessed Cathedral -Descend- 1:07-1:42 (1 s fade-in), any first-guess win
 // Tracks that play longer than SOUND_SECONDS: seconds before the fade-out starts (fade-out is SOUND_FADE).
-const SOUND_LENGTH = { animWin: 19, classLose: 16 };
+const SOUND_LENGTH = { animWin: 19, classLose: 16, firstTry: 33 };
+// Tracks louder than SOUND_VOLUME.
+const SOUND_LOUDER = { firstTry: 0.03 };
 const muteKey = 'mapleWordle:muted';
 let audioCtx;
 const muted = () => { try { return localStorage.getItem(muteKey) === '1'; } catch { return false; } };
@@ -89,9 +92,10 @@ function resultSound(won, delay, file) {
   ready.then((buffer) => {
     const start = ctx.currentTime + Math.max(0, due - Date.now()) / 1000;
     const gain = ctx.createGain();
-    gain.gain.setValueAtTime(SOUND_VOLUME, start);
+    const volume = SOUND_LOUDER[file] ?? SOUND_VOLUME;
+    gain.gain.setValueAtTime(volume, start);
     const len = SOUND_LENGTH[file] ?? SOUND_SECONDS;
-    gain.gain.setValueAtTime(SOUND_VOLUME, start + len);
+    gain.gain.setValueAtTime(volume, start + len);
     gain.gain.linearRampToValueAtTime(0, start + len + SOUND_FADE);
     const src = ctx.createBufferSource();
     src.buffer = buffer;

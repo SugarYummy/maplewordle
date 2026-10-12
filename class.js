@@ -228,7 +228,7 @@ function guess(name) {
   let flipMs = flipRow($('rows').querySelector('tr:not(.bestrow):not(.hintrow):not(.answer)'));
   flipMs = flipRow($('rows').querySelector('tr.answer'), flipMs);   // out of guesses: the answer turns over next
   if (over && guesses.includes(answer.name)) setTimeout(() => confetti(guesses.length === 1), flipMs);
-  if (over && live) resultSound(guesses.includes(answer.name), flipMs, guesses.includes(answer.name) ? undefined : 'classLose');   // today's puzzle only
+  if (over && live) resultSound(guesses.includes(answer.name), flipMs, !guesses.includes(answer.name) ? 'classLose' : guesses.length === 1 ? 'firstTry' : undefined);   // today's puzzle only
   for (const el of [$('status'), $('share'), $('rows').querySelector('.bestrow')]) revealAfter(el, flipMs);
   if (over) { updateStreak(); loadStats(); noteResult(); }
 }
