@@ -63,21 +63,23 @@ function confetti(firstTry = false) {
 const SOUND_VOLUME = 0.01;   // 0 = silent, 1 = full
 const SOUND_SECONDS = 10;    // how long to play before fading out
 const SOUND_FADE = 2;        // seconds of fade-out
-const SOUNDS = { win: 'sounds/star-force-success.mp3', lose: 'sounds/star-force-destroy.mp3' };
+const SOUNDS = { win: 'sounds/star-force-success.mp3', lose: 'sounds/star-force-destroy.mp3',
+  extremeLose: 'sounds/burning-city.mp3' };   // Seren's Burning City (first 12.5 s), for an Extreme loss
 const muteKey = 'mapleWordle:muted';
 let audioCtx;
 const muted = () => { try { return localStorage.getItem(muteKey) === '1'; } catch { return false; } };
 
 // Call during the click / Enter that ends the game: browsers only allow sound that starts from a user action.
 // Starts downloading the sound right away and plays it after `delay` ms (when the cards have flipped).
-function resultSound(won, delay) {
+// `file` picks a different track (a key of SOUNDS); default is the win / lose track.
+function resultSound(won, delay, file) {
   if (muted()) return;
   try {
     audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
     audioCtx.resume();
   } catch { return; }
   const ctx = audioCtx;
-  const ready = fetch(won ? SOUNDS.win : SOUNDS.lose).then((r) => r.arrayBuffer()).then((b) => ctx.decodeAudioData(b));
+  const ready = fetch(SOUNDS[file] || (won ? SOUNDS.win : SOUNDS.lose)).then((r) => r.arrayBuffer()).then((b) => ctx.decodeAudioData(b));
   const due = Date.now() + delay;
   ready.then((buffer) => {
     const start = ctx.currentTime + Math.max(0, due - Date.now()) / 1000;

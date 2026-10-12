@@ -497,7 +497,7 @@ function guess(name) {
   const won = guesses.includes(answer.name);
   const quietWin = won && mode === 'story' && guesses.length >= 7;
   if (over && won && !quietWin) setTimeout(() => confetti(guesses.length === 1), flipMs);
-  if (over && live && !quietWin) resultSound(won, flipMs);
+  if (over && live && !quietWin) resultSound(won, flipMs, !won && mode === 'extreme' ? 'extremeLose' : undefined);
   for (const el of [$('status'), $('share'), $('rows').querySelector('.bestrow')]) revealAfter(el, flipMs);
   if (over) { updateStreak(); loadStats(); noteResult(); }
 }
@@ -512,7 +512,9 @@ function openList() {
   const q = $('guess').value.split('(')[0].trim().toLowerCase();
   matches = pool.filter((e) => !guesses.includes(e.name) && e.boss.toLowerCase().includes(q))
     .sort(byNameThenDifficulty);   // A-Z, so the list order gives nothing away
-  active = 0;
+  // If the full name was typed (e.g. "Gollux (Normal)"), highlight that exact one so Enter picks it.
+  const typed = $('guess').value.trim().toLowerCase();
+  active = Math.max(0, matches.findIndex((e) => e.name.toLowerCase() === typed));
   renderList();
 }
 function renderList() {
