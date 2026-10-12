@@ -60,8 +60,6 @@ const catOrder = (d) => CATS.map((c) => c.key).sort((x, y) => hash(`${MODE}|${d}
 
 // Hints after clip 1, one per wrong guess: clip 2 if the class has one, the categories, then the first letter.
 const hintOrder = () => [...(answer.clips.includes(2) ? ['clip2'] : []), ...catOrder(day), 'letter'];
-// The guess number each hint shows on (guess 1 = clip 1 only).
-const hintGuess = (key) => hintOrder().indexOf(key) + 2;
 // What you can see while making guess number n. Everything once the game is over.
 function cluesFor(n) {
   return new Set(over ? hintOrder() : hintOrder().slice(0, n - 1));
@@ -91,7 +89,7 @@ function showClip(n, open) {
   } else {
     const lock = document.createElement('div');
     lock.className = 'locked';
-    lock.textContent = '🔒 Unlocks on guess 2';
+    lock.textContent = '🔒';
     fig.prepend(lock);
   }
 }
@@ -105,7 +103,7 @@ function renderClues() {
   for (const cat of [...CATS, { key: 'letter', show: (e) => e.name[0] }]) {
     const td = row.insertCell();
     if (c.has(cat.key)) { td.textContent = cat.show(answer); td.className = 'green'; }
-    else { td.textContent = `🔒 guess ${hintGuess(cat.key)}`; td.className = 'grey'; }
+    else { td.textContent = '🔒'; td.className = 'grey'; }   // which guess unlocks it is a surprise
   }
 }
 
@@ -414,7 +412,6 @@ function openInfo() {
     'A wrong guess only tells you it\'s wrong, but each one unlocks the next hint:<ul>' +
       '<li>a second clip (some classes)</li><li>then one category per guess (Faction, Job Branch, Main Stat, Release Year, Region), in a random order</li>' +
       "<li>last: the class's first letter</li></ul>",
-    'The hint row shows which guess unlocks each hint.',
     `Win within ${CELEBRATE_UP_TO} guesses for confetti and the win sound.`,
     'Every class is on its own here (Hero, Paladin and Dark Knight are separate answers).',
     'Removed, event and upcoming classes can appear.',
