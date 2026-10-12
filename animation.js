@@ -109,26 +109,18 @@ function renderClues() {
   }
 }
 
-// ---- Guess rows: just right or wrong ----
+// ---- Guesses: one bar each (portrait + name), green if right, red if wrong ----
 
-function classCard(e) {
-  const card = document.createElement('div');
-  card.className = 'card';
-  const img = document.createElement('img');
-  img.src = e.image;
-  img.alt = '';
-  card.appendChild(img);
-  card.appendChild(document.createElement('div')).textContent = e.name;
-  return card;
-}
 function guessRow(g) {
-  const tr = document.createElement('tr');
-  const ok = g === answer;
-  tr.insertCell().appendChild(classCard(g));
-  tr.insertCell().textContent = ok ? '✅ Correct' : '❌ Wrong';
-  for (const td of tr.cells) td.className = ok ? 'green' : 'red';
-  $('rows').prepend(tr);
-  return tr;
+  const bar = document.createElement('div');
+  bar.className = 'gbar ' + (g === answer ? 'green' : 'red');
+  const img = document.createElement('img');
+  img.src = g.image;
+  img.alt = '';
+  bar.appendChild(img);
+  bar.appendChild(document.createElement('span')).textContent = g.name;
+  $('rows').prepend(bar);
+  return bar;
 }
 
 // Win screen: the class, and a thank-you to whoever recorded the clips (with their character, if there's a picture).
@@ -207,7 +199,8 @@ function guess(name) {
   closeList();
   record(g);
   save();
-  const flipMs = flipRow($('rows').firstElementChild);
+  $('rows').firstElementChild.classList.add('flip');   // the new bar flips in
+  const flipMs = FLIP_TIME;
   renderCongrats();
   for (const el of [$('status'), $('share'), $('congrats')]) revealAfter(el, flipMs);
   // The next clue (clip 2 / a category / the letter) appears once the row has turned over.
@@ -472,7 +465,7 @@ Promise.all(['data/classes.json', 'data/animation.json'].map((u) => fetch(u, { c
     if (!pool.length) {
       $('status').textContent = 'Animation Attack is coming soon: clips are still being added.';
       $('picker').hidden = true;
-      $('clips').hidden = $('clues').hidden = $('guessTable').hidden = true;
+      $('clips').hidden = $('clues').hidden = true;
       return;
     }
     start();

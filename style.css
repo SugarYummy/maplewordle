@@ -152,3 +152,9 @@ td.flip { animation: flip 0.5s ease both; }
 #congrats p { margin: 4px 0; font-size: 17px; }
 #congrats img { display: block; margin: 8px auto 0; max-width: 100%; border-radius: 8px; }
 #congrats img[hidden] { display: none; }
+/* Animation Attack guesses: one bar per guess, in the same tile style as the other games. */
+#rows .gbar { display: flex; align-items: center; gap: 10px; width: min(380px, 100%); margin: 4px auto; padding: 4px 8px;
+              box-sizing: border-box; border: 1px solid #999; text-align: left; }
+#rows .gbar img { width: 40px; height: 40px; object-fit: contain; border-radius: 8px; }
+#rows .gbar.flip { animation: flip 0.5s ease both; }
+@media (prefers-reduced-motion: reduce) { #rows .gbar.flip { animation: none; } }
