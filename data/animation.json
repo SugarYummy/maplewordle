@@ -1,24 +1,8 @@
 {
- "_about": "Attack Animation clips: videos/anim/<class slug>-<1|2>.webm/.mp4/.jpg (added with tools/add_clip.py). clips = which clip numbers exist; since = first day the class can be the answer. credit / creditImage = who recorded the clips; shown on the win screen. days = fixed answers for puzzles #1, #2, ... by class name; after them a shuffled cycle over every class with a clip.",
- "classes": {
-  "Ren": {
-   "clips": [
-    1,
-    2
-   ],
-   "credit": "Snowmoon",
-   "creditImage": "videos/anim/ren-credit.jpg"
-  },
-  "Corsair": {
-   "clips": [
-    1
-   ],
-   "credit": "Axar",
-   "creditImage": "videos/anim/corsair-credit.jpg"
-  }
- },
- "days": [
-  "Ren",
-  "Corsair"
- ]
+ "_about": "Attack Animation puzzles. Each puzzle = one class + its clips: videos/anim/video<N>.webm/.mp4/.jpg (numbers just count up, so file names give nothing away; a class can have several puzzles). videos: clip 1 [, clip 2]. credit / creditImage: who recorded it, shown on the win screen. since (YYYY-MM-DD): first day it can be the answer. days: fixed puzzle ids for puzzles #1, #2, ...; after them a shuffled cycle over every puzzle. Add clips with tools/add_clip.py.",
+ "puzzles": [
+  {"id": 1, "class": "Ren", "videos": [1, 2], "credit": "Snowmoon", "creditImage": "videos/anim/credit1.jpg"},
+  {"id": 2, "class": "Corsair", "videos": [3], "credit": "Axar", "creditImage": "videos/anim/credit2.jpg"}
+ ],
+ "days": [1, 2]
 }

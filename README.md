@@ -41,7 +41,8 @@ the next hint (clip 2 if the class has one, then one category each in a random o
 can be the answer once it has clip 1. Add a clip (needs ffmpeg; makes a small WebM, an MP4 for older iPhones and a
 poster image under `videos/anim/`, and records it in `data/animation.json`):
 
-    python3 tools/add_clip.py "Hero" 1 raw-video.mp4 --start 2.5 --end 7
+    python3 tools/add_clip.py "Hero" raw-video.mp4 --start 2.5 --end 7 --credit Name --credit-image still.png --day
+    python3 tools/add_clip.py "Hero" second-clip.mp4 --puzzle 3        # clip 2 for puzzle 3
 
 Classes added after launch: add `--since YYYY-MM-DD` so past days keep their answers. Puzzle #1 is `FIRST_DAY` in
 `animation.js`. The stats Worker needs the `anim` mode (`worker/stats.js`).

@@ -3,7 +3,7 @@
 //   clip 1 (from the start) -> clip 2 (only if the class has one) -> one category per guess (random order per day)
 //   -> the class's first letter (last hint)
 // Winning within 3 guesses gets confetti and the win sound.
-let data, pool, all, clips, day, live, answer, guesses, over, matches, active;
+let data, pool, all, day, live, answer, guesses, over, matches, active;
 
 const $ = (id) => document.getElementById(id);
 
@@ -23,29 +23,29 @@ function hash(str) {
   for (let i = 0; i < str.length; i++) h = Math.imul(h ^ str.charCodeAt(i), 16777619);
   return h >>> 0;
 }
-// data/animation.json "days" fixes the answers of the first puzzles by name (["Ren", "Corsair"] = #1 Ren, #2 Corsair);
-// after those, the shuffled cycle over every class with a clip takes over.
+// The answer is a puzzle (a class + its clips; a class can have several). data/animation.json "days" fixes the
+// first puzzles by id ([1, 2] = puzzle #1 is id 1, #2 is id 2); after those, a shuffled cycle over every puzzle.
 let schedule;
 function answerFor(d) {
   if (!schedule) {
-    const fixed = (data.fixedDays || []).map((n) => pool.find((e) => e.name === n)).filter(Boolean);
-    schedule = { days: fixed, used: new Set(fixed.map((e) => e.name)) };
+    const fixed = (data.fixedDays || []).map((id) => pool.find((e) => e.id === id)).filter(Boolean);
+    schedule = { days: fixed, used: new Set(fixed.map((e) => e.id)) };
   }
   const s = schedule;
   while (FIRST_DAY + s.days.length <= d) {
     const day = FIRST_DAY + s.days.length;
     const prev = s.days[s.days.length - 1];
     const eligible = pool.filter((e) => (e.since ?? 0) <= day);
-    let left = eligible.filter((e) => !s.used.has(e.name));
+    let left = eligible.filter((e) => !s.used.has(e.id));
     if (!left.length) { s.used.clear(); left = eligible; }        // cycle done: everyone is back in
-    const fresh = left.filter((e) => e !== prev);
+    const fresh = left.filter((e) => !prev || e.name !== prev.name);   // never the same class two days running
     if (fresh.length) left = fresh;
     let pick = left[0], best = Infinity;
     for (const e of left) {
-      const v = hash(`${MODE}|${day}|${e.name}`);
+      const v = hash(`${MODE}|${day}|${e.id}`);
       if (v < best) { best = v; pick = e; }
     }
-    s.used.add(pick.name);
+    s.used.add(pick.id);
     s.days.push(pick);
   }
   return s.days[d - FIRST_DAY];
@@ -65,18 +65,18 @@ const CATS = [
 const catOrder = (d) => CATS.map((c) => c.key).sort((x, y) => hash(`${MODE}|${d}|${x}`) - hash(`${MODE}|${d}|${y}`));
 
 // Hints after clip 1, one per wrong guess: clip 2 if the class has one, the categories, then the first letter.
-const hintOrder = () => [...(answer.clips.includes(2) ? ['clip2'] : []), ...catOrder(day), 'letter'];
+const hintOrder = () => [...(answer.videos.length > 1 ? ['clip2'] : []), ...catOrder(day), 'letter'];
 // What you can see while making guess number n. Everything once the game is over.
 function cluesFor(n) {
   return new Set(over ? hintOrder() : hintOrder().slice(0, n - 1));
 }
 
-const clipSrc = (e, n) => `videos/anim/${e.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}-${n}`;
+const clipSrc = (e, n) => `videos/anim/video${e.videos[n - 1]}`;
 // Put clip n (or its lock) in place. Only rebuilt when something changed, so a playing clip doesn't restart.
 function showClip(n, open) {
   const fig = $('clip' + n);
-  const has = answer.clips.includes(n);
-  const state = `${day}|${answer.name}|${open && has}`;
+  const has = answer.videos.length >= n;
+  const state = `${day}|${answer.id}|${open && has}`;
   if (fig.dataset.state === state) return;
   fig.dataset.state = state;
   fig.querySelector('video, .locked')?.remove();
@@ -102,7 +102,7 @@ function showClip(n, open) {
 function renderClues() {
   const c = cluesFor(guesses.length + 1);
   showClip(1, true);
-  $('clip2').hidden = !answer.clips.includes(2);   // one-clip classes just show the one
+  $('clip2').hidden = answer.videos.length < 2;   // one-clip classes just show the one
   if (!$('clip2').hidden) showClip(2, c.has('clip2'));
   const row = $('clueRow');
   row.innerHTML = '';
@@ -117,7 +117,7 @@ function renderClues() {
 
 function guessRow(g) {
   const bar = document.createElement('div');
-  bar.className = 'gbar ' + (g === answer ? 'green' : 'red');
+  bar.className = 'gbar ' + (g.name === answer.name ? 'green' : 'red');
   const img = document.createElement('img');
   img.src = g.image;
   img.alt = '';
@@ -182,7 +182,7 @@ function updateStatus(msg) {
 function record(g) {
   guesses.push(g.name);
   guessRow(g);
-  if (g === answer) {
+  if (g.name === answer.name) {
     over = true;
     updateStatus(`Correct! It was ${answer.name}, in ${guesses.length} guess${guesses.length === 1 ? '' : 'es'}. ${nextHint()}`);
   } else {
@@ -209,7 +209,7 @@ function guess(name) {
   for (const el of [$('status'), $('share'), $('congrats')]) revealAfter(el, flipMs);
   // The next clue (clip 2 / a category / the letter) appears once the row has turned over.
   setTimeout(renderClues, flipMs);
-  const won = over && g === answer;
+  const won = over && g.name === answer.name;
   if (won && guesses.length <= CELEBRATE_UP_TO) {
     setTimeout(confetti, flipMs);
     if (live) resultSound(true, flipMs);
@@ -481,14 +481,12 @@ Promise.all(['data/classes.json', 'data/animation.json'].map((u) => fetch(u, { c
   .then(([c, a]) => {
     data = c;
     all = c.solo;
-    clips = a.classes;
     data.fixedDays = a.days;
-    // Answer pool: classes that have clip 1. "since" (YYYY-MM-DD) -> day number.
-    pool = all.filter((e) => clips[e.name]?.clips.includes(1)).map((e) => ({
-      ...e, clips: clips[e.name].clips, credit: clips[e.name].credit, creditImage: clips[e.name].creditImage,
-      ...(clips[e.name].since ? { since: Date.parse(clips[e.name].since) / DAY_MS } : {}),
+    // Answer pool: one entry per puzzle, carrying its class's data. "since" (YYYY-MM-DD) -> day number.
+    pool = a.puzzles.filter((p) => p.videos?.length && all.some((e) => e.name === p.class)).map((p) => ({
+      ...all.find((e) => e.name === p.class), id: p.id, videos: p.videos, credit: p.credit, creditImage: p.creditImage,
+      ...(p.since ? { since: Date.parse(p.since) / DAY_MS } : {}),
     }));
-    all = all.map((e) => pool.find((p) => p.name === e.name) ?? e);   // answers carry their clip list
     if (!pool.length) {
       $('status').textContent = 'Attack Animation is coming soon: clips are still being added.';
       $('picker').hidden = true;
