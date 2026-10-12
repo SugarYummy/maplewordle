@@ -251,11 +251,20 @@ function renderList() {
     div.className = 'item' + (i === active ? ' active' : '');
     div.appendChild(classImg(e));
     div.appendChild(document.createElement('span')).textContent = e.name;
-    div.addEventListener('mousedown', (ev) => { ev.preventDefault(); guess(e.name); });
+    // Pressing keeps focus in the search box; the guess only happens on a left click, i.e. when the left button is
+    // released over the same option (right / middle clicks and drag-offs do nothing).
+    div.addEventListener('mousedown', (ev) => ev.preventDefault());
+    div.addEventListener('click', (ev) => { if (ev.button === 0) guess(e.name); });
+    // The highlight follows the mouse, so Enter always picks the option you're pointing at.
+    div.addEventListener('mousemove', () => { if (active !== i) setActive(i); });
     list.appendChild(div);
   });
   list.hidden = matches.length === 0 || over;
   list.querySelector('.active')?.scrollIntoView({ block: 'nearest' });
+}
+function setActive(i) {
+  active = i;
+  [...$('list').children].forEach((el, j) => el.classList.toggle('active', j === i));
 }
 function closeList() {
   matches = [];
@@ -271,7 +280,7 @@ $('guess').addEventListener('keydown', (e) => {
   if (e.key === 'ArrowDown' && open) { active = Math.min(active + 1, matches.length - 1); renderList(); e.preventDefault(); }
   else if (e.key === 'ArrowUp' && open) { active = Math.max(active - 1, 0); renderList(); e.preventDefault(); }
   else if (e.key === 'Escape') closeList();
-  else if (e.key === 'Enter') guess(open && matches.length ? matches[active].name : undefined);
+  else if (e.key === 'Enter' && open && matches[active]) guess(matches[active].name);   // only the highlighted option
 });
 
 // ---- Everyone's results: your result is sent once per day ----

@@ -91,7 +91,7 @@ table { border-collapse: collapse; margin: 8px auto; }
 #list .item { display: flex; align-items: center; gap: 10px; padding: 4px 8px; cursor: pointer; }
 #list .item img, #list .item .noimg { width: 40px; height: 40px; object-fit: contain; flex: none; }
 #list .item .noimg { display: flex; align-items: center; justify-content: center; background: #ddd; }
-#list .item:hover, #list .item.active { background: #ddd; }
+#list .item.active { background: #ddd; }   /* one highlight: follows the mouse and the arrow keys */
 /* Phones: keep the corner boxes clear of the Discord box and the game panel. */
 @media (max-width: 700px) {
   #version, #creditWrap { bottom: 64px; }
