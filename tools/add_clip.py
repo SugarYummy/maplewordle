@@ -8,7 +8,7 @@
 # past days keep their answers. Needs ffmpeg (set FFMPEG=/path/to/ffmpeg if it isn't on PATH).
 import argparse, json, os, re, subprocess
 
-WIDTH = 480          # pixels wide on the page (height follows the video's shape)
+MAX_WIDTH = 960      # saved this wide at most (sharp when zoomed in); never upscaled. Height follows the shape.
 FPS = 30
 
 ap = argparse.ArgumentParser()
@@ -25,14 +25,14 @@ base = f"videos/anim/{slug}-{a.clip}"
 os.makedirs("videos/anim", exist_ok=True)
 ff = os.environ.get("FFMPEG", "ffmpeg")
 cut = (["-ss", str(a.start)] if a.start is not None else []) + (["-to", str(a.end)] if a.end is not None else [])
-vf = f"fps={FPS},scale={WIDTH}:-2:flags=lanczos"
+vf = f"fps={FPS},scale='min({MAX_WIDTH},iw)':-2:flags=lanczos"
 run = lambda *args: subprocess.run([ff, "-hide_banner", "-loglevel", "error", "-y", *cut, "-i", a.input, *args], check=True)
 
 run("-an", "-vf", vf, "-c:v", "libvpx-vp9", "-b:v", "0", "-crf", "38", "-row-mt", "1", "-deadline", "good",
     "-cpu-used", "2", base + ".webm")
 run("-an", "-vf", vf, "-c:v", "libx264", "-crf", "28", "-preset", "slow", "-pix_fmt", "yuv420p",
     "-movflags", "+faststart", base + ".mp4")
-run("-an", "-vf", f"scale={WIDTH}:-2:flags=lanczos", "-frames:v", "1", "-q:v", "4", base + ".jpg")
+run("-an", "-vf", f"scale='min({MAX_WIDTH},iw)':-2:flags=lanczos", "-frames:v", "1", "-q:v", "4", base + ".jpg")
 
 path = "data/animation.json"
 m = json.load(open(path)) if os.path.exists(path) else {}

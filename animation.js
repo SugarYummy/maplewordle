@@ -427,6 +427,28 @@ function openInfo() {
     `<p class="warn">⚠️ Some info may not be accurate. If you spot a mistake, please report it on the <a href="${DISCORD}" target="_blank" rel="noopener">Discord</a>.</p>`;
   $('info').hidden = false;
 }
+// Click a clip or the win-screen picture to see it as big as the window allows (closes like the Changelog).
+function openZoom(el) {
+  const body = $('zoomBody');
+  body.innerHTML = '';
+  let big;
+  if (el.tagName === 'VIDEO') {
+    big = document.createElement('video');
+    big.muted = big.autoplay = big.loop = big.playsInline = true;
+    big.setAttribute('playsinline', '');
+    for (const src of el.querySelectorAll('source')) big.appendChild(src.cloneNode());
+  } else {
+    big = document.createElement('img');
+    big.src = el.src;
+  }
+  body.appendChild(big);
+  $('zoom').hidden = false;
+}
+function closeZoom() { $('zoom').hidden = true; $('zoomBody').innerHTML = ''; }
+for (const id of ['clip1', 'clip2']) $(id).addEventListener('click', (e) => { const v = $(id).querySelector('video'); if (v) openZoom(v); });
+$('congratsImg').addEventListener('click', () => openZoom($('congratsImg')));
+$('zoomClose').addEventListener('click', closeZoom);
+$('zoom').addEventListener('click', (e) => { if (e.target === $('zoom')) closeZoom(); });
 $('infoBtn').addEventListener('click', openInfo);
 $('infoClose').addEventListener('click', () => { $('info').hidden = true; });
 $('version').addEventListener('click', openChangelog);
@@ -441,6 +463,7 @@ document.addEventListener('keydown', (e) => {
   if (e.key !== 'Escape') return;
   $('changelog').hidden = true;
   $('info').hidden = true;
+  closeZoom();
   closeArchive();
 });
 $('today').addEventListener('click', () => start());
