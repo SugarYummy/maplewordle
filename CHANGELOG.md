@@ -7,7 +7,6 @@
 - Win screen shows the class and thanks the player who recorded the clip
 - Every class is its own answer here (Hero, Paladin and Dark Knight are separate)
 - Click a clip or the win picture to see it big; clips are sharper
-- First clips: Ren (thank you Snowmoon!) and Corsair
 
 ## alpha v2.1.1 - 12 October 2026
 - Guess list: only a left click picks an option (right / middle clicks do nothing), and Enter picks the option you're pointing at
