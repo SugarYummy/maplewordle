@@ -6,7 +6,8 @@
 #   Options:               [--start 2.5] [--end 7] [--since 2026-11-01] [--day]
 #
 # --day appends the new puzzle to "days" (the fixed order of upcoming puzzles); otherwise it just joins the random
-# rotation. --since (YYYY-MM-DD) = first day it can be the answer. Needs ffmpeg (FFMPEG=/path/to/ffmpeg if not on PATH).
+# rotation. --since (YYYY-MM-DD) = first day it can be the answer; defaults to tomorrow (UTC), so a new clip never
+# changes a puzzle that has already been played. Needs ffmpeg (FFMPEG=/path/to/ffmpeg if not on PATH).
 import argparse, glob, json, os, re, subprocess
 
 MAX_WIDTH = 960      # saved this wide at most (sharp when zoomed in); never upscaled. Height follows the shape.
@@ -58,8 +59,9 @@ if a.credit_image:
     out = f"{DIR}/credit{c}.jpg"
     subprocess.run([ff, "-hide_banner", "-loglevel", "error", "-y", "-i", a.credit_image, "-q:v", "3", out], check=True)
     p["creditImage"] = out
-if a.since:
-    p["since"] = a.since
+if not a.puzzle:
+    import datetime
+    p["since"] = a.since or (datetime.datetime.now(datetime.timezone.utc).date() + datetime.timedelta(days=1)).isoformat()
 json.dump(m, open(path, "w"), indent=1, ensure_ascii=False)
 
 print(f"puzzle {p['id']} ({p['class']}): videos {p['videos']}")
