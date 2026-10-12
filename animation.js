@@ -118,7 +118,7 @@ function renderClues() {
     td.parentElement.hidden = !sk;
     if (!sk) return;
     const open = c.has('skill' + n);
-    td.textContent = open ? sk : '🔒';
+    td.textContent = !open ? '🔒' : (over && answer.skillsFull?.[n - 1]) || sk;   // full name only at the end
     td.className = open ? 'green' : 'grey';
   });
   const row = $('clueRow');
@@ -501,7 +501,7 @@ Promise.all(['data/classes.json', 'data/animation.json'].map((u) => fetch(u, { c
     data.fixedDays = a.days;
     // Answer pool: one entry per puzzle, carrying its class's data. "since" (YYYY-MM-DD) -> day number.
     pool = a.puzzles.filter((p) => p.videos?.length && all.some((e) => e.name === p.class)).map((p) => ({
-      ...all.find((e) => e.name === p.class), id: p.id, videos: p.videos, skills: p.skills, credit: p.credit, creditImage: p.creditImage,
+      ...all.find((e) => e.name === p.class), id: p.id, videos: p.videos, skills: p.skills, skillsFull: p.skillsFull, credit: p.credit, creditImage: p.creditImage,
       ...(p.since ? { since: Date.parse(p.since) / DAY_MS } : {}),
     }));
     if (!pool.length) {
