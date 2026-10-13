@@ -216,6 +216,7 @@ function resultSound(won, delay, file) {
 }
 
 // Sound on/off button and volume slider in the top right corner (both remembered per browser).
+// The slider shows on hover (computers) or after a tap on the button (phones).
 // Turning sound off also stops a sound playing now.
 (() => {
   const box = document.createElement('div');
@@ -234,12 +235,15 @@ function resultSound(won, delay, file) {
     slider.title = `Volume ${slider.value}%`;
     slider.disabled = muted();
   };
+  // Phones can't hover, so there the first tap opens the slider and the next tap mutes; tapping elsewhere closes it.
   btn.addEventListener('click', () => {
+    if (PHONE && !box.classList.contains('open')) return box.classList.add('open');
     try { localStorage.setItem(muteKey, muted() ? '0' : '1'); } catch {}
     if (muted() && audioCtx) { audioCtx.close(); audioCtx = master = null; }
     show();
   });
   slider.addEventListener('input', () => { saveSliderVolume(slider.value); show(); });
+  document.addEventListener('click', (e) => { if (!box.contains(e.target)) box.classList.remove('open'); });
   show();
   box.append(btn, slider);
   document.body.appendChild(box);

@@ -142,11 +142,15 @@ td.flip { animation: flip 0.5s ease both; }
 .later { animation: appear 0.3s ease both; }
 @keyframes appear { from { opacity: 0; } to { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .later { animation: none; } }
-#soundBox { position: fixed; top: 12px; right: 12px; z-index: 3; margin: 0; padding: 2px 10px 2px 4px;
-            display: flex; align-items: center; gap: 4px; max-width: none; }
+#soundBox { position: fixed; top: 12px; right: 12px; z-index: 3; margin: 0; padding: 2px 4px;
+            display: flex; align-items: center; max-width: none; }
 #soundBtn { margin: 0; padding: 2px 6px; font-size: 16px; border: none; background: none; cursor: pointer; font-family: inherit; }
-#soundBox input { width: 90px; margin: 0; accent-color: #e0a000; cursor: pointer; }
-#soundBox input:disabled { opacity: 0.4; cursor: default; }
+/* The volume slider stays tucked away until you hover the sound button (computers) or tap it (phones). */
+#soundBox input { width: 0; margin: 0; opacity: 0; accent-color: #e0a000; cursor: pointer;
+                  transition: width 0.2s, margin 0.2s, opacity 0.2s; }
+#soundBox.open input { width: 90px; margin: 0 6px 0 2px; opacity: 1; }
+@media (hover: hover) { #soundBox:hover input, #soundBox:has(:focus-visible) input { width: 90px; margin: 0 6px 0 2px; opacity: 1; } }
+#soundBox input:disabled { filter: grayscale(1) opacity(0.5); cursor: default; }
 /* Search box with the "?" (how to play) button beside it. */
 .pickrow { display: flex; justify-content: center; align-items: center; gap: 8px; margin: 8px auto; }
 .pickrow #picker { margin: 0; width: min(420px, calc(100% - 44px)); }
