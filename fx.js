@@ -163,6 +163,8 @@ const SOUNDS = { win: 'sounds/star-force-success.mp3', lose: 'sounds/star-force-
 const SOUND_LENGTH = { animWin: 19, classLose: 16, firstTry: 33, classWin: 22 };
 // Tracks louder than SOUND_VOLUME.
 const SOUND_LOUDER = { firstTry: 0.10 };
+// Phone and tablet speakers are much quieter, so they play everything twice as loud (6%, and 20% for a first-guess win).
+const PHONE = matchMedia('(hover: none) and (pointer: coarse)').matches;
 const muteKey = 'mapleWordle:muted';
 let audioCtx, master;   // master: the volume slider's gain, which every sound plays through
 const muted = () => { try { return localStorage.getItem(muteKey) === '1'; } catch { return false; } };
@@ -200,7 +202,7 @@ function resultSound(won, delay, file) {
   ready.then((buffer) => {
     const start = ctx.currentTime + Math.max(0, due - Date.now()) / 1000;
     const gain = ctx.createGain();
-    const volume = SOUND_LOUDER[file] ?? SOUND_VOLUME;
+    const volume = (SOUND_LOUDER[file] ?? SOUND_VOLUME) * (PHONE ? 2 : 1);
     gain.gain.setValueAtTime(volume, start);
     const len = SOUND_LENGTH[file] ?? SOUND_SECONDS;
     gain.gain.setValueAtTime(volume, start + len);
