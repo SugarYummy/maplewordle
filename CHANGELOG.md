@@ -5,6 +5,7 @@
 - Guess the Class - Wordle: winning on guess 2-5 plays First Adversary's Succession Bloom, losing plays Malitia's The Breeze That Carried Sorrow
 - A puzzle you won on your first guess keeps glowing gold, even after a reload, and so does its day in the Archive
 - Wins after the first guess get a longer meso shower (360 mesos over 3 seconds), and the coins spin like real coins
+- Volume slider next to the sound button (remembered in your browser), and the music is a little louder by default
 
 ## alpha v3.1 - 12 October 2026
 - One Archive for every game: tabs for each Boss mode, Class Wordle and Attack Animation; pick a day to jump straight to it

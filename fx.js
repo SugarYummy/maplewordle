@@ -149,7 +149,7 @@ function fountain(box, seconds) {
 // ---- Result sounds (today's puzzle only): Star Force Success on a win, Star Force Destroy on a loss ----
 // The files are full ~1 minute tracks, so only the start plays, quietly, then fades out.
 // Played through Web Audio so the volume also works on iPhones (they ignore <audio> volume).
-const SOUND_VOLUME = 0.01;   // 0 = silent, 1 = full
+const SOUND_VOLUME = 0.03;   // 0 = silent, 1 = full (at the slider's default 50%)
 const SOUND_SECONDS = 10;    // how long to play before fading out
 const SOUND_FADE = 2;        // seconds of fade-out
 const SOUNDS = { win: 'sounds/star-force-success.mp3', lose: 'sounds/star-force-destroy.mp3',
@@ -162,10 +162,23 @@ const SOUNDS = { win: 'sounds/star-force-success.mp3', lose: 'sounds/star-force-
 // Tracks that play longer than SOUND_SECONDS: seconds before the fade-out starts (fade-out is SOUND_FADE).
 const SOUND_LENGTH = { animWin: 19, classLose: 16, firstTry: 33, classWin: 22 };
 // Tracks louder than SOUND_VOLUME.
-const SOUND_LOUDER = { firstTry: 0.03 };
+const SOUND_LOUDER = { firstTry: 0.10 };
 const muteKey = 'mapleWordle:muted';
-let audioCtx;
+let audioCtx, master;   // master: the volume slider's gain, which every sound plays through
 const muted = () => { try { return localStorage.getItem(muteKey) === '1'; } catch { return false; } };
+
+// Volume slider, 0-100 (default 50), saved in a cookie for a year. 50 plays the volumes above as they are,
+// 100 plays them twice as loud, 0 is silent.
+const VOLUME_COOKIE = 'mapleWordleVolume';
+const COOKIE_PATH = location.pathname.replace(/[^/]*$/, '');   // the site's folder, so every game page shares it
+function sliderVolume() {
+  const m = document.cookie.match(new RegExp(`(?:^|; )${VOLUME_COOKIE}=(\\d+)`));
+  return m ? Math.min(100, Number(m[1])) : 50;
+}
+function saveSliderVolume(v) {
+  document.cookie = `${VOLUME_COOKIE}=${v}; max-age=${365 * 24 * 3600}; path=${COOKIE_PATH}; SameSite=Lax`;
+  if (master) master.gain.value = v / 50;   // also changes a sound that is playing now
+}
 
 // Call during the click / Enter that ends the game: browsers only allow sound that starts from a user action.
 // Starts downloading the sound right away and plays it after `delay` ms (when the cards have flipped).
@@ -173,7 +186,12 @@ const muted = () => { try { return localStorage.getItem(muteKey) === '1'; } catc
 function resultSound(won, delay, file) {
   if (muted()) return;
   try {
-    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      master = audioCtx.createGain();
+      master.gain.value = sliderVolume() / 50;
+      master.connect(audioCtx.destination);
+    }
     audioCtx.resume();
   } catch { return; }
   const ctx = audioCtx;
@@ -189,26 +207,38 @@ function resultSound(won, delay, file) {
     gain.gain.linearRampToValueAtTime(0, start + len + SOUND_FADE);
     const src = ctx.createBufferSource();
     src.buffer = buffer;
-    src.connect(gain).connect(ctx.destination);
+    src.connect(gain).connect(master);
     src.start(start);
     src.stop(start + len + SOUND_FADE);
   }).catch(() => {});
 }
 
-// Sound on/off button in the top right corner (remembered per browser). Turning it off also stops a sound playing now.
+// Sound on/off button and volume slider in the top right corner (both remembered per browser).
+// Turning sound off also stops a sound playing now.
 (() => {
+  const box = document.createElement('div');
+  box.id = 'soundBox';
+  box.className = 'panel';
   const btn = document.createElement('button');
   btn.id = 'soundBtn';
-  btn.className = 'panel';
+  const slider = document.createElement('input');
+  slider.type = 'range';
+  slider.min = 0;
+  slider.max = 100;
+  slider.value = sliderVolume();
   const show = () => {
     btn.textContent = muted() ? '🔇' : '🔊';
     btn.title = muted() ? 'Sound off (click to turn on)' : 'Sound on (click to turn off)';
+    slider.title = `Volume ${slider.value}%`;
+    slider.disabled = muted();
   };
   btn.addEventListener('click', () => {
     try { localStorage.setItem(muteKey, muted() ? '0' : '1'); } catch {}
-    if (muted() && audioCtx) { audioCtx.close(); audioCtx = null; }
+    if (muted() && audioCtx) { audioCtx.close(); audioCtx = master = null; }
     show();
   });
+  slider.addEventListener('input', () => { saveSliderVolume(slider.value); show(); });
   show();
-  document.body.appendChild(btn);
+  box.append(btn, slider);
+  document.body.appendChild(box);
 })();
