@@ -149,7 +149,7 @@ function fountain(box, seconds) {
 // ---- Result sounds (today's puzzle only): Star Force Success on a win, Star Force Destroy on a loss ----
 // The files are full ~1 minute tracks, so only the start plays, quietly, then fades out.
 // Played through Web Audio so the volume also works on iPhones (they ignore <audio> volume).
-const SOUND_VOLUME = 0.03;   // 0 = silent, 1 = full (at the slider's default 50%)
+const SOUND_VOLUME = 0.06;   // 0 = silent, 1 = full (at the slider's default 50%)
 const SOUND_SECONDS = 10;    // how long to play before fading out
 const SOUND_FADE = 2;        // seconds of fade-out
 const SOUNDS = { win: 'sounds/star-force-success.mp3', lose: 'sounds/star-force-destroy.mp3',
@@ -162,8 +162,8 @@ const SOUNDS = { win: 'sounds/star-force-success.mp3', lose: 'sounds/star-force-
 // Tracks that play longer than SOUND_SECONDS: seconds before the fade-out starts (fade-out is SOUND_FADE).
 const SOUND_LENGTH = { animWin: 19, classLose: 16, firstTry: 33, classWin: 22 };
 // Tracks louder than SOUND_VOLUME.
-const SOUND_LOUDER = { firstTry: 0.10 };
-// Phone and tablet speakers are much quieter, so they play everything twice as loud (6%, and 20% for a first-guess win).
+const SOUND_LOUDER = { firstTry: 0.30 };
+// Phone and tablet speakers are much quieter, so they play everything twice as loud (12%, and 60% for a first-guess win).
 const PHONE = matchMedia('(hover: none) and (pointer: coarse)').matches;
 const muteKey = 'mapleWordle:muted';
 let audioCtx, master;   // master: the volume slider's gain, which every sound plays through
