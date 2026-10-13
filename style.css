@@ -148,7 +148,10 @@ td.flip { animation: flip 0.5s ease both; }
 /* The volume slider stays tucked away until you hover the sound button (computers) or tap it (phones). */
 #soundBox input { width: 0; margin: 0; opacity: 0; accent-color: #e0a000; cursor: pointer;
                   transition: width 0.2s, margin 0.2s, opacity 0.2s; }
-#soundBox.open input { width: 90px; margin: 0 6px 0 2px; opacity: 1; }
+#soundBox.open input, #soundBox.held input { width: 90px; margin: 0 6px 0 2px; opacity: 1; }
+#volTip { position: absolute; top: calc(100% + 6px); transform: translateX(-50%); padding: 2px 6px; border-radius: 4px;
+          background: rgba(0, 0, 0, 0.75); color: #fff; font-size: 13px; white-space: nowrap; pointer-events: none; }
+#volTip[hidden] { display: none; }
 @media (hover: hover) { #soundBox:hover input, #soundBox:has(:focus-visible) input { width: 90px; margin: 0 6px 0 2px; opacity: 1; } }
 #soundBox input:disabled { filter: grayscale(1) opacity(0.5); cursor: default; }
 /* Search box with the "?" (how to play) button beside it. */

@@ -242,9 +242,30 @@ function resultSound(won, delay, file) {
     if (muted() && audioCtx) { audioCtx.close(); audioCtx = master = null; }
     show();
   });
-  slider.addEventListener('input', () => { saveSliderVolume(slider.value); show(); });
+  slider.addEventListener('input', () => { saveSliderVolume(slider.value); show(); placeTip(); });
+
+  // "50%" bubble under the slider's dot: shows while the pointer is on the dot or dragging it, follows it as it moves.
+  const tip = document.createElement('div');
+  tip.id = 'volTip';
+  tip.hidden = true;
+  let held = false;
+  const dotX = () => {   // the dot's centre on screen (browsers draw it about 16 px wide, kept inside the track)
+    const r = slider.getBoundingClientRect();
+    return r.left + 8 + (r.width - 16) * slider.value / 100;
+  };
+  const placeTip = () => {
+    if (tip.hidden) return;
+    tip.textContent = slider.value + '%';
+    tip.style.left = dotX() - box.getBoundingClientRect().left + 'px';
+  };
+  const showTip = (on) => { tip.hidden = !on; placeTip(); };
+  slider.addEventListener('pointermove', (e) => { if (!held) showTip(Math.abs(e.clientX - dotX()) <= 10); });
+  slider.addEventListener('pointerleave', () => { if (!held) showTip(false); });
+  slider.addEventListener('pointerdown', () => { held = true; box.classList.add('held'); showTip(true); });
+  addEventListener('pointerup', () => { if (held) { held = false; box.classList.remove('held'); showTip(false); } });
+  addEventListener('pointercancel', () => { if (held) { held = false; box.classList.remove('held'); showTip(false); } });
   document.addEventListener('click', (e) => { if (!box.contains(e.target)) box.classList.remove('open'); });
   show();
-  box.append(btn, slider);
+  box.append(btn, slider, tip);
   document.body.appendChild(box);
 })();
