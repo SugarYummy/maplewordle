@@ -91,10 +91,10 @@ Story/Normal and Hard use one difficulty per boss (Hard/Chaos > Extreme > Normal
 | 83 | Bellona | Hard | Grandis | Female | KMS only | 2 | 13.716Q | 280 | Story/Normal / Hard / Extreme |
 | 84 | Limbo | Normal | Grandis | Male | All | 3 | 6.48Q | 285 | Extreme |
 | 85 | Limbo | Hard | Grandis | Male | All | 3 | 12.432Q | 285 | Story/Normal / Hard / Extreme |
-| 86 | Limbo | Extreme | Grandis | Male | All | 3 | 45Q+ | 285 | Extreme |
+| 86 | Limbo | Extreme | Grandis | Male | KMS only | 3 | 45Q+ | 285 | Extreme |
 | 87 | Baldrix | Normal | Grandis | Male | All | 3 | 9.055Q | 290 | Extreme |
 | 88 | Baldrix | Hard | Grandis | Male | All | 3 | 20.1Q | 290 | Story/Normal / Hard / Extreme |
-| 89 | Baldrix | Extreme | Grandis | Male | All | 3 | 50Q+ | 290 | Extreme |
+| 89 | Baldrix | Extreme | Grandis | Male | KMS only | 3 | 50Q+ | 290 | Extreme |
 | 90 | Jupiter | Normal | Grandis | Male | All | 1 | 10.266Q | 295 | Extreme |
 | 91 | Jupiter | Hard | Grandis | Male | All | 1 | 49.4Q | 295 | Story/Normal / Hard / Extreme |
 | 92 | Kai | Normal | Other | Male | Seasonal | 2 | 126T | 270 | Extreme |

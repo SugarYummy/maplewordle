@@ -2850,7 +2850,7 @@
     "difficulty": "Extreme",
     "world": "Grandis",
     "gender": "Male",
-    "region": "All",
+    "region": "KMS only",
     "phases": 3,
     "hp": 45000000000000000,
     "phaseHp": [
@@ -2903,7 +2903,7 @@
     "difficulty": "Extreme",
     "world": "Grandis",
     "gender": "Male",
-    "region": "All",
+    "region": "KMS only",
     "phases": 3,
     "hp": 50000000000000000,
     "phaseHp": [

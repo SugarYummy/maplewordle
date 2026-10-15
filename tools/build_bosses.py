@@ -15,7 +15,8 @@ XO = [X]
 # since="YYYY-MM-DD": first day (UTC) the boss can be a daily answer. Use it for every boss added after launch,
 # so past days never change; the boss joins the bosses still left in the current cycle.
 # diffSince={"Extreme": "YYYY-MM-DD"} does the same for one difficulty added later to a boss already in the game.
-def b(name, world, gender, region, pools, diffs, main=None, notes="", since=None, diffSince=None):
+# diffRegion={"Extreme": "KMS only"} gives one difficulty its own region (e.g. a new difficulty only on KMS/KMST so far).
+def b(name, world, gender, region, pools, diffs, main=None, notes="", since=None, diffSince=None, diffRegion=None):
     if main is None:
         for d in ["Hard", "Chaos", "Extreme", "Normal", "Easy"]:  # Chaos is the non-humanoid name for Hard
             if d in diffs:
@@ -27,7 +28,7 @@ def b(name, world, gender, region, pools, diffs, main=None, notes="", since=None
     since = day(since) if since else None
     diffSince = {d: day(v) for d, v in (diffSince or {}).items()}
     return dict(name=name, world=world, gender=gender, region=region, pools=pools, diffs=diffs, main=main, notes=notes, since=since,
-                diffSince=diffSince)
+                diffSince=diffSince, diffRegion=diffRegion or {})
 
 MW, GR, AR = "Maple World", "Grandis", "Arcane River"
 bosses = [
@@ -157,13 +158,13 @@ bosses = [
         "Hard": (285, 3, [3_774*T, 1_887*T + 1_887*T, 4_884*T]),
         "Extreme": (285, 3, [45*Q], "45Q+")},
         notes="P2 = two separate parts. Extreme: KMST (test server), HP not known yet, roughly 45Q+",
-        diffSince={"Extreme": "2026-10-16"}),
+        diffSince={"Extreme": "2026-10-16"}, diffRegion={"Extreme": "KMS only"}),
     b("Baldrix", GR, "Male", "All", ALLP, {
         "Normal": (290, 3, [2_379*T, 2_531*T, 4_145*T]),
         "Hard": (290, 3, [5_340*T, 5_688*T, 9_072*T]),
         "Extreme": (290, 3, [50*Q], "50Q+")},
         notes="Extreme: KMST (test server), HP not known yet, roughly 50Q+",
-        diffSince={"Extreme": "2026-10-16"}),
+        diffSince={"Extreme": "2026-10-16"}, diffRegion={"Extreme": "KMS only"}),
     b("Jupiter", GR, "Male", "All", ALLP, {
         "Normal": (295, 1, [10_266*T]),
         "Hard": (295, 1, [49_400*T])}),
@@ -262,7 +263,7 @@ def entry(boss, diff, label):
     hpLabel = labels[:1]
     levelLabel = labels[1] if len(labels) > 1 else None
     return dict(name=label, boss=boss["name"], difficulty=diff, world=boss["world"], gender=boss["gender"],
-                region=boss["region"], phases=ph, hp=sum(hps) if hps else None, phaseHp=hps, level=lv,
+                region=boss["diffRegion"].get(diff, boss["region"]), phases=ph, hp=sum(hps) if hps else None, phaseHp=hps, level=lv,
                 hpLabel=hpLabel[0] if hpLabel and hpLabel[0] else None,
                 **({"levelLabel": levelLabel} if levelLabel else {}), image=IMAGES.get(f'{boss["name"]}|{diff}') or IMAGES.get(boss["name"]),
                 **({"since": since} if (since := boss["diffSince"].get(diff, boss["since"])) else {}))
