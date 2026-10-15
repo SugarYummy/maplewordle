@@ -110,7 +110,7 @@
    "creditImage": "videos/anim/credit8.jpg",
    "since": "2026-10-16",
    "skills": [
-    "Covering Fire",
+    "Covering Fire (Hold down)",
     "Arrow Stream"
    ]
   },
@@ -127,6 +127,21 @@
    "skills": [
     "Impaling Rays",
     "Solar Slash/Lunar Divide"
+   ]
+  },
+  {
+   "id": 10,
+   "class": "Shade",
+   "videos": [
+    15,
+    16
+   ],
+   "credit": "Pigoo",
+   "creditImage": "videos/anim/credit10.jpg",
+   "since": "2026-10-16",
+   "skills": [
+    "Spirit Trap",
+    "Bomb Punch"
    ]
   }
  ],
