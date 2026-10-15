@@ -173,6 +173,21 @@
     "Charging Light",
     "Radiant Cross"
    ]
+  },
+  {
+   "id": 13,
+   "class": "Pathfinder",
+   "videos": [
+    21,
+    22
+   ],
+   "credit": "Pigoo",
+   "creditImage": "videos/anim/credit13.jpg",
+   "since": "2026-10-16",
+   "skills": [
+    "Nova Blast",
+    "Cardinal Burst/Cardinal Deluge"
+   ]
   }
  ],
  "days": [
