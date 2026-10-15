@@ -30,6 +30,12 @@ const FIXED_ANSWERS = {
   extreme: ['Zakum (Chaos)', 'Zakum (Normal)'],
 };
 
+// Days whose answer is picked by hand instead of the shuffle (UTC date -> boss name). The forced boss still
+// counts as used for its cycle, so the shuffle carries on around it.
+const FORCED_ANSWERS = {
+  extreme: { '2026-10-16': 'Limbo (Extreme)', '2026-10-17': 'Baldrix (Extreme)' },
+};
+
 // From puzzle #3 on, each mode works through its whole pool in a shuffled order: every boss is the
 // answer exactly once per cycle, then the pool reshuffles. The order comes from a hash of
 // (mode, day, boss name), so everyone gets the same boss on the same day. The same boss is never the
@@ -50,6 +56,9 @@ function answerFor(m, d) {
   while (SHUFFLE_FROM + s.days.length <= d) {
     const day = SHUFFLE_FROM + s.days.length;
     const prev = s.days[s.days.length - 1];
+    const forced = FORCED_ANSWERS[m]?.[new Date(day * 86400000).toISOString().slice(0, 10)];
+    const forcedPick = forced && p.find((e) => e.name === forced);
+    if (forcedPick) { s.used.add(forcedPick.name); s.days.push(forcedPick); continue; }
     const eligible = p.filter((e) => (e.since ?? 0) <= day);
     let left = eligible.filter((e) => !s.used.has(e.name));
     if (!left.length) { s.used.clear(); left = eligible; }        // cycle done: everyone is back in
