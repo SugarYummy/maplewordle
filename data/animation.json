@@ -143,6 +143,21 @@
     "Spirit Trap",
     "Bomb Punch"
    ]
+  },
+  {
+   "id": 11,
+   "class": "Night Walker",
+   "videos": [
+    17,
+    18
+   ],
+   "credit": "Pigoo",
+   "creditImage": "videos/anim/credit11.jpg",
+   "since": "2026-10-16",
+   "skills": [
+    "Dark Omen",
+    "Shadow Spark"
+   ]
   }
  ],
  "days": [
