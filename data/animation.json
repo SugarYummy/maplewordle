@@ -103,14 +103,12 @@
    "id": 8,
    "class": "Bow Master",
    "videos": [
-    11,
     12
    ],
    "credit": "Pigoo",
    "creditImage": "videos/anim/credit8.jpg",
    "since": "2026-10-16",
    "skills": [
-    "Covering Fire (Hold down)",
     "Arrow Stream"
    ]
   },
