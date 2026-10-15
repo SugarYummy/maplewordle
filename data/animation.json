@@ -158,6 +158,21 @@
     "Dark Omen",
     "Shadow Spark"
    ]
+  },
+  {
+   "id": 12,
+   "class": "Mihile",
+   "videos": [
+    19,
+    20
+   ],
+   "credit": "Pigoo",
+   "creditImage": "videos/anim/credit12.jpg",
+   "since": "2026-10-16",
+   "skills": [
+    "Charging Light",
+    "Radiant Cross"
+   ]
   }
  ],
  "days": [
