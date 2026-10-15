@@ -2845,6 +2845,23 @@
     "image": "images/bosses/limbo.png"
    },
    {
+    "name": "Limbo (Extreme)",
+    "boss": "Limbo",
+    "difficulty": "Extreme",
+    "world": "Grandis",
+    "gender": "Male",
+    "region": "All",
+    "phases": 3,
+    "hp": 45000000000000000,
+    "phaseHp": [
+     45000000000000000
+    ],
+    "level": 285,
+    "hpLabel": "45Q+",
+    "image": "images/bosses/limbo.png",
+    "since": 20742
+   },
+   {
     "name": "Baldrix (Normal)",
     "boss": "Baldrix",
     "difficulty": "Normal",
@@ -2879,6 +2896,23 @@
     "level": 290,
     "hpLabel": null,
     "image": "images/bosses/baldrix.png"
+   },
+   {
+    "name": "Baldrix (Extreme)",
+    "boss": "Baldrix",
+    "difficulty": "Extreme",
+    "world": "Grandis",
+    "gender": "Male",
+    "region": "All",
+    "phases": 3,
+    "hp": 50000000000000000,
+    "phaseHp": [
+     50000000000000000
+    ],
+    "level": 290,
+    "hpLabel": "50Q+",
+    "image": "images/bosses/baldrix.png",
+    "since": 20742
    },
    {
     "name": "Jupiter (Normal)",
@@ -3190,7 +3224,8 @@
   "Cygnus": "Removed from KMS in the Overdrive update",
   "Malicia": "MSEA added Lian Plateau (Li-an Highlands) in Nov 2025, and her wiki page lists MSEA names and drops. Normal HP from Bahamut (TMS) boss HP table, Jul 2026: P1 49T + inner world 21T, P2 56T, P3 24T, P4 28T. Extreme: known phases total ~149.7Q but Phase 4 is unknown, so shown as 300Q+",
   "Kaling": "P1 = 3 perils, P2 = Kaling, P3 = 3 perils + Frenzied Kaling",
-  "Limbo": "P2 = two separate parts",
+  "Limbo": "P2 = two separate parts. Extreme: KMST (test server), HP not known yet, roughly 45Q+",
+  "Baldrix": "Extreme: KMST (test server), HP not known yet, roughly 50Q+",
   "Kai": "Challenger World seasonal boss; World set to Other (Nexus Tower)",
   "Meilin": "Challenger World Season 4 boss (Namu Wiki). One HP bar split into 2 phases: she changes form at 50% HP",
   "Balrog": "Only Easy mode exists; HP = body + 2 extra parts",

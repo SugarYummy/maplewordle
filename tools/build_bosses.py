@@ -14,17 +14,20 @@ XO = [X]
 
 # since="YYYY-MM-DD": first day (UTC) the boss can be a daily answer. Use it for every boss added after launch,
 # so past days never change; the boss joins the bosses still left in the current cycle.
-def b(name, world, gender, region, pools, diffs, main=None, notes="", since=None):
+# diffSince={"Extreme": "YYYY-MM-DD"} does the same for one difficulty added later to a boss already in the game.
+def b(name, world, gender, region, pools, diffs, main=None, notes="", since=None, diffSince=None):
     if main is None:
         for d in ["Hard", "Chaos", "Extreme", "Normal", "Easy"]:  # Chaos is the non-humanoid name for Hard
             if d in diffs:
                 main = d; break
         else:
             main = next(iter(diffs), None)
-    if since:
-        import datetime
-        since = (datetime.date.fromisoformat(since) - datetime.date(1970, 1, 1)).days
-    return dict(name=name, world=world, gender=gender, region=region, pools=pools, diffs=diffs, main=main, notes=notes, since=since)
+    import datetime
+    day = lambda iso: (datetime.date.fromisoformat(iso) - datetime.date(1970, 1, 1)).days
+    since = day(since) if since else None
+    diffSince = {d: day(v) for d, v in (diffSince or {}).items()}
+    return dict(name=name, world=world, gender=gender, region=region, pools=pools, diffs=diffs, main=main, notes=notes, since=since,
+                diffSince=diffSince)
 
 MW, GR, AR = "Maple World", "Grandis", "Arcane River"
 bosses = [
@@ -151,11 +154,16 @@ bosses = [
         "Hard": (280, 2, [5_564*T, 8_152*T])}),
     b("Limbo", GR, "Male", "All", ALLP, {
         "Normal": (285, 3, [1_944*T, 972*T + 972*T, 2_592*T]),
-        "Hard": (285, 3, [3_774*T, 1_887*T + 1_887*T, 4_884*T])},
-        notes="P2 = two separate parts"),
+        "Hard": (285, 3, [3_774*T, 1_887*T + 1_887*T, 4_884*T]),
+        "Extreme": (285, 3, [45*Q], "45Q+")},
+        notes="P2 = two separate parts. Extreme: KMST (test server), HP not known yet, roughly 45Q+",
+        diffSince={"Extreme": "2026-10-16"}),
     b("Baldrix", GR, "Male", "All", ALLP, {
         "Normal": (290, 3, [2_379*T, 2_531*T, 4_145*T]),
-        "Hard": (290, 3, [5_340*T, 5_688*T, 9_072*T])}),
+        "Hard": (290, 3, [5_340*T, 5_688*T, 9_072*T]),
+        "Extreme": (290, 3, [50*Q], "50Q+")},
+        notes="Extreme: KMST (test server), HP not known yet, roughly 50Q+",
+        diffSince={"Extreme": "2026-10-16"}),
     b("Jupiter", GR, "Male", "All", ALLP, {
         "Normal": (295, 1, [10_266*T]),
         "Hard": (295, 1, [49_400*T])}),
@@ -257,7 +265,7 @@ def entry(boss, diff, label):
                 region=boss["region"], phases=ph, hp=sum(hps) if hps else None, phaseHp=hps, level=lv,
                 hpLabel=hpLabel[0] if hpLabel and hpLabel[0] else None,
                 **({"levelLabel": levelLabel} if levelLabel else {}), image=IMAGES.get(f'{boss["name"]}|{diff}') or IMAGES.get(boss["name"]),
-                **({"since": boss["since"]} if boss["since"] else {}))
+                **({"since": since} if (since := boss["diffSince"].get(diff, boss["since"])) else {}))
 
 def label(name, d):
     return f"{name} ({d[len('Unknown ('):-1] if d.startswith('Unknown (') else d})"

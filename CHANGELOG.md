@@ -1,6 +1,7 @@
 # Maple Wordle changelog
 
 ## alpha v3.2 - 12 October 2026
+- Extreme: added Limbo (Extreme) and Baldrix (Extreme) from KMST (test server). Their HP isn't known yet, so it shows as 45Q+ and 50Q+
 - Win on your first guess in any mode for a meso fountain, a meso rain and Meilin's The Unblessed Cathedral -Descend-
 - Guess the Class - Wordle: winning on guess 2-5 plays First Adversary's Succession Bloom, losing plays Malitia's The Breeze That Carried Sorrow
 - A puzzle you won on your first guess keeps glowing gold, even after a reload, and so does its day in the Archive

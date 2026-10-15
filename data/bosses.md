@@ -1,6 +1,6 @@
 # Maple Wordle - boss list
 
-50 bosses, 106 boss + difficulty entries. Unknown = no data found.
+50 bosses, 108 boss + difficulty entries. Unknown = no data found.
 HP is the sum of every phase (M = million, B = billion, T = trillion, Q = quadrillion). Entry Lv = level needed to enter.
 Story/Normal and Hard use one difficulty per boss (Hard/Chaos > Extreme > Normal > Easy, Gollux = Hell); Extreme uses every difficulty.
 
@@ -91,27 +91,29 @@ Story/Normal and Hard use one difficulty per boss (Hard/Chaos > Extreme > Normal
 | 83 | Bellona | Hard | Grandis | Female | KMS only | 2 | 13.716Q | 280 | Story/Normal / Hard / Extreme |
 | 84 | Limbo | Normal | Grandis | Male | All | 3 | 6.48Q | 285 | Extreme |
 | 85 | Limbo | Hard | Grandis | Male | All | 3 | 12.432Q | 285 | Story/Normal / Hard / Extreme |
-| 86 | Baldrix | Normal | Grandis | Male | All | 3 | 9.055Q | 290 | Extreme |
-| 87 | Baldrix | Hard | Grandis | Male | All | 3 | 20.1Q | 290 | Story/Normal / Hard / Extreme |
-| 88 | Jupiter | Normal | Grandis | Male | All | 1 | 10.266Q | 295 | Extreme |
-| 89 | Jupiter | Hard | Grandis | Male | All | 1 | 49.4Q | 295 | Story/Normal / Hard / Extreme |
-| 90 | Kai | Normal | Other | Male | Seasonal | 2 | 126T | 270 | Extreme |
-| 91 | Kai | Hard | Other | Male | Seasonal | 2 | 483T | 280 | Story/Normal / Hard / Extreme |
-| 92 | Meilin | Normal | Other | Female | Seasonal | 2 | 117.85T | 270 | Extreme |
-| 93 | Meilin | Hard | Other | Female | Seasonal | 2 | 580T | 280 | Story/Normal / Hard / Extreme |
-| 94 | Balrog | Easy | Maple World | Male | All | 1 | 4.788M | 65 | Hard / Extreme |
-| 95 | Ursus | Normal | Maple World | Other | GMS only | 1 | 2.625T | 100 | Hard / Extreme |
-| 96 | Yakuza Boss | Normal | Maple World | Male | JMS/GMS/MSEA | 1 | 1B | 160 | Hard / Extreme |
-| 97 | Frenzied Gigatoad | Hard | Maple World | Other | JMS/GMS/MSEA | 1 | 900M | 170 | Hard / Extreme |
-| 98 | Extreme Bigfoot | Normal | Maple World | Other | All | 1 | 15T | 260 | Hard / Extreme |
-| 99 | Reina | Unknown (Apostle) | Grandis | Female | All | Unknown | Unknown | Unknown | Extreme |
-| 100 | Julieta | Normal | Maple World | Female | Removed | Unknown | Unknown | Unknown | Extreme |
-| 101 | Cross | Normal | Maple World | Male | Removed | Unknown | Unknown | Unknown | Extreme |
-| 102 | Inferno Wolf | Normal | Maple World | Other | Removed | 1 | 10B | 10 | Extreme |
-| 103 | Inferno Wolf | Chaos | Maple World | Other | Removed | 1 | 20T | 200 | Extreme |
-| 104 | Inferno Wolf | Extreme | Maple World | Other | Removed | 1 | 100T | 260 | Extreme |
-| 105 | Gerand Darmoor | Unknown (God-King) | Grandis | Male | All | Unknown | Unknown | 300+ | Extreme |
-| 106 | Havoc | Unknown (Apostle) | Grandis | Male | All | Unknown | Unknown | Unknown | Extreme |
+| 86 | Limbo | Extreme | Grandis | Male | All | 3 | 45Q+ | 285 | Extreme |
+| 87 | Baldrix | Normal | Grandis | Male | All | 3 | 9.055Q | 290 | Extreme |
+| 88 | Baldrix | Hard | Grandis | Male | All | 3 | 20.1Q | 290 | Story/Normal / Hard / Extreme |
+| 89 | Baldrix | Extreme | Grandis | Male | All | 3 | 50Q+ | 290 | Extreme |
+| 90 | Jupiter | Normal | Grandis | Male | All | 1 | 10.266Q | 295 | Extreme |
+| 91 | Jupiter | Hard | Grandis | Male | All | 1 | 49.4Q | 295 | Story/Normal / Hard / Extreme |
+| 92 | Kai | Normal | Other | Male | Seasonal | 2 | 126T | 270 | Extreme |
+| 93 | Kai | Hard | Other | Male | Seasonal | 2 | 483T | 280 | Story/Normal / Hard / Extreme |
+| 94 | Meilin | Normal | Other | Female | Seasonal | 2 | 117.85T | 270 | Extreme |
+| 95 | Meilin | Hard | Other | Female | Seasonal | 2 | 580T | 280 | Story/Normal / Hard / Extreme |
+| 96 | Balrog | Easy | Maple World | Male | All | 1 | 4.788M | 65 | Hard / Extreme |
+| 97 | Ursus | Normal | Maple World | Other | GMS only | 1 | 2.625T | 100 | Hard / Extreme |
+| 98 | Yakuza Boss | Normal | Maple World | Male | JMS/GMS/MSEA | 1 | 1B | 160 | Hard / Extreme |
+| 99 | Frenzied Gigatoad | Hard | Maple World | Other | JMS/GMS/MSEA | 1 | 900M | 170 | Hard / Extreme |
+| 100 | Extreme Bigfoot | Normal | Maple World | Other | All | 1 | 15T | 260 | Hard / Extreme |
+| 101 | Reina | Unknown (Apostle) | Grandis | Female | All | Unknown | Unknown | Unknown | Extreme |
+| 102 | Julieta | Normal | Maple World | Female | Removed | Unknown | Unknown | Unknown | Extreme |
+| 103 | Cross | Normal | Maple World | Male | Removed | Unknown | Unknown | Unknown | Extreme |
+| 104 | Inferno Wolf | Normal | Maple World | Other | Removed | 1 | 10B | 10 | Extreme |
+| 105 | Inferno Wolf | Chaos | Maple World | Other | Removed | 1 | 20T | 200 | Extreme |
+| 106 | Inferno Wolf | Extreme | Maple World | Other | Removed | 1 | 100T | 260 | Extreme |
+| 107 | Gerand Darmoor | Unknown (God-King) | Grandis | Male | All | Unknown | Unknown | 300+ | Extreme |
+| 108 | Havoc | Unknown (Apostle) | Grandis | Male | All | Unknown | Unknown | Unknown | Extreme |
 
 ## Notes
 
@@ -123,7 +125,8 @@ Story/Normal and Hard use one difficulty per boss (Hard/Chaos > Extreme > Normal
 - **Cygnus**: Removed from KMS in the Overdrive update
 - **Malicia**: MSEA added Lian Plateau (Li-an Highlands) in Nov 2025, and her wiki page lists MSEA names and drops. Normal HP from Bahamut (TMS) boss HP table, Jul 2026: P1 49T + inner world 21T, P2 56T, P3 24T, P4 28T. Extreme: known phases total ~149.7Q but Phase 4 is unknown, so shown as 300Q+
 - **Kaling**: P1 = 3 perils, P2 = Kaling, P3 = 3 perils + Frenzied Kaling
-- **Limbo**: P2 = two separate parts
+- **Limbo**: P2 = two separate parts. Extreme: KMST (test server), HP not known yet, roughly 45Q+
+- **Baldrix**: Extreme: KMST (test server), HP not known yet, roughly 50Q+
 - **Kai**: Challenger World seasonal boss; World set to Other (Nexus Tower)
 - **Meilin**: Challenger World Season 4 boss (Namu Wiki). One HP bar split into 2 phases: she changes form at 50% HP
 - **Balrog**: Only Easy mode exists; HP = body + 2 extra parts
