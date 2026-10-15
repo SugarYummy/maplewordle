@@ -83,6 +83,21 @@
     "Spear of Lugh"
    ],
    "hintDelay": 1
+  },
+  {
+   "id": 7,
+   "class": "Hero",
+   "videos": [
+    10,
+    9
+   ],
+   "credit": "Pigoo",
+   "creditImage": "videos/anim/credit7.jpg",
+   "since": "2026-10-16",
+   "skills": [
+    "Sword Illusion",
+    "Raging Blow"
+   ]
   }
  ],
  "days": [
