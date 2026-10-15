@@ -33,7 +33,7 @@ const FIXED_ANSWERS = {
 // Days whose answer is picked by hand instead of the shuffle (UTC date -> boss name). The forced boss still
 // counts as used for its cycle, so the shuffle carries on around it.
 const FORCED_ANSWERS = {
-  extreme: { '2026-10-16': 'Limbo (Extreme)', '2026-10-17': 'Baldrix (Extreme)' },
+  extreme: { '2026-10-16': 'Baldrix (Extreme)', '2026-10-17': 'Limbo (Extreme)' },
 };
 
 // From puzzle #3 on, each mode works through its whole pool in a shuffled order: every boss is the
