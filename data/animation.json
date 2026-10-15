@@ -113,6 +113,21 @@
     "Covering Fire",
     "Arrow Stream"
    ]
+  },
+  {
+   "id": 9,
+   "class": "Dawn Warrior",
+   "videos": [
+    13,
+    14
+   ],
+   "credit": "Pigoo",
+   "creditImage": "videos/anim/credit9.jpg",
+   "since": "2026-10-16",
+   "skills": [
+    "Impaling Rays",
+    "Solar Slash/Lunar Divide"
+   ]
   }
  ],
  "days": [
