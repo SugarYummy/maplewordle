@@ -1,3 +1,4 @@
+# Only use skills unique to one class (check MapleWiki); never a skill shared by two classes.
 # Adds an Attack Animation clip: compresses a video into a small WebM (VP9) + MP4 (H.264, for older iPhones) and a
 # still poster image, saved as the next free number (videos/anim/video<N>.*), and records it in data/animation.json.
 #
