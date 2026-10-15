@@ -188,6 +188,21 @@
     "Nova Blast",
     "Cardinal Burst/Cardinal Deluge"
    ]
+  },
+  {
+   "id": 14,
+   "class": "Phantom",
+   "videos": [
+    23,
+    24
+   ],
+   "credit": "Pigoo",
+   "creditImage": "videos/anim/credit14.jpg",
+   "since": "2026-10-16",
+   "skills": [
+    "Tempest (Hold down)",
+    "Mille Aiguilles"
+   ]
   }
  ],
  "days": [
