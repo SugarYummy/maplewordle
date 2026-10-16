@@ -220,6 +220,21 @@
     "Blood Prison",
     "Exceed: Lunar Slash"
    ]
+  },
+  {
+   "id": 16,
+   "class": "Demon Slayer",
+   "videos": [
+    27,
+    28
+   ],
+   "credit": "Pigoo",
+   "creditImage": "videos/anim/credit16.jpg",
+   "since": "2026-10-17",
+   "skills": [
+    "Raven Storm",
+    "Demon Thrash"
+   ]
   }
  ],
  "days": [
