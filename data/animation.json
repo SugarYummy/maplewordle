@@ -201,6 +201,21 @@
     "Tempest (Hold down)",
     "Mille Aiguilles"
    ]
+  },
+  {
+   "id": 15,
+   "class": "Demon Avenger",
+   "videos": [
+    25,
+    26
+   ],
+   "credit": "Pigoo",
+   "creditImage": "videos/anim/credit15.jpg",
+   "since": "2026-10-17",
+   "skills": [
+    "Blood Prison",
+    "Exceed: Lunar Slash"
+   ]
   }
  ],
  "days": [
