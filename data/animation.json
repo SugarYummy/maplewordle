@@ -288,6 +288,21 @@
     "Asura's Anger",
     "Phantom Blow"
    ]
+  },
+  {
+   "id": 20,
+   "class": "Arch Mage (F/P)",
+   "videos": [
+    35,
+    36
+   ],
+   "credit": "Pigoo",
+   "creditImage": "videos/anim/credit20.jpg",
+   "since": "2026-10-17",
+   "skills": [
+    "DoT Punisher",
+    "Flame Sweep"
+   ]
   }
  ],
  "days": [
