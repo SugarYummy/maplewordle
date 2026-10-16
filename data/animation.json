@@ -254,6 +254,25 @@
     "Finisher - Hunter's Prey",
     "Beyond Blade"
    ]
+  },
+  {
+   "id": 18,
+   "class": "Khali",
+   "videos": [
+    31,
+    32
+   ],
+   "credit": "Pigoo",
+   "creditImage": "videos/anim/credit18.jpg",
+   "since": "2026-10-17",
+   "skills": [
+    "Chakram Fury",
+    "Flurry"
+   ],
+   "skillsFull": [
+    "Hex: Chakram Fury",
+    "Arts: Flurry"
+   ]
   }
  ],
  "days": [
