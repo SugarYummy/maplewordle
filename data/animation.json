@@ -235,6 +235,25 @@
     "Raven Storm",
     "Demon Thrash"
    ]
+  },
+  {
+   "id": 17,
+   "class": "Aran",
+   "videos": [
+    29,
+    30
+   ],
+   "credit": "Pigoo",
+   "creditImage": "videos/anim/credit17.jpg",
+   "since": "2026-10-17",
+   "skills": [
+    "Hunter's Prey",
+    "Beyond Blade"
+   ],
+   "skillsFull": [
+    "Finisher - Hunter's Prey",
+    "Beyond Blade"
+   ]
   }
  ],
  "days": [
