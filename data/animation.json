@@ -273,6 +273,21 @@
     "Hex: Chakram Fury",
     "Arts: Flurry"
    ]
+  },
+  {
+   "id": 19,
+   "class": "Dual Blade",
+   "videos": [
+    33,
+    34
+   ],
+   "credit": "Pigoo",
+   "creditImage": "videos/anim/credit19.jpg",
+   "since": "2026-10-17",
+   "skills": [
+    "Asura's Anger",
+    "Phantom Blow"
+   ]
   }
  ],
  "days": [
