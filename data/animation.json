@@ -382,6 +382,21 @@
     "Abyssal Charge Drive",
     "Basic Charge Drive"
    ]
+  },
+  {
+   "id": 26,
+   "class": "Blaster",
+   "videos": [
+    47,
+    48
+   ],
+   "credit": "Pigoo",
+   "creditImage": "videos/anim/credit26.jpg",
+   "since": "2026-10-19",
+   "skills": [
+    "Ballistic Hurricane",
+    "Shotgun Punch"
+   ]
   }
  ],
  "days": [
