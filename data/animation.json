@@ -303,6 +303,25 @@
     "DoT Punisher",
     "Flame Sweep"
    ]
+  },
+  {
+   "id": 21,
+   "class": "Kinesis",
+   "videos": [
+    37,
+    38
+   ],
+   "credit": "Pigoo",
+   "creditImage": "videos/anim/credit21.jpg",
+   "since": "2026-10-19",
+   "skills": [
+    "Check",
+    "Psychic Smash"
+   ],
+   "skillsFull": [
+    "Ultimate: Check",
+    "Psychic Smash"
+   ]
   }
  ],
  "days": [
