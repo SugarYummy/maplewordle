@@ -16,7 +16,8 @@ XO = [X]
 # so past days never change; the boss joins the bosses still left in the current cycle.
 # diffSince={"Extreme": "YYYY-MM-DD"} does the same for one difficulty added later to a boss already in the game.
 # diffRegion={"Extreme": "KMS only"} gives one difficulty its own region (e.g. a new difficulty only on KMS/KMST so far).
-def b(name, world, gender, region, pools, diffs, main=None, notes="", since=None, diffSince=None, diffRegion=None):
+# oldName: the name a boss had before a rename. The daily shuffle keeps using it, so renaming never changes any day's answer.
+def b(name, world, gender, region, pools, diffs, main=None, notes="", since=None, diffSince=None, diffRegion=None, oldName=None):
     if main is None:
         for d in ["Hard", "Chaos", "Extreme", "Normal", "Easy"]:  # Chaos is the non-humanoid name for Hard
             if d in diffs:
@@ -28,7 +29,7 @@ def b(name, world, gender, region, pools, diffs, main=None, notes="", since=None
     since = day(since) if since else None
     diffSince = {d: day(v) for d, v in (diffSince or {}).items()}
     return dict(name=name, world=world, gender=gender, region=region, pools=pools, diffs=diffs, main=main, notes=notes, since=since,
-                diffSince=diffSince, diffRegion=diffRegion or {})
+                diffSince=diffSince, diffRegion=diffRegion or {}, oldName=oldName)
 
 MW, GR, AR = "Maple World", "Grandis", "Arcane River"
 bosses = [
@@ -172,10 +173,12 @@ bosses = [
         "Normal": (270, 2, [63*T, 63*T]),
         "Hard": (280, 2, [241_500*B, 241_500*B])},
         notes="Challenger World seasonal boss; World set to Other (Nexus Tower)"),
-    b("Meilin", "Other", "Female", "Seasonal", ALLP, {
+    b("Mayrin", "Other", "Female", "Seasonal", ALLP, {
         "Normal": (270, 2, [58_925*B, 58_925*B]),
         "Hard": (280, 2, [290*T, 290*T])},
-        notes="Challenger World Season 4 boss (Namu Wiki). One HP bar split into 2 phases: she changes form at 50% HP"),
+        notes="Challenger World Season 4 boss (Namu Wiki). One HP bar split into 2 phases: she changes form at 50% HP. "
+              "Called Meilin until her English name, Mayrin, was confirmed at MapleFest 2026",
+        oldName="Meilin"),
 
     # Hard/Extreme-only additions
     b("Balrog", MW, "Male", "All", HX, {"Easy": (65, 1, [2_400_000 + 1_152_000 + 1_235_520])},
@@ -203,7 +206,7 @@ bosses = [
 
 # Maple Guide icons from maplestorywiki.net, per boss (all difficulties share one).
 IMAGES = {
-    'Meilin': 'images/bosses/meilin.png',
+    'Mayrin': 'images/bosses/mayrin.png',
     'Yakuza Boss': 'images/bosses/yakuza-boss.png',
     'Frenzied Gigatoad': 'images/bosses/frenzied-gigatoad.png',
     'Extreme Bigfoot': 'images/bosses/extreme-bigfoot.png',
@@ -266,6 +269,7 @@ def entry(boss, diff, label):
                 region=boss["diffRegion"].get(diff, boss["region"]), phases=ph, hp=sum(hps) if hps else None, phaseHp=hps, level=lv,
                 hpLabel=hpLabel[0] if hpLabel and hpLabel[0] else None,
                 **({"levelLabel": levelLabel} if levelLabel else {}), image=IMAGES.get(f'{boss["name"]}|{diff}') or IMAGES.get(boss["name"]),
+                **({"key": label.replace(boss["name"], boss["oldName"], 1)} if boss["oldName"] else {}),
                 **({"since": since} if (since := boss["diffSince"].get(diff, boss["since"])) else {}))
 
 def label(name, d):

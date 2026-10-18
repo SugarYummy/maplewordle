@@ -652,8 +652,8 @@
     "image": "images/bosses/kai.png"
    },
    {
-    "name": "Meilin (Hard)",
-    "boss": "Meilin",
+    "name": "Mayrin (Hard)",
+    "boss": "Mayrin",
     "difficulty": "Hard",
     "world": "Other",
     "gender": "Female",
@@ -666,7 +666,8 @@
     ],
     "level": 280,
     "hpLabel": null,
-    "image": "images/bosses/meilin.png"
+    "image": "images/bosses/mayrin.png",
+    "key": "Meilin (Hard)"
    }
   ],
   "hard": [
@@ -1309,8 +1310,8 @@
     "image": "images/bosses/kai.png"
    },
    {
-    "name": "Meilin (Hard)",
-    "boss": "Meilin",
+    "name": "Mayrin (Hard)",
+    "boss": "Mayrin",
     "difficulty": "Hard",
     "world": "Other",
     "gender": "Female",
@@ -1323,7 +1324,8 @@
     ],
     "level": 280,
     "hpLabel": null,
-    "image": "images/bosses/meilin.png"
+    "image": "images/bosses/mayrin.png",
+    "key": "Meilin (Hard)"
    },
    {
     "name": "Balrog (Easy)",
@@ -2981,8 +2983,8 @@
     "image": "images/bosses/kai.png"
    },
    {
-    "name": "Meilin (Normal)",
-    "boss": "Meilin",
+    "name": "Mayrin (Normal)",
+    "boss": "Mayrin",
     "difficulty": "Normal",
     "world": "Other",
     "gender": "Female",
@@ -2995,11 +2997,12 @@
     ],
     "level": 270,
     "hpLabel": null,
-    "image": "images/bosses/meilin.png"
+    "image": "images/bosses/mayrin.png",
+    "key": "Meilin (Normal)"
    },
    {
-    "name": "Meilin (Hard)",
-    "boss": "Meilin",
+    "name": "Mayrin (Hard)",
+    "boss": "Mayrin",
     "difficulty": "Hard",
     "world": "Other",
     "gender": "Female",
@@ -3012,7 +3015,8 @@
     ],
     "level": 280,
     "hpLabel": null,
-    "image": "images/bosses/meilin.png"
+    "image": "images/bosses/mayrin.png",
+    "key": "Meilin (Hard)"
    },
    {
     "name": "Balrog (Easy)",
@@ -3227,7 +3231,7 @@
   "Limbo": "P2 = two separate parts. Extreme: KMST (test server), HP not known yet, roughly 45Q+",
   "Baldrix": "Extreme: KMST (test server), HP not known yet, roughly 50Q+",
   "Kai": "Challenger World seasonal boss; World set to Other (Nexus Tower)",
-  "Meilin": "Challenger World Season 4 boss (Namu Wiki). One HP bar split into 2 phases: she changes form at 50% HP",
+  "Mayrin": "Challenger World Season 4 boss (Namu Wiki). One HP bar split into 2 phases: she changes form at 50% HP. Called Meilin until her English name, Mayrin, was confirmed at MapleFest 2026",
   "Balrog": "Only Easy mode exists; HP = body + 2 extra parts",
   "Yakuza Boss": "Showa Town (Zipangu): in JMS, GMS and MSEA only; entry level = Showa Town quest requirement",
   "Frenzied Gigatoad": "Ninja Castle (Zipangu): in JMS, GMS and MSEA only; GMS HP (other servers: 1.7B); entry level = Ninja Castle requirement",

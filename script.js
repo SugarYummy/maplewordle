@@ -66,7 +66,7 @@ function answerFor(m, d) {
     if (fresh.length) left = fresh;
     let pick = left[0], best = Infinity;
     for (const e of left) {
-      const v = hash(`${m}|${day}|${e.name}`);
+      const v = hash(`${m}|${day}|${e.key ?? e.name}`);   // key = a renamed boss's old name, so renames change no answers
       if (v < best) { best = v; pick = e; }
     }
     s.used.add(pick.name);
@@ -180,8 +180,11 @@ function answerRow() {
 
 // Progress is saved per mode per day, so refreshing can't reset today's guesses.
 const saveKey = (d = day, m = mode) => `mapleWordle:${m}:${d}`;
+// Bosses renamed since launch (old name -> new), so guesses saved under the old name still load.
+const RENAMED = { Meilin: 'Mayrin' };
+const renamed = (n) => n.replace(/^[^(]+(?= \()/, (b) => RENAMED[b] ?? b);
 function load(d, m) {
-  try { return JSON.parse(localStorage.getItem(saveKey(d, m))) || []; } catch { return []; }
+  try { return (JSON.parse(localStorage.getItem(saveKey(d, m))) || []).map(renamed); } catch { return []; }
 }
 function save() {
   try { localStorage.setItem(saveKey(), JSON.stringify(guesses)); } catch {}
@@ -628,7 +631,7 @@ function infoHtml(m) {
   ];
   const phases = [
     'Kalos P2 segments count as 1 phase, and so do Kaling P3 segments and P1 perils.',
-    'Kai and Meilin have 1 HP bar but count as 2 phases.',
+    'Kai and Mayrin have 1 HP bar but count as 2 phases.',
     'Malefic Star and Jupiter count as 1 phase, even with 3 sub-phases.',
   ];
   const ul = (items) => '<ul>' + items.map((x) => `<li>${x}</li>`).join('') + '</ul>';

@@ -99,8 +99,8 @@ Story/Normal and Hard use one difficulty per boss (Hard/Chaos > Extreme > Normal
 | 91 | Jupiter | Hard | Grandis | Male | All | 1 | 49.4Q | 295 | Story/Normal / Hard / Extreme |
 | 92 | Kai | Normal | Other | Male | Seasonal | 2 | 126T | 270 | Extreme |
 | 93 | Kai | Hard | Other | Male | Seasonal | 2 | 483T | 280 | Story/Normal / Hard / Extreme |
-| 94 | Meilin | Normal | Other | Female | Seasonal | 2 | 117.85T | 270 | Extreme |
-| 95 | Meilin | Hard | Other | Female | Seasonal | 2 | 580T | 280 | Story/Normal / Hard / Extreme |
+| 94 | Mayrin | Normal | Other | Female | Seasonal | 2 | 117.85T | 270 | Extreme |
+| 95 | Mayrin | Hard | Other | Female | Seasonal | 2 | 580T | 280 | Story/Normal / Hard / Extreme |
 | 96 | Balrog | Easy | Maple World | Male | All | 1 | 4.788M | 65 | Hard / Extreme |
 | 97 | Ursus | Normal | Maple World | Other | GMS only | 1 | 2.625T | 100 | Hard / Extreme |
 | 98 | Yakuza Boss | Normal | Maple World | Male | JMS/GMS/MSEA | 1 | 1B | 160 | Hard / Extreme |
@@ -128,7 +128,7 @@ Story/Normal and Hard use one difficulty per boss (Hard/Chaos > Extreme > Normal
 - **Limbo**: P2 = two separate parts. Extreme: KMST (test server), HP not known yet, roughly 45Q+
 - **Baldrix**: Extreme: KMST (test server), HP not known yet, roughly 50Q+
 - **Kai**: Challenger World seasonal boss; World set to Other (Nexus Tower)
-- **Meilin**: Challenger World Season 4 boss (Namu Wiki). One HP bar split into 2 phases: she changes form at 50% HP
+- **Mayrin**: Challenger World Season 4 boss (Namu Wiki). One HP bar split into 2 phases: she changes form at 50% HP. Called Meilin until her English name, Mayrin, was confirmed at MapleFest 2026
 - **Balrog**: Only Easy mode exists; HP = body + 2 extra parts
 - **Yakuza Boss**: Showa Town (Zipangu): in JMS, GMS and MSEA only; entry level = Showa Town quest requirement
 - **Frenzied Gigatoad**: Ninja Castle (Zipangu): in JMS, GMS and MSEA only; GMS HP (other servers: 1.7B); entry level = Ninja Castle requirement
