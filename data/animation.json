@@ -337,6 +337,21 @@
     "Aether Conduit",
     "Reflection"
    ]
+  },
+  {
+   "id": 23,
+   "class": "Paladin",
+   "videos": [
+    41,
+    42
+   ],
+   "credit": "Pigoo",
+   "creditImage": "videos/anim/credit23.jpg",
+   "since": "2026-10-19",
+   "skills": [
+    "Smite Shield",
+    "Blast"
+   ]
   }
  ],
  "days": [
