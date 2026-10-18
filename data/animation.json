@@ -322,6 +322,21 @@
     "Ultimate: Check",
     "Psychic Smash"
    ]
+  },
+  {
+   "id": 22,
+   "class": "Luminous",
+   "videos": [
+    39,
+    40
+   ],
+   "credit": "Pigoo",
+   "creditImage": "videos/anim/credit22.jpg",
+   "since": "2026-10-19",
+   "skills": [
+    "Aether Conduit",
+    "Reflection"
+   ]
   }
  ],
  "days": [
