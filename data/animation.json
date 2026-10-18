@@ -367,6 +367,21 @@
     "Howling Fist",
     "Octopunch"
    ]
+  },
+  {
+   "id": 25,
+   "class": "Ark",
+   "videos": [
+    45,
+    46
+   ],
+   "credit": "Pigoo",
+   "creditImage": "videos/anim/credit25.jpg",
+   "since": "2026-10-19",
+   "skills": [
+    "Abyssal Charge Drive",
+    "Basic Charge Drive"
+   ]
   }
  ],
  "days": [
