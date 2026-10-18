@@ -352,6 +352,21 @@
     "Smite Shield",
     "Blast"
    ]
+  },
+  {
+   "id": 24,
+   "class": "Buccaneer",
+   "videos": [
+    43,
+    44
+   ],
+   "credit": "Pigoo",
+   "creditImage": "videos/anim/credit24.jpg",
+   "since": "2026-10-19",
+   "skills": [
+    "Howling Fist",
+    "Octopunch"
+   ]
   }
  ],
  "days": [
