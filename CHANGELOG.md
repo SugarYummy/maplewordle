@@ -1,14 +1,18 @@
 # Maple Wordle changelog
 
-## alpha v3.3 - 19 October 2026
+## alpha v3.4 - 19 October 2026
 - Extreme is harder: from October 20, every day has a twist. Either you get one fewer guess (4), or one column is hidden
 - Photo cards stay grey in Guess the Boss and Guess the Class Wordle, so only the other columns show if you're right
 - Guess the Boss has a new Sound Clip tab (coming soon)
 - Attack Animation: lots of new classes, thank you Pigoo!
 
-## alpha v3.2 - 12 October 2026
+## alpha v3.3.1 - 17 October 2026
 - Meilin is now called Mayrin, her English name confirmed at MapleFest 2026
+
+## alpha v3.3 - 15 October 2026
 - Extreme: added Limbo (Extreme) and Baldrix (Extreme) from KMST (test server). Their HP isn't known yet, so it shows as 45Q+ and 50Q+
+
+## alpha v3.2 - 12 October 2026
 - Win on your first guess in any mode for a meso fountain, a meso rain and Mayrin's The Unblessed Cathedral -Descend-
 - Guess the Class - Wordle: winning on guess 2-5 plays First Adversary's Succession Bloom, losing plays Malitia's The Breeze That Carried Sorrow
 - A puzzle you won on your first guess keeps glowing gold, even after a reload, and so does its day in the Archive
