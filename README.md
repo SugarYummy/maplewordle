@@ -54,6 +54,7 @@ the current game gets `class="on"`, the others link to their page (`onclick="loc
 aren't ready are `disabled` with `<small>Coming soon</small>`. When a game goes live, replace its `disabled` button
 with a link on **every** page. The hover highlight comes from `style.css` automatically.
 
-Stats: the Worker (`worker/stats.js`) already accepts `sound` and `map` (6 guesses), and any other short lowercase
+Stats: the Worker (`worker/stats.js`) already accepts `sound` (6 guesses), `map` (unlimited), and any other short lowercase
 mode name with up to 999 guesses, so a new game's "Everyone's results" work without redeploying it. Only redeploy
-if a game needs a different guess limit than that.
+if a game needs a different guess limit than that. Bonus rounds post `{"bonus": true|false}` for any mode; the reply's
+`bonus` gives the right / wrong counts (BGM Clip shows them as the Bonus row).

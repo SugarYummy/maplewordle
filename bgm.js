@@ -406,6 +406,7 @@ $('bonusGo').addEventListener('click', () => {
   save();
   renderEnd();
   noteResult();
+  sendBonus(answer.boss.areas.some((a) => a.track === answer.track && a.label === pick));
 });
 
 // ---- Boss picker (every boss, A-Z) ----
@@ -472,12 +473,23 @@ async function loadStats() {
     const res = sent ? await fetch(url)
       : await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ score }) });
     if (!res.ok) return;
-    const { counts } = await res.json();
+    const { counts, bonus: bonusCounts } = await res.json();
     if (!sent) { try { localStorage.setItem(sentKey, '1'); } catch {} }
-    if (day === shownDay && over) renderStats(counts, String(score));
+    if (day === shownDay && over) renderStats(counts, String(score), bonusCounts);
   } catch {}
 }
-function renderStats(counts, mine) {
+// The bonus answer is sent once per day too (only when there was a bonus), then the results are drawn again with it.
+async function sendBonus(ok) {
+  if (!STATS_URL || !live) return loadStats();
+  const sentKey = `mapleWordle:sentBonus:${MODE}:${day}`;
+  try { if (localStorage.getItem(sentKey) === '1') return loadStats(); } catch {}
+  try {
+    const res = await fetch(`${STATS_URL}?mode=${MODE}&day=${day}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ bonus: ok }) });
+    if (res.ok) { try { localStorage.setItem(sentKey, '1'); } catch {} }
+  } catch {}
+  loadStats();
+}
+function renderStats(counts, mine, bonusCounts) {
   const bars = [...LIMITS.map((_, i) => String(i + 1)), 'X'].map((k) => ({ key: k, n: counts[k] || 0 }));
   const total = bars.reduce((n, b) => n + b.n, 0);
   $('statsTitle').textContent = `Everyone's results - ${total} player${total === 1 ? '' : 's'}`;
@@ -494,7 +506,22 @@ function renderStats(counts, mine) {
     box.appendChild(row);
   }
   const solved = total - (counts.X || 0);
-  $('statsAvg').textContent = total ? `${Math.round(solved * 100 / total)}% solved` : '';
+  // Bonus row: how many of the players who answered the bonus got it right (bosses with one BGM have no bonus).
+  // Green if you got it right too.
+  const right = bonusCounts?.right || 0, tried = right + (bonusCounts?.wrong || 0);
+  let bonusLine = '';
+  if (hasBonus(answer.boss) && tried) {
+    const pct = Math.round(right * 100 / tried);
+    const mineRight = bonus != null && answer.boss.areas.some((a) => a.track === answer.track && a.label === bonus);
+    const row = document.createElement('div');
+    row.className = 'statrow bonusrow' + (mineRight ? ' mine' : '');
+    row.innerHTML = `<span class="label">Bonus</span><span class="track"><span class="bar"></span></span><span class="pct"></span>`;
+    row.querySelector('.bar').style.width = pct + '%';
+    row.querySelector('.pct').textContent = pct + '%';
+    box.appendChild(row);
+    bonusLine = `\nBonus: ${pct}% guessed it right (${tried} answer${tried === 1 ? '' : 's'})`;
+  }
+  $('statsAvg').textContent = total ? `${Math.round(solved * 100 / total)}% solved${bonusLine}` : '';
   $('stats').hidden = false;
 }
 

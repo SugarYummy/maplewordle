@@ -7,6 +7,7 @@
 - Bonus round: when the game ends the whole track unlocks. Guess which part of the fight it plays in, just for fun
 - Win on your first guess for a ⭐ and Mayrin's The Unblessed Cathedral -Descend-; get the bonus right too for a 💎 in the Archive
 - BGM Clip has its own volume bar next to Play, separate from the sound button
+- BGM Clip: Everyone's results has a Bonus row showing how many players got the bonus right
 - Share: a first-guess win shows just a ⭐ (a 💎 in BGM Clip if the bonus was right too)
 
 ## alpha v3.4 - 19 October 2026
