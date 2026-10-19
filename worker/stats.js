@@ -2,7 +2,12 @@
 //   GET  ?mode=normal&day=20736          -> { counts: { "1": 3, "4": 7, "X": 2 } }
 //   POST ?mode=normal&day=20736  {"score": 4 | "X"}   records one result, returns the same shape.
 // Story and Attack Animation have unlimited guesses, so they accept any guess count (capped at 999) and never "X".
-const MAX_GUESSES = { story: 999, normal: 6, hard: 5, extreme: 5, class: 5, anim: 999, bgm: 6 };   // class = Guess the Class, anim = Attack Animation, bgm = BGM Clip
+// class = Guess the Class, anim = Attack Animation, bgm = BGM Clip, sound = Sound Clip, map = Guess the Map (both coming soon).
+const MAX_GUESSES = { story: 999, normal: 6, hard: 5, extreme: 5, class: 5, anim: 999, bgm: 6, sound: 6, map: 6 };
+// Any other short lowercase mode name (a game added later) is accepted too, with up to 999 guesses and "X" for a loss,
+// so a new game's stats work without redeploying this Worker.
+const NEW_MODE = /^[a-z][a-z0-9]{0,11}$/;
+const maxFor = (mode) => MAX_GUESSES[mode] ?? (NEW_MODE.test(mode) ? 999 : 0);
 const UNLIMITED = new Set(['story', 'anim']);   // can't lose, so never "X"
 const FIRST_DAY = Date.UTC(2026, 9, 10) / 86400000;
 
@@ -23,14 +28,14 @@ export default {
     const mode = url.searchParams.get('mode');
     const day = Number(url.searchParams.get('day'));
     const today = Math.floor(Date.now() / 86400000);
-    if (!(mode in MAX_GUESSES) || !Number.isInteger(day) || day < FIRST_DAY || day > today + 1) {
+    if (!mode || !maxFor(mode) || !Number.isInteger(day) || day < FIRST_DAY || day > today + 1) {
       return json({ error: 'bad mode or day' }, 400);
     }
 
     if (request.method === 'POST') {
       let score;
       try { ({ score } = await request.json()); } catch { return json({ error: 'bad body' }, 400); }
-      const ok = (score === 'X' && !UNLIMITED.has(mode)) || (Number.isInteger(score) && score >= 1 && score <= MAX_GUESSES[mode]);
+      const ok = (score === 'X' && !UNLIMITED.has(mode)) || (Number.isInteger(score) && score >= 1 && score <= maxFor(mode));
       if (!ok) return json({ error: 'bad score' }, 400);
       await env.DB.prepare(
         'INSERT INTO results (mode, day, score, count) VALUES (?, ?, ?, 1) ' +

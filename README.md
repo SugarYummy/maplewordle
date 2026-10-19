@@ -45,7 +45,7 @@ poster image under `videos/anim/`, and records it in `data/animation.json`):
     python3 tools/add_clip.py "Hero" second-clip.mp4 --puzzle 3        # clip 2 for puzzle 3
 
 Classes added after launch: add `--since YYYY-MM-DD` so past days keep their answers. Puzzle #1 is `FIRST_DAY` in
-`animation.js`. The stats Worker needs the `anim` mode (`worker/stats.js`).
+`animation.js`.
 
 ## Adding a new game mode
 
@@ -53,3 +53,7 @@ Each game is its own page (like `index.html` and `class.html`). Put the same `#g
 the current game gets `class="on"`, the others link to their page (`onclick="location.href='class'"`), and ones that
 aren't ready are `disabled` with `<small>Coming soon</small>`. When a game goes live, replace its `disabled` button
 with a link on **every** page. The hover highlight comes from `style.css` automatically.
+
+Stats: the Worker (`worker/stats.js`) already accepts `sound` and `map` (6 guesses), and any other short lowercase
+mode name with up to 999 guesses, so a new game's "Everyone's results" work without redeploying it. Only redeploy
+if a game needs a different guess limit than that.
