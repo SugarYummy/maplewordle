@@ -14479,11 +14479,6 @@
    "file": "mf04f2e7b8"
   },
   {
-   "boss": "Limbo",
-   "title": "The Abyss of Truth B + A (mashup)",
-   "file": "macea923d5"
-  },
-  {
    "boss": "Akechi Mitsuhide",
    "title": "Silvery Wolf x3 (mashup)",
    "file": "ma176c70ad"
@@ -14520,6 +14515,12 @@
    "title": "Time Chaos x Time Chaos - Eerie, time-warp (mashup)",
    "file": "m39d096fca",
    "egg": "vonbon"
+  },
+  {
+   "boss": "Bellona",
+   "title": "Bellona - Phase 1 Normal x Insane, glitched (mashup)",
+   "file": "m2f5fcfd2c",
+   "egg": "bellona"
   }
  ]
 }

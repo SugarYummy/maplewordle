@@ -273,12 +273,13 @@ td.flip { animation: flip 0.5s ease both; }
 #mashupRow[hidden] { display: none; }
 #mashupPlay { font-family: inherit; font-size: 15px; padding: 6px 14px; border-radius: 4px; border: 1px solid rgba(0, 0, 0, 0.35); background: #fff; cursor: pointer; }
 /* BGM Clip Easter eggs: a glitched mashup fades the background to the boss's map and glitches the screen while it plays
-   (Malefic Star: Unglamoured Ruins; Limbo: Limbo's Subconscious (Light); Von Bon: Von Bon's Realm <Chaos>). */
+   (Malefic Star: Unglamoured Ruins; Limbo: Limbo's Subconscious (Light); Von Bon: Von Bon's Realm <Chaos>; Bellona: her fight map in Solatum). */
 body::before { content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: 0; transition: opacity 3s ease;
                background: center bottom / cover no-repeat; }
 body.egg-deepsea::before { opacity: 1; background-color: #0d1f2a; background-image: url("images/deepsea.webp"); }
 body.egg-limbo::before { opacity: 1; background-color: #3a3348; background-image: url("images/limbo.webp"); }
 body.egg-vonbon::before { opacity: 1; background-color: #2c4544; background-image: url("images/vonbon.webp"); }
+body.egg-bellona::before { opacity: 1; background-color: #23292a; background-image: url("images/bellona.webp"); }
 body.glitch::after { content: ''; position: fixed; inset: 0; z-index: 9; pointer-events: none; mix-blend-mode: overlay;
                      background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.18) 0 2px, transparent 2px 4px);
                      animation: glitchflash 1.7s steps(1) infinite; }
