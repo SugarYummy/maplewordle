@@ -1,0 +1,102 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maple Wordle - BGM Clip</title>
+<script src="move.js?v=1"></script>
+<link rel="stylesheet" href="style.css?v=36">
+</head>
+<body>
+<button id="archiveBtn" class="panel">Archive</button>
+<div id="archive" hidden>
+  <div class="panel">
+    <h2>Archive</h2>
+    <div id="archiveList"></div>
+    <p class="closebar"><button id="archiveClose">Close</button></p>
+  </div>
+</div>
+<div class="panel game">
+<h1>Maple Wordle</h1>
+<div id="games">
+  <button class="on" onclick="location.href='./'">Guess the Boss</button>
+  <button onclick="location.href='class'">Guess the Class</button>
+  <button disabled>Guess the Map<small>Coming soon</small></button>
+</div>
+<div id="subgames">
+  <button onclick="location.href='./'">Wordle</button>
+  <button class="on" data-new="bgmClip">BGM Clip</button>
+  <button disabled>Sound Clip<small>Coming soon</small></button>
+</div>
+<p id="puzzle"></p>
+<p><button id="today" hidden>Back to today</button></p>
+<p id="timer"></p>
+<div id="streak"></div>
+<p id="status"></p>
+<p><button id="share" hidden>Share</button></p>
+<div id="player">
+  <div id="track">
+    <span id="markerText"></span><span id="markerArrow">▼</span>
+    <div id="bar">
+      <div id="open"></div>
+      <div id="fill"></div>
+      <div id="ticks"></div>
+    </div>
+    <div id="tickLabels"></div>
+  </div>
+  <div id="controls">
+    <button id="play" title="Play / pause">▶&#xFE0E;</button>
+    <input id="bgmVol" type="range" min="0" max="100" title="BGM volume">
+  </div>
+</div>
+<div class="pickrow" id="pickrow">
+<div id="picker">
+  <input id="guess" placeholder="Search for a boss" autocomplete="off">
+  <div id="list" hidden></div>
+</div>
+<button id="skip">Skip</button>
+<button id="infoBtn" title="How to play">?</button>
+</div>
+<div id="bonus" hidden>
+  <h3 id="bonusTitle">Bonus: Where does this BGM play?</h3>
+  <p id="bonusHelp">The whole track is unlocked now. Click the bar to jump around.</p>
+  <p id="bonusAsk"><select id="bonusPick"></select> <button id="bonusGo">Guess</button></p>
+  <p id="bonusResult"></p>
+</div>
+<div id="rows"></div>
+<div id="stats" hidden>
+  <h3 id="statsTitle"></h3>
+  <div id="statsBars"></div>
+  <p id="statsAvg"></p>
+</div>
+</div>
+<footer class="panel">
+  Want to give any suggestions or feedback?<br>
+  <a href="https://discord.gg/f22H4UJ" target="_blank" rel="noopener">Join the Discord!</a>
+</footer>
+<div id="creditWrap">
+  <div id="clip-left" class="peekclip"><img src="images/peek/sato.png" alt=""></div>
+  <div id="clip-mid" class="peekclip"><img src="images/peek/elysia.png" alt=""></div>
+  <div id="clip-right" class="peekclip"><img src="images/peek/moeko.png" alt=""></div>
+  <div id="credit" class="panel">Made by Yuki with Love &lt;3</div>
+</div>
+<button id="version" class="panel">alpha v4.0</button>
+<div id="info" hidden>
+  <div class="panel">
+    <h2>How to play</h2>
+    <div id="infoBody"></div>
+    <p class="closebar"><button id="infoClose">Close</button></p>
+  </div>
+</div>
+<div id="changelog" hidden>
+  <div class="panel">
+    <h2>Changelog</h2>
+    <div id="changelogBody"></div>
+    <p class="closebar"><button id="changelogClose">Close</button></p>
+  </div>
+</div>
+<script src="fx.js?v=28"></script>
+<script src="archive.js?v=4"></script>
+<script src="bgm.js?v=1"></script>
+</body>
+</html>

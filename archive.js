@@ -7,12 +7,15 @@
   const today = () => Math.floor(Date.now() / DAY_MS);
   const D = (y, m, d) => Date.UTC(y, m - 1, d) / DAY_MS;
   const TABS = [
-    { mode: 'story', label: 'Boss - Story', page: './', first: D(2026, 10, 10) },
-    { mode: 'normal', label: 'Boss - Normal', page: './', first: D(2026, 10, 10) },
-    { mode: 'hard', label: 'Boss - Hard', page: './', first: D(2026, 10, 10) },
-    { mode: 'extreme', label: 'Boss - Extreme', page: './', first: D(2026, 10, 10) },
-    { mode: 'class', label: 'Class - Wordle', page: 'class', first: D(2026, 10, 11) },
-    { mode: 'anim', label: 'Class - Attack Animation', page: 'animation', first: D(2026, 10, 12) },
+    // row: which line of tabs it sits on (Boss Wordle modes / Boss clips / Class)
+    { mode: 'story', label: 'Boss - Story', page: './', first: D(2026, 10, 10), row: 0 },
+    { mode: 'normal', label: 'Boss - Normal', page: './', first: D(2026, 10, 10), row: 0 },
+    { mode: 'hard', label: 'Boss - Hard', page: './', first: D(2026, 10, 10), row: 0 },
+    { mode: 'extreme', label: 'Boss - Extreme', page: './', first: D(2026, 10, 10), row: 0 },
+    { mode: 'bgm', label: 'Boss - BGM Clip', page: 'bgm', first: D(2026, 10, 20), row: 1 },
+    { mode: 'sound', label: 'Boss - Sound Clip', soon: true, row: 1 },   // coming soon: shown, can't be opened
+    { mode: 'class', label: 'Class - Wordle', page: 'class', first: D(2026, 10, 11), row: 2 },
+    { mode: 'anim', label: 'Class - Attack Animation', page: 'animation', first: D(2026, 10, 12), row: 2 },
   ];
   const $ = (id) => document.getElementById(id);
   const dateLabel = (d) => new Date(d * DAY_MS).toLocaleDateString(undefined, { timeZone: 'UTC', month: 'short', day: 'numeric', year: 'numeric' });
@@ -27,16 +30,19 @@
     return n ? `Played (${n} guess${n === 1 ? '' : 'es'})` : 'Not played';
   }
   function open(mode) {
-    const t = TABS.find((x) => x.mode === mode) || TABS[0];
+    const t = TABS.find((x) => x.mode === mode && !x.soon) || TABS[0];
     let tabs = $('archiveTabs');
     if (!tabs) { tabs = document.createElement('div'); tabs.id = 'archiveTabs'; $('archiveList').before(tabs); }
     tabs.innerHTML = '';
+    const rows = [];
     for (const x of TABS) {
+      const row = rows[x.row] ??= tabs.appendChild(Object.assign(document.createElement('div'), { className: 'tabrow' }));
       const b = document.createElement('button');
       b.textContent = x.label;
       b.className = x.mode === t.mode ? 'on' : '';
-      b.addEventListener('click', () => open(x.mode));
-      tabs.appendChild(b);
+      if (x.soon) { b.disabled = true; b.title = 'Coming soon'; }
+      else b.addEventListener('click', () => open(x.mode));
+      row.appendChild(b);
     }
     const list = $('archiveList');
     list.innerHTML = '';
@@ -44,8 +50,9 @@
       const btn = document.createElement('button');
       const r = result(t, d);
       const firstTry = /^Won (1\/|in 1$)/.test(r);   // won on the first guess: a star and a gold glow
-      const star = firstTry ? ' ⭐' : '';
-      if (firstTry) btn.className = 'firsttry';
+      const diamond = r.endsWith('💎');   // BGM Clip: first guess and the bonus right (the result already ends in 💎)
+      const star = firstTry && !diamond ? ' ⭐' : '';
+      if (firstTry) btn.className = diamond ? 'diamond' : 'firsttry';   // 💎 glows blue instead of gold
       btn.textContent = `#${d - t.first + 1} - ${dateLabel(d)}${d === today() ? ' (today)' : ''} - ${r}${star}`;
       btn.addEventListener('click', () => {
         const here = window.archiveHere;

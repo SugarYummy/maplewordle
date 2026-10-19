@@ -182,6 +182,15 @@ function saveSliderVolume(v) {
   if (master) master.gain.value = v / 50;   // also changes a sound that is playing now
 }
 
+// Result sounds playing (or about to), so stopResultSounds() can cut them off (BGM Clip does when you press Play).
+const resultPlaying = new Set();
+let resultGen = 0;
+function stopResultSounds() {
+  resultGen++;
+  for (const src of resultPlaying) { try { src.stop(); } catch {} }
+  resultPlaying.clear();
+}
+
 // Call during the click / Enter that ends the game: browsers only allow sound that starts from a user action.
 // Starts downloading the sound right away and plays it after `delay` ms (when the cards have flipped).
 // `file` picks a different track (a key of SOUNDS); default is the win / lose track.
@@ -199,7 +208,9 @@ function resultSound(won, delay, file) {
   const ctx = audioCtx;
   const ready = fetch(SOUNDS[file] || (won ? SOUNDS.win : SOUNDS.lose)).then((r) => r.arrayBuffer()).then((b) => ctx.decodeAudioData(b));
   const due = Date.now() + delay;
+  const gen = resultGen;
   ready.then((buffer) => {
+    if (gen !== resultGen) return;   // stopped before it started
     const start = ctx.currentTime + Math.max(0, due - Date.now()) / 1000;
     const gain = ctx.createGain();
     const volume = (SOUND_LOUDER[file] ?? SOUND_VOLUME) * (PHONE ? 2 : 1);
@@ -212,6 +223,8 @@ function resultSound(won, delay, file) {
     src.connect(gain).connect(master);
     src.start(start);
     src.stop(start + len + SOUND_FADE);
+    resultPlaying.add(src);
+    src.onended = () => resultPlaying.delete(src);
   }).catch(() => {});
 }
 
@@ -269,3 +282,17 @@ function resultSound(won, delay, file) {
   box.append(btn, slider, tip);
   document.body.appendChild(box);
 })();
+
+// "NEW" tag on a game tab (data-new="<key>"): shows until the date below, and goes away for good once you click that tab.
+const NEW_UNTIL = { bgmClip: Date.UTC(2026, 9, 26) };   // BGM Clip: one week from Oct 19
+for (const btn of document.querySelectorAll('[data-new]')) {
+  const key = 'mapleWordle:seenNew:' + btn.dataset.new;
+  let seen = false;
+  try { seen = localStorage.getItem(key) === '1'; } catch {}
+  if (seen || !(Date.now() < (NEW_UNTIL[btn.dataset.new] ?? 0))) continue;
+  const tag = document.createElement('span');
+  tag.className = 'newtag';
+  tag.textContent = 'NEW';
+  btn.appendChild(tag);
+  btn.addEventListener('click', () => { try { localStorage.setItem(key, '1'); } catch {} tag.remove(); });
+}

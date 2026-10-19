@@ -200,7 +200,9 @@ td.flip { animation: flip 0.5s ease both; }
 #clips .cliptag { width: 100%; margin: 4px 0 0; }
 #clips .cliptag td { font-size: 15px; }
 #clips .cliptag tr[hidden] { display: none; }
-#archiveTabs { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; max-width: 460px; margin: 0 auto 8px; }
+#archiveTabs { display: flex; flex-direction: column; align-items: center; gap: 4px; max-width: 520px; margin: 0 auto 8px; }
+#archiveTabs .tabrow { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; }
+#archiveTabs button:disabled { opacity: 0.55; cursor: not-allowed; }
 
 /* Extreme twist: one column hidden for the day. */
 #twist { font-weight: bold; color: #8a1c1c; }
@@ -211,3 +213,57 @@ td.flip { animation: flip 0.5s ease both; }
 #board[data-hide="6"] tr > :nth-child(6) { display: none; }
 #board[data-hide="7"] tr > :nth-child(7) { display: none; }
 #board[data-hide="8"] tr > :nth-child(8) { display: none; }
+
+/* BGM Clip: one locked play bar. Checkpoints (0.5s ... 30s) are marked on it; the light grey part is what you've unlocked,
+   the green part what has played, and the label above follows the playhead. After the game it covers the whole track. */
+#player { width: min(420px, 100%); margin: 12px auto 4px; }
+#player[hidden], #bonus[hidden], #bonusAsk[hidden] { display: none; }
+#track { position: relative; padding-top: 30px; }
+#markerText, #markerArrow { position: absolute; transform: translateX(-50%); white-space: nowrap; pointer-events: none; line-height: 1.1; }
+#markerText { top: 0; font-size: 14px; }
+#markerArrow { top: 16px; font-size: 11px; }
+#bar { position: relative; height: 20px; border-radius: 4px; overflow: hidden; border: 1px solid rgba(0, 0, 0, 0.4);
+       background: #6f6f6f; touch-action: none; }   /* locked: dark grey */
+#open, #fill { position: absolute; top: 0; bottom: 0; left: 0; }
+#open { background: #d6d6d6; }   /* unlocked: light grey */
+#fill { background: #6c6; }
+#ticks i { position: absolute; top: 0; bottom: 0; width: 2px; margin-left: -1px; background: rgba(0, 0, 0, 0.5); }
+#tickLabels { position: relative; height: 16px; font-size: 11px; }
+#tickLabels span { position: absolute; top: 2px; transform: translateX(-50%); opacity: 0.5; }
+#tickLabels span.start { transform: translateX(-2px); }   /* near the left edge: start at the line */
+#tickLabels span.end { transform: translateX(-100%); }
+#tickLabels span.open { opacity: 1; font-weight: bold; }
+#track.seek #bar { cursor: pointer; }
+#controls { display: flex; justify-content: center; align-items: center; gap: 12px; margin-top: 6px; }
+#play { width: 44px; height: 40px; border-radius: 4px; border: 1px solid rgba(0, 0, 0, 0.35); background: #fff;
+        font-size: 18px; font-family: inherit; cursor: pointer; }
+#play:hover { background: #f2f2f2; }
+#bgmVol { width: 120px; accent-color: #e0a000; cursor: pointer; }
+#skip { flex: none; height: 34px; padding: 0 12px; border-radius: 4px; border: 1px solid rgba(0, 0, 0, 0.25);
+        background: rgba(255, 255, 255, 0.9); font-family: inherit; font-size: 15px; cursor: pointer; }
+#skip:hover { background: #fff; }
+#skip[hidden] { display: none; }
+#rows .gbar.grey { color: #222; }
+#bonus { margin: 12px auto; padding: 8px 16px 12px; max-width: 420px; border-radius: 12px; background: rgba(255, 255, 255, 0.6); }
+#bonus h3 { margin: 4px 0; }
+#bonus p { margin: 6px 0; }
+#bonusPick { font-family: inherit; font-size: 15px; padding: 4px; }
+#bonusGo { font-family: inherit; font-size: 15px; padding: 4px 12px; }
+#bonusResult.right { color: #1d6b1d; font-weight: bold; }
+#bonusResult.wrong { color: #8a1c1c; font-weight: bold; }
+
+/* BGM Clip 💎 (first guess + bonus right): blue instead of gold, on the game box and its Archive day. */
+#archiveList button.diamond { border-color: rgba(30, 140, 255, 0.9); background: rgba(170, 215, 255, 0.55); animation: rowglowblue 0.8s ease-in-out infinite alternate; }
+@keyframes rowglowblue { from { box-shadow: 0 0 2px 1px rgba(60, 170, 255, .5); } to { box-shadow: 0 0 10px 4px rgba(60, 170, 255, 1); } }
+.game.glow.diamond { animation: glowblue 0.8s ease-in-out infinite alternate; }
+.game.shake.glow.diamond { animation: shake 0.5s cubic-bezier(.36, .07, .19, .97) both, glowblue 0.8s ease-in-out infinite alternate; }
+@keyframes glowblue { to { box-shadow: 0 0 22px 8px rgba(80, 190, 255, .95), 0 0 60px 20px rgba(30, 130, 255, .55); } }
+@media (prefers-reduced-motion: reduce) {
+  #archiveList button.diamond { animation: none; box-shadow: 0 0 8px 3px rgba(60, 170, 255, .95); }
+  .game.glow.diamond { animation: none; box-shadow: 0 0 22px 8px rgba(80, 190, 255, .95), 0 0 60px 20px rgba(30, 130, 255, .55); } }
+
+/* Tiny "NEW" tag in the top left corner of a new game tab (fx.js). */
+#games button, #subgames button { position: relative; }
+.newtag { position: absolute; top: -6px; left: -6px; padding: 0 3px; border-radius: 3px; background: #e33; color: #fff;
+          font-size: 8px; font-weight: bold; line-height: 12px; letter-spacing: 0.3px; pointer-events: none; }
+.pickrow[hidden] { display: none; }
