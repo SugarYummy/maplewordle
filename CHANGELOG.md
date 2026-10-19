@@ -5,7 +5,7 @@
 - You start with 0.5 seconds of the clip; each wrong guess or Skip unlocks more (1s, 2s, 5s, 10s, then 30s)
 - The clip starts at the very beginning of the track or somewhere in the middle, and can be from any part of the fight: waiting room, phases, loot room
 - Bonus round: when the game ends the whole track unlocks. Guess which part of the fight it plays in, just for fun
-- Win on your first guess for a ⭐ and Mayrin's The Unblessed Cathedral -Descend-; get the bonus right too for a 💎 in the Archive
+- Win on your first guess for a ⭐, get the bonus right too for a 💎 in the Archive
 - BGM Clip has its own volume bar next to Play, separate from the sound button
 - Share: a first-guess win shows just a ⭐ (a 💎 in BGM Clip if the bonus was right too)
 - Added a hidden Easter egg :) Keep playing every day to potentially see it!
