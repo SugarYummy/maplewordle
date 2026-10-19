@@ -116,7 +116,7 @@ function addRow(cells, cls) {
     const td = document.createElement('td');
     if (text && text.card) td.appendChild(classCard(text.card, text.label));
     else td.textContent = text;
-    td.className = c || '';
+    td.className = text && text.card ? 'cardcell' : c || '';   // photo cards stay grey: right or wrong shows only in the other columns
     tr.appendChild(td);
   }
   $('rows').prepend(tr);

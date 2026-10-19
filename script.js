@@ -48,6 +48,18 @@ function hash(str) {
   for (let i = 0; i < str.length; i++) h = Math.imul(h ^ str.charCodeAt(i), 16777619);
   return h >>> 0;
 }
+// From Oct 20, 2026, every Extreme puzzle has a twist picked from the day: one fewer guess, or one column hidden.
+const TWIST_FROM = Date.UTC(2026, 9, 20) / 86400000;
+const TWIST_COLS = ['world', 'gender', 'region', 'phases', 'hp', 'level', 'difficulty'];
+const TWIST_NAME = { world: 'World', gender: 'Gender', region: 'Region', phases: 'Phases', hp: 'HP', level: 'Entry Lv', difficulty: 'Difficulty' };
+// Position of each column in the Extreme table (1 = Boss, 2 = Difficulty, ...), for hiding it.
+const TWIST_NTH = { difficulty: 2, world: 3, gender: 4, region: 5, phases: 6, hp: 7, level: 8 };
+function twistFor(m, d) {
+  if (m !== 'extreme' || d < TWIST_FROM) return null;
+  const h = hash(`twist|${d}`);
+  return h % 2 === 0 ? { fewer: true } : { hide: TWIST_COLS[(h >>> 1) % TWIST_COLS.length] };
+}
+const maxFor = (m, d) => data.attempts[m] == null ? null : data.attempts[m] - (twistFor(m, d)?.fewer ? 1 : 0);
 const schedules = {};
 function answerFor(m, d) {
   const p = data.pools[m === 'story' ? 'normal' : m];
@@ -121,7 +133,7 @@ function addRow(cells, cls) {
     const td = document.createElement('td');
     if (text && text.card) td.appendChild(bossCard(text.card, text.label));
     else td.textContent = text;
-    td.className = c;
+    td.className = text && text.card ? 'cardcell' : c;   // photo cards stay grey: right or wrong shows only in the other columns
     tr.appendChild(td);
   }
   $('rows').prepend(tr);
@@ -201,8 +213,12 @@ function start(d) {
   answer = answerFor(mode, day);
   $('puzzle').textContent = `Puzzle #${day - FIRST_DAY + 1} (${dateLabel(day)})` + (live ? '' : ' - Archive');
   $('today').hidden = live;
-  maxGuesses = data.attempts[mode];
+  maxGuesses = maxFor(mode, day);
   $('diffHead').hidden = mode !== 'extreme';
+  const twist = twistFor(mode, day);
+  $('board').dataset.hide = twist?.hide ? TWIST_NTH[twist.hide] : '';
+  $('twist').hidden = !twist;
+  $('twist').textContent = !twist ? '' : twist.fewer ? `Today's twist: only ${maxGuesses} guesses` : `Today's twist: no ${TWIST_NAME[twist.hide]} column`;
   guesses = [];
   hints = loadHints();
   over = false;
@@ -440,7 +456,7 @@ const dateLabel = (d) => new Date(d * DAY_MS).toLocaleDateString(undefined, { ti
 
 // Archive (the shared window is archive.js): this page's result for a mode and day.
 function resultFor(m, d) {
-  const saved = load(d, m), ans = answerFor(m, d), max = data.attempts[m];
+  const saved = load(d, m), ans = answerFor(m, d), max = maxFor(m, d);
   if (saved.includes(ans.name)) return `Won ${saved.length}/${max ?? '∞'}`;
   if (max != null && saved.length >= max) return 'Lost';
   return saved.length ? `In progress (${saved.length} guesses)` : 'Not played';
@@ -464,8 +480,9 @@ const MODE_NAME = { story: 'Story', normal: 'Normal', hard: 'Hard', extreme: 'Ex
 function shareText() {
   const won = guesses.includes(answer.name);
   const score = (won ? guesses.length : 'X') + '/' + (maxGuesses ?? '∞');
+  const hide = twistFor(mode, day)?.hide, skip = hide ? TWIST_NTH[hide] - 1 : -1;   // leave a hidden column out of the grid too
   const grid = guesses.map((name) =>
-    columnOrder(guessCells(pool.find((e) => e.name === name))).map(([, c]) => EMOJI[c]).join(''));
+    columnOrder(guessCells(pool.find((e) => e.name === name))).filter((_, i) => i !== skip).map(([, c]) => EMOJI[c]).join(''));
   const hintNote = mode === 'story' ? ` (${hints.length} hint${hints.length === 1 ? '' : 's'})` : '';
   return [`Maple Wordle #${day - FIRST_DAY + 1} (${MODE_NAME[mode]}) ${score}${hintNote}`, ...grid, 'https://ima.moe/maplewordle/'].join('\n');
 }
@@ -624,6 +641,7 @@ function infoHtml(m) {
     'Unknown = red with no arrow (no data for it yet).',
     'Seasonal and KMS-only bosses can appear.',
     ...(m === 'extreme' ? ['You also guess the difficulty. Hard = Chaos and Extreme = Hell count as the same.',
+                           'Every day has a twist: either one fewer guess (4), or one column is hidden.',
                            'Unreleased, removed and special bosses can appear.'] : []),
     ...(m === 'story' ? ['A hint unlocks every 3 guesses.'] : []),
     'The <b>Best so far</b> row shows your best clue for each column.',

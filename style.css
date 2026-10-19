@@ -73,6 +73,7 @@ table { border-collapse: collapse; margin: 8px auto; }
 .statrow.mine .label { font-weight: bold; }
 #statsAvg { white-space: pre-line; }
 .grey { background: #9a9a9a; }
+td.cardcell { background: #b9bdc6; }
 .bestrow td { border-bottom: 3px solid #333; }
 .bestrow .best { font-weight: bold; background: rgba(255, 255, 255, 0.7); }
 .hintrow .card .noimg { font-size: 22px; }
@@ -200,3 +201,13 @@ td.flip { animation: flip 0.5s ease both; }
 #clips .cliptag td { font-size: 15px; }
 #clips .cliptag tr[hidden] { display: none; }
 #archiveTabs { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; max-width: 460px; margin: 0 auto 8px; }
+
+/* Extreme twist: one column hidden for the day. */
+#twist { font-weight: bold; color: #8a1c1c; }
+#board[data-hide="2"] tr > :nth-child(2) { display: none; }
+#board[data-hide="3"] tr > :nth-child(3) { display: none; }
+#board[data-hide="4"] tr > :nth-child(4) { display: none; }
+#board[data-hide="5"] tr > :nth-child(5) { display: none; }
+#board[data-hide="6"] tr > :nth-child(6) { display: none; }
+#board[data-hide="7"] tr > :nth-child(7) { display: none; }
+#board[data-hide="8"] tr > :nth-child(8) { display: none; }

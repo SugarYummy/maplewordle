@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Maple Wordle</title>
 <script src="move.js?v=1"></script>
-<link rel="stylesheet" href="style.css?v=33">
+<link rel="stylesheet" href="style.css?v=34">
 </head>
 <body>
 <button id="archiveBtn" class="panel">Archive</button>
@@ -48,8 +48,9 @@
 <button id="infoBtn" title="How to play">?</button>
 </div>
 <button id="hint" hidden>Hint</button>
+<p id="twist" hidden></p>
 <div class="table-wrap">
-<table>
+<table id="board">
   <thead><tr><th>Boss</th><th id="diffHead" hidden>Difficulty</th><th>World</th><th>Gender</th><th>Region</th><th>Phases</th><th>HP</th><th>Entry Lv</th></tr></thead>
   <tbody id="rows"></tbody>
 </table>
@@ -70,7 +71,7 @@
   <div id="clip-right" class="peekclip"><img src="images/peek/moeko.png" alt=""></div>
   <div id="credit" class="panel">Made by Yuki with Love &lt;3</div>
 </div>
-<button id="version" class="panel">alpha v3.2</button>
+<button id="version" class="panel">alpha v3.3</button>
 <div id="info" hidden>
   <div class="panel">
     <h2>How to play</h2>
@@ -87,6 +88,6 @@
 </div>
 <script src="fx.js?v=26"></script>
 <script src="archive.js?v=3"></script>
-<script src="script.js?v=54"></script>
+<script src="script.js?v=55"></script>
 </body>
 </html>

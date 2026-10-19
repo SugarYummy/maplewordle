@@ -1,5 +1,11 @@
 # Maple Wordle changelog
 
+## alpha v3.3 - 19 October 2026
+- Extreme is harder: from October 20, every day has a twist. Either you get one fewer guess (4), or one column is hidden
+- Photo cards stay grey in Guess the Boss and Guess the Class Wordle, so only the other columns show if you're right
+- Guess the Boss has a new Sound Clip tab (coming soon)
+- Attack Animation: lots of new classes, thank you Pigoo!
+
 ## alpha v3.2 - 12 October 2026
 - Meilin is now called Mayrin, her English name confirmed at MapleFest 2026
 - Extreme: added Limbo (Extreme) and Baldrix (Extreme) from KMST (test server). Their HP isn't known yet, so it shows as 45Q+ and 50Q+
