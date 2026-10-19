@@ -141,7 +141,7 @@ async function decode(id, raw) {
 }
 async function play() {
   stopResultSounds();   // the win / lose music stops so you can listen again
-  if (mashupAudio) { mashupAudio.pause(); $('mashupPlay').textContent = '▶\uFE0E Play the mashup'; }
+  if (mashupAudio) { mashupAudio.pause(); $('mashupPlay').textContent = '▶\uFE0E Play the mashup'; glitch(false); }
   ensureCtx();
   audio.ctx.resume();
   const id = audio.id;
@@ -394,9 +394,9 @@ function renderEnd() {
   document.querySelector('.game').classList.toggle('diamond', diamond());
   const box = $('bonus');
   box.hidden = !over;
+  stopMashup();
   if (!over) return;
   const b = answer.bonus;
-  stopMashup();
   $('mashupRow').hidden = b?.kind !== 'mashup';
   $('bonusAsk').hidden = !b || bonus != null;
   if (!b) {
@@ -431,22 +431,30 @@ function renderEnd() {
   }
 }
 // The mashup plays on its own little player in the bonus box (Play on the main bar stops it, and the other way round).
+// A mashup with an "egg" also changes the page while it plays: the background fades to that boss's map (and stays for
+// the day) and the screen glitches until the mashup stops.
 let mashupAudio = null;
+function glitch(on) { document.body.classList.toggle('glitch', on); }
 function stopMashup() {
   if (mashupAudio) { mashupAudio.pause(); mashupAudio = null; }
   $('mashupPlay').textContent = '▶\uFE0E Play the mashup';
+  glitch(false);
+  const egg = answer.bonus?.mashup?.egg;
+  for (const c of [...document.body.classList]) if (c.startsWith('egg-') && c !== `egg-${egg}`) document.body.classList.remove(c);
 }
 $('mashupPlay').addEventListener('click', () => {
-  if (mashupAudio && !mashupAudio.paused) { mashupAudio.pause(); $('mashupPlay').textContent = '▶\uFE0E Play the mashup'; return; }
+  if (mashupAudio && !mashupAudio.paused) { mashupAudio.pause(); $('mashupPlay').textContent = '▶\uFE0E Play the mashup'; glitch(false); return; }
   pause();
   stopResultSounds();
+  const m = answer.bonus.mashup;
   if (!mashupAudio) {
-    mashupAudio = new Audio(`audio/bgm/${answer.bonus.mashup.file}.mp3`);
-    mashupAudio.addEventListener('ended', () => { $('mashupPlay').textContent = '▶\uFE0E Play the mashup'; });
+    mashupAudio = new Audio(`audio/bgm/${m.file}.mp3`);
+    mashupAudio.addEventListener('ended', () => { $('mashupPlay').textContent = '▶\uFE0E Play the mashup'; glitch(false); });
   }
   mashupAudio.volume = Math.min(1, bgmVolume() / 50);
   mashupAudio.play().catch(() => {});
   $('mashupPlay').textContent = '❚❚ Pause the mashup';
+  if (m.egg) { document.body.classList.add(`egg-${m.egg}`); glitch(true); }
 });
 $('bonusGo').addEventListener('click', () => {
   const pick = $('bonusPick').value;

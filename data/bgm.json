@@ -1,5 +1,5 @@
 {
- "_about": "BGM Clip data, built from the confirmed Boss BGM checklist. bosses: every boss you can guess, in checklist order; areas: where each track plays, in the order the bonus round lists them (a boss without areas can be guessed but is never the answer). tracks: len in seconds; starts = whole seconds a random-start day may begin at; loop = shorter than 30 s, so it repeats. mashups: bonus for bosses with only one BGM: guess whose mashup it is (one guess).",
+ "_about": "BGM Clip data, built from the confirmed Boss BGM checklist. bosses: every boss you can guess, in checklist order; areas: where each track plays, in the order the bonus round lists them (a boss without areas can be guessed but is never the answer). tracks: len in seconds; starts = whole seconds a random-start day may begin at; loop = shorter than 30 s, so it repeats. mashups: bonus for bosses with only one BGM: guess whose mashup it is (one guess). egg: a hidden extra when the mashup plays.",
  "bosses": [
   {
    "name": "Zakum",
@@ -14502,6 +14502,18 @@
    "boss": "Damien",
    "title": "Demian Spine + The Tragic Fate of Demian (mashup)",
    "file": "m3e746d6d0"
+  },
+  {
+   "boss": "Malefic Star",
+   "title": "Pristine, Tender Illusion x Unveiled Deformity (mashup)",
+   "file": "m72b3d043a",
+   "egg": "deepsea"
+  },
+  {
+   "boss": "Limbo",
+   "title": "The Abyss of Truth A x B, glitched (mashup)",
+   "file": "m9015362f3",
+   "egg": "limbo"
   }
  ]
 }

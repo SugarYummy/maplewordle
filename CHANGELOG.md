@@ -7,9 +7,8 @@
 - Bonus round: when the game ends the whole track unlocks. Guess which part of the fight it plays in, just for fun
 - Win on your first guess for a ⭐ and Mayrin's The Unblessed Cathedral -Descend-; get the bonus right too for a 💎 in the Archive
 - BGM Clip has its own volume bar next to Play, separate from the sound button
-- BGM Clip: Everyone's results has a Bonus row showing how many players got the bonus right
-- BGM Clip: on a rare day, a boss with only one BGM gets a mashup bonus instead: guess whose BGM mashup it is, one guess
 - Share: a first-guess win shows just a ⭐ (a 💎 in BGM Clip if the bonus was right too)
+- Added a hidden Easter egg :) Keep playing every day to potentially see it!
 
 ## alpha v3.4 - 19 October 2026
 - Extreme is harder: from October 20, every day has a twist. Either you get one fewer guess (4), or one column is hidden
