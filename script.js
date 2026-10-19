@@ -484,7 +484,8 @@ function shareText() {
   const grid = guesses.map((name) =>
     columnOrder(guessCells(pool.find((e) => e.name === name))).filter((_, i) => i !== skip).map(([, c]) => EMOJI[c]).join(''));
   const hintNote = mode === 'story' ? ` (${hints.length} hint${hints.length === 1 ? '' : 's'})` : '';
-  return [`Maple Wordle #${day - FIRST_DAY + 1} (${MODE_NAME[mode]}) ${score}${hintNote}`, ...grid, 'https://ima.moe/maplewordle/'].join('\n');
+  const lines = won && guesses.length === 1 ? ['⭐'] : grid;   // first-guess win: just a star
+  return [`Maple Wordle #${day - FIRST_DAY + 1} (${MODE_NAME[mode]}) ${score}${hintNote}`, ...lines, 'https://ima.moe/maplewordle/'].join('\n');
 }
 
 function share() {

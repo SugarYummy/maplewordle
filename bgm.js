@@ -537,9 +537,12 @@ const closeArchive = () => { $('archive').hidden = true; };
 // ---- Share ----
 
 function shareText() {
-  const grid = guesses.map((n) => !n ? '⬛' : isRight(n) ? '🟩' : isClose(n) ? '🟨' : '🟥').join('') + '⬜'.repeat(MAX - guesses.length);
   const right = answer.boss.areas.filter((a) => a.track === answer.track).map((a) => a.label);
-  const extra = bonus == null ? '' : `\nBonus ${right.includes(bonus) ? '✅' : '❌'}`;
+  const first = won() && guesses.length === 1;
+  // First-guess win: just a star, or just a diamond if the bonus was right too.
+  const grid = first ? (right.includes(bonus) && hasBonus(answer.boss) ? '💎' : '⭐')
+    : guesses.map((n) => !n ? '⬛' : isRight(n) ? '🟩' : isClose(n) ? '🟨' : '🟥').join('') + '⬜'.repeat(MAX - guesses.length);
+  const extra = bonus == null || grid === '💎' ? '' : `\nBonus ${right.includes(bonus) ? '✅' : '❌'}`;
   return [`Maple Wordle - BGM Clip #${day - FIRST_DAY + 1} ${won() ? guesses.length : 'X'}/${MAX}`,
     grid + extra, 'https://ima.moe/maplewordle/bgm'].join('\n');
 }

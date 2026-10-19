@@ -365,7 +365,9 @@ const closeArchive = () => { $('archive').hidden = true; };
 // ---- Share ----
 
 function shareText() {
-  const grid = guesses.map((n) => n === answer.name ? '🟩' : '🟥').join('');
+  // First-guess win: just a star. Otherwise one square per guess, topped up with ⬜ to 6 (unlimited guesses, so more than 6 just shows them all).
+  const grid = guesses.length === 1 && guesses[0] === answer.name ? '⭐'
+    : guesses.map((n) => n === answer.name ? '🟩' : '🟥').join('') + '⬜'.repeat(Math.max(0, 6 - guesses.length));
   return [`Maple Wordle - Attack Animation #${day - FIRST_DAY + 1} ${guesses.length} guess${guesses.length === 1 ? '' : 'es'}`,
     grid, 'https://ima.moe/maplewordle/animation'].join('\n');
 }

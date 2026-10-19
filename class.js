@@ -372,7 +372,8 @@ const EMOJI = { green: '🟩', yellow: '🟨', red: '🟥' };
 function shareText() {
   const score = (guesses.includes(answer.name) ? guesses.length : 'X') + '/' + maxGuesses;
   const grid = guesses.map((n) => guessCells(byName(n)).map(([, c]) => EMOJI[c]).join(''));
-  return [`Maple Wordle - Guess the Class #${day - FIRST_DAY + 1} ${score}`, ...grid, 'https://ima.moe/maplewordle/class'].join('\n');
+  const lines = guesses.length === 1 && guesses[0] === answer.name ? ['⭐'] : grid;   // first-guess win: just a star
+  return [`Maple Wordle - Guess the Class #${day - FIRST_DAY + 1} ${score}`, ...lines, 'https://ima.moe/maplewordle/class'].join('\n');
 }
 function share() {
   const text = shareText();
