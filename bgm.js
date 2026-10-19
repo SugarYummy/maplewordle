@@ -61,7 +61,27 @@ function answerFor(d) {
   const start = h % 2 ? t.starts[(h >>> 1) % t.starts.length] : 0;
   // Some tracks play in more than one boss fight: the other boss shows yellow (close, but not a win).
   const owners = bosses.filter((b) => b.areas.some((a) => a.track === track)).map((b) => b.name);
-  return { name: boss.name, boss, track, t, start, owners };
+  const ans = { name: boss.name, boss, track, t, start, owners };
+  ans.bonus = bonusFor(ans, d);
+  return ans;
+}
+// The bonus round. A boss with 2+ BGMs: which part of the fight does it play in (any part with that track is right).
+// A boss with one BGM usually has none, but each mashup in data/bgm.json "mashups" shows up on one of those days per
+// cycle (a cycle is as many days as there are entries): guess whose mashup it is, one guess.
+function bonusFor(ans, d) {
+  if (hasBonus(ans.boss)) {
+    return { kind: 'area', right: ans.boss.areas.filter((a) => a.track === ans.track).map((a) => a.label) };
+  }
+  const mashups = data.mashups || [];
+  if (!mashups.length) return null;
+  const cycle = Math.floor((d - FIRST_DAY) / pool.length), from = FIRST_DAY + cycle * pool.length;
+  const quiet = [];   // this cycle's one-BGM days, in a shuffled order
+  for (let x = from; x < from + pool.length; x++) if (!hasBonus(entryFor(x).boss)) quiet.push(x);
+  quiet.sort((x, y) => hash(`${MODE}|mashup|${x}`) - hash(`${MODE}|mashup|${y}`));
+  const i = quiet.indexOf(d);
+  if (i < 0 || i >= mashups.length) return null;
+  const m = mashups[(i + cycle) % mashups.length];
+  return { kind: 'mashup', mashup: m, right: [m.boss] };
 }
 const isRight = (name) => name === answer.name;
 const isClose = (name) => !isRight(name) && answer.owners.includes(name);   // same track, other boss
@@ -121,6 +141,7 @@ async function decode(id, raw) {
 }
 async function play() {
   stopResultSounds();   // the win / lose music stops so you can listen again
+  if (mashupAudio) { mashupAudio.pause(); $('mashupPlay').textContent = '▶\uFE0E Play the mashup'; }
   ensureCtx();
   audio.ctx.resume();
   const id = audio.id;
@@ -366,8 +387,7 @@ function guess(name) {
 // Bonus round only for bosses with more than one BGM (every part of the fight is listed, even ones sharing a track).
 const hasBonus = (boss) => new Set(boss.areas.map((a) => a.track)).size > 1;
 // First guess + bonus right: the game box glows blue (diamond) instead of gold.
-const diamond = () => over && guesses.length === 1 && won() && bonus != null &&
-  answer.boss.areas.some((a) => a.track === answer.track && a.label === bonus);
+const diamond = () => over && guesses.length === 1 && won() && bonus != null && !!answer.bonus?.right.includes(bonus);
 function renderEnd() {
   drawTicks();
   drawBar();
@@ -375,30 +395,59 @@ function renderEnd() {
   const box = $('bonus');
   box.hidden = !over;
   if (!over) return;
-  const labels = [...new Set(answer.boss.areas.map((a) => a.label))];
-  const right = answer.boss.areas.filter((a) => a.track === answer.track).map((a) => a.label);
-  // A boss with only one BGM has nothing to tell apart: no bonus, just the whole track.
-  const noBonus = !hasBonus(answer.boss);
-  $('bonusTitle').textContent = noBonus ? 'The whole track is unlocked' : 'Bonus: Where does this BGM play?';
-  $('bonusHelp').textContent = noBonus ? 'Click the bar to jump around.' : 'The whole track is unlocked now. Click the bar to jump around.';
-  $('bonusAsk').hidden = noBonus || bonus != null;
-  if (noBonus) {
+  const b = answer.bonus;
+  stopMashup();
+  $('mashupRow').hidden = b?.kind !== 'mashup';
+  $('bonusAsk').hidden = !b || bonus != null;
+  if (!b) {
+    $('bonusTitle').textContent = 'The whole track is unlocked';
+    $('bonusHelp').textContent = 'Click the bar to jump around.';
     $('bonusResult').textContent = `The track is "${answer.t.title}".`;
     $('bonusResult').className = '';
-  } else if (bonus == null) {
+    return;
+  }
+  const mash = b.kind === 'mashup';
+  $('bonusTitle').textContent = mash ? 'Bonus: Whose BGM mashup is this?' : 'Bonus: Where does this BGM play?';
+  $('bonusHelp').textContent = mash ? `Listen to the mashup and guess the boss. One guess only! (Today's track is unlocked above too.)`
+    : 'The whole track is unlocked now. Click the bar to jump around.';
+  if (bonus == null) {
     const sel = $('bonusPick');
     sel.innerHTML = '';
-    sel.appendChild(new Option('Pick a part of the fight…', ''));
-    for (const l of labels) sel.appendChild(new Option(l, l));
+    if (mash) {
+      sel.appendChild(new Option('Pick a boss…', ''));
+      for (const o of [...bosses].sort((x, y) => x.name.localeCompare(y.name))) sel.appendChild(new Option(o.name, o.name));
+    } else {
+      sel.appendChild(new Option('Pick a part of the fight…', ''));
+      for (const l of [...new Set(answer.boss.areas.map((a) => a.label))]) sel.appendChild(new Option(l, l));
+    }
     $('bonusResult').textContent = '';
     $('bonusResult').className = '';
   } else {
-    const ok = right.includes(bonus);
-    $('bonusResult').textContent = (ok ? `Correct! ` : `Wrong! You picked ${bonus}. `) +
-      `It plays in: ${right.join(', ')}. The track is "${answer.t.title}".`;
+    const ok = b.right.includes(bonus);
+    $('bonusResult').textContent = (ok ? 'Correct! ' : `Wrong! You picked ${bonus}. `) + (mash
+      ? `It's ${b.mashup.boss}'s BGM. Today's track was "${answer.t.title}".`
+      : `It plays in: ${b.right.join(', ')}. The track is "${answer.t.title}".`);
     $('bonusResult').className = ok ? 'right' : 'wrong';
   }
 }
+// The mashup plays on its own little player in the bonus box (Play on the main bar stops it, and the other way round).
+let mashupAudio = null;
+function stopMashup() {
+  if (mashupAudio) { mashupAudio.pause(); mashupAudio = null; }
+  $('mashupPlay').textContent = '▶\uFE0E Play the mashup';
+}
+$('mashupPlay').addEventListener('click', () => {
+  if (mashupAudio && !mashupAudio.paused) { mashupAudio.pause(); $('mashupPlay').textContent = '▶\uFE0E Play the mashup'; return; }
+  pause();
+  stopResultSounds();
+  if (!mashupAudio) {
+    mashupAudio = new Audio(`audio/bgm/${answer.bonus.mashup.file}.mp3`);
+    mashupAudio.addEventListener('ended', () => { $('mashupPlay').textContent = '▶\uFE0E Play the mashup'; });
+  }
+  mashupAudio.volume = Math.min(1, bgmVolume() / 50);
+  mashupAudio.play().catch(() => {});
+  $('mashupPlay').textContent = '❚❚ Pause the mashup';
+});
 $('bonusGo').addEventListener('click', () => {
   const pick = $('bonusPick').value;
   if (!pick || bonus != null || !over) return;
@@ -406,7 +455,7 @@ $('bonusGo').addEventListener('click', () => {
   save();
   renderEnd();
   noteResult();
-  sendBonus(answer.boss.areas.some((a) => a.track === answer.track && a.label === pick));
+  sendBonus(answer.bonus.right.includes(pick));
 });
 
 // ---- Boss picker (every boss, A-Z) ----
@@ -510,9 +559,9 @@ function renderStats(counts, mine, bonusCounts) {
   // Green if you got it right too.
   const right = bonusCounts?.right || 0, tried = right + (bonusCounts?.wrong || 0);
   let bonusLine = '';
-  if (hasBonus(answer.boss) && tried) {
+  if (answer.bonus && tried) {
     const pct = Math.round(right * 100 / tried);
-    const mineRight = bonus != null && answer.boss.areas.some((a) => a.track === answer.track && a.label === bonus);
+    const mineRight = bonus != null && answer.bonus.right.includes(bonus);
     const row = document.createElement('div');
     row.className = 'statrow bonusrow' + (mineRight ? ' mine' : '');
     row.innerHTML = `<span class="label">Bonus</span><span class="track"><span class="bar"></span></span><span class="pct"></span>`;
@@ -551,8 +600,7 @@ function resultFor(m, d) {
   const saved = load(d), ans = answerFor(d);
   const n = saved.g.length, w = saved.g.includes(ans.name);
   if (w) {
-    const right = ans.boss.areas.filter((a) => a.track === ans.track).map((a) => a.label);
-    return `Won ${n}/${MAX}` + (n === 1 && right.includes(saved.bonus) ? ' 💎' : '');
+    return `Won ${n}/${MAX}` + (n === 1 && ans.bonus?.right.includes(saved.bonus) ? ' 💎' : '');
   }
   if (n >= MAX) return 'Lost';
   return n ? `In progress (${n}/${MAX})` : 'Not played';
@@ -564,12 +612,12 @@ const closeArchive = () => { $('archive').hidden = true; };
 // ---- Share ----
 
 function shareText() {
-  const right = answer.boss.areas.filter((a) => a.track === answer.track).map((a) => a.label);
+  const ok = bonus != null && !!answer.bonus?.right.includes(bonus);
   const first = won() && guesses.length === 1;
   // First-guess win: just a star, or just a diamond if the bonus was right too.
-  const grid = first ? (right.includes(bonus) && hasBonus(answer.boss) ? '💎' : '⭐')
+  const grid = first ? (ok ? '💎' : '⭐')
     : guesses.map((n) => !n ? '⬛' : isRight(n) ? '🟩' : isClose(n) ? '🟨' : '🟥').join('') + '⬜'.repeat(MAX - guesses.length);
-  const extra = bonus == null || grid === '💎' ? '' : `\nBonus ${right.includes(bonus) ? '✅' : '❌'}`;
+  const extra = bonus == null || grid === '💎' ? '' : `\nBonus ${ok ? '✅' : '❌'}`;
   return [`Maple Wordle - BGM Clip #${day - FIRST_DAY + 1} ${won() ? guesses.length : 'X'}/${MAX}`,
     grid + extra, 'https://ima.moe/maplewordle/bgm'].join('\n');
 }
@@ -638,7 +686,7 @@ function openInfo() {
     'The clip starts either at the very beginning of the track or somewhere in the middle (50/50).',
     'The BGM can be from any part of the fight: the waiting room, any phase, the loot room and more.',
     'A few tracks play in two boss fights (Horntail and Balrog, Ursus and Inferno Wolf). Picking the other boss shows <b>yellow</b>: right track, wrong boss. It still counts as a miss.',
-    '<b>Bonus:</b> when the game is over the whole track unlocks (click the bar to jump around). Guess which part of the fight it plays in. It\'s just for fun and won\'t change your result. Bosses with only one BGM have no bonus.',
+    '<b>Bonus:</b> when the game is over the whole track unlocks (click the bar to jump around). Guess which part of the fight it plays in. It\'s just for fun and won\'t change your result. Bosses with only one BGM have no bonus, except on the rare day a <b>mashup</b> shows up instead: guess whose BGM mashup it is, with one guess.',
     'Win on your first guess for a ⭐ in the Archive. Get the bonus right too for a 💎.',
     'The volume bar next to Play is only for this game\'s BGM (separate from the sound button).',
     'Win streak resets when you lose.',
