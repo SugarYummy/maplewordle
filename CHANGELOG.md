@@ -7,7 +7,7 @@
 - BGM Clip mesos: Normal pays 50 / 40 / 30 / 20 / 10 / 5 / 2, Extreme now pays more: 100 / 80 / 60 / 40 / 20 / 10
 - Mesos: Boss Wordle and BGM Clip now only pay for your best mode each day, so you don't have to play every difficulty. Do better on another mode and you get the difference
 - Archive days now pay 10% of the mesos (rounded up). Already finished some Archive days? Open them from the Archive to collect
-- Weekends pay 2x mesos! Saturday and Sunday (UTC days, so Friday 5pm to Sunday 5pm Pacific), on that day's puzzles. Watch for the falling leaves
+- Weekends pay 2x mesos! Saturday and Sunday (Maple reset), on that day's puzzles. Watch for the falling leaves
 - The sound button is now a ⚙️ Settings button: sound on/off, volume, and the background effect on/off
 
 ## alpha v4.2 - 20 October 2026
