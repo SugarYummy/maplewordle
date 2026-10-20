@@ -235,6 +235,11 @@ function resultSound(won, delay, file) {
 // effect (the falling leaves on 2x weekends) on/off.
 const FX_KEY = 'mapleWordle:bgEffect';   // 'off' turns the background effect off; on by default
 const bgEffectOn = () => { try { return localStorage.getItem(FX_KEY) !== 'off'; } catch { return true; } };
+// Transparent box: 'on' takes away the main game box's frosted background (off by default).
+const CLEAR_KEY = 'mapleWordle:clearBox';
+const clearBox = () => { try { return localStorage.getItem(CLEAR_KEY) === 'on'; } catch { return false; } };
+const applyClear = () => document.body.classList.toggle('clearbox', clearBox());
+applyClear();
 (() => {
   const btn = document.createElement('button');
   btn.id = 'settingsBtn';
@@ -247,6 +252,8 @@ const bgEffectOn = () => { try { return localStorage.getItem(FX_KEY) !== 'off'; 
     const tip = (text) => `<button class="infotip" type="button" aria-label="What is this?" data-tip="${text}">i</button>`;
     body.innerHTML = `<div class="setrow"><span class="setlabel">Sound ${tip('The sound effects when a game ends (the win / lose music). The slider sets how loud they are. BGM Clip has its own volume next to Play.')}</span>` +
       '<button id="setMute"></button><input id="setVol" type="range" min="0" max="100"><span id="setVolPct"></span></div>' +
+      `<div class="setrow"><span class="setlabel">Transparent box ${tip('On: the main game box has no background at all, so you can see the whole background picture. Off: the usual frosted box.')}</span>` +
+      '<span class="seg"><button data-clear="on">On</button><button data-clear="off">Off</button></span></div>' +
       `<div class="setrow"><span class="setlabel">Background effect ${tip('Falling maple leaves in the background while 2x meso weekends are on.')}</span>` +
       '<span class="seg"><button data-fx="on">On</button><button data-fx="off">Off</button></span></div>' +
       `<div class="setrow"><span class="setlabel">Secret passcode ${tip('VIP access given to those who help make this website!')}</span>` +
@@ -281,6 +288,7 @@ const bgEffectOn = () => { try { return localStorage.getItem(FX_KEY) !== 'off'; 
       vol.disabled = muted();
       pct.textContent = vol.value + '%';
       for (const b of body.querySelectorAll('[data-fx]')) b.classList.toggle('on', (b.dataset.fx === 'on') === bgEffectOn());
+      for (const b of body.querySelectorAll('[data-clear]')) b.classList.toggle('on', (b.dataset.clear === 'on') === clearBox());
     };
     mute.addEventListener('click', () => {
       lsSet(muteKey, muted() ? '0' : '1');
@@ -289,6 +297,7 @@ const bgEffectOn = () => { try { return localStorage.getItem(FX_KEY) !== 'off'; 
     });
     vol.addEventListener('input', () => { saveSliderVolume(vol.value); show(); });
     for (const b of body.querySelectorAll('[data-fx]')) b.addEventListener('click', () => { lsSet(FX_KEY, b.dataset.fx); show(); leaves(); });
+    for (const b of body.querySelectorAll('[data-clear]')) b.addEventListener('click', () => { lsSet(CLEAR_KEY, b.dataset.clear); applyClear(); show(); });
     show();
   });
   document.body.appendChild(btn);

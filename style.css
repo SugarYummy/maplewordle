@@ -534,3 +534,5 @@ body.glitch .game.glow.rainbow { animation: glitchslice 2.3s steps(1) infinite; 
               conic-gradient(from var(--rb), #ff3c3c, #ffa01e, #ffe628, #3cd25a, #328cff, #aa50ff, #ff3c3c) border-box; }
 @media (prefers-reduced-motion: reduce) { .game.rainbow, .game.glow.rainbow, .game.rainbow::before, .game.rainbow::after, #archiveList button.rainbow { animation: none; } }
 #titlePick { font-family: inherit; font-size: 15px; padding: 4px; max-width: 100%; } #titleGo { font-family: inherit; } #titleHead { margin: 14px 0 4px; }
+/* Settings > Transparent box: the main game box has no background (borders and glows stay). */
+body.clearbox .game, body.clearbox .game.rainbow { background: none; backdrop-filter: none; -webkit-backdrop-filter: none; }
