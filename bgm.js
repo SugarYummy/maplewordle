@@ -5,7 +5,7 @@
 //     (World, Gender, Region, Phases, HP or Entry Lv) after the 3rd guess, and the Entry Lv on the 6th.
 //   Extreme (the original, from Oct 20): 0.5 s, 1 s, 2 s, 5 s, 10 s, 30 s, starting at 0:00 or a random point (50/50).
 // When the game is over the whole track unlocks for a bonus guess: which part of the fight it plays in.
-let data, bosses, pool, day, live, answer, guesses, bonus, over, matches, active;
+let data, bosses, pool, day, live, answer, guesses, bonus, title, over, matches, active;
 
 const $ = (id) => document.getElementById(id);
 
@@ -309,11 +309,20 @@ function guessRow(name) {
 
 const saveKey = (d = day) => `mapleWordle:${MODE}:${d}`;
 function load(d) {
-  try { const s = JSON.parse(localStorage.getItem(saveKey(d))); return { g: s?.g || [], bonus: s?.bonus ?? null }; } catch { return { g: [], bonus: null }; }
+  try { const s = JSON.parse(localStorage.getItem(saveKey(d))); return { g: s?.g || [], bonus: s?.bonus ?? null, title: s?.title ?? null }; }
+  catch { return { g: [], bonus: null, title: null }; }
 }
 function save() {
-  try { localStorage.setItem(saveKey(), JSON.stringify({ g: guesses, bonus })); } catch {}
+  try { localStorage.setItem(saveKey(), JSON.stringify({ g: guesses, bonus, title })); } catch {}
 }
+// Bonus 2 (from Oct 21, both modes): guess the track's title from every title we have, A-Z. The title stays hidden
+// everywhere until it's answered.
+const TITLE_FROM = Date.UTC(2026, 9, 21) / DAY_MS;
+// Not on mashup days: those already have their special bonus.
+const titleOnFor = (d, ans) => d >= TITLE_FROM && ans?.bonus?.kind !== 'mashup';
+const titleOn = () => titleOnFor(day, answer);
+const titleShown = () => !titleOn() || title != null;
+const titleRight = () => title != null && title === answer.t.title;
 
 function start(d) {
   live = d == null || d === today();
@@ -335,6 +344,7 @@ function start(d) {
   closeList();
   const saved = load(day);
   bonus = saved.bonus;
+  title = saved.title;
   for (const name of saved.g) if (!over) record(name);
   loadTrack();
   renderEnd();
@@ -352,7 +362,7 @@ function notOpenYet() {
   eggScene(null);
   mesoGain(MODE, day, false);
   firstTryGlow(false);
-  document.querySelector('.game').classList.remove('diamond');
+  document.querySelector('.game').classList.remove('diamond', 'rainbow');
   $('status').textContent = `${MODES[MODE].name} mode opens at the next reset!`;
 }
 
@@ -438,34 +448,46 @@ function guess(name) {
 
 // Bonus round only for bosses with more than one BGM (every part of the fight is listed, even ones sharing a track).
 const hasBonus = (boss) => new Set(boss.areas.map((a) => a.track)).size > 1;
-// First guess + bonus right: the game box glows blue (diamond) instead of gold.
-const diamond = () => over && guesses.length === 1 && won() && bonus != null && !!answer.bonus?.right.includes(bonus);
+// First-guess win with every bonus of the day right: 💎 (blue glow) with one bonus, 🌈 (rainbow glow) with both
+// Bonus 1 and Bonus 2. Days with no bonus at all stay ⭐.
+function badgeFor(d, ans, g, b, t) {
+  if (g.length !== 1 || g[0] !== ans.name) return '';
+  const tests = [];
+  if (ans.bonus) tests.push(b != null && ans.bonus.right.includes(b));
+  if (titleOnFor(d, ans)) tests.push(t != null && t === ans.t.title);
+  if (!tests.length || !tests.every(Boolean)) return '';
+  return tests.length === 2 ? '🌈' : '💎';
+}
+const badge = () => over ? badgeFor(day, answer, guesses, bonus, title) : '';
 function renderEnd() {
   renderHints();
   drawTicks();
   drawBar();
-  document.querySelector('.game').classList.toggle('diamond', diamond());
+  document.querySelector('.game').classList.toggle('diamond', badge() === '💎');
+  document.querySelector('.game').classList.toggle('rainbow', badge() === '🌈');
   const box = $('bonus');
   box.hidden = !over;
   // A bonus still waiting: a call-out under the result (click jumps to it) and a glow on the box, until it's answered.
-  const waiting = over && !!answer.bonus && bonus == null;
+  const waiting = over && ((!!answer.bonus && bonus == null) || (titleOn() && title == null));
   $('bonusCall').hidden = !waiting;
   box.classList.toggle('waiting', waiting);
   stopMashup();
   trackEgg();
   if (!over) return;
+  renderTitle();
   const b = answer.bonus;
+  const trackLine = titleShown() ? `The track is "${answer.t.title}".` : '';
   $('mashupRow').hidden = b?.kind !== 'mashup';
   $('bonusAsk').hidden = !b || bonus != null;
   if (!b) {
     $('bonusTitle').textContent = 'The whole track is unlocked';
     $('bonusHelp').textContent = 'Click the bar to jump around.';
-    $('bonusResult').textContent = `The track is "${answer.t.title}".`;
+    $('bonusResult').textContent = titleOn() ? '' : trackLine;
     $('bonusResult').className = '';
     return;
   }
-  const mash = b.kind === 'mashup';
-  $('bonusTitle').textContent = mash ? 'Bonus: Whose BGM mashup is this?' : 'Bonus: Where does this BGM play?';
+  const mash = b.kind === 'mashup', n = titleOn() ? ' 1' : '';
+  $('bonusTitle').textContent = mash ? `Bonus${n}: Whose BGM mashup is this?` : `Bonus${n}: Where does this BGM play?`;
   $('bonusHelp').textContent = mash ? `Listen to the mashup and guess the boss. One guess only! (Today's track is unlocked above too.)`
     : 'The whole track is unlocked now.\nClick the bar to jump around.';
   if (bonus == null) {
@@ -483,8 +505,8 @@ function renderEnd() {
   } else {
     const ok = b.right.includes(bonus);
     $('bonusResult').textContent = (ok ? 'Correct! ' : `Wrong! You picked ${bonus}. `) + (mash
-      ? `It's ${b.mashup.boss}'s BGM.\nToday's track was "${answer.t.title}".`
-      : `It plays in: ${b.right.join(', ')}.\nThe track is "${answer.t.title}".`);
+      ? `It's ${b.mashup.boss}'s BGM.` + (titleShown() ? `\nToday's track was "${answer.t.title}".` : '')
+      : `It plays in: ${b.right.join(', ')}.` + (titleShown() ? `\n${trackLine}` : ''));
     $('bonusResult').className = ok ? 'right' : 'wrong';
   }
 }
@@ -513,6 +535,35 @@ $('mashupPlay').addEventListener('click', () => {
   mashupAudio.play().catch(() => {});
   $('mashupPlay').textContent = '❚❚ Pause the mashup';
   if (m.egg && live) { document.body.classList.add(`egg-${m.egg}`); glitch(true); }   // the Easter egg is for today only, not the Archive
+});
+function renderTitle() {
+  $('titleBox').hidden = !titleOn();
+  if (!titleOn()) return;
+  $('titleHead').textContent = answer.bonus ? 'Bonus 2: What\'s this BGM called?' : 'Bonus: What\'s this BGM called?';
+  $('titleAsk').hidden = title != null;
+  const res = $('titleResult');
+  if (title == null) {
+    const sel = $('titlePick');
+    if (!sel.options.length) {
+      sel.appendChild(new Option('Pick a title…', ''));
+      for (const t of [...new Set(Object.values(data.tracks).map((x) => x.title))].sort((x, y) => x.localeCompare(y))) sel.appendChild(new Option(t, t));
+    }
+    sel.value = '';
+    res.textContent = '';
+    res.className = '';
+  } else {
+    res.textContent = (titleRight() ? 'Correct! ' : `Wrong! You picked "${title}". `) + `The track is "${answer.t.title}".`;
+    res.className = titleRight() ? 'right' : 'wrong';
+  }
+}
+$('titleGo').addEventListener('click', () => {
+  const pick = $('titlePick').value;
+  if (!pick || title != null || !over) return;
+  title = pick;
+  save();
+  renderEnd();
+  noteResult();
+  sendTitle(titleRight());
 });
 $('bonusGo').addEventListener('click', () => {
   const pick = $('bonusPick').value;
@@ -594,10 +645,23 @@ async function loadStats() {
     if (!res.ok) return;
     const { counts, bonus: bonusCounts } = await res.json();
     if (!sent) { try { localStorage.setItem(sentKey, '1'); } catch {} }
-    if (day === shownDay && MODE === shownMode && over) renderStats(counts, String(score), bonusCounts);
+    let titleCounts = null;
+    if (titleOn()) { try { titleCounts = (await (await fetch(`${STATS_URL}?mode=${titleMode()}&day=${day}`)).json()).bonus; } catch {} }
+    if (day === shownDay && MODE === shownMode && over) renderStats(counts, String(score), bonusCounts, titleCounts);
   } catch {}
 }
 // The bonus answer is sent once per day too (only when there was a bonus), then the results are drawn again with it.
+const titleMode = () => MODE === 'bgm' ? 'bgmtitle' : 'bgmntitle';
+async function sendTitle(ok) {
+  if (!STATS_URL || !live) return loadStats();
+  const sentKey = `mapleWordle:sentTitle:${MODE}:${day}`;
+  try { if (localStorage.getItem(sentKey) === '1') return loadStats(); } catch {}
+  try {
+    const res = await fetch(`${STATS_URL}?mode=${titleMode()}&day=${day}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ bonus: ok }) });
+    if (res.ok) { try { localStorage.setItem(sentKey, '1'); } catch {} }
+  } catch {}
+  loadStats();
+}
 async function sendBonus(ok) {
   if (!STATS_URL || !live) return loadStats();
   const sentKey = `mapleWordle:sentBonus:${MODE}:${day}`;
@@ -608,7 +672,7 @@ async function sendBonus(ok) {
   } catch {}
   loadStats();
 }
-function renderStats(counts, mine, bonusCounts) {
+function renderStats(counts, mine, bonusCounts, titleCounts) {
   const bars = [...Array.from({ length: maxGuesses() }, (_, i) => String(i + 1)), 'X'].map((k) => ({ key: k, n: counts[k] || 0 }));
   const total = bars.reduce((n, b) => n + b.n, 0);
   $('statsTitle').textContent = `Everyone's results - ${total} player${total === 1 ? '' : 's'}`;
@@ -639,6 +703,18 @@ function renderStats(counts, mine, bonusCounts) {
     row.querySelector('.pct').textContent = pct + '%';
     box.appendChild(row);
     bonusLine = `\nBonus: ${pct}% guessed it right (${tried} answer${tried === 1 ? '' : 's'})`;
+  }
+  // Title row (Bonus 2), the same way.
+  const tRight = titleCounts?.right || 0, tTried = tRight + (titleCounts?.wrong || 0);
+  if (titleOn() && tTried) {
+    const pct = Math.round(tRight * 100 / tTried);
+    const row = document.createElement('div');
+    row.className = 'statrow bonusrow' + (titleRight() ? ' mine' : '');
+    row.innerHTML = `<span class="label">Title</span><span class="track"><span class="bar"></span></span><span class="pct"></span>`;
+    row.querySelector('.bar').style.width = pct + '%';
+    row.querySelector('.pct').textContent = pct + '%';
+    box.appendChild(row);
+    bonusLine += `\nTitle: ${pct}% guessed it right (${tTried} answer${tTried === 1 ? '' : 's'})`;
   }
   $('statsAvg').textContent = total ? `${Math.round(solved * 100 / total)}% solved${bonusLine}` : '';
   $('stats').hidden = false;
@@ -671,7 +747,8 @@ function resultIn(d) {
   const saved = load(d), ans = answerFor(d);
   const n = saved.g.length, w = saved.g.includes(ans.name);
   if (w) {
-    return `Won ${n}/${maxGuesses()}` + (n === 1 && ans.bonus?.right.includes(saved.bonus) ? ' 💎' : '');
+    const b = badgeFor(d, ans, saved.g, saved.bonus, saved.title);
+    return `Won ${n}/${maxGuesses()}` + (b ? ' ' + b : '');
   }
   if (n >= maxGuesses()) return 'Lost';
   return n ? `In progress (${n}/${maxGuesses()})` : 'Not played';
@@ -682,6 +759,7 @@ const noteResult = () => {
     try { localStorage.setItem(`mapleWordle:result:${MODE}:${day}`, resultFor(MODE, day)); } catch {}
     earnGame(MODE, day, resultFor(MODE, day));   // mesos (fx.js): Archive days pay 10%
     if (bonus != null && answer.bonus?.right.includes(bonus)) earnBonus(MODE, day, !!answer.bonus.mashup?.egg);
+    if (titleRight()) earnBonus(MODE, day, false, 'title');
   }
   mesoGain(MODE, day, over);   // the spinning "+mesos" under the result (game + bonus)
   // Shop items this track's day finds by winning: "win" on the day itself, "winAny" from the Archive too (fx.js).
@@ -697,10 +775,11 @@ const closeArchive = () => { $('archive').hidden = true; };
 function shareText() {
   const ok = bonus != null && !!answer.bonus?.right.includes(bonus);
   const first = won() && guesses.length === 1;
-  // First-guess win: just a star, or just a diamond if the bonus was right too.
-  const grid = first ? (ok ? '💎' : '⭐')
+  // First-guess win: just a star, or just the diamond / rainbow if the bonuses were right too.
+  const grid = first ? (badge() || '⭐')
     : guesses.map((n) => !n ? '⬛' : isRight(n) ? '🟩' : isClose(n) ? '🟨' : '🟥').join('') + '⬜'.repeat(maxGuesses() - guesses.length);
-  const extra = bonus == null || grid === '💎' ? '' : `\nBonus ${ok ? '✅' : '❌'}`;
+  const extra = grid === '💎' || grid === '🌈' ? ''
+    : (bonus == null ? '' : `\nBonus ${ok ? '✅' : '❌'}`) + (title == null ? '' : `\nTitle ${titleRight() ? '✅' : '❌'}`);
   return [`Maple Wordle - BGM Clip (${MODES[MODE].name}) #${day - firstDay() + 1} ${won() ? guesses.length : 'X'}/${maxGuesses()}`,
     grid + extra, 'https://ima.moe/maplewordle/bgm'].join('\n');
 }
@@ -776,6 +855,7 @@ function openInfo() {
     ]),
     'The BGM can be from any part of the fight: the waiting room, any phase, the loot room and more.',
     'A few tracks play in two boss fights (Horntail and Balrog, Ursus and Inferno Wolf). Picking the other boss shows <b>yellow</b>: right track, wrong boss. It still counts as a miss.',
+    ...(titleOn() ? ["<b>Bonus 2:</b> guess the track's <b>title</b> from the list (every BGM title, A-Z). One guess, and it pays <b>+70 mesos</b>. The title stays hidden until you answer."] : []),
     '<b>Bonus:</b> when the game is over the whole track unlocks (click the bar to jump around). Guess which part of the fight it plays in. It\'s just for fun and won\'t change your result. ' +
       (newRules() ? 'Bosses with only one BGM have no bonus.' : 'Bosses with only one BGM have no bonus, except on the rare day a <b>mashup</b> shows up instead: guess whose BGM mashup it is, with one guess.'),
     'Win on your first guess for a ⭐ in the Archive. Get the bonus right too for a 💎.',

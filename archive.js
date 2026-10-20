@@ -52,8 +52,9 @@
       const r = result(t, d);
       const firstTry = /^Won (1\/|in 1$)/.test(r);   // won on the first guess: a star and a gold glow
       const diamond = r.endsWith('💎');   // BGM Clip: first guess and the bonus right (the result already ends in 💎)
-      const star = firstTry && !diamond ? ' ⭐' : '';
-      if (firstTry) btn.className = diamond ? 'diamond' : 'firsttry';   // 💎 glows blue instead of gold
+      const rainbow = r.endsWith('🌈');   // BGM Clip: first guess and both bonuses right
+      const star = firstTry && !diamond && !rainbow ? ' ⭐' : '';
+      if (firstTry) btn.className = rainbow ? 'rainbow' : diamond ? 'diamond' : 'firsttry';   // 💎 glows blue, 🌈 rainbow
       btn.textContent = `#${d - t.first + 1} - ${dateLabel(d)}${d === today() ? ' (today)' : ''} - ${r}${star}`;
       btn.addEventListener('click', () => {
         const here = window.archiveHere;

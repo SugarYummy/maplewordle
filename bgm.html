@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Maple Wordle - BGM Clip</title>
 <script src="move.js?v=1"></script>
-<link rel="stylesheet" href="style.css?v=70">
+<link rel="stylesheet" href="style.css?v=72">
 </head>
 <body>
 <button id="archiveBtn" class="panel">Archive</button>
@@ -77,6 +77,11 @@
   <p id="mashupRow" hidden><button id="mashupPlay">▶&#xFE0E; Play the mashup</button></p>
   <p id="bonusAsk"><select id="bonusPick"></select> <button id="bonusGo">Guess</button></p>
   <p id="bonusResult"></p>
+  <div id="titleBox" hidden>
+    <h3 id="titleHead">Bonus 2: What's this BGM called?</h3>
+    <p id="titleAsk"><select id="titlePick"></select> <button id="titleGo">Guess</button></p>
+    <p id="titleResult"></p>
+  </div>
 </div>
 <div id="rows"></div>
 <div id="stats" hidden>
@@ -110,8 +115,8 @@
     <p class="closebar"><button id="changelogClose">Close</button></p>
   </div>
 </div>
-<script src="fx.js?v=53"></script>
-<script src="archive.js?v=5"></script>
-<script src="bgm.js?v=21"></script>
+<script src="fx.js?v=54"></script>
+<script src="archive.js?v=6"></script>
+<script src="bgm.js?v=23"></script>
 </body>
 </html>

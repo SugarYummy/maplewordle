@@ -573,9 +573,12 @@ function earnGame(mode, day, result) {
   }
   earnMeso(`${mode}:${day}`, mode, day, what, amount, true);
 }
-function earnBonus(mode, day, special) {
-  if (day >= BEST_ONLY_FROM && groupOf(mode)?.some((m) => mesoLog().some((e) => e.key === `${m}+bonus:${day}`))) return;
-  earnMeso(`${mode}+bonus:${day}`, mode, day, 'Bonus', special ? MESO_SPECIAL : MESO_BONUS[mode] ?? 0);
+// kind 'bonus' (BGM Clip's Bonus 1 / mashup) or 'title' (Bonus 2, the track's title): each pays once a day.
+const MESO_TITLE = { bgmnormal: 70, bgm: 70 };
+function earnBonus(mode, day, special, kind = 'bonus') {
+  if (day >= BEST_ONLY_FROM && groupOf(mode)?.some((m) => mesoLog().some((e) => e.key === `${m}+${kind}:${day}`))) return;
+  const base = kind === 'title' ? MESO_TITLE[mode] ?? 0 : special ? MESO_SPECIAL : MESO_BONUS[mode] ?? 0;
+  earnMeso(`${mode}+${kind}:${day}`, mode, day, kind === 'title' ? 'Title' : 'Bonus', base);
 }
 const fmt = (n) => n.toLocaleString('en-US');
 // The meso count sits in the game box's top-right corner; clicking it opens a window like the Changelog.
@@ -652,7 +655,8 @@ function openMeso(page = 1) {
     const t = MESO_TABLE[mode];
     const cells = t.map((v, i) => `<td>${i + 1}${i === t.length - 1 ? '+' : ''}</td>`).join('');
     const vals = t.map((v) => `<td>${fmt(v)}</td>`).join('');
-    const bonus = MESO_BONUS[mode] ? `<p class="mesobonus">Bonus right: +${MESO_BONUS[mode]}</p>` : '';
+    const bonus = (MESO_BONUS[mode] ? `<p class="mesobonus">Bonus right: +${MESO_BONUS[mode]}` : '') +
+      (MESO_TITLE[mode] ? ` · Title right (Bonus 2): +${MESO_TITLE[mode]}` : '') + (MESO_BONUS[mode] ? '</p>' : '');
     return `<h3>${MESO_NAMES[mode]}${MESO_SOON.has(mode) ? ' <small>(coming soon)</small>' : ''}</h3>` +
       `<table class="mesotable"><tr><th>Guesses</th>${cells}</tr><tr><th>Mesos</th>${vals}</tr></table>${bonus}`;
   };
@@ -742,7 +746,7 @@ function mesoGain(mode, day, show) {
   const status = document.getElementById('status');
   if (!status) return;
   let el = document.getElementById('mesoGain');
-  const got = show ? mesoLog().filter((e) => e.key === `${mode}:${day}` || e.key === `${mode}+bonus:${day}`).reduce((s, e) => s + e.amount, 0) : 0;
+  const got = show ? mesoLog().filter((e) => [`${mode}:${day}`, `${mode}+bonus:${day}`, `${mode}+title:${day}`].includes(e.key)).reduce((s, e) => s + e.amount, 0) : 0;
   // Nothing for this mode because another mode already paid more today (Boss Wordle / BGM Clip): say so.
   const group = groupOf(mode), elsewhere = show && !got && group && day >= BEST_ONLY_FROM
     && mesoLog().some((e) => group.some((m) => m !== mode && e.key === `${m}:${day}`));

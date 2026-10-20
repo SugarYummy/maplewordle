@@ -4,6 +4,7 @@
 - BGM Clip now has two modes, each with its own BGM every day:
 - Normal (new): 7 guesses, and the clip always starts at the beginning. Each guess unlocks more: 1s, 5s, 10s, 30s, 60s, then the whole track. After your 3rd guess you get a hint (the boss's World, Gender, Region, Phases, HP or Entry Lv), and on your 6th you get its Entry Lv
 - Extreme: the original BGM Clip (0.5s to 30s, and the clip can start anywhere)
+- BGM Clip Bonus 2 (both modes): guess the track's title from the list for +70 mesos. Win on your first guess with both bonuses right for a 🌈
 - BGM Clip mesos: Normal pays 50 / 40 / 30 / 20 / 10 / 5 / 2, Extreme now pays more: 100 / 80 / 60 / 40 / 20 / 10
 - Mesos: Boss Wordle and BGM Clip now only pay for your best mode each day, so you don't have to play every difficulty. Do better on another mode and you get the difference
 - Archive days now pay 10% of the mesos (rounded up). Already finished some Archive days? Open them from the Archive to collect

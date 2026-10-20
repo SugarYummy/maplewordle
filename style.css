@@ -510,3 +510,25 @@ body.glitch .game.glow.diamond { animation: glitchslice 2.3s steps(1) infinite, 
 #vipBar { height: 14px; border-radius: 4px; background: #d6d6d6; border: 1px solid #999; overflow: hidden; cursor: pointer; }
 #vipFill { height: 100%; width: 0; background: #5bbf5b; }
 .setrow:has(.vipfield) { margin-bottom: 24px; }   /* room for "Wrong passcode" under the box */
+/* 🌈 (BGM Clip: first guess + both bonuses right): a rainbow glow on the game box and a rainbow border on the Archive row. */
+@keyframes rainbowglow {
+  0% { box-shadow: 0 0 18px 6px rgba(255, 60, 60, .9), 0 0 50px 16px rgba(255, 60, 60, .45); }
+  17% { box-shadow: 0 0 18px 6px rgba(255, 160, 30, .9), 0 0 50px 16px rgba(255, 160, 30, .45); }
+  33% { box-shadow: 0 0 18px 6px rgba(255, 230, 40, .9), 0 0 50px 16px rgba(255, 230, 40, .45); }
+  50% { box-shadow: 0 0 18px 6px rgba(60, 210, 90, .9), 0 0 50px 16px rgba(60, 210, 90, .45); }
+  67% { box-shadow: 0 0 18px 6px rgba(50, 140, 255, .9), 0 0 50px 16px rgba(50, 140, 255, .45); }
+  83% { box-shadow: 0 0 18px 6px rgba(170, 80, 255, .9), 0 0 50px 16px rgba(170, 80, 255, .45); }
+  100% { box-shadow: 0 0 18px 6px rgba(255, 60, 60, .9), 0 0 50px 16px rgba(255, 60, 60, .45); }
+}
+.game.glow.rainbow { animation: rainbowglow 3s linear infinite; }
+.game.shake.glow.rainbow { animation: shake 0.5s cubic-bezier(.36, .07, .19, .97) both, rainbowglow 3s linear infinite; }
+body.glitch .game.glow.rainbow { animation: glitchslice 2.3s steps(1) infinite, rainbowglow 3s linear infinite; }
+#archiveList button.rainbow { border: 2px solid transparent; animation: none;
+  background: linear-gradient(rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.75)) padding-box,
+              linear-gradient(90deg, #ff3c3c, #ffa01e, #ffe628, #3cd25a, #328cff, #aa50ff, #ff3c3c) border-box;
+  background-size: 100% 100%, 200% 100%; animation: rainbowrow 3s linear infinite; }
+@keyframes rainbowrow { to { background-position: 0 0, 200% 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .game.glow.rainbow, #archiveList button.rainbow { animation: none; }
+  .game.glow.rainbow { box-shadow: 0 0 18px 6px rgba(170, 80, 255, .8), 0 0 50px 16px rgba(50, 140, 255, .45); } }
+#titlePick { font-family: inherit; font-size: 15px; padding: 4px; max-width: 100%; } #titleGo { font-family: inherit; } #titleHead { margin: 14px 0 4px; }
