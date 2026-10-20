@@ -1,5 +1,9 @@
 # Maple Wordle changelog
 
+## alpha v4.2 - 20 October 2026
+- New look: the whole site now uses the Rubik font, so it looks the same on every device
+- Meso numbers are bright gold now
+
 ## alpha v4.1 - 20 October 2026
 - Mesos! Finish today's puzzles to earn mesos. The fewer guesses you use, the more you get
 - Your mesos show in the top-right corner of the game box. Click them to see how much each game pays and what you earned

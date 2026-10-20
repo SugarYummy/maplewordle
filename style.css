@@ -1,4 +1,12 @@
 /* Shared by index.html (Guess the Boss) and class.html (Guess the Class). */
+/* Rubik (self-hosted, from Google Fonts; one variable file covers every weight). */
+@font-face { font-family: 'Rubik'; font-style: normal; font-weight: 300 900; font-display: swap; src: url("fonts/rubik-latin.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: 'Rubik'; font-style: normal; font-weight: 300 900; font-display: swap; src: url("fonts/rubik-latin-ext.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+html { font-family: Rubik, system-ui, sans-serif; }
+button, input, select, textarea { font-family: inherit; }
+h1 { font-weight: 900; }
 body { text-align: center; margin: 0; min-height: 100vh; display: flex; flex-direction: column; align-items: center;
        background: #3b8fe0 url("images/background.webp") center bottom / cover no-repeat fixed; }
 .panel { background: rgba(255, 255, 255, 0.55); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
@@ -334,13 +342,13 @@ body.glitch .game.glow.diamond { animation: glitchslice 2.3s steps(1) infinite, 
 /* Mesos (fx.js): the count in the game box's top-right corner, and its window (like the Changelog). */
 #mesoBtn { position: absolute; top: 14px; right: 14px; display: flex; align-items: center; gap: 6px; padding: 5px 10px 5px 7px;
            border-radius: 10px; border: 1px solid rgba(160, 110, 0, 0.45); background: rgba(255, 244, 200, 0.75); cursor: pointer;
-           font-family: inherit; font-size: 15px; font-weight: bold; color: #6b4a00; }
+           font-family: inherit; font-size: 15px; font-weight: 900; color: #ffd23f; -webkit-text-stroke: 1px #6b3f00; paint-order: stroke fill;
+           text-shadow: 0 1px 0 #6b3f00; letter-spacing: 0.5px; }
 #mesoBtn:hover { background: rgba(255, 238, 170, 0.95); }
 #mesoBtn img { width: 22px; height: 22px; image-rendering: pixelated; }
 #mesoBtn.bump { animation: mesobump 0.5s ease; }
 @keyframes mesobump { 40% { transform: scale(1.18); } }
-.mesoplus { position: absolute; right: 6px; top: 100%; color: #b07800; font-size: 14px; pointer-events: none;
-            animation: mesoplus 2.2s ease-out forwards; text-shadow: 0 1px 0 #fff; }
+.mesoplus { position: absolute; right: 6px; top: 100%; font-size: 14px; pointer-events: none; animation: mesoplus 2.2s ease-out forwards; }
 @keyframes mesoplus { 0% { opacity: 0; transform: translateY(-6px); } 15% { opacity: 1; } 100% { opacity: 0; transform: translateY(14px); } }
 #meso { position: fixed; inset: 0; z-index: 4; background: rgba(0, 0, 0, 0.4); display: flex; align-items: flex-start; justify-content: center; }
 #meso[hidden] { display: none; }
@@ -349,7 +357,8 @@ body.glitch .game.glow.diamond { animation: glitchslice 2.3s steps(1) infinite, 
 #mesoBody { max-width: 440px; text-align: left; }
 #mesoBody h3 { margin: 14px 0 4px; }
 #mesoBody h3 small { font-weight: normal; opacity: 0.7; }
-.mesototal { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 0 0 8px; font-size: 26px; font-weight: bold; color: #6b4a00; }
+.mesototal { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 0 0 8px; font-size: 30px; font-weight: 900; color: #ffd23f;
+              -webkit-text-stroke: 1.5px #6b3f00; paint-order: stroke fill; text-shadow: 0 2px 0 #6b3f00; letter-spacing: 0.5px; }
 .mesototal img { width: 32px; height: 32px; image-rendering: pixelated; }
 .mesoevent { padding: 6px 10px; border-radius: 8px; background: rgba(255, 220, 120, 0.6); border: 1px solid rgba(180, 120, 0, 0.4); }
 .mesoshop { font-size: 14px; }
@@ -367,8 +376,8 @@ body.glitch .game.glow.diamond { animation: glitchslice 2.3s steps(1) infinite, 
   .mesotable th, .mesotable td { padding: 2px 4px; }
 }
 /* "+40" with a spinning gold meso under the result (fx.js); fades in after the last row has flipped. */
-#mesoGain { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 4px 0 8px; font-size: 22px; font-weight: bold;
-            color: #a36f00; text-shadow: 0 1px 0 #fff; cursor: pointer; animation: mesogainin 0.5s ease 0.6s both; }
+#mesoGain { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 4px 0 8px; font-size: 26px; font-weight: 900;
+            color: #ffd23f; -webkit-text-stroke: 1.5px #6b3f00; paint-order: stroke fill; text-shadow: 0 2px 0 #6b3f00; letter-spacing: 0.5px; cursor: pointer; animation: mesogainin 0.5s ease 0.6s both; }
 #mesoGain img { width: 30px; height: 30px; image-rendering: pixelated; animation: mesospin 1.4s linear infinite; }
 @keyframes mesospin { from { transform: perspective(200px) rotateY(0deg); } to { transform: perspective(200px) rotateY(360deg); } }
 @keyframes mesogainin { from { opacity: 0; transform: translateY(-4px); } }
