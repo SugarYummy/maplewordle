@@ -274,7 +274,8 @@ applyBox();
       `<div class="setrow"><span class="setlabel">Secret passcode ${tip('VIP access given to those who help make this website!')}</span>` +
       (vip.on ? '<span class="vipon">✨ VIP unlocked</span>'
         : '<span class="vipfield"><input id="vipCode" type="password" placeholder="Passcode" autocomplete="off"><span id="vipMsg"></span></span><button id="vipGo">Enter</button>') + '</div>' +
-      '<div id="vipBox" hidden><div class="vipctl"><button id="vipPlay"></button><button id="vipSkip">⏭ Skip</button></div><p id="vipNow"></p>' +
+      '<div id="vipBox" hidden><div class="vipctl"><button id="vipPlay"></button><button id="vipReplay" title="Start this song over">⏮ Replay</button>' +
+      '<button id="vipSkip">⏭ Skip</button><button id="vipLoop" title="Loop this song">🔁 Loop</button></div><p id="vipNow"></p>' +
       '<div id="vipTrack"><span id="vipText">0.0 / 0.0</span><span id="vipArrow">▼</span><div id="vipBar"><div id="vipFill"></div></div></div></div>';
     vipSetup(body);
     // Each (i) gets a dark box that fades in over the rows below it (it doesn't push anything down): shown while
@@ -363,6 +364,17 @@ async function vipShow(body) {
     vipDraw();
   };
   body.querySelector('#vipSkip').onclick = () => vipNext();
+  body.querySelector('#vipReplay').onclick = () => {   // from the top (and play)
+    if (!vip.audio) return vipNext();
+    vip.audio.currentTime = 0;
+    vip.audio.play().catch(() => {});
+    vipDraw();
+  };
+  body.querySelector('#vipLoop').onclick = () => {   // repeat the current song instead of moving on
+    vip.loopSong = !vip.loopSong;
+    if (vip.audio) vip.audio.loop = vip.loopSong;
+    vipDraw();
+  };
   body.querySelector('#vipBar').onclick = (e) => {
     if (!vip.audio?.duration) return;
     const r = e.currentTarget.getBoundingClientRect();
@@ -378,6 +390,7 @@ function vipNext() {
   vip.cur = id;
   if (!vip.audio) {
     vip.audio = new Audio();
+    vip.audio.loop = !!vip.loopSong;
     vip.audio.addEventListener('ended', vipNext);   // straight on to another one
     for (const ev of ['timeupdate', 'play', 'pause', 'loadedmetadata']) vip.audio.addEventListener(ev, vipDraw);
   }
@@ -393,6 +406,7 @@ function vipDraw() {
   if (!$v('vipBox') || $v('vipBox').hidden) return;
   const a = vip.audio, playing = a && !a.paused;
   $v('vipPlay').textContent = playing ? '❚❚ Pause' : '▶︎ Play';
+  $v('vipLoop').classList.toggle('on', !!vip.loopSong);
   $v('vipNow').textContent = vip.cur ? `${[...(vip.names[vip.cur] || [])].join(' / ')} - ${vip.titles[vip.cur]}` : 'Press Play for a random BGM';
   const t = a?.currentTime || 0, len = a?.duration || 0, at = len ? t / len * 100 : 0;
   $v('vipFill').style.width = at + '%';
