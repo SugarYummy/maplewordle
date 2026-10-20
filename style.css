@@ -494,7 +494,9 @@ body.glitch .game.glow.diamond { animation: glitchslice 2.3s steps(1) infinite, 
 /* VIP player in Settings (secret passcode). */
 #vipCode { font-family: inherit; font-size: 14px; padding: 4px 8px; width: 120px; border: 1px solid #999; border-radius: 6px; }
 #vipGo, .vipctl button { font-family: inherit; font-size: 14px; padding: 4px 12px; border-radius: 8px; cursor: pointer; border: 1px solid rgba(0, 0, 0, 0.2); background: rgba(255, 255, 255, 0.7); }
-#vipMsg { font-size: 13px; color: #c22; }
+.vipfield { position: relative; display: inline-block; }
+#vipMsg { position: absolute; left: 2px; top: calc(100% + 2px); font-size: 12px; color: #c22; white-space: nowrap; opacity: 0; transition: opacity 0.4s ease; pointer-events: none; }
+#vipMsg.show { opacity: 1; transition: opacity 0.15s ease; }
 .vipon { font-weight: 700; color: #8a5a00; }
 #vipBox { margin: 4px 0 10px; padding: 10px 12px; border-radius: 10px; background: rgba(255, 255, 255, 0.5); border: 1px solid rgba(176, 120, 0, 0.35); }
 #vipBox[hidden] { display: none; }
@@ -505,3 +507,4 @@ body.glitch .game.glow.diamond { animation: glitchslice 2.3s steps(1) infinite, 
 #vipArrow { position: absolute; top: 15px; font-size: 11px; line-height: 1; }
 #vipBar { height: 14px; border-radius: 4px; background: #d6d6d6; border: 1px solid #999; overflow: hidden; cursor: pointer; }
 #vipFill { height: 100%; width: 0; background: #5bbf5b; }
+.setrow:has(.vipfield) { margin-bottom: 24px; }   /* room for "Wrong passcode" under the box */

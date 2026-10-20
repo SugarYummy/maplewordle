@@ -251,7 +251,7 @@ const bgEffectOn = () => { try { return localStorage.getItem(FX_KEY) !== 'off'; 
       '<span class="seg"><button data-fx="on">On</button><button data-fx="off">Off</button></span></div>' +
       `<div class="setrow"><span class="setlabel">Secret passcode ${tip('VIP access given to those who help make this website!')}</span>` +
       (vip.on ? '<span class="vipon">✨ VIP unlocked</span>'
-        : '<input id="vipCode" type="password" placeholder="Passcode" autocomplete="off"><button id="vipGo">Enter</button><span id="vipMsg"></span>') + '</div>' +
+        : '<span class="vipfield"><input id="vipCode" type="password" placeholder="Passcode" autocomplete="off"><span id="vipMsg"></span></span><button id="vipGo">Enter</button>') + '</div>' +
       '<div id="vipBox" hidden><div class="vipctl"><button id="vipPlay"></button><button id="vipSkip">⏭ Skip</button></div><p id="vipNow"></p>' +
       '<div id="vipTrack"><span id="vipText">0.0 / 0.0</span><span id="vipArrow">▼</span><div id="vipBar"><div id="vipFill"></div></div></div></div>';
     vipSetup(body);
@@ -303,10 +303,17 @@ async function vipCheck(code) {
 function vipSetup(body) {
   const go = body.querySelector('#vipGo'), code = body.querySelector('#vipCode');
   const tryCode = async () => {
-    if (!(await vipCheck(code.value))) { body.querySelector('#vipMsg').textContent = '❌ Wrong passcode'; return; }
+    if (!(await vipCheck(code.value))) {   // under the box for 2 s, then fades out
+      const msg = body.querySelector('#vipMsg');
+      msg.textContent = '❌ Wrong passcode';
+      msg.classList.add('show');
+      clearTimeout(vip.msgTimer);
+      vip.msgTimer = setTimeout(() => msg.classList.remove('show'), 2000);
+      return;
+    }
     vip.on = true;
     const row = code.closest('.setrow');
-    for (const el of row.querySelectorAll('#vipCode, #vipGo, #vipMsg')) el.remove();
+    for (const el of row.querySelectorAll('.vipfield, #vipGo')) el.remove();
     row.insertAdjacentHTML('beforeend', '<span class="vipon">✨ VIP unlocked</span>');
     vipShow(body);
   };
