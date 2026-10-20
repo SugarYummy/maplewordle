@@ -161,6 +161,14 @@ async function play() {
   scheduleEnd();
   drawBar();
   requestAnimationFrame(frame);
+  trackEgg();
+}
+// A track with an "egg" (Lucid's Garden of Eternal Dream) brings in its moving background (fx.js) once it plays after
+// today's game is over; it stays for the day. Not on Archive days, and never before the answer is out.
+function trackEgg() {
+  const egg = live && answer.t.egg;
+  if (!egg) return eggScene(null);
+  if (over && audio.playing) eggScene(egg);
 }
 // Stop at the end of what's unlocked (re-timed whenever a guess unlocks more while it plays).
 function scheduleEnd() {
@@ -394,6 +402,7 @@ function renderEnd() {
   const box = $('bonus');
   box.hidden = !over;
   stopMashup();
+  trackEgg();
   if (!over) return;
   const b = answer.bonus;
   $('mashupRow').hidden = b?.kind !== 'mashup';
@@ -466,6 +475,7 @@ $('bonusGo').addEventListener('click', () => {
   sendBonus(ok);
   // A glitch mashup's bonus right on today's puzzle unlocks its map as a theme (fx.js); the Archive doesn't count.
   if (ok && live && answer.bonus.mashup?.egg) unlockTheme(answer.bonus.mashup.egg);
+  if (ok && live) answer.t.unlock?.bonus?.forEach(shopUnlock);   // shows up in the meso shop (fx.js)
 });
 
 // ---- Boss picker (every boss, A-Z) ----
@@ -625,6 +635,11 @@ const noteResult = () => {
     }
   }
   mesoGain(MODE, day, over && live);   // the spinning "+mesos" under the result (game + bonus)
+  // Shop items this track's day finds by winning: "win" on the day itself, "winAny" from the Archive too (fx.js).
+  if (over && won()) {
+    if (live) answer.t.unlock?.win?.forEach(shopUnlock);
+    answer.t.unlock?.winAny?.forEach(shopUnlock);
+  }
 };
 const closeArchive = () => { $('archive').hidden = true; };
 

@@ -340,7 +340,8 @@ body.glitch .game.glow.diamond { animation: glitchslice 2.3s steps(1) infinite, 
 .themepic.default { background-image: url("images/background.webp"); }
 @media (max-width: 700px) { #themeBtn { bottom: 96px; } }
 /* Mesos (fx.js): the count in the game box's top-right corner, and its window (like the Changelog). */
-#mesoBtn { position: absolute; top: 14px; right: 14px; display: flex; align-items: center; gap: 6px; padding: 5px 10px 5px 7px;
+#mesoCorner { position: absolute; top: 14px; right: 14px; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+#mesoBtn { position: relative; display: flex; align-items: center; gap: 6px; padding: 5px 10px 5px 7px;
            border-radius: 10px; border: 1px solid rgba(160, 110, 0, 0.45); background: rgba(255, 244, 200, 0.75); cursor: pointer;
            font-family: inherit; font-size: 15px; font-weight: 900; color: #ffd23f; -webkit-text-stroke: 1px #6b3f00; paint-order: stroke fill;
            text-shadow: 0 1px 0 #6b3f00; letter-spacing: 0.5px; }
@@ -350,13 +351,24 @@ body.glitch .game.glow.diamond { animation: glitchslice 2.3s steps(1) infinite, 
 @keyframes mesobump { 40% { transform: scale(1.18); } }
 .mesoplus { position: absolute; right: 6px; top: 100%; font-size: 14px; pointer-events: none; animation: mesoplus 2.2s ease-out forwards; }
 @keyframes mesoplus { 0% { opacity: 0; transform: translateY(-6px); } 15% { opacity: 1; } 100% { opacity: 0; transform: translateY(14px); } }
-#meso { position: fixed; inset: 0; z-index: 4; background: rgba(0, 0, 0, 0.4); display: flex; align-items: flex-start; justify-content: center; }
-#meso[hidden] { display: none; }
-#meso .panel { margin-top: 48px; max-height: calc(100vh - 96px); overflow-y: auto; min-width: 280px; scrollbar-width: none; }
-#meso .panel::-webkit-scrollbar { display: none; }
-#mesoBody { max-width: 440px; text-align: left; }
-#mesoBody h3 { margin: 14px 0 4px; }
-#mesoBody h3 small { font-weight: normal; opacity: 0.7; }
+/* Windows opened from fx.js (Mesos, Shop): like the Changelog. */
+.popup { position: fixed; inset: 0; z-index: 4; background: rgba(0, 0, 0, 0.4); display: flex; align-items: flex-start; justify-content: center; }
+.popup[hidden] { display: none; }
+.popup .panel { margin-top: 48px; max-height: calc(100vh - 96px); overflow-y: auto; min-width: 280px; scrollbar-width: none; }
+.popup .panel::-webkit-scrollbar { display: none; }
+.popupbody { width: min(440px, calc(100vw - 96px)); text-align: left; }
+.popupbody h3 { margin: 14px 0 4px; }
+.popupbody h3 small { font-weight: normal; opacity: 0.7; }
+#shopBtn { font-family: inherit; font-size: 13px; font-weight: 600; padding: 3px 10px; border-radius: 10px; cursor: pointer;
+           border: 1px solid rgba(0, 0, 0, 0.2); background: rgba(255, 255, 255, 0.7); }
+#shopBtn:hover { background: rgba(255, 255, 255, 0.95); }
+.shopempty { text-align: center; opacity: 0.75; margin: 18px 0; }
+.pager { display: flex; justify-content: center; align-items: center; gap: 4px; margin: 8px 0 0; }
+.pager button { min-width: 30px; height: 30px; padding: 0 6px; font-family: inherit; font-size: 14px; border-radius: 6px; cursor: pointer;
+                border: 1px solid rgba(0, 0, 0, 0.2); background: rgba(255, 255, 255, 0.6); }
+.pager button.on { font-weight: 700; outline: 2px solid #333; background: rgba(255, 255, 255, 0.95); }
+.pager button:disabled { opacity: 0.35; cursor: default; }
+.pager .gap { padding: 0 2px; opacity: 0.6; }
 .mesototal { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 0 0 8px; font-size: 30px; font-weight: 900; color: #ffd23f;
               -webkit-text-stroke: 1.5px #6b3f00; paint-order: stroke fill; text-shadow: 0 2px 0 #6b3f00; letter-spacing: 0.5px; }
 .mesototal img { width: 32px; height: 32px; image-rendering: pixelated; }
@@ -370,7 +382,12 @@ body.glitch .game.glow.diamond { animation: glitchslice 2.3s steps(1) infinite, 
 .mesotable th { text-align: left; background: rgba(255, 255, 255, 0.5); }
 .mesobonus { margin: 4px 0 0; font-size: 13px; }
 @media (max-width: 700px) {
-  #mesoBtn { top: 8px; right: 8px; padding: 3px 8px 3px 5px; font-size: 13px; }
+  #mesoCorner { top: 8px; right: 8px; flex-direction: row-reverse; align-items: center; }
+  #mesoBtn { padding: 3px 8px 3px 5px; font-size: 13px; }
+  #shopBtn { font-size: 12px; padding: 3px 8px; }
+  .shopitem { gap: 8px; }
+  .shopitem .themepic { width: 84px; height: 47px; }
+  .shopinfo b { font-size: 14px; }
   #mesoBtn img { width: 18px; height: 18px; }
   .mesotable { font-size: 12px; }
   .mesotable th, .mesotable td { padding: 2px 4px; }
@@ -396,3 +413,24 @@ body.glitch .game.glow.diamond { animation: glitchslice 2.3s steps(1) infinite, 
 .infostrip .k { display: block; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #3d4d70; }
 .infostrip .v { display: block; font-size: 18px; font-weight: 700; color: #1a2440; font-variant-numeric: tabular-nums; }
 #status { font-size: 18px; font-weight: 700; }
+/* Moving backgrounds (fx.js): a looping video filling the screen, in a theme layer or BGM Clip's track Easter egg. */
+.themebg video, .eggscene video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.eggscene { position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: 0; transition: opacity 3s ease;
+            background: #1b1430 center / cover no-repeat; }
+.eggscene.on { opacity: 1; }
+/* Shop (in the Mesos window). */
+.shoplist { display: flex; flex-direction: column; gap: 8px; }
+.shopitem { display: flex; align-items: center; gap: 12px; padding: 6px; border-radius: 8px; border: 1px solid rgba(0, 0, 0, 0.2);
+            background: rgba(255, 255, 255, 0.6); }
+.shopinfo { flex: 1; display: flex; flex-direction: column; gap: 2px; text-align: left; }
+.shopinfo small { opacity: 0.7; }
+.shopinfo .price { display: flex; align-items: center; gap: 4px; font-weight: 700; color: #8a6000; }
+.shopinfo .price img { width: 16px; height: 16px; image-rendering: pixelated; }
+.shopitem button { font-family: inherit; font-size: 15px; font-weight: 700; padding: 6px 16px; border-radius: 8px; cursor: pointer;
+                   border: 1px solid #b07800; background: #ffd34d; color: #5a3d00; }
+.shopitem .owned { font-weight: 700; color: #2a7a2a; padding: 0 8px; }
+.shopitem button.poor { background: #d8d8d8; border-color: #aaa; color: #888; }
+.shopinfo .price span { transition: opacity 0.15s ease; }
+.shopinfo .price.swap span { opacity: 0; }
+.shopinfo .price { transition: color 0.3s ease; }
+.shopinfo .price.short { color: #d22; }

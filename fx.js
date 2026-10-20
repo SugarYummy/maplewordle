@@ -315,8 +315,20 @@ function showTimer(label, s) {
 // Secret themes: getting a glitch mashup's bonus right in BGM Clip on the day itself (not from the Archive) unlocks
 // that map as a background for every page. Kept in this browser for good. Default is free for everyone, so the
 // Theme button (above the credit box) only shows once you've unlocked another one.
-const THEMES = { default: 'Default', deepsea: 'Unglamoured Ruins', limbo: "Limbo's Subconscious", vonbon: "Von Bon's Realm", bellona: 'Solatum' };
-const THEME_IMG = { deepsea: 'images/deepsea.webp', limbo: 'images/limbo.webp', vonbon: 'images/vonbon.webp', bellona: 'images/bellona.webp' };
+const THEMES = { default: 'Default', deepsea: 'Unglamoured Ruins', limbo: "Limbo's Subconscious", vonbon: "Von Bon's Realm", bellona: 'Solatum',
+  lucid: 'Garden of Eternal Dream', lucidBloom: 'Lucid in Bloom', lucidNight: "Lucid's Starry Night" };
+const THEME_IMG = { deepsea: 'images/deepsea.webp', limbo: 'images/limbo.webp', vonbon: 'images/vonbon.webp', bellona: 'images/bellona.webp',
+  lucid: 'images/lucid-dream.jpg?v=2', lucidBloom: 'images/lucid-bloom.webp', lucidNight: 'images/lucid-night.webp' };
+// Moving backgrounds: a looping video over the still picture (which shows until the video starts).
+const THEME_VIDEO = { lucid: ['video/lucid-dream.webm?v=2', 'video/lucid-dream.mp4?v=2'] };
+function bgVideo(t) {
+  const v = document.createElement('video');
+  Object.assign(v, { autoplay: true, muted: true, loop: true, playsInline: true, poster: THEME_IMG[t] });
+  v.setAttribute('aria-hidden', 'true');
+  for (const src of THEME_VIDEO[t]) v.appendChild(Object.assign(document.createElement('source'), { src, type: src.includes('.webm') ? 'video/webm' : 'video/mp4' }));
+  v.play?.().catch(() => {});
+  return v;
+}
 const THEMES_KEY = 'mapleWordle:themes', THEME_KEY = 'mapleWordle:theme', THEME_NEW_KEY = 'mapleWordle:themeNew';
 const lsGet = (k) => { try { return localStorage.getItem(k); } catch { return null; } };
 const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch {} };
@@ -338,6 +350,7 @@ function applyTheme(fade = false) {
     el.className = 'themebg';
     el.dataset.theme = t;
     el.style.backgroundImage = `url("${THEME_IMG[t]}")`;
+    if (THEME_VIDEO[t]) el.appendChild(bgVideo(t));
     if (fade) { el.style.opacity = 0; requestAnimationFrame(() => requestAnimationFrame(() => { el.style.opacity = 1; })); }
     document.body.prepend(el);
     old.forEach((o) => document.body.prepend(o));   // keep the old one underneath while the new one fades in
@@ -413,7 +426,7 @@ const MESO_TABLE = {
 };
 const MESO_BONUS = { bgm: 20, sound: 20, map: 50 };   // bonus question right
 const MESO_SPECIAL = 100;                               // ...unless it's one of the hidden glitch days
-const MESO_NAMES = { story: 'Boss Wordle - Story', normal: 'Boss Wordle - Normal', hard: 'Boss Wordle - Hard',
+const MESO_NAMES = { shop: 'Shop', story: 'Boss Wordle - Story', normal: 'Boss Wordle - Normal', hard: 'Boss Wordle - Hard',
   extreme: 'Boss Wordle - Extreme', bgm: 'Boss - BGM Clip', sound: 'Boss - Sound Clip', class: 'Class - Wordle',
   anim: 'Class - Attack Animation', map: 'Guess the Map' };
 const MESO_SOON = new Set(['sound', 'map']);
@@ -447,17 +460,23 @@ function earnBonus(mode, day, special) {
 }
 const fmt = (n) => n.toLocaleString('en-US');
 // The meso count sits in the game box's top-right corner; clicking it opens a window like the Changelog.
+// The meso count sits in the game box's top-right corner with the Shop button under it; each opens a window like the
+// Changelog (Mesos: total, recent, how to earn / Shop: items you've found).
 function drawMeso(gained = 0) {
   const game = document.querySelector('.game');
   if (!game) return;
   let btn = document.getElementById('mesoBtn');
   if (!btn) {
+    const corner = Object.assign(document.createElement('div'), { id: 'mesoCorner' });
     btn = document.createElement('button');
     btn.id = 'mesoBtn';
     btn.title = 'Your mesos';
     btn.innerHTML = '<img src="images/fx/meso-gold.png" alt=""><span></span>';
-    btn.addEventListener('click', openMeso);
-    game.appendChild(btn);
+    btn.addEventListener('click', () => openMeso());
+    const shop = Object.assign(document.createElement('button'), { id: 'shopBtn', title: 'Shop', textContent: '🛍️ Shop' });
+    shop.addEventListener('click', openShop);
+    corner.append(btn, shop);
+    game.appendChild(corner);
   }
   btn.querySelector('span').textContent = fmt(mesoTotal());
   if (gained > 0) {
@@ -467,22 +486,45 @@ function drawMeso(gained = 0) {
     setTimeout(() => plus.remove(), 2200);
   }
 }
-function openMeso() {
-  let win = document.getElementById('meso');
+// A window like the Changelog: closes with its Close button, a click outside it, or Esc.
+function popup(id, title) {
+  let win = document.getElementById(id);
   if (!win) {
     win = document.createElement('div');
-    win.id = 'meso';
-    win.innerHTML = '<div class="panel"><h2>Mesos</h2><div id="mesoBody"></div><p class="closebar"><button id="mesoClose">Close</button></p></div>';
-    win.querySelector('#mesoClose').addEventListener('click', () => { win.hidden = true; });
+    win.id = id;
+    win.className = 'popup';
+    win.innerHTML = `<div class="panel"><h2>${title}</h2><div class="popupbody"></div><p class="closebar"><button>Close</button></p></div>`;
+    win.querySelector('.closebar button').addEventListener('click', () => { win.hidden = true; });
     win.addEventListener('click', (e) => { if (e.target === win) win.hidden = true; });
     addEventListener('keydown', (e) => { if (e.key === 'Escape') win.hidden = true; });
     document.body.appendChild(win);
   }
+  win.hidden = false;
+  return win.querySelector('.popupbody');
+}
+const mesoDate = (d) => new Date(d * 86400000).toLocaleDateString(undefined, { timeZone: 'UTC', month: 'short', day: 'numeric' });
+const MESO_PER_PAGE = 5;
+// Page buttons: < 1 … 4 5 6 … 10 >  (first and last page always there, so no separate << / >>).
+function pager(cur, last) {
+  if (last <= 1) return '';
+  const nums = [...new Set([1, cur - 1, cur, cur + 1, last])].filter((n) => n >= 1 && n <= last).sort((x, y) => x - y);
+  let html = `<button data-page="${cur - 1}" ${cur === 1 ? 'disabled' : ''} aria-label="Previous page">‹</button>`, prev = 0;
+  for (const n of nums) {
+    if (n - prev > 1) html += '<span class="gap">…</span>';
+    html += `<button data-page="${n}" class="${n === cur ? 'on' : ''}">${n}</button>`;
+    prev = n;
+  }
+  return `<div class="pager">${html}<button data-page="${cur + 1}" ${cur === last ? 'disabled' : ''} aria-label="Next page">›</button></div>`;
+}
+function openMeso(page = 1) {
+  const body = popup('meso', 'Mesos');
   const today = Math.floor(Date.now() / 86400000);
-  const date = (d) => new Date(d * 86400000).toLocaleDateString(undefined, { timeZone: 'UTC', month: 'short', day: 'numeric' });
-  const recent = mesoLog().slice(-10).reverse();
+  const all = mesoLog().slice().reverse();
+  const last = Math.max(1, Math.ceil(all.length / MESO_PER_PAGE));
+  page = Math.min(Math.max(1, page), last);
+  const recent = all.slice((page - 1) * MESO_PER_PAGE, page * MESO_PER_PAGE);
   const ev = MESO_EVENTS.filter((e) => today <= e.to)
-    .map((e) => `<p class="mesoevent">🎉 <b>${MESO_NAMES[e.mode]}</b> pays <b>${e.times}x</b> mesos from ${date(e.from)} to ${date(e.to)}!</p>`).join('');
+    .map((e) => `<p class="mesoevent">🎉 <b>${MESO_NAMES[e.mode]}</b> pays <b>${e.times}x</b> mesos from ${mesoDate(e.from)} to ${mesoDate(e.to)}!</p>`).join('');
   const rows = (mode) => {
     const t = MESO_TABLE[mode];
     const cells = t.map((v, i) => `<td>${i + 1}${i === t.length - 1 ? '+' : ''}</td>`).join('');
@@ -491,14 +533,85 @@ function openMeso() {
     return `<h3>${MESO_NAMES[mode]}${MESO_SOON.has(mode) ? ' <small>(coming soon)</small>' : ''}</h3>` +
       `<table class="mesotable"><tr><th>Guesses</th>${cells}</tr><tr><th>Mesos</th>${vals}</tr></table>${bonus}`;
   };
-  win.querySelector('#mesoBody').innerHTML =
+  body.innerHTML =
     `<p class="mesototal"><img src="images/fx/meso-gold.png" alt=""> ${fmt(mesoTotal())}</p>` + ev +
-    '<p>Finish today\'s puzzles to earn mesos. The fewer guesses, the more you get! (Archive days don\'t pay.)</p>' +
-    '<p class="mesoshop">🛍️ A <b>cosmetic shop</b> is coming later, so save up your mesos!</p>' +
-    (recent.length ? '<h3>Recent</h3><ul class="mesorecent">' + recent.map((e) =>
-      `<li><span>${date(e.day)} · ${MESO_NAMES[e.mode] ?? e.mode} · ${e.what}${mesoTimes(e.mode, e.day) > 1 ? ` (${mesoTimes(e.mode, e.day)}x)` : ''}</span><b>+${fmt(e.amount)}</b></li>`).join('') + '</ul>' : '') +
+    '<p>Finish today\'s puzzles to earn mesos. The fewer guesses, the more you get! (Archive days don\'t pay.) Spend them in the 🛍️ Shop.</p>' +
+    (all.length ? '<h3>Recent</h3><ul class="mesorecent">' + recent.map((e) =>
+      `<li><span>${mesoDate(e.day)} · ${MESO_NAMES[e.mode] ?? e.mode} · ${e.what}${mesoTimes(e.mode, e.day) > 1 ? ` (${mesoTimes(e.mode, e.day)}x)` : ''}</span><b>${e.amount < 0 ? '−' + fmt(-e.amount) : '+' + fmt(e.amount)}</b></li>`).join('') + '</ul>' + pager(page, last) : '') +
     '<h3 class="mesohow">How to earn</h3>' + Object.keys(MESO_TABLE).map(rows).join('');
-  win.hidden = false;
+  for (const b of body.querySelectorAll('[data-page]')) b.addEventListener('click', () => openMeso(+b.dataset.page));
+}
+
+// ---- Shop: items only show up once you've found them (e.g. Lucid's Garden of Eternal Dream: hear it in BGM Clip on its
+// day and get the bonus right, not from the Archive). Buying one spends mesos and adds it to your themes.
+const SHOP = {
+  lucid: { name: 'Garden of Eternal Dream', kind: 'Moving background', price: 100000 },
+  lucidBloom: { name: 'Lucid in Bloom', kind: 'Background', price: 50000 },
+  lucidNight: { name: "Lucid's Starry Night", kind: 'Background', price: 50000 },
+};
+const SHOP_KEY = 'mapleWordle:shop';   // items found so far
+function shopFound() { try { return JSON.parse(lsGet(SHOP_KEY) || '[]').filter((t) => t in SHOP); } catch { return []; } }
+function shopUnlock(t) {
+  if (!(t in SHOP) || shopFound().includes(t)) return;
+  lsSet(SHOP_KEY, JSON.stringify([...shopFound(), t]));
+}
+function openShop() {
+  const body = popup('shop', 'Shop');
+  const found = shopFound(), have = mesoTotal();
+  body.innerHTML = `<p class="mesototal"><img src="images/fx/meso-gold.png" alt=""> ${fmt(have)}</p>` +
+    (found.length ? '<div class="shoplist">' + found.map((t) => {
+      const it = SHOP[t], owned = ownedThemes().includes(t);
+      // Not enough mesos: a greyed-out Buy; clicking it flashes how many more you need in the price (red, 2 s).
+      const btn = owned ? '<span class="owned">Owned ✓</span>'
+        : `<button data-buy="${t}"${have < it.price ? ' class="poor" title="Not enough mesos"' : ''}>Buy</button>`;
+      return `<div class="shopitem"><span class="themepic" style="background-image:url('${THEME_IMG[t]}')"></span>` +
+        `<span class="shopinfo"><b>${it.name}</b><small>${it.kind}</small><span class="price"><img src="images/fx/meso-gold.png" alt=""> <span>${fmt(it.price)}</span></span></span>${btn}</div>`;
+    }).join('') + '</div>' : '<p class="shopempty">Nothing here yet... 👀</p>') +
+    '<p class="mesoshop">More cosmetics are coming to the shop later, so save up your mesos!</p>';
+  for (const b of body.querySelectorAll('[data-buy]')) b.addEventListener('click', () => buy(b.dataset.buy, b));
+}
+function tooPoor(btn, it) {
+  const price = btn.closest('.shopitem').querySelector('.price');
+  const num = price.querySelector('span');
+  if (price.classList.contains('short')) return;
+  const swap = (text, short) => {
+    price.classList.add('swap');
+    setTimeout(() => { num.textContent = text; price.classList.toggle('short', short); price.classList.remove('swap'); }, 150);
+  };
+  swap(fmt(it.price - mesoTotal()), true);
+  setTimeout(() => swap(fmt(it.price), false), 2150);
+}
+function buy(t, btn) {
+  const it = SHOP[t];
+  if (!it || ownedThemes().includes(t)) return;
+  if (mesoTotal() < it.price) return btn && tooPoor(btn, it);
+  if (!confirm(`Buy ${it.name} for ${fmt(it.price)} mesos?`)) return;
+  const log = mesoLog();
+  log.push({ key: `shop:${t}`, mode: 'shop', day: Math.floor(Date.now() / 86400000), what: `Bought ${it.name}`, amount: -it.price });
+  lsSet(MESO_LOG_KEY, JSON.stringify(log));
+  lsSet(THEMES_KEY, JSON.stringify(ownedThemes().filter((x) => x !== 'default').concat(t)));
+  lsSet(THEME_KEY, t);   // use it straight away
+  lsSet(THEME_NEW_KEY, '1');
+  drawThemeButton();
+  applyTheme(true);
+  drawMeso();
+  openShop();
+}
+
+// BGM Clip's moving Easter egg backgrounds (a track with "egg" in data/bgm.json): fades in over the page while that
+// track plays after the game, and stays for the day. eggScene(null) takes it away.
+function eggScene(t) {
+  const cur = document.querySelector('.eggscene');
+  if (cur && cur.dataset.egg === t) return;
+  cur?.remove();
+  if (!t || !THEME_VIDEO[t]) return;
+  const el = document.createElement('div');
+  el.className = 'eggscene';
+  el.dataset.egg = t;
+  el.style.backgroundImage = `url("${THEME_IMG[t]}")`;
+  el.appendChild(bgVideo(t));
+  document.body.prepend(el);
+  requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('on')));
 }
 // Under the result message: a spinning gold meso and how many mesos today's game paid (with its bonus).
 function mesoGain(mode, day, show) {
@@ -512,7 +625,7 @@ function mesoGain(mode, day, show) {
     el.id = 'mesoGain';
     el.innerHTML = '<img src="images/fx/meso-gold.png" alt=""><span></span>';
     el.title = 'Mesos earned today';
-    el.addEventListener('click', openMeso);
+    el.addEventListener('click', () => openMeso());
     status.after(el);
   }
   el.querySelector('span').textContent = `+${fmt(got)}`;
