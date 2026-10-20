@@ -503,3 +503,14 @@ function mesoGain(mode, day, show) {
   el.querySelector('span').textContent = `+${fmt(got)}`;
 }
 drawMeso();
+// A game's tab shows its meso event while it's on, e.g. "3x" with a gold meso on BGM Clip.
+for (const btn of document.querySelectorAll('[data-meso]')) {
+  const today = Math.floor(Date.now() / 86400000);
+  const times = mesoTimes(btn.dataset.meso, today);
+  if (times <= 1) continue;
+  const tag = document.createElement('span');
+  tag.className = 'mesotag';
+  tag.title = `${times}x mesos this week!`;
+  tag.innerHTML = `${times}x<img src="images/fx/meso-gold.png" alt="mesos">`;
+  btn.appendChild(tag);
+}

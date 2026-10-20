@@ -372,3 +372,8 @@ body.glitch .game.glow.diamond { animation: glitchslice 2.3s steps(1) infinite, 
 @keyframes mesospin { from { transform: perspective(200px) rotateY(0deg); } to { transform: perspective(200px) rotateY(360deg); } }
 @keyframes mesogainin { from { opacity: 0; transform: translateY(-4px); } }
 @media (prefers-reduced-motion: reduce) { #mesoGain img { animation: none; } }
+/* Meso event tag on a game tab (fx.js): "3x" + a gold meso in the top-right corner. */
+.mesotag { position: absolute; top: -8px; right: -8px; display: flex; align-items: center; gap: 1px; padding: 0 3px 0 4px;
+           border-radius: 8px; background: #ffd34d; border: 1px solid #b07800; color: #5a3d00; font-size: 10px; font-weight: bold;
+           line-height: 14px; pointer-events: none; }
+.mesotag img { width: 12px; height: 12px; image-rendering: pixelated; }
