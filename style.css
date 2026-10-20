@@ -434,3 +434,9 @@ body.glitch .game.glow.diamond { animation: glitchslice 2.3s steps(1) infinite, 
 .shopinfo .price.swap span { opacity: 0; }
 .shopinfo .price { transition: color 0.3s ease; }
 .shopinfo .price.short { color: #d22; }
+/* Buy pops up on hover (only when you can afford it), with a soft gold glow. */
+.shopitem button:not(.poor) { transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease; }
+.shopitem button:not(.poor):hover { transform: translateY(-2px) scale(1.08); background: #ffdd66;
+  box-shadow: 0 4px 10px rgba(176, 120, 0, 0.35), 0 0 0 3px rgba(255, 211, 77, 0.45); }
+.shopitem button:not(.poor):active { transform: translateY(0) scale(0.97); box-shadow: 0 1px 3px rgba(176, 120, 0, 0.35); }
+.shopitem button.poor { cursor: not-allowed; }
