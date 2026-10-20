@@ -532,3 +532,14 @@ body.glitch .game.glow.rainbow { animation: glitchslice 2.3s steps(1) infinite, 
   .game.glow.rainbow, #archiveList button.rainbow { animation: none; }
   .game.glow.rainbow { box-shadow: 0 0 18px 6px rgba(170, 80, 255, .8), 0 0 50px 16px rgba(50, 140, 255, .45); } }
 #titlePick { font-family: inherit; font-size: 15px; padding: 4px; max-width: 100%; } #titleGo { font-family: inherit; } #titleHead { margin: 14px 0 4px; }
+/* 🌈 on the game box too: the same moving rainbow border as the Archive row, and a faint rainbow tint in the see-through
+   panel itself (on top of the rainbow glow). */
+.game.rainbow { border: 3px solid transparent;
+  background: linear-gradient(rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.5)) padding-box,
+              linear-gradient(90deg, rgba(255, 60, 60, .16), rgba(255, 160, 30, .16), rgba(255, 230, 40, .16), rgba(60, 210, 90, .16), rgba(50, 140, 255, .16), rgba(170, 80, 255, .16), rgba(255, 60, 60, .16)) padding-box,
+              linear-gradient(90deg, #ff3c3c, #ffa01e, #ffe628, #3cd25a, #328cff, #aa50ff, #ff3c3c) border-box;
+  background-size: 100% 100%, 200% 100%, 200% 100%; }
+.game.glow.rainbow { animation: rainbowglow 3s linear infinite, rainbowpanel 3s linear infinite; }
+.game.shake.glow.rainbow { animation: shake 0.5s cubic-bezier(.36, .07, .19, .97) both, rainbowglow 3s linear infinite, rainbowpanel 3s linear infinite; }
+@keyframes rainbowpanel { to { background-position: 0 0, 200% 0, 200% 0; } }
+@media (prefers-reduced-motion: reduce) { .game.glow.rainbow { animation: none; } }
