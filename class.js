@@ -167,7 +167,7 @@ function start(d) {
   live = d == null || d === today();
   day = live ? today() : d;
   answer = answerFor(day);
-  $('puzzle').textContent = `Puzzle #${day - FIRST_DAY + 1} (${dateLabel(day)})` + (live ? '' : ' - Archive');
+  showPuzzle(day - FIRST_DAY + 1, dateLabel(day), live);   // the info strip (fx.js)
   $('today').hidden = live;
   guesses = [];
   over = false;
@@ -351,7 +351,7 @@ function updateStreak() {
   try { localStorage.setItem(streakKey, JSON.stringify(s)); } catch {}
   renderStreak();
 }
-const renderStreak = () => { $('streak').textContent = `Win Streak: ${loadStreak().count} 🔥`; };
+const renderStreak = () => { $('streak').textContent = `${loadStreak().count} 🔥`; };
 
 // ---- Archive: every puzzle from #1 to today, with your result if you played it ----
 
@@ -476,8 +476,7 @@ $('today').addEventListener('click', () => start());
 function tick() {
   if (data && live && today() !== day) start();
   const s = Math.floor(((today() + 1) * DAY_MS - Date.now()) / 1000);
-  const pad = (n) => String(n).padStart(2, '0');
-  $('timer').textContent = `New class in ${pad(Math.floor(s / 3600))}:${pad(Math.floor(s / 60) % 60)}:${pad(s % 60)} (resets 00:00 UTC)`;
+  showTimer('Next class in', s);
 }
 tick();
 setInterval(tick, 1000);

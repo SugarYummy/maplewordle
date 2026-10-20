@@ -211,7 +211,7 @@ function start(d) {
   day = live ? today() : d;
   pool = poolFor(mode);
   answer = answerFor(mode, day);
-  $('puzzle').textContent = `Puzzle #${day - FIRST_DAY + 1} (${dateLabel(day)})` + (live ? '' : ' - Archive');
+  showPuzzle(day - FIRST_DAY + 1, dateLabel(day), live);   // the info strip (fx.js)
   $('today').hidden = live;
   maxGuesses = maxFor(mode, day);
   $('diffHead').hidden = mode !== 'extreme';
@@ -445,7 +445,7 @@ function updateStreak() {
   renderStreak();
 }
 function renderStreak() {
-  $('streak').textContent = `Win Streak: ${currentStreak()} 🔥`;
+  $('streak').textContent = `${currentStreak()} 🔥`;
 }
 
 const nextHint = () => live ? 'Come back tomorrow for a new boss.' : 'Pick another day from the Archive.';
@@ -705,8 +705,7 @@ function tick() {
   if (data && live && today() !== day) start();
   const ms = (today() + 1) * DAY_MS - Date.now();
   const s = Math.floor(ms / 1000);
-  const pad = (n) => String(n).padStart(2, '0');
-  $('timer').textContent = `New boss in ${pad(Math.floor(s / 3600))}:${pad(Math.floor(s / 60) % 60)}:${pad(s % 60)} (resets 00:00 UTC)`;
+  showTimer('Next boss in', s);
 }
 tick();
 setInterval(tick, 1000);

@@ -297,6 +297,21 @@ for (const btn of document.querySelectorAll('[data-new]')) {
   btn.addEventListener('click', () => { try { localStorage.setItem(key, '1'); } catch {} tag.remove(); });
 }
 
+// The info strip under the tabs: PUZZLE #n | NEXT ... IN hh:mm:ss | STREAK n. Hover shows the date / reset time.
+function showPuzzle(n, date, live) {
+  document.getElementById('puzzleLabel').textContent = live ? 'Puzzle' : 'Archive';
+  const el = document.getElementById('puzzle');
+  el.textContent = `#${n}`;
+  el.parentElement.title = date;
+}
+function showTimer(label, s) {
+  const pad = (n) => String(n).padStart(2, '0');
+  document.getElementById('timerLabel').textContent = label;
+  const el = document.getElementById('timer');
+  el.textContent = `${pad(Math.floor(s / 3600))}:${pad(Math.floor(s / 60) % 60)}:${pad(s % 60)}`;
+  el.parentElement.title = 'Resets at 00:00 UTC (same as Maple reset)';
+}
+
 // Secret themes: getting a glitch mashup's bonus right in BGM Clip on the day itself (not from the Archive) unlocks
 // that map as a background for every page. Kept in this browser for good. Default is free for everyone, so the
 // Theme button (above the credit box) only shows once you've unlocked another one.

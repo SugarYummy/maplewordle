@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Maple Wordle - BGM Clip</title>
 <script src="move.js?v=1"></script>
-<link rel="stylesheet" href="style.css?v=46">
+<link rel="stylesheet" href="style.css?v=47">
 </head>
 <body>
 <button id="archiveBtn" class="panel">Archive</button>
@@ -28,10 +28,12 @@
   <button class="on" data-new="bgmClip" data-meso="bgm">BGM Clip</button>
   <button disabled>Sound Clip<small>Coming soon</small></button>
 </div>
-<p id="puzzle"></p>
+<div class="infostrip" id="infostrip">
+  <div><span class="k" id="puzzleLabel">Puzzle</span><span class="v" id="puzzle"></span></div>
+  <div><span class="k" id="timerLabel">Next in</span><span class="v" id="timer"></span></div>
+  <div><span class="k">Streak</span><span class="v" id="streak"></span></div>
+</div>
 <p><button id="today" hidden>Back to today</button></p>
-<p id="timer"></p>
-<div id="streak"></div>
 <p id="status"></p>
 <p><button id="share" hidden>Share</button></p>
 <div id="player">
@@ -96,8 +98,8 @@
     <p class="closebar"><button id="changelogClose">Close</button></p>
   </div>
 </div>
-<script src="fx.js?v=32"></script>
+<script src="fx.js?v=33"></script>
 <script src="archive.js?v=4"></script>
-<script src="bgm.js?v=7"></script>
+<script src="bgm.js?v=8"></script>
 </body>
 </html>

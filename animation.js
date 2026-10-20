@@ -172,7 +172,7 @@ function start(d) {
   live = d == null || d === today();
   day = live ? today() : d;
   answer = answerFor(day);
-  $('puzzle').textContent = `Puzzle #${day - FIRST_DAY + 1} (${dateLabel(day)})` + (live ? '' : ' - Archive');
+  showPuzzle(day - FIRST_DAY + 1, dateLabel(day), live);   // the info strip (fx.js)
   $('today').hidden = live;
   guesses = [];
   over = false;
@@ -347,7 +347,7 @@ function updateStreak() {
 }
 function renderStreak() {
   const s = loadStreak();
-  $('streak').textContent = `Win Streak: ${s.last != null && s.last < today() - 1 ? 0 : s.count} 🔥`;
+  $('streak').textContent = `${s.last != null && s.last < today() - 1 ? 0 : s.count} 🔥`;
 }
 
 // ---- Archive ----
@@ -489,8 +489,7 @@ $('today').addEventListener('click', () => start());
 function tick() {
   if (pool && pool.length && live && today() !== day) start();
   const s = Math.floor(((today() + 1) * DAY_MS - Date.now()) / 1000);
-  const pad = (n) => String(n).padStart(2, '0');
-  $('timer').textContent = `New class in ${pad(Math.floor(s / 3600))}:${pad(Math.floor(s / 60) % 60)}:${pad(s % 60)} (resets 00:00 UTC)`;
+  showTimer('Next class in', s);
 }
 tick();
 setInterval(tick, 1000);

@@ -298,7 +298,7 @@ function start(d) {
   for (const id of ['player', 'skip', 'picker', 'pickrow', 'timer', 'streak', 'rows']) $(id).hidden = false;
   firstTryGlow(false);
   answer = answerFor(day);
-  $('puzzle').textContent = `Puzzle #${day - FIRST_DAY + 1} (${dateLabel(day)})` + (live ? '' : ' - Archive');
+  showPuzzle(day - FIRST_DAY + 1, dateLabel(day), live);   // the info strip (fx.js)
   $('today').hidden = live;
   guesses = [];
   over = false;
@@ -319,9 +319,8 @@ function start(d) {
 }
 // Before launch day the page is empty apart from this note.
 function notOpenYet() {
-  $('puzzle').textContent = 'Check back after reset for the Official release!';
-  for (const id of ['player', 'pickrow', 'bonus', 'timer', 'streak', 'rows', 'share']) $(id).hidden = true;
-  $('status').textContent = '';
+  for (const id of ['player', 'pickrow', 'bonus', 'infostrip', 'rows', 'share']) $(id).hidden = true;
+  $('status').textContent = 'Check back after reset for the Official release!';
 }
 
 function updateStatus(msg) {
@@ -601,7 +600,7 @@ function updateStreak() {
   renderStreak();
 }
 function renderStreak() {
-  $('streak').textContent = `Win Streak: ${loadStreak().count} 🔥`;
+  $('streak').textContent = `${loadStreak().count} 🔥`;
 }
 
 // ---- Archive ----
@@ -735,9 +734,7 @@ $('today').addEventListener('click', () => start());
 function tick() {
   if (pool && live && today() !== day) start();
   const s = Math.floor(((today() + 1) * DAY_MS - Date.now()) / 1000);
-  const pad = (n) => String(n).padStart(2, '0');
-  const what = today() < FIRST_DAY ? 'BGM Clip opens' : 'New BGM';
-  $('timer').textContent = `${what} in ${pad(Math.floor(s / 3600))}:${pad(Math.floor(s / 60) % 60)}:${pad(s % 60)} (resets 00:00 UTC)`;
+  showTimer(today() < FIRST_DAY ? 'BGM Clip opens in' : 'Next BGM in', s);
 }
 
 fetch('data/bgm.json', { cache: 'no-cache' }).then((r) => r.json())

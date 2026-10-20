@@ -3,6 +3,7 @@
 ## alpha v4.2 - 20 October 2026
 - New look: the whole site now uses the Rubik font, so it looks the same on every device
 - Meso numbers are bright gold now
+- Puzzle number, next-puzzle timer and win streak now sit together in one info bar
 
 ## alpha v4.1 - 20 October 2026
 - Mesos! Finish today's puzzles to earn mesos. The fewer guesses you use, the more you get
