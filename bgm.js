@@ -346,7 +346,7 @@ function start(d) {
 // Before launch day the page is empty apart from this note.
 function notOpenYet() {
   // Clear anything left from the other mode's game (its result, mesos line and Everyone's results).
-  for (const id of ['player', 'pickrow', 'bonus', 'infostrip', 'rows', 'share', 'hintWrap', 'stats']) $(id).hidden = true;
+  for (const id of ['player', 'pickrow', 'bonus', 'infostrip', 'rows', 'share', 'hintWrap', 'stats', 'bonusCall']) $(id).hidden = true;
   over = false;
   stopMashup();
   eggScene(null);
@@ -447,6 +447,10 @@ function renderEnd() {
   document.querySelector('.game').classList.toggle('diamond', diamond());
   const box = $('bonus');
   box.hidden = !over;
+  // A bonus still waiting: a call-out under the result (click jumps to it) and a glow on the box, until it's answered.
+  const waiting = over && !!answer.bonus && bonus == null;
+  $('bonusCall').hidden = !waiting;
+  box.classList.toggle('waiting', waiting);
   stopMashup();
   trackEgg();
   if (!over) return;
@@ -798,6 +802,7 @@ document.addEventListener('keydown', (e) => {
   closeArchive();
 });
 $('today').addEventListener('click', () => start());
+$('bonusCall').addEventListener('click', () => $('bonus').scrollIntoView({ behavior: 'smooth', block: 'center' }));
 for (const b of document.querySelectorAll('#modes button')) {
   b.addEventListener('click', () => {
     if (b.dataset.mode === MODE || !pool) return;

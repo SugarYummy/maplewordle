@@ -482,3 +482,12 @@ body.glitch .game.glow.diamond { animation: glitchslice 2.3s steps(1) infinite, 
 .infotip.open { background: #222; color: #fff; }
 .tiptext { margin: -4px 0 8px; padding: 6px 10px; border-radius: 6px; background: #222; color: #fff; font-size: 12px; line-height: 1.35; }
 .tiptext[hidden] { display: none; }
+/* BGM Clip: "Bonus below!" call-out under the result, and a soft gold glow on the bonus box until it's answered. */
+#bonusCall { margin: 2px 0 8px; }
+#bonusCall button { font-family: inherit; font-size: 14px; padding: 6px 14px; border-radius: 10px; cursor: pointer; color: #5a3d00;
+                    background: rgba(255, 228, 140, 0.9); border: 1px solid rgba(176, 120, 0, 0.55); animation: bonuscall 1.6s ease-in-out infinite; }
+#bonusCall[hidden] { display: none; }
+@keyframes bonuscall { 50% { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(176, 120, 0, 0.35); } }
+#bonus.waiting { box-shadow: 0 0 0 3px rgba(255, 200, 60, 0.85), 0 0 18px rgba(255, 190, 40, 0.6); animation: bonusglow 1.6s ease-in-out infinite; }
+@keyframes bonusglow { 50% { box-shadow: 0 0 0 3px rgba(255, 200, 60, 0.5), 0 0 6px rgba(255, 190, 40, 0.3); } }
+@media (prefers-reduced-motion: reduce) { #bonusCall button, #bonus.waiting { animation: none; } }
