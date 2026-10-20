@@ -453,7 +453,7 @@ $('mashupPlay').addEventListener('click', () => {
   mashupAudio.volume = Math.min(1, bgmVolume() / 50);
   mashupAudio.play().catch(() => {});
   $('mashupPlay').textContent = '❚❚ Pause the mashup';
-  if (m.egg) { document.body.classList.add(`egg-${m.egg}`); glitch(true); }
+  if (m.egg && live) { document.body.classList.add(`egg-${m.egg}`); glitch(true); }   // the Easter egg is for today only, not the Archive
 });
 $('bonusGo').addEventListener('click', () => {
   const pick = $('bonusPick').value;
