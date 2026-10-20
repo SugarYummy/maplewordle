@@ -491,3 +491,17 @@ body.glitch .game.glow.diamond { animation: glitchslice 2.3s steps(1) infinite, 
 #bonus.waiting { box-shadow: 0 0 0 3px rgba(255, 200, 60, 0.85), 0 0 18px rgba(255, 190, 40, 0.6); animation: bonusglow 1.6s ease-in-out infinite; }
 @keyframes bonusglow { 50% { box-shadow: 0 0 0 3px rgba(255, 200, 60, 0.5), 0 0 6px rgba(255, 190, 40, 0.3); } }
 @media (prefers-reduced-motion: reduce) { #bonusCall button, #bonus.waiting { animation: none; } }
+/* VIP player in Settings (secret passcode). */
+#vipCode { font-family: inherit; font-size: 14px; padding: 4px 8px; width: 120px; border: 1px solid #999; border-radius: 6px; }
+#vipGo, .vipctl button { font-family: inherit; font-size: 14px; padding: 4px 12px; border-radius: 8px; cursor: pointer; border: 1px solid rgba(0, 0, 0, 0.2); background: rgba(255, 255, 255, 0.7); }
+#vipMsg { font-size: 13px; color: #c22; }
+.vipon { font-weight: 700; color: #8a5a00; }
+#vipBox { margin: 4px 0 10px; padding: 10px 12px; border-radius: 10px; background: rgba(255, 255, 255, 0.5); border: 1px solid rgba(176, 120, 0, 0.35); }
+#vipBox[hidden] { display: none; }
+.vipctl { display: flex; gap: 8px; justify-content: center; }
+#vipNow { margin: 8px 0 4px; text-align: center; font-weight: 600; font-size: 14px; }
+#vipTrack { position: relative; padding-top: 30px; }
+#vipText { position: absolute; top: 0; font-size: 13px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+#vipArrow { position: absolute; top: 15px; font-size: 11px; line-height: 1; }
+#vipBar { height: 14px; border-radius: 4px; background: #d6d6d6; border: 1px solid #999; overflow: hidden; cursor: pointer; }
+#vipFill { height: 100%; width: 0; background: #5bbf5b; }

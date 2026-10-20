@@ -248,7 +248,13 @@ const bgEffectOn = () => { try { return localStorage.getItem(FX_KEY) !== 'off'; 
     body.innerHTML = `<div class="setrow"><span class="setlabel">Sound ${tip('The sound effects when a game ends (the win / lose music). The slider sets how loud they are. BGM Clip has its own volume next to Play.')}</span>` +
       '<button id="setMute"></button><input id="setVol" type="range" min="0" max="100"><span id="setVolPct"></span></div>' +
       `<div class="setrow"><span class="setlabel">Background effect ${tip('Falling maple leaves in the background while 2x meso weekends are on.')}</span>` +
-      '<span class="seg"><button data-fx="on">On</button><button data-fx="off">Off</button></span></div>';
+      '<span class="seg"><button data-fx="on">On</button><button data-fx="off">Off</button></span></div>' +
+      `<div class="setrow"><span class="setlabel">Secret passcode ${tip('VIP access given to those who help make this website!')}</span>` +
+      (vip.on ? '<span class="vipon">✨ VIP unlocked</span>'
+        : '<input id="vipCode" type="password" placeholder="Passcode" autocomplete="off"><button id="vipGo">Enter</button><span id="vipMsg"></span>') + '</div>' +
+      '<div id="vipBox" hidden><div class="vipctl"><button id="vipPlay"></button><button id="vipSkip">⏭ Skip</button></div><p id="vipNow"></p>' +
+      '<div id="vipTrack"><span id="vipText">0.0 / 0.0</span><span id="vipArrow">▼</span><div id="vipBar"><div id="vipFill"></div></div></div></div>';
+    vipSetup(body);
     // Each (i) gets a dark box under its row: shown while hovered (computer) or after a tap (phone), so it never goes off
     // the window's edges.
     for (const t of body.querySelectorAll('.infotip')) {
@@ -285,6 +291,80 @@ const bgEffectOn = () => { try { return localStorage.getItem(FX_KEY) !== 'off'; 
   });
   document.body.appendChild(btn);
 })();
+
+// VIP (the secret passcode in Settings): a player for every BGM we have, in random order, each from start to end.
+// It only lasts for this page: reloading or going to another page turns it off again. Only the passcode's hash is here.
+const VIP_HASH = '8cce1429a5b04f566923575513cd321f4f5aa34353b789691e55889cc379c588';
+const vip = { on: false, audio: null, list: null, names: {}, titles: {}, cur: null, loop: 0 };
+async function vipCheck(code) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(code.trim()));
+  return [...new Uint8Array(buf)].map((x) => x.toString(16).padStart(2, '0')).join('') === VIP_HASH;
+}
+function vipSetup(body) {
+  const go = body.querySelector('#vipGo'), code = body.querySelector('#vipCode');
+  const tryCode = async () => {
+    if (!(await vipCheck(code.value))) { body.querySelector('#vipMsg').textContent = '❌ Wrong passcode'; return; }
+    vip.on = true;
+    const row = code.closest('.setrow');
+    for (const el of row.querySelectorAll('#vipCode, #vipGo, #vipMsg')) el.remove();
+    row.insertAdjacentHTML('beforeend', '<span class="vipon">✨ VIP unlocked</span>');
+    vipShow(body);
+  };
+  go?.addEventListener('click', tryCode);
+  code?.addEventListener('keydown', (e) => { if (e.key === 'Enter') tryCode(); });
+  if (vip.on) vipShow(body);
+}
+async function vipShow(body) {
+  body.querySelector('#vipBox').hidden = false;
+  if (!vip.list) {
+    const d = await (await fetch('data/bgm.json', { cache: 'no-cache' })).json();
+    vip.list = Object.keys(d.tracks);
+    for (const b of d.bosses) for (const a of b.areas) (vip.names[a.track] ??= new Set()).add(b.name);
+    vip.titles = Object.fromEntries(Object.entries(d.tracks).map(([k, t]) => [k, t.title]));
+  }
+  body.querySelector('#vipPlay').onclick = () => {
+    if (!vip.audio) return vipNext();
+    if (vip.audio.paused) vip.audio.play().catch(() => {}); else vip.audio.pause();
+    vipDraw();
+  };
+  body.querySelector('#vipSkip').onclick = () => vipNext();
+  body.querySelector('#vipBar').onclick = (e) => {
+    if (!vip.audio?.duration) return;
+    const r = e.currentTarget.getBoundingClientRect();
+    vip.audio.currentTime = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * vip.audio.duration;
+    vipDraw();
+  };
+  vipDraw();
+}
+function vipNext() {
+  if (!vip.list) return;
+  let id;
+  do id = vip.list[Math.floor(Math.random() * vip.list.length)]; while (vip.list.length > 1 && id === vip.cur);
+  vip.cur = id;
+  if (!vip.audio) {
+    vip.audio = new Audio();
+    vip.audio.addEventListener('ended', vipNext);   // straight on to another one
+    for (const ev of ['timeupdate', 'play', 'pause', 'loadedmetadata']) vip.audio.addEventListener(ev, vipDraw);
+  }
+  let v = 50;
+  try { v = Number(localStorage.getItem('mapleWordle:bgmVolume') ?? 50); } catch {}
+  vip.audio.volume = Math.min(1, v / 50);   // the same volume as BGM Clip's player
+  vip.audio.src = `audio/bgm/${id}.mp3`;
+  vip.audio.play().catch(() => {});
+  vipDraw();
+}
+function vipDraw() {
+  const $v = (id) => document.getElementById(id);
+  if (!$v('vipBox') || $v('vipBox').hidden) return;
+  const a = vip.audio, playing = a && !a.paused;
+  $v('vipPlay').textContent = playing ? '❚❚ Pause' : '▶︎ Play';
+  $v('vipNow').textContent = vip.cur ? `${[...(vip.names[vip.cur] || [])].join(' / ')} - ${vip.titles[vip.cur]}` : 'Press Play for a random BGM';
+  const t = a?.currentTime || 0, len = a?.duration || 0, at = len ? t / len * 100 : 0;
+  $v('vipFill').style.width = at + '%';
+  $v('vipText').textContent = `${t.toFixed(1)} / ${len.toFixed(1)}`;
+  for (const id of ['vipText', 'vipArrow']) $v(id).style.left = `clamp(0px, calc(${at}% - ${id === 'vipText' ? 30 : 6}px), calc(100% - ${id === 'vipText' ? 70 : 12}px))`;
+  if (playing && !vip.loop) vip.loop = requestAnimationFrame(() => { vip.loop = 0; vipDraw(); });   // one redraw loop at a time
+}
 
 // "NEW" tag on a game tab (data-new="<key>"): shows until the date below, and goes away for good once you click that tab.
 const NEW_UNTIL = { bgmClip: Date.UTC(2026, 9, 26) };   // BGM Clip: one week from Oct 19
