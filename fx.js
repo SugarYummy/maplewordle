@@ -255,22 +255,24 @@ const bgEffectOn = () => { try { return localStorage.getItem(FX_KEY) !== 'off'; 
       '<div id="vipBox" hidden><div class="vipctl"><button id="vipPlay"></button><button id="vipSkip">⏭ Skip</button></div><p id="vipNow"></p>' +
       '<div id="vipTrack"><span id="vipText">0.0 / 0.0</span><span id="vipArrow">▼</span><div id="vipBar"><div id="vipFill"></div></div></div></div>';
     vipSetup(body);
-    // Each (i) gets a dark box under its row: shown while hovered (computer) or after a tap (phone), so it never goes off
-    // the window's edges.
+    // Each (i) gets a dark box that fades in over the rows below it (it doesn't push anything down): shown while
+    // hovered (computer) or after a tap (phone).
+    const closeTips = () => { for (const x of body.querySelectorAll('.infotip.open')) { x.classList.remove('open'); x.tipBox.classList.remove('show'); } };
     for (const t of body.querySelectorAll('.infotip')) {
-      const box = Object.assign(document.createElement('p'), { className: 'tiptext', textContent: t.dataset.tip, hidden: true });
-      t.closest('.setrow').after(box);
-      t.addEventListener('mouseenter', () => { if (!PHONE) box.hidden = false; });
-      t.addEventListener('mouseleave', () => { if (!PHONE && !t.classList.contains('open')) box.hidden = true; });
+      const box = Object.assign(document.createElement('p'), { className: 'tiptext', textContent: t.dataset.tip });
+      t.tipBox = box;
+      t.closest('.setrow').appendChild(box);
+      t.addEventListener('mouseenter', () => { if (!PHONE) box.classList.add('show'); });
+      t.addEventListener('mouseleave', () => { if (!PHONE && !t.classList.contains('open')) box.classList.remove('show'); });
       t.addEventListener('click', (e) => {
         e.stopPropagation();
         const open = !t.classList.contains('open');
-        for (const x of body.querySelectorAll('.infotip.open')) { x.classList.remove('open'); x.closest('.setrow').nextElementSibling.hidden = true; }
+        closeTips();
         t.classList.toggle('open', open);
-        box.hidden = !open;
+        box.classList.toggle('show', open);
       });
     }
-    body.addEventListener('click', () => { for (const x of body.querySelectorAll('.infotip.open')) { x.classList.remove('open'); x.closest('.setrow').nextElementSibling.hidden = true; } });
+    body.addEventListener('click', closeTips);
     const mute = body.querySelector('#setMute'), vol = body.querySelector('#setVol'), pct = body.querySelector('#setVolPct');
     vol.value = sliderVolume();
     const show = () => {

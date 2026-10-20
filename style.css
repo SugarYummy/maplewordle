@@ -480,8 +480,10 @@ body.glitch .game.glow.diamond { animation: glitchslice 2.3s steps(1) infinite, 
            background: rgba(255, 255, 255, 0.7); font-family: inherit; font-size: 13px; font-weight: bold; line-height: 1; cursor: pointer; vertical-align: middle; }
 .infotip:hover { background: rgba(255, 255, 255, 0.95); }
 .infotip.open { background: #222; color: #fff; }
-.tiptext { margin: -4px 0 8px; padding: 6px 10px; border-radius: 6px; background: #222; color: #fff; font-size: 12px; line-height: 1.35; }
-.tiptext[hidden] { display: none; }
+.setrow { position: relative; }
+.tiptext { position: absolute; left: 0; right: 0; top: calc(100% + 2px); z-index: 5; margin: 0; padding: 6px 10px; border-radius: 6px;
+           background: #222; color: #fff; font-size: 12px; line-height: 1.35; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; }
+.tiptext.show { opacity: 1; }
 /* BGM Clip: "Bonus below!" call-out under the result, and a soft gold glow on the bonus box until it's answered. */
 #bonusCall { margin: 2px 0 8px; }
 #bonusCall button { font-family: inherit; font-size: 14px; padding: 6px 14px; border-radius: 10px; cursor: pointer; color: #5a3d00;
