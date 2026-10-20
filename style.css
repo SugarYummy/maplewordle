@@ -317,6 +317,7 @@ body.glitch .game.glow.diamond { animation: glitchslice 2.3s steps(1) infinite, 
 #themeBtn { position: fixed; bottom: 40px; right: 10px; z-index: 3; margin: 0; max-width: none; width: 34px; height: 34px; padding: 0;
             display: flex; align-items: center; justify-content: center; font-size: 18px; line-height: 1; border: none; border-radius: 8px; cursor: pointer; }
 #themeBtn:hover { background: rgba(255, 255, 255, 0.8); }
+#themeBtn img { width: 24px; height: 24px; object-fit: contain; }
 #themes { position: fixed; inset: 0; z-index: 4; background: rgba(0, 0, 0, 0.4); display: flex; align-items: flex-start; justify-content: center; }
 #themes[hidden] { display: none; }
 #themes .panel { margin-top: 48px; max-height: calc(100vh - 96px); overflow-y: auto; min-width: 280px; scrollbar-width: none; }

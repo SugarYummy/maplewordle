@@ -342,7 +342,7 @@ function drawThemeButton() {
   const btn = document.createElement('button');
   btn.id = 'themeBtn';
   btn.className = 'panel';
-  btn.textContent = '🍁';
+  btn.innerHTML = '<img src="images/home.png" alt="">';
   btn.title = 'Themes';
   btn.setAttribute('aria-label', 'Themes');
   if (lsGet(THEME_NEW_KEY) === '1') btn.appendChild(Object.assign(document.createElement('span'), { className: 'newtag', textContent: 'NEW' }));
