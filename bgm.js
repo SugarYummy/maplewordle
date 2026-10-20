@@ -417,7 +417,7 @@ function renderEnd() {
   const mash = b.kind === 'mashup';
   $('bonusTitle').textContent = mash ? 'Bonus: Whose BGM mashup is this?' : 'Bonus: Where does this BGM play?';
   $('bonusHelp').textContent = mash ? `Listen to the mashup and guess the boss. One guess only! (Today's track is unlocked above too.)`
-    : 'The whole track is unlocked now. Click the bar to jump around.';
+    : 'The whole track is unlocked now.\nClick the bar to jump around.';
   if (bonus == null) {
     const sel = $('bonusPick');
     sel.innerHTML = '';
@@ -433,8 +433,8 @@ function renderEnd() {
   } else {
     const ok = b.right.includes(bonus);
     $('bonusResult').textContent = (ok ? 'Correct! ' : `Wrong! You picked ${bonus}. `) + (mash
-      ? `It's ${b.mashup.boss}'s BGM. Today's track was "${answer.t.title}".`
-      : `It plays in: ${b.right.join(', ')}. The track is "${answer.t.title}".`);
+      ? `It's ${b.mashup.boss}'s BGM.\nToday's track was "${answer.t.title}".`
+      : `It plays in: ${b.right.join(', ')}.\nThe track is "${answer.t.title}".`);
     $('bonusResult').className = ok ? 'right' : 'wrong';
   }
 }

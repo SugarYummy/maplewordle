@@ -440,3 +440,4 @@ body.glitch .game.glow.diamond { animation: glitchslice 2.3s steps(1) infinite, 
   box-shadow: 0 4px 10px rgba(176, 120, 0, 0.35), 0 0 0 3px rgba(255, 211, 77, 0.45); }
 .shopitem button:not(.poor):active { transform: translateY(0) scale(0.97); box-shadow: 0 1px 3px rgba(176, 120, 0, 0.35); }
 .shopitem button.poor { cursor: not-allowed; }
+#bonusHelp, #bonusResult { white-space: pre-line; }   /* bgm.js breaks these into two lines */
