@@ -1,5 +1,11 @@
 # Maple Wordle changelog
 
+## alpha v4.1 - 20 October 2026
+- Mesos! Finish today's puzzles to earn mesos. The fewer guesses you use, the more you get
+- Your mesos show in the top-right corner of the game box. Click them to see how much each game pays and what you earned
+- BGM Clip pays 3x mesos all week, October 20 to 26!
+- A cosmetic shop is coming later, so save up your mesos!
+
 ## alpha v4.0 - 20 October 2026
 - New game: Guess the Boss - BGM Clip. Listen to a boss fight's BGM and guess the boss in 6 tries
 - You start with 0.5 seconds of the clip; each wrong guess or Skip unlocks more (1s, 2s, 5s, 10s, then 30s)

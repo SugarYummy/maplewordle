@@ -276,6 +276,8 @@ td.flip { animation: flip 0.5s ease both; }
    (Malefic Star: Unglamoured Ruins; Limbo: Limbo's Subconscious (Light); Von Bon: Von Bon's Realm <Chaos>; Bellona: her fight map in Solatum). */
 body::before { content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: 0; transition: opacity 3s ease;
                background: center bottom / cover no-repeat; }
+/* Secret themes (fx.js): an unlocked map as a background layer for every page, under a playing mashup's egg. */
+.themebg { position: fixed; inset: 0; z-index: -2; pointer-events: none; background: #222 center bottom / cover no-repeat; transition: opacity 1s ease; }
 body.egg-deepsea::before { opacity: 1; background-color: #0d1f2a; background-image: url("images/deepsea.webp"); }
 body.egg-limbo::before { opacity: 1; background-color: #3a3348; background-image: url("images/limbo.webp"); }
 body.egg-vonbon::before { opacity: 1; background-color: #2c4544; background-image: url("images/vonbon.webp"); }
@@ -311,3 +313,62 @@ body.glitch .game.glow.diamond { animation: glitchslice 2.3s steps(1) infinite, 
   66% { opacity: 0.6; background-color: transparent; }
 }
 @media (prefers-reduced-motion: reduce) { body.glitch .game, body.glitch::after { animation: none; } }
+/* Theme button: just above the credit box, only once you have a theme besides Default. It opens a window like the Changelog. */
+#themeBtn { position: fixed; bottom: 40px; right: 10px; z-index: 3; margin: 0; max-width: none; width: 34px; height: 34px; padding: 0;
+            display: flex; align-items: center; justify-content: center; font-size: 18px; line-height: 1; border: none; border-radius: 8px; cursor: pointer; }
+#themeBtn:hover { background: rgba(255, 255, 255, 0.8); }
+#themes { position: fixed; inset: 0; z-index: 4; background: rgba(0, 0, 0, 0.4); display: flex; align-items: flex-start; justify-content: center; }
+#themes[hidden] { display: none; }
+#themes .panel { margin-top: 48px; max-height: calc(100vh - 96px); overflow-y: auto; min-width: 280px; scrollbar-width: none; }
+#themes .panel::-webkit-scrollbar { display: none; }
+.themehelp { margin: 0 0 10px; font-size: 14px; }
+#themeList { display: flex; flex-direction: column; gap: 8px; width: min(360px, calc(100vw - 96px)); margin: 0 auto 8px; }
+.themecard { display: flex; align-items: center; gap: 12px; padding: 6px; border-radius: 8px; cursor: pointer; font-family: inherit;
+             font-size: 15px; text-align: left; border: 1px solid rgba(0, 0, 0, 0.2); background: rgba(255, 255, 255, 0.5); }
+.themecard:hover { background: rgba(255, 255, 255, 0.8); }
+.themecard.on { font-weight: bold; outline: 2px solid #333; background: rgba(255, 255, 255, 0.85); }
+.themepic { flex: none; width: 112px; height: 63px; border-radius: 5px; background: center / cover no-repeat; }
+.themepic.default { background-image: url("images/background.webp"); }
+@media (max-width: 700px) { #themeBtn { bottom: 96px; } }
+/* Mesos (fx.js): the count in the game box's top-right corner, and its window (like the Changelog). */
+#mesoBtn { position: absolute; top: 14px; right: 14px; display: flex; align-items: center; gap: 6px; padding: 5px 10px 5px 7px;
+           border-radius: 10px; border: 1px solid rgba(160, 110, 0, 0.45); background: rgba(255, 244, 200, 0.75); cursor: pointer;
+           font-family: inherit; font-size: 15px; font-weight: bold; color: #6b4a00; }
+#mesoBtn:hover { background: rgba(255, 238, 170, 0.95); }
+#mesoBtn img { width: 22px; height: 22px; image-rendering: pixelated; }
+#mesoBtn.bump { animation: mesobump 0.5s ease; }
+@keyframes mesobump { 40% { transform: scale(1.18); } }
+.mesoplus { position: absolute; right: 6px; top: 100%; color: #b07800; font-size: 14px; pointer-events: none;
+            animation: mesoplus 2.2s ease-out forwards; text-shadow: 0 1px 0 #fff; }
+@keyframes mesoplus { 0% { opacity: 0; transform: translateY(-6px); } 15% { opacity: 1; } 100% { opacity: 0; transform: translateY(14px); } }
+#meso { position: fixed; inset: 0; z-index: 4; background: rgba(0, 0, 0, 0.4); display: flex; align-items: flex-start; justify-content: center; }
+#meso[hidden] { display: none; }
+#meso .panel { margin-top: 48px; max-height: calc(100vh - 96px); overflow-y: auto; min-width: 280px; scrollbar-width: none; }
+#meso .panel::-webkit-scrollbar { display: none; }
+#mesoBody { max-width: 440px; text-align: left; }
+#mesoBody h3 { margin: 14px 0 4px; }
+#mesoBody h3 small { font-weight: normal; opacity: 0.7; }
+.mesototal { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 0 0 8px; font-size: 26px; font-weight: bold; color: #6b4a00; }
+.mesototal img { width: 32px; height: 32px; image-rendering: pixelated; }
+.mesoevent { padding: 6px 10px; border-radius: 8px; background: rgba(255, 220, 120, 0.6); border: 1px solid rgba(180, 120, 0, 0.4); }
+.mesoshop { font-size: 14px; }
+.mesorecent { margin: 0; padding: 0; list-style: none; font-size: 14px; }
+.mesorecent li { display: flex; justify-content: space-between; gap: 12px; padding: 2px 0; border-bottom: 1px solid rgba(0, 0, 0, 0.08); }
+.mesorecent b { color: #8a6000; white-space: nowrap; }
+.mesotable { border-collapse: collapse; font-size: 13px; margin: 0; }
+.mesotable th, .mesotable td { padding: 2px 7px; border: 1px solid rgba(0, 0, 0, 0.15); text-align: center; }
+.mesotable th { text-align: left; background: rgba(255, 255, 255, 0.5); }
+.mesobonus { margin: 4px 0 0; font-size: 13px; }
+@media (max-width: 700px) {
+  #mesoBtn { top: 8px; right: 8px; padding: 3px 8px 3px 5px; font-size: 13px; }
+  #mesoBtn img { width: 18px; height: 18px; }
+  .mesotable { font-size: 12px; }
+  .mesotable th, .mesotable td { padding: 2px 4px; }
+}
+/* "+40" with a spinning gold meso under the result (fx.js); fades in after the last row has flipped. */
+#mesoGain { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 4px 0 8px; font-size: 22px; font-weight: bold;
+            color: #a36f00; text-shadow: 0 1px 0 #fff; cursor: pointer; animation: mesogainin 0.5s ease 0.6s both; }
+#mesoGain img { width: 30px; height: 30px; image-rendering: pixelated; animation: mesospin 1.4s linear infinite; }
+@keyframes mesospin { from { transform: perspective(200px) rotateY(0deg); } to { transform: perspective(200px) rotateY(360deg); } }
+@keyframes mesogainin { from { opacity: 0; transform: translateY(-4px); } }
+@media (prefers-reduced-motion: reduce) { #mesoGain img { animation: none; } }

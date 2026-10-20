@@ -296,3 +296,210 @@ for (const btn of document.querySelectorAll('[data-new]')) {
   btn.appendChild(tag);
   btn.addEventListener('click', () => { try { localStorage.setItem(key, '1'); } catch {} tag.remove(); });
 }
+
+// Secret themes: getting a glitch mashup's bonus right in BGM Clip on the day itself (not from the Archive) unlocks
+// that map as a background for every page. Kept in this browser for good. Default is free for everyone, so the
+// Theme button (above the credit box) only shows once you've unlocked another one.
+const THEMES = { default: 'Default', deepsea: 'Unglamoured Ruins', limbo: "Limbo's Subconscious", vonbon: "Von Bon's Realm", bellona: 'Solatum' };
+const THEME_IMG = { deepsea: 'images/deepsea.webp', limbo: 'images/limbo.webp', vonbon: 'images/vonbon.webp', bellona: 'images/bellona.webp' };
+const THEMES_KEY = 'mapleWordle:themes', THEME_KEY = 'mapleWordle:theme', THEME_NEW_KEY = 'mapleWordle:themeNew';
+const lsGet = (k) => { try { return localStorage.getItem(k); } catch { return null; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch {} };
+function ownedThemes() {
+  let got = [];
+  try { got = JSON.parse(lsGet(THEMES_KEY) || '[]'); } catch {}
+  return ['default', ...Object.keys(THEMES).filter((t) => t !== 'default' && got.includes(t))];
+}
+// The theme is its own layer under everything (a playing mashup's egg background still shows on top of it).
+// Picking one in the window fades it in over the old one; on page load it's just there.
+function applyTheme(fade = false) {
+  const pick = lsGet(THEME_KEY);
+  const t = ownedThemes().includes(pick) ? pick : 'default';
+  const old = [...document.querySelectorAll('.themebg')];
+  if ((old.at(-1)?.dataset.theme ?? 'default') === t) return t;
+  const gone = () => old.forEach((el) => el.remove());
+  if (t !== 'default') {
+    const el = document.createElement('div');
+    el.className = 'themebg';
+    el.dataset.theme = t;
+    el.style.backgroundImage = `url("${THEME_IMG[t]}")`;
+    if (fade) { el.style.opacity = 0; requestAnimationFrame(() => requestAnimationFrame(() => { el.style.opacity = 1; })); }
+    document.body.prepend(el);
+    old.forEach((o) => document.body.prepend(o));   // keep the old one underneath while the new one fades in
+    if (fade) setTimeout(gone, 1100); else gone();
+  } else if (fade) {
+    old.forEach((o) => { o.style.opacity = 0; });
+    setTimeout(gone, 1100);
+  } else gone();
+  return t;
+}
+// The Theme button opens a window like the Changelog: a box for each theme you have (only those), click one to use it.
+function drawThemeButton() {
+  document.getElementById('themeBtn')?.remove();
+  document.getElementById('themes')?.remove();
+  const own = ownedThemes();
+  if (own.length < 2) return;
+  const btn = document.createElement('button');
+  btn.id = 'themeBtn';
+  btn.className = 'panel';
+  btn.textContent = '🍁';
+  btn.title = 'Themes';
+  btn.setAttribute('aria-label', 'Themes');
+  if (lsGet(THEME_NEW_KEY) === '1') btn.appendChild(Object.assign(document.createElement('span'), { className: 'newtag', textContent: 'NEW' }));
+  const win = document.createElement('div');
+  win.id = 'themes';
+  win.hidden = true;
+  win.innerHTML = '<div class="panel"><h2>Themes</h2><p class="themehelp">Your backgrounds. Pick one to use it on every page.</p>' +
+    '<div id="themeList"></div><p class="closebar"><button id="themesClose">Close</button></p></div>';
+  const list = win.querySelector('#themeList');
+  const fill = () => {
+    list.innerHTML = '';
+    const cur = applyTheme(true);
+    for (const t of own) {
+      const card = document.createElement('button');
+      card.className = 'themecard' + (t === cur ? ' on' : '');
+      const pic = document.createElement('span');
+      pic.className = 'themepic' + (t === 'default' ? ' default' : '');
+      if (THEME_IMG[t]) pic.style.backgroundImage = `url("${THEME_IMG[t]}")`;
+      const name = document.createElement('span');
+      name.className = 'themename';
+      name.textContent = THEMES[t] + (t === cur ? ' (in use)' : '');
+      card.append(pic, name);
+      card.addEventListener('click', () => { lsSet(THEME_KEY, t); fill(); });
+      list.appendChild(card);
+    }
+  };
+  btn.addEventListener('click', () => {
+    fill();
+    win.hidden = false;
+    if (lsGet(THEME_NEW_KEY) === '1') { lsSet(THEME_NEW_KEY, '0'); btn.querySelector('.newtag')?.remove(); }
+  });
+  win.querySelector('#themesClose').addEventListener('click', () => { win.hidden = true; });
+  win.addEventListener('click', (e) => { if (e.target === win) win.hidden = true; });
+  addEventListener('keydown', (e) => { if (e.key === 'Escape') win.hidden = true; });
+  fill();
+  document.body.append(btn, win);
+}
+function unlockTheme(t) {
+  if (!(t in THEMES) || ownedThemes().includes(t)) return;
+  lsSet(THEMES_KEY, JSON.stringify(ownedThemes().filter((x) => x !== 'default').concat(t)));
+  lsSet(THEME_NEW_KEY, '1');
+  drawThemeButton();
+}
+applyTheme();
+drawThemeButton();
+
+// ---- Mesos: finishing today's puzzle (not an Archive day) pays mesos, once per game per day. Kept in this browser.
+// Each table: mesos for winning in 1, 2, 3, ... guesses; the last number is for any more guesses than that, or a loss.
+const MESO_TABLE = {
+  story: [100, 20, 10, 5, 2, 1, 0], normal: [100, 50, 20, 10, 5, 2, 1], hard: [100, 50, 30, 20, 10, 5],
+  extreme: [100, 75, 50, 25, 10], bgm: [100, 50, 20, 10, 5], class: [100, 50, 25, 10, 5], anim: [100, 40, 20, 10, 5],
+  sound: [100, 40, 20, 10, 5], map: [100, 80, 60, 40, 20, 10, 5],
+};
+const MESO_BONUS = { bgm: 20, sound: 20, map: 50 };   // bonus question right
+const MESO_SPECIAL = 100;                               // ...unless it's one of the hidden glitch days
+const MESO_NAMES = { story: 'Boss Wordle - Story', normal: 'Boss Wordle - Normal', hard: 'Boss Wordle - Hard',
+  extreme: 'Boss Wordle - Extreme', bgm: 'Boss - BGM Clip', sound: 'Boss - Sound Clip', class: 'Class - Wordle',
+  anim: 'Class - Attack Animation', map: 'Guess the Map' };
+const MESO_SOON = new Set(['sound', 'map']);
+const MESO_DAY = (y, m, d) => Date.UTC(y, m - 1, d) / 86400000;
+// BGM Clip launch week: everything it pays (bonus too) is x3, Oct 20 to Oct 26.
+const MESO_EVENTS = [{ mode: 'bgm', from: MESO_DAY(2026, 10, 20), to: MESO_DAY(2026, 10, 26), times: 3 }];
+const mesoTimes = (mode, day) => MESO_EVENTS.find((e) => e.mode === mode && day >= e.from && day <= e.to)?.times ?? 1;
+const MESO_LOG_KEY = 'mapleWordle:mesoLog';   // [{ key: "<mode>:<day>" or "<mode>+bonus:<day>", day, mode, what, amount }]
+function mesoLog() { try { return JSON.parse(lsGet(MESO_LOG_KEY) || '[]'); } catch { return []; } }
+const mesoTotal = () => mesoLog().reduce((s, e) => s + e.amount, 0);
+function earnMeso(key, mode, day, what, base) {
+  const log = mesoLog();
+  if (log.some((e) => e.key === key)) return;
+  const amount = base * mesoTimes(mode, day);
+  if (amount > 0) {
+    log.push({ key, mode, day, what, amount });
+    lsSet(MESO_LOG_KEY, JSON.stringify(log));
+  }
+  drawMeso(amount);
+}
+// A game calls this when today's puzzle is over, with its Archive result ("Won 3/6", "Won in 4", "Lost").
+function earnGame(mode, day, result) {
+  const t = MESO_TABLE[mode];
+  if (!t) return;
+  const m = /^Won (?:in )?(\d+)/.exec(result);
+  const n = m ? +m[1] : Infinity;
+  earnMeso(`${mode}:${day}`, mode, day, m ? `Won in ${n}` : 'Lost', t[Math.min(n, t.length) - 1]);
+}
+function earnBonus(mode, day, special) {
+  earnMeso(`${mode}+bonus:${day}`, mode, day, 'Bonus', special ? MESO_SPECIAL : MESO_BONUS[mode] ?? 0);
+}
+const fmt = (n) => n.toLocaleString('en-US');
+// The meso count sits in the game box's top-right corner; clicking it opens a window like the Changelog.
+function drawMeso(gained = 0) {
+  const game = document.querySelector('.game');
+  if (!game) return;
+  let btn = document.getElementById('mesoBtn');
+  if (!btn) {
+    btn = document.createElement('button');
+    btn.id = 'mesoBtn';
+    btn.title = 'Your mesos';
+    btn.innerHTML = '<img src="images/fx/meso-gold.png" alt=""><span></span>';
+    btn.addEventListener('click', openMeso);
+    game.appendChild(btn);
+  }
+  btn.querySelector('span').textContent = fmt(mesoTotal());
+  if (gained > 0) {
+    const plus = Object.assign(document.createElement('span'), { className: 'mesoplus', textContent: `+${fmt(gained)}` });
+    btn.appendChild(plus);
+    btn.classList.remove('bump'); void btn.offsetWidth; btn.classList.add('bump');
+    setTimeout(() => plus.remove(), 2200);
+  }
+}
+function openMeso() {
+  let win = document.getElementById('meso');
+  if (!win) {
+    win = document.createElement('div');
+    win.id = 'meso';
+    win.innerHTML = '<div class="panel"><h2>Mesos</h2><div id="mesoBody"></div><p class="closebar"><button id="mesoClose">Close</button></p></div>';
+    win.querySelector('#mesoClose').addEventListener('click', () => { win.hidden = true; });
+    win.addEventListener('click', (e) => { if (e.target === win) win.hidden = true; });
+    addEventListener('keydown', (e) => { if (e.key === 'Escape') win.hidden = true; });
+    document.body.appendChild(win);
+  }
+  const today = Math.floor(Date.now() / 86400000);
+  const date = (d) => new Date(d * 86400000).toLocaleDateString(undefined, { timeZone: 'UTC', month: 'short', day: 'numeric' });
+  const recent = mesoLog().slice(-10).reverse();
+  const ev = MESO_EVENTS.filter((e) => today <= e.to)
+    .map((e) => `<p class="mesoevent">🎉 <b>${MESO_NAMES[e.mode]}</b> pays <b>${e.times}x</b> mesos from ${date(e.from)} to ${date(e.to)}!</p>`).join('');
+  const rows = (mode) => {
+    const t = MESO_TABLE[mode];
+    const cells = t.map((v, i) => `<td>${i + 1}${i === t.length - 1 ? '+' : ''}</td>`).join('');
+    const vals = t.map((v) => `<td>${fmt(v)}</td>`).join('');
+    const bonus = MESO_BONUS[mode] ? `<p class="mesobonus">Bonus right: +${MESO_BONUS[mode]}</p>` : '';
+    return `<h3>${MESO_NAMES[mode]}${MESO_SOON.has(mode) ? ' <small>(coming soon)</small>' : ''}</h3>` +
+      `<table class="mesotable"><tr><th>Guesses</th>${cells}</tr><tr><th>Mesos</th>${vals}</tr></table>${bonus}`;
+  };
+  win.querySelector('#mesoBody').innerHTML =
+    `<p class="mesototal"><img src="images/fx/meso-gold.png" alt=""> ${fmt(mesoTotal())}</p>` + ev +
+    '<p>Finish today\'s puzzles to earn mesos. The fewer guesses, the more you get! (Archive days don\'t pay.)</p>' +
+    '<p class="mesoshop">🛍️ A <b>cosmetic shop</b> is coming later, so save up your mesos!</p>' +
+    (recent.length ? '<h3>Recent</h3><ul class="mesorecent">' + recent.map((e) =>
+      `<li><span>${date(e.day)} · ${MESO_NAMES[e.mode] ?? e.mode} · ${e.what}${mesoTimes(e.mode, e.day) > 1 ? ` (${mesoTimes(e.mode, e.day)}x)` : ''}</span><b>+${fmt(e.amount)}</b></li>`).join('') + '</ul>' : '') +
+    '<h3 class="mesohow">How to earn</h3>' + Object.keys(MESO_TABLE).map(rows).join('');
+  win.hidden = false;
+}
+// Under the result message: a spinning gold meso and how many mesos today's game paid (with its bonus).
+function mesoGain(mode, day, show) {
+  const status = document.getElementById('status');
+  if (!status) return;
+  let el = document.getElementById('mesoGain');
+  const got = show ? mesoLog().filter((e) => e.key === `${mode}:${day}` || e.key === `${mode}+bonus:${day}`).reduce((s, e) => s + e.amount, 0) : 0;
+  if (!got) { el?.remove(); return; }
+  if (!el) {
+    el = document.createElement('p');
+    el.id = 'mesoGain';
+    el.innerHTML = '<img src="images/fx/meso-gold.png" alt=""><span></span>';
+    el.title = 'Mesos earned today';
+    el.addEventListener('click', openMeso);
+    status.after(el);
+  }
+  el.querySelector('span').textContent = `+${fmt(got)}`;
+}
+drawMeso();

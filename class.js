@@ -363,7 +363,13 @@ function resultFor(m, d) {
   return saved.length ? `In progress (${saved.length} guesses)` : 'Not played';
 }
 window.archiveHere = { modes: [MODE], current: () => MODE, result: resultFor, play: (m, d) => start(d) };
-const noteResult = () => { if (over) try { localStorage.setItem(`mapleWordle:result:${MODE}:${day}`, resultFor(MODE, day)); } catch {} };
+const noteResult = () => {
+  if (over) {
+    try { localStorage.setItem(`mapleWordle:result:${MODE}:${day}`, resultFor(MODE, day)); } catch {}
+    if (live) earnGame(MODE, day, resultFor(MODE, day));   // mesos (fx.js), today's puzzle only
+  }
+  mesoGain(MODE, day, over && live);   // the spinning "+mesos" under the result
+};
 const closeArchive = () => { $('archive').hidden = true; };
 
 // ---- Share ----

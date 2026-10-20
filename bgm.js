@@ -463,7 +463,10 @@ $('bonusGo').addEventListener('click', () => {
   save();
   renderEnd();
   noteResult();
-  sendBonus(answer.bonus.right.includes(pick));
+  const ok = answer.bonus.right.includes(pick);
+  sendBonus(ok);
+  // A glitch mashup's bonus right on today's puzzle unlocks its map as a theme (fx.js); the Archive doesn't count.
+  if (ok && live && answer.bonus.mashup?.egg) unlockTheme(answer.bonus.mashup.egg);
 });
 
 // ---- Boss picker (every boss, A-Z) ----
@@ -614,7 +617,16 @@ function resultFor(m, d) {
   return n ? `In progress (${n}/${MAX})` : 'Not played';
 }
 window.archiveHere = { modes: [MODE], current: () => MODE, result: resultFor, play: (m, d) => start(d) };
-const noteResult = () => { if (over) try { localStorage.setItem(`mapleWordle:result:${MODE}:${day}`, resultFor(MODE, day)); } catch {} };
+const noteResult = () => {
+  if (over) {
+    try { localStorage.setItem(`mapleWordle:result:${MODE}:${day}`, resultFor(MODE, day)); } catch {}
+    if (live) {   // mesos (fx.js), today's puzzle only
+      earnGame(MODE, day, resultFor(MODE, day));
+      if (bonus != null && answer.bonus?.right.includes(bonus)) earnBonus(MODE, day, !!answer.bonus.mashup?.egg);
+    }
+  }
+  mesoGain(MODE, day, over && live);   // the spinning "+mesos" under the result (game + bonus)
+};
 const closeArchive = () => { $('archive').hidden = true; };
 
 // ---- Share ----

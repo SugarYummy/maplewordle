@@ -468,7 +468,13 @@ window.archiveHere = {
   play: (m, d) => { setMode(m); start(d); },
 };
 // Remember finished results so the archive on other pages can show them.
-const noteResult = () => { if (over) try { localStorage.setItem(`mapleWordle:result:${mode}:${day}`, resultFor(mode, day)); } catch {} };
+const noteResult = () => {
+  if (over) {
+    try { localStorage.setItem(`mapleWordle:result:${mode}:${day}`, resultFor(mode, day)); } catch {}
+    if (live) earnGame(mode, day, resultFor(mode, day));   // mesos (fx.js), today's puzzle only
+  }
+  mesoGain(mode, day, over && live);   // the spinning "+mesos" under the result
+};
 // Highlight a mode button on the main page (start() reads the highlighted one).
 function setMode(m) {
   for (const b of document.querySelectorAll('#modes button')) b.classList.toggle('on', b.dataset.mode === m);
