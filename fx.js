@@ -235,11 +235,26 @@ function resultSound(won, delay, file) {
 // effect (the falling leaves on 2x weekends) on/off.
 const FX_KEY = 'mapleWordle:bgEffect';   // 'off' turns the background effect off; on by default
 const bgEffectOn = () => { try { return localStorage.getItem(FX_KEY) !== 'off'; } catch { return true; } };
-// Transparent box: 'on' takes away the main game box's frosted background (off by default).
-const CLEAR_KEY = 'mapleWordle:clearBox';
-const clearBox = () => { try { return localStorage.getItem(CLEAR_KEY) === 'on'; } catch { return false; } };
-const applyClear = () => document.body.classList.toggle('clearbox', clearBox());
-applyClear();
+// Box opacity (0-100) for the main game box: 0 = no background at all, 50 = the usual frosted box (default),
+// 100 = solid, the background can't be seen through it. Sets CSS variables the .game styles use.
+const BOX_KEY = 'mapleWordle:boxOpacity';
+function boxOpacity() {
+  try {
+    const v = localStorage.getItem(BOX_KEY);
+    if (v != null) return Math.min(100, Math.max(0, Number(v) || 0));
+    return localStorage.getItem('mapleWordle:clearBox') === 'on' ? 0 : 50;   // the earlier on/off setting
+  } catch { return 50; }
+}
+function applyBox() {
+  const v = boxOpacity(), k = v / 50;
+  const lerp = (base) => v <= 50 ? base * k : base + (1 - base) * (k - 1);   // 0 -> base -> 1
+  const st = document.documentElement.style;
+  st.setProperty('--boxA', lerp(0.55).toFixed(3));     // plain box: white
+  st.setProperty('--boxRA', lerp(0.42).toFixed(3));    // 🌈 box: white layer
+  st.setProperty('--boxT', (0.38 * Math.min(1, k)).toFixed(3));   // 🌈 box: pastel rainbow tint
+  st.setProperty('--boxBlur', v ? '10px' : '0px');
+}
+applyBox();
 (() => {
   const btn = document.createElement('button');
   btn.id = 'settingsBtn';
@@ -252,8 +267,8 @@ applyClear();
     const tip = (text) => `<button class="infotip" type="button" aria-label="What is this?" data-tip="${text}">i</button>`;
     body.innerHTML = `<div class="setrow"><span class="setlabel">Sound ${tip('The sound effects when a game ends (the win / lose music). The slider sets how loud they are. BGM Clip has its own volume next to Play.')}</span>` +
       '<button id="setMute"></button><input id="setVol" type="range" min="0" max="100"><span id="setVolPct"></span></div>' +
-      `<div class="setrow"><span class="setlabel">Transparent box ${tip('On: the main game box has no background at all, so you can see the whole background picture. Off: the usual frosted box.')}</span>` +
-      '<span class="seg"><button data-clear="on">On</button><button data-clear="off">Off</button></span></div>' +
+      `<div class="setrow"><span class="setlabel">Box opacity ${tip('How see-through the main game box is. 0%: no box, the whole background shows. 50%: the usual frosted box. 100%: solid, no background inside the box.')}</span>` +
+      '<input id="setBox" type="range" min="0" max="100" step="5"><span id="setBoxPct"></span></div>' +
       `<div class="setrow"><span class="setlabel">Background effect ${tip('Falling maple leaves in the background while 2x meso weekends are on.')}</span>` +
       '<span class="seg"><button data-fx="on">On</button><button data-fx="off">Off</button></span></div>' +
       `<div class="setrow"><span class="setlabel">Secret passcode ${tip('VIP access given to those who help make this website!')}</span>` +
@@ -288,7 +303,7 @@ applyClear();
       vol.disabled = muted();
       pct.textContent = vol.value + '%';
       for (const b of body.querySelectorAll('[data-fx]')) b.classList.toggle('on', (b.dataset.fx === 'on') === bgEffectOn());
-      for (const b of body.querySelectorAll('[data-clear]')) b.classList.toggle('on', (b.dataset.clear === 'on') === clearBox());
+      body.querySelector('#setBoxPct').textContent = boxOpacity() + '%';
     };
     mute.addEventListener('click', () => {
       lsSet(muteKey, muted() ? '0' : '1');
@@ -297,7 +312,9 @@ applyClear();
     });
     vol.addEventListener('input', () => { saveSliderVolume(vol.value); show(); });
     for (const b of body.querySelectorAll('[data-fx]')) b.addEventListener('click', () => { lsSet(FX_KEY, b.dataset.fx); show(); leaves(); });
-    for (const b of body.querySelectorAll('[data-clear]')) b.addEventListener('click', () => { lsSet(CLEAR_KEY, b.dataset.clear); applyClear(); show(); });
+    const boxIn = body.querySelector('#setBox');
+    boxIn.value = boxOpacity();
+    boxIn.addEventListener('input', () => { lsSet(BOX_KEY, boxIn.value); applyBox(); show(); });
     show();
   });
   document.body.appendChild(btn);
