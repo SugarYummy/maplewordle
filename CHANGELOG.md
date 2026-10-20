@@ -9,6 +9,7 @@
 - Archive days now pay 10% of the mesos (rounded up). Already finished some Archive days? Open them from the Archive to collect
 - Weekends pay 2x mesos! Saturday and Sunday (Maple reset), on that day's puzzles. Watch for the falling leaves
 - The sound button is now a ⚙️ Settings button: sound on/off, volume, and the background effect on/off
+- Gollux's region is now JMS/GMS, since CMS removed it
 
 ## alpha v4.2 - 20 October 2026
 - New look: the whole site now uses the Rubik font, so it looks the same on every device

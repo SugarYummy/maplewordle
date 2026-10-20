@@ -35,10 +35,10 @@ Story/Normal and Hard use one difficulty per boss (Hard/Chaos > Extreme > Normal
 | 27 | Von Leon | Hard | Maple World | Male | All | 1 | 10.5B | 125 | Story/Normal / Hard / Extreme |
 | 28 | Arkarium | Easy | Maple World | Male | All | 1 | 2.1B | 140 | Extreme |
 | 29 | Arkarium | Normal | Maple World | Male | All | 1 | 12.6B | 140 | Story/Normal / Hard / Extreme |
-| 30 | Gollux | Easy | Masteria | Other | JMS/CMS/GMS | 3 | 110M | 180 | Extreme |
-| 31 | Gollux | Normal | Masteria | Other | JMS/CMS/GMS | 3 | 6.6B | 180 | Extreme |
-| 32 | Gollux | Hard | Masteria | Other | JMS/CMS/GMS | 3 | 165B | 180 | Extreme |
-| 33 | Gollux | Hell | Masteria | Other | JMS/CMS/GMS | 3 | 770B | 180 | Story/Normal / Hard / Extreme |
+| 30 | Gollux | Easy | Masteria | Other | JMS/GMS | 3 | 110M | 180 | Extreme |
+| 31 | Gollux | Normal | Masteria | Other | JMS/GMS | 3 | 6.6B | 180 | Extreme |
+| 32 | Gollux | Hard | Masteria | Other | JMS/GMS | 3 | 165B | 180 | Extreme |
+| 33 | Gollux | Hell | Masteria | Other | JMS/GMS | 3 | 770B | 180 | Story/Normal / Hard / Extreme |
 | 34 | OMNI-CLN | Normal | Maple World | Other | All | 1 | 1.68B | 180 | Story/Normal / Hard / Extreme |
 | 35 | Pink Bean | Normal | Maple World | Male | All | 1 | 2.1B | 140 | Extreme |
 | 36 | Pink Bean | Chaos | Maple World | Male | All | 3 | 69.3B | 170 | Story/Normal / Hard / Extreme |

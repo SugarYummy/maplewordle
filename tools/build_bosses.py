@@ -74,7 +74,7 @@ bosses = [
     b("Arkarium", MW, "Male", "All", ALLP, {
         "Easy": (140, 1, [2_100_000_000]),
         "Normal": (140, 1, [12_600_000_000])}),
-    b("Gollux", "Masteria", "Other", "JMS/CMS/GMS", ALLP, {
+    b("Gollux", "Masteria", "Other", "JMS/GMS", ALLP, {   # CMS removed Gollux (Oct 2026)
         "Easy": (180, 3, [50_000_000, 50_000_000, 10_000_000]),
         "Normal": (180, 3, [3*B, 3*B, 600_000_000]),
         "Hard": (180, 3, [75*B, 75*B, 15*B]),

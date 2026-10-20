@@ -214,7 +214,7 @@
     "difficulty": "Hell",
     "world": "Masteria",
     "gender": "Other",
-    "region": "JMS/CMS/GMS",
+    "region": "JMS/GMS",
     "phases": 3,
     "hp": 770000000000,
     "phaseHp": [
@@ -872,7 +872,7 @@
     "difficulty": "Hell",
     "world": "Masteria",
     "gender": "Other",
-    "region": "JMS/CMS/GMS",
+    "region": "JMS/GMS",
     "phases": 3,
     "hp": 770000000000,
     "phaseHp": [
@@ -1888,7 +1888,7 @@
     "difficulty": "Easy",
     "world": "Masteria",
     "gender": "Other",
-    "region": "JMS/CMS/GMS",
+    "region": "JMS/GMS",
     "phases": 3,
     "hp": 110000000,
     "phaseHp": [
@@ -1906,7 +1906,7 @@
     "difficulty": "Normal",
     "world": "Masteria",
     "gender": "Other",
-    "region": "JMS/CMS/GMS",
+    "region": "JMS/GMS",
     "phases": 3,
     "hp": 6600000000,
     "phaseHp": [
@@ -1924,7 +1924,7 @@
     "difficulty": "Hard",
     "world": "Masteria",
     "gender": "Other",
-    "region": "JMS/CMS/GMS",
+    "region": "JMS/GMS",
     "phases": 3,
     "hp": 165000000000,
     "phaseHp": [
@@ -1942,7 +1942,7 @@
     "difficulty": "Hell",
     "world": "Masteria",
     "gender": "Other",
-    "region": "JMS/CMS/GMS",
+    "region": "JMS/GMS",
     "phases": 3,
     "hp": 770000000000,
     "phaseHp": [
