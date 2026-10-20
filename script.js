@@ -471,9 +471,9 @@ window.archiveHere = {
 const noteResult = () => {
   if (over) {
     try { localStorage.setItem(`mapleWordle:result:${mode}:${day}`, resultFor(mode, day)); } catch {}
-    if (live) earnGame(mode, day, resultFor(mode, day));   // mesos (fx.js), today's puzzle only
+    earnGame(mode, day, resultFor(mode, day));   // mesos (fx.js): Archive days pay 10%
   }
-  mesoGain(mode, day, over && live);   // the spinning "+mesos" under the result
+  mesoGain(mode, day, over);   // the spinning "+mesos" under the result
 };
 // Highlight a mode button on the main page (start() reads the highlighted one).
 function setMode(m) {

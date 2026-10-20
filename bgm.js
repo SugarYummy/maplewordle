@@ -1,25 +1,34 @@
 // Guess the Boss - BGM Clip. Hear the start of today's clip from a boss fight's BGM and guess the boss: 6 tries.
-// Each wrong guess or Skip unlocks more of the clip: 0.5 s, 1 s, 2 s, 5 s, 10 s, then 30 s.
-// The clip is the very start of the track or a random point in it (50/50, the same for everyone that day).
+// Two modes, each with its own daily answer, streak and stats:
+//   Normal (from Oct 21): 7 guesses. Each wrong guess or Skip unlocks more (1 s, 5 s, 10 s, 30 s, 60 s, then the
+//     whole track), the clip always starts at 0:00, and there are hints from Boss Wordle's columns: a random one
+//     (World, Gender, Region, Phases, HP or Entry Lv) after the 3rd guess, and the Entry Lv on the 6th.
+//   Extreme (the original, from Oct 20): 0.5 s, 1 s, 2 s, 5 s, 10 s, 30 s, starting at 0:00 or a random point (50/50).
 // When the game is over the whole track unlocks for a bonus guess: which part of the fight it plays in.
 let data, bosses, pool, day, live, answer, guesses, bonus, over, matches, active;
 
 const $ = (id) => document.getElementById(id);
 
 const STATS_URL = 'https://maplewordle-stats.hanayuki.workers.dev/';
-const MODE = 'bgm';     // key for saves, streak and the stats Worker
+// Mode keys for saves, streak, Archive and the stats Worker ('bgm' is Extreme: it was the only mode at first).
+const MODES = { bgmnormal: { name: 'Normal', first: Date.UTC(2026, 9, 21) }, bgm: { name: 'Extreme', first: Date.UTC(2026, 9, 20) } };
+let MODE = 'bgmnormal';
 const DAY_MS = 86400000;
 const today = () => Math.floor(Date.now() / DAY_MS); // resets at 00:00 UTC
 
-// Puzzle #1 is the day BGM Clip opens (the Oct 20 reset); before that the page counts down to it.
-const FIRST_DAY = Date.UTC(2026, 9, 20) / DAY_MS;
+// Puzzle #1 is the day the mode opens; before that the page counts down to it.
+const firstDay = () => MODES[MODE].first / DAY_MS;
 const dateLabel = (d) => new Date(d * DAY_MS).toLocaleDateString(undefined, { timeZone: 'UTC', month: 'short', day: 'numeric', year: 'numeric' });
 
-// How much of the clip you can hear while making guess n (n = 1..6).
-const LIMITS = [0.5, 1, 2, 5, 10, 30];
-const MAX = LIMITS.length;
-// The bar is a straight 0-30 s scale, so a checkpoint sits where it really is (0.5 s is a sliver at the start).
-const BAR_SECONDS = LIMITS[LIMITS.length - 1];
+// How much of the clip you can hear while making guess n (n = 1..6): Normal's rules, or Extreme's (the original).
+const newRules = () => MODE === 'bgmnormal';
+const OLD_LIMITS = [0.5, 1, 2, 5, 10, 30];
+const NEW_LIMITS = [1, 5, 10, 30, 60];   // then the whole track (at least 60 s; shorter tracks loop)
+const maxGuesses = () => newRules() ? 7 : 6;
+const limitAt = (i) => newRules() ? (i < NEW_LIMITS.length ? NEW_LIMITS[i] : Math.max(60, answer.t.len)) : OLD_LIMITS[i];
+// The bar is a straight scale (0-30 s, or 0-60 s with the new rules, stretching to the whole track on the last guess),
+// so a checkpoint sits where it really is.
+const barSeconds = () => !newRules() ? 30 : guesses.length >= maxGuesses() - 1 ? limitAt(maxGuesses() - 1) : 60;
 const clock = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
 
 // ---- Daily answer: a boss (same shuffled-cycle rules as the other games), then one of its tracks, then where it starts ----
@@ -31,17 +40,22 @@ function hash(str) {
 }
 // The pool is every different BGM of every boss. Each is used once per cycle, in a shuffled order; the only rule
 // is that the same boss never comes up two days running (even with a different BGM).
-let schedule;
+// Normal leaves out the special tracks (an "egg" one, like Lucid's Garden of Eternal Dream), and never picks the
+// boss Extreme has that day, so the two modes are two different BGMs.
+const modePool = () => MODE === 'bgm' ? pool : pool.filter((e) => !data.tracks[e.track].egg);
+const schedules = {};   // per mode
+function inMode(m, f) { const was = MODE; MODE = m; try { return f(); } finally { MODE = was; } }
 function entryFor(d) {
-  schedule ??= { days: [], used: new Set() };
-  const s = schedule;
+  const s = schedules[MODE] ??= { days: [], used: new Set() };
+  const FIRST_DAY = firstDay(), all = modePool();
   while (FIRST_DAY + s.days.length <= d) {
     const day = FIRST_DAY + s.days.length;
     const prev = s.days[s.days.length - 1];
-    let left = pool.filter((e) => !s.used.has(e.key));
-    if (!left.length) { s.used.clear(); left = pool; }                  // cycle done: everything is back in
-    const notSame = (list) => list.filter((e) => !prev || e.boss !== prev.boss);
-    left = notSame(left).length ? notSame(left) : notSame(pool);         // only that boss left: borrow from the next cycle
+    const other = MODE === 'bgm' ? null : inMode('bgm', () => entryFor(day));   // Extreme's pick that day
+    let left = all.filter((e) => !s.used.has(e.key));
+    if (!left.length) { s.used.clear(); left = all; }                   // cycle done: everything is back in
+    const notSame = (list) => list.filter((e) => (!prev || e.boss !== prev.boss) && (!other || e.boss !== other.boss));
+    left = notSame(left).length ? notSame(left) : notSame(all);          // only that boss left: borrow from the next cycle
     let pick = left[0], best = Infinity;
     for (const e of left) {
       const v = hash(`${MODE}|${day}|${e.key}`);
@@ -52,13 +66,13 @@ function entryFor(d) {
   }
   return s.days[Math.max(0, d - FIRST_DAY)];
 }
-// Half the days start at 0:00, the other half at a random second that isn't quiet and leaves 30 s to play.
+// From Oct 21 every clip starts at 0:00. Before that, half the days started at a random second that isn't quiet.
 function answerFor(d) {
   const e = entryFor(d);
   const boss = e.boss, track = e.track;
   const t = data.tracks[track];
   const h = hash(`${MODE}|${d}|start`);
-  const start = h % 2 ? t.starts[(h >>> 1) % t.starts.length] : 0;
+  const start = newRules() || !(h % 2) ? 0 : t.starts[(h >>> 1) % t.starts.length];
   // Some tracks play in more than one boss fight: the other boss shows yellow (close, but not a win).
   const owners = bosses.filter((b) => b.areas.some((a) => a.track === track)).map((b) => b.name);
   const ans = { name: boss.name, boss, track, t, start, owners };
@@ -73,7 +87,8 @@ function bonusFor(ans, d) {
     return { kind: 'area', right: ans.boss.areas.filter((a) => a.track === ans.track).map((a) => a.label) };
   }
   const mashups = data.mashups || [];
-  if (!mashups.length) return null;
+  if (!mashups.length || MODE !== 'bgm') return null;   // mashups (and their glitch Easter eggs) are Extreme only
+  const FIRST_DAY = firstDay();
   const cycle = Math.floor((d - FIRST_DAY) / pool.length), from = FIRST_DAY + cycle * pool.length;
   const quiet = [];   // this cycle's one-BGM days, in a shuffled order
   for (let x = from; x < from + pool.length; x++) if (!hasBonus(entryFor(x).boss)) quiet.push(x);
@@ -95,7 +110,7 @@ const audio = { ctx: null, gain: null, raw: null, buffer: null, src: null, playi
 
 // What you may listen to right now, in seconds of the track: from the clip's start up to your unlock, or all of it.
 const winStart = () => over ? 0 : answer.start;
-const winEnd = () => over ? answer.t.len : answer.start + LIMITS[Math.min(guesses.length, MAX - 1)];
+const winEnd = () => over ? answer.t.len : answer.start + limitAt(Math.min(guesses.length, maxGuesses() - 1));
 const nowPos = () => audio.playing ? audio.p0 + (audio.ctx.currentTime - audio.t0) : audio.pos;
 
 function loadTrack() {
@@ -118,7 +133,7 @@ function ensureCtx() {
   audio.gain.gain.value = bgmVolume() / 50;
   audio.gain.connect(audio.ctx.destination);
 }
-// Decode once there's an AudioContext. Tracks shorter than 30 s are repeated so the last guess loops them.
+// Decode once there's an AudioContext. Tracks up to 60 s are repeated so the long guesses loop them.
 function decoded() {
   if (audio.buffer) return Promise.resolve(audio.buffer);
   if (audio.decoding?.id === audio.id) return audio.decoding.p;
@@ -130,7 +145,7 @@ function decoded() {
 }
 async function decode(id, raw) {
   let buf = await audio.ctx.decodeAudioData((await raw).slice(0));
-  if (data.tracks[id].loop) {
+  if (data.tracks[id].len < 61) {
     const n = Math.ceil(70 / buf.duration);
     const big = audio.ctx.createBuffer(buf.numberOfChannels, buf.length * n, buf.sampleRate);
     for (let c = 0; c < buf.numberOfChannels; c++) for (let k = 0; k < n; k++) big.getChannelData(c).set(buf.getChannelData(c), k * buf.length);
@@ -205,7 +220,7 @@ $('play').addEventListener('click', () => audio.playing ? pause() : play());
 
 // Bar position (%) for a time into the clip: piecewise between the checkpoints (before the end), straight after.
 function barAt(t) {
-  const whole = over ? answer.t.len : BAR_SECONDS;
+  const whole = over ? answer.t.len : barSeconds();
   return Math.max(0, Math.min(100, t / whole * 100));
 }
 function drawTicks() {
@@ -213,24 +228,25 @@ function drawTicks() {
   ticks.innerHTML = labels.innerHTML = '';
   if (over) return;
   // A line for every checkpoint still ahead (passed ones disappear: the unlocked part is one plain block).
-  // Only your current checkpoint and the 30 s end are labelled, since the short ones sit too close to share labels.
-  LIMITS.forEach((s, i) => {
-    if (i < guesses.length) return;
+  // Only your current checkpoint and the end are labelled, since the short ones sit too close to share labels.
+  for (let i = 0; i < maxGuesses(); i++) {
+    const s = limitAt(i);
+    if (i < guesses.length || (i > guesses.length && s === limitAt(i - 1))) continue;
     const at = barAt(s);
     if (at < 100) ticks.appendChild(document.createElement('i')).style.left = at + '%';
-    if (i !== guesses.length && i !== LIMITS.length - 1) return;
+    if (i !== guesses.length && i !== maxGuesses() - 1 && limitAt(i + 1) !== s) continue;
     const l = labels.appendChild(document.createElement('span'));
-    l.textContent = s + 's';
+    l.textContent = newRules() && i >= NEW_LIMITS.length ? 'Full' : s + 's';
     l.style.left = at + '%';
     l.className = (i === guesses.length ? 'open' : '') + (at < 8 ? ' start' : '') + (at === 100 ? ' end' : '');
-  });
+  }
 }
 function drawBar() {
   const p = nowPos();
   const t = over ? p : p - answer.start;
   const at = barAt(Math.max(0, t));
   $('fill').style.width = at + '%';
-  $('open').style.width = (over ? 100 : barAt(LIMITS[Math.min(guesses.length, MAX - 1)])) + '%';
+  $('open').style.width = (over ? 100 : barAt(limitAt(Math.min(guesses.length, maxGuesses() - 1)))) + '%';
   $('markerText').textContent = over ? `${clock(p)} / ${clock(answer.t.len)}` : `${Math.max(0, t).toFixed(1)}s`;   // how far into the clip
   $('play').textContent = audio.playing ? '❚❚' : '▶︎';
   $('track').classList.toggle('seek', over);
@@ -302,11 +318,13 @@ function save() {
 function start(d) {
   live = d == null || d === today();
   day = live ? today() : d;
-  if (day < FIRST_DAY) return notOpenYet();
-  for (const id of ['player', 'skip', 'picker', 'pickrow', 'timer', 'streak', 'rows']) $(id).hidden = false;
+  for (const b of document.querySelectorAll('#modes button')) b.classList.toggle('on', b.dataset.mode === MODE);
+  $('eggNote').hidden = MODE !== 'bgmnormal' || day < firstDay();   // Normal never has the Easter eggs
+  if (day < firstDay()) return notOpenYet();
+  for (const id of ['player', 'skip', 'picker', 'pickrow', 'infostrip', 'rows']) $(id).hidden = false;
   firstTryGlow(false);
   answer = answerFor(day);
-  showPuzzle(day - FIRST_DAY + 1, dateLabel(day), live);   // the info strip (fx.js)
+  showPuzzle(day - firstDay() + 1, dateLabel(day), live);   // the info strip (fx.js)
   $('today').hidden = live;
   guesses = [];
   over = false;
@@ -327,18 +345,38 @@ function start(d) {
 }
 // Before launch day the page is empty apart from this note.
 function notOpenYet() {
-  for (const id of ['player', 'pickrow', 'bonus', 'infostrip', 'rows', 'share']) $(id).hidden = true;
-  $('status').textContent = 'Check back after reset for the Official release!';
+  for (const id of ['player', 'pickrow', 'bonus', 'infostrip', 'rows', 'share', 'hintWrap']) $(id).hidden = true;
+  $('status').textContent = `${MODES[MODE].name} mode opens at the next reset!`;
 }
 
+// Normal's hints, in a Boss Wordle-style table of this boss's columns: a random one opens after the 3rd guess, the
+// Entry Lv on the 6th (or another random one, if the first was already the Entry Lv). All of them open at the end.
+const HINT_COLS = ['World', 'Gender', 'Region', 'Phases', 'HP', 'Entry Lv'];
+function renderHints() {
+  $('hintWrap').hidden = !newRules();
+  if (!newRules()) return;
+  const c = answer.boss.clues || {};
+  const keys = Object.keys(c).sort((x, y) => hash(`${MODE}|${day}|clue|${x}`) - hash(`${MODE}|${day}|clue|${y}`));
+  const first = keys[0], second = first === 'Entry Lv' ? keys[1] : c['Entry Lv'] ? 'Entry Lv' : keys[1];
+  const open = new Set([[3, first], [5, second]].filter(([n, k]) => k && guesses.length >= n).map(([, k]) => k));
+  const row = $('hintRow');
+  row.innerHTML = '';
+  for (const k of HINT_COLS) {
+    const td = row.insertCell();
+    const shown = over || open.has(k);
+    td.textContent = shown ? c[k] ?? 'Unknown' : '🔒';
+    td.className = shown ? 'green' : 'grey';
+  }
+}
 function updateStatus(msg) {
-  $('status').textContent = msg || `Guess ${guesses.length + 1} of ${MAX}`;
+  $('status').textContent = msg || `Guess ${guesses.length + 1} of ${maxGuesses()}`;
+  renderHints();
 }
 
 function record(name) {
   guesses.push(name || '');
   guessRow(name);
-  over = won() || guesses.length >= MAX;
+  over = won() || guesses.length >= maxGuesses();
   if (over) {
     const also = answer.owners.filter((n) => n !== answer.name);
     const alsoText = also.length ? ` (this track also plays in ${also.join(', ')})` : '';
@@ -396,6 +434,7 @@ const hasBonus = (boss) => new Set(boss.areas.map((a) => a.track)).size > 1;
 // First guess + bonus right: the game box glows blue (diamond) instead of gold.
 const diamond = () => over && guesses.length === 1 && won() && bonus != null && !!answer.bonus?.right.includes(bonus);
 function renderEnd() {
+  renderHints();
   drawTicks();
   drawBar();
   document.querySelector('.game').classList.toggle('diamond', diamond());
@@ -559,7 +598,7 @@ async function sendBonus(ok) {
   loadStats();
 }
 function renderStats(counts, mine, bonusCounts) {
-  const bars = [...LIMITS.map((_, i) => String(i + 1)), 'X'].map((k) => ({ key: k, n: counts[k] || 0 }));
+  const bars = [...Array.from({ length: maxGuesses() }, (_, i) => String(i + 1)), 'X'].map((k) => ({ key: k, n: counts[k] || 0 }));
   const total = bars.reduce((n, b) => n + b.n, 0);
   $('statsTitle').textContent = `Everyone's results - ${total} player${total === 1 ? '' : 's'}`;
   const box = $('statsBars');
@@ -596,9 +635,9 @@ function renderStats(counts, mine, bonusCounts) {
 
 // ---- Win streak (today's puzzle only): +1 per win, back to 0 on a loss ----
 
-const streakKey = `mapleWordle:streak:${MODE}`;
+const streakKey = () => `mapleWordle:streak:${MODE}`;
 function loadStreak() {
-  try { return JSON.parse(localStorage.getItem(streakKey)) || { count: 0, last: null }; } catch { return { count: 0, last: null }; }
+  try { return JSON.parse(localStorage.getItem(streakKey())) || { count: 0, last: null }; } catch { return { count: 0, last: null }; }
 }
 function updateStreak() {
   if (!live) return;
@@ -606,7 +645,7 @@ function updateStreak() {
   if (s.last === day) return;
   s.count = won() ? s.count + 1 : 0;
   s.last = day;
-  try { localStorage.setItem(streakKey, JSON.stringify(s)); } catch {}
+  try { localStorage.setItem(streakKey(), JSON.stringify(s)); } catch {}
   renderStreak();
 }
 function renderStreak() {
@@ -616,25 +655,24 @@ function renderStreak() {
 // ---- Archive ----
 
 // Archive (the shared window is archive.js): this page's result for a day. 💎 = first guess and the bonus right.
-function resultFor(m, d) {
+const resultFor = (m, d) => inMode(m, () => resultIn(d));
+function resultIn(d) {
   const saved = load(d), ans = answerFor(d);
   const n = saved.g.length, w = saved.g.includes(ans.name);
   if (w) {
-    return `Won ${n}/${MAX}` + (n === 1 && ans.bonus?.right.includes(saved.bonus) ? ' 💎' : '');
+    return `Won ${n}/${maxGuesses()}` + (n === 1 && ans.bonus?.right.includes(saved.bonus) ? ' 💎' : '');
   }
-  if (n >= MAX) return 'Lost';
-  return n ? `In progress (${n}/${MAX})` : 'Not played';
+  if (n >= maxGuesses()) return 'Lost';
+  return n ? `In progress (${n}/${maxGuesses()})` : 'Not played';
 }
-window.archiveHere = { modes: [MODE], current: () => MODE, result: resultFor, play: (m, d) => start(d) };
+window.archiveHere = { modes: Object.keys(MODES), current: () => MODE, result: resultFor, play: (m, d) => { MODE = m; start(d); } };
 const noteResult = () => {
   if (over) {
     try { localStorage.setItem(`mapleWordle:result:${MODE}:${day}`, resultFor(MODE, day)); } catch {}
-    if (live) {   // mesos (fx.js), today's puzzle only
-      earnGame(MODE, day, resultFor(MODE, day));
-      if (bonus != null && answer.bonus?.right.includes(bonus)) earnBonus(MODE, day, !!answer.bonus.mashup?.egg);
-    }
+    earnGame(MODE, day, resultFor(MODE, day));   // mesos (fx.js): Archive days pay 10%
+    if (bonus != null && answer.bonus?.right.includes(bonus)) earnBonus(MODE, day, !!answer.bonus.mashup?.egg);
   }
-  mesoGain(MODE, day, over && live);   // the spinning "+mesos" under the result (game + bonus)
+  mesoGain(MODE, day, over);   // the spinning "+mesos" under the result (game + bonus)
   // Shop items this track's day finds by winning: "win" on the day itself, "winAny" from the Archive too (fx.js).
   if (over && won()) {
     if (live) answer.t.unlock?.win?.forEach(shopUnlock);
@@ -650,9 +688,9 @@ function shareText() {
   const first = won() && guesses.length === 1;
   // First-guess win: just a star, or just a diamond if the bonus was right too.
   const grid = first ? (ok ? '💎' : '⭐')
-    : guesses.map((n) => !n ? '⬛' : isRight(n) ? '🟩' : isClose(n) ? '🟨' : '🟥').join('') + '⬜'.repeat(MAX - guesses.length);
+    : guesses.map((n) => !n ? '⬛' : isRight(n) ? '🟩' : isClose(n) ? '🟨' : '🟥').join('') + '⬜'.repeat(maxGuesses() - guesses.length);
   const extra = bonus == null || grid === '💎' ? '' : `\nBonus ${ok ? '✅' : '❌'}`;
-  return [`Maple Wordle - BGM Clip #${day - FIRST_DAY + 1} ${won() ? guesses.length : 'X'}/${MAX}`,
+  return [`Maple Wordle - BGM Clip (${MODES[MODE].name}) #${day - firstDay() + 1} ${won() ? guesses.length : 'X'}/${maxGuesses()}`,
     grid + extra, 'https://ima.moe/maplewordle/bgm'].join('\n');
 }
 function share() {
@@ -713,14 +751,22 @@ $('credit').addEventListener('click', () => {
 const DISCORD = 'https://discord.gg/f22H4UJ';
 function openInfo() {
   const rules = [
-    "Listen to today's BGM clip and guess which boss fight it's from. You get <b>6</b> guesses. New BGM every day at 00:00 UTC (same as Maple reset).",
-    'Your first guess gets <b>0.5 seconds</b> of the clip. Each wrong guess or Skip unlocks more: 1s, 2s, 5s, 10s, then 30s. Miss all 6 and you lose.',
-    'A wrong guess only tells you it\'s wrong. Nothing else is revealed.',
-    'Play starts and pauses the clip. It stops at what you\'ve unlocked, and pressing Play again starts it over. You can\'t skip ahead.',
-    'The clip starts either at the very beginning of the track or somewhere in the middle (50/50).',
+    `Listen to today's BGM clip and guess which boss fight it's from. You get <b>${maxGuesses()}</b> guesses. Normal and Extreme each have their own BGM every day at 00:00 UTC (same as Maple reset).`,
+    ...(newRules() ? [
+      'Your first guess gets <b>1 second</b> of the clip. Each wrong guess or Skip unlocks more: 5s, 10s, 30s, 60s, then the <b>whole track</b>. Miss all 7 and you lose.',
+      'Hints: after your <b>3rd</b> guess you get one of the boss\'s World, Gender, Region, Phases, HP or Entry Lv (like Boss Wordle\'s columns). On your <b>6th</b> guess you get its Entry Lv too.',
+      'Play starts and pauses the clip. It stops at what you\'ve unlocked, and pressing Play again starts it over. You can\'t skip ahead.',
+      'The clip always starts at the very beginning of the track.',
+    ] : [
+      'Your first guess gets <b>0.5 seconds</b> of the clip. Each wrong guess or Skip unlocks more: 1s, 2s, 5s, 10s, then 30s. Miss all 6 and you lose.',
+      'A wrong guess only tells you it\'s wrong. Nothing else is revealed.',
+      'Play starts and pauses the clip. It stops at what you\'ve unlocked, and pressing Play again starts it over. You can\'t skip ahead.',
+      'The clip starts either at the very beginning of the track or somewhere in the middle (50/50).',
+    ]),
     'The BGM can be from any part of the fight: the waiting room, any phase, the loot room and more.',
     'A few tracks play in two boss fights (Horntail and Balrog, Ursus and Inferno Wolf). Picking the other boss shows <b>yellow</b>: right track, wrong boss. It still counts as a miss.',
-    '<b>Bonus:</b> when the game is over the whole track unlocks (click the bar to jump around). Guess which part of the fight it plays in. It\'s just for fun and won\'t change your result. Bosses with only one BGM have no bonus, except on the rare day a <b>mashup</b> shows up instead: guess whose BGM mashup it is, with one guess.',
+    '<b>Bonus:</b> when the game is over the whole track unlocks (click the bar to jump around). Guess which part of the fight it plays in. It\'s just for fun and won\'t change your result. ' +
+      (newRules() ? 'Bosses with only one BGM have no bonus.' : 'Bosses with only one BGM have no bonus, except on the rare day a <b>mashup</b> shows up instead: guess whose BGM mashup it is, with one guess.'),
     'Win on your first guess for a ⭐ in the Archive. Get the bonus right too for a 💎.',
     'The volume bar next to Play is only for this game\'s BGM (separate from the sound button).',
     'Win streak resets when you lose.',
@@ -745,11 +791,19 @@ document.addEventListener('keydown', (e) => {
   closeArchive();
 });
 $('today').addEventListener('click', () => start());
+for (const b of document.querySelectorAll('#modes button')) {
+  b.addEventListener('click', () => {
+    if (b.dataset.mode === MODE || !pool) return;
+    pause();
+    MODE = b.dataset.mode;
+    start(live ? undefined : day);
+  });
+}
 
 function tick() {
   if (pool && live && today() !== day) start();
   const s = Math.floor(((today() + 1) * DAY_MS - Date.now()) / 1000);
-  showTimer(today() < FIRST_DAY ? 'BGM Clip opens in' : 'Next BGM in', s);
+  showTimer(today() < firstDay() ? `${MODES[MODE].name} opens in` : 'Next BGM in', s);
 }
 
 fetch('data/bgm.json', { cache: 'no-cache' }).then((r) => r.json())
@@ -761,7 +815,9 @@ fetch('data/bgm.json', { cache: 'no-cache' }).then((r) => r.json())
     pool = bosses.flatMap((b) => [...new Set(b.areas.map((a) => a.track))].map((track) => ({ key: `${b.name}|${track}`, boss: b, track })));
     tick();
     setInterval(tick, 1000);
-    start(window.archiveRequest?.mode === MODE ? window.archiveRequest.day : undefined);
+    const req = window.archiveRequest;   // opened from the archive on another page
+    if (req && req.mode in MODES) { MODE = req.mode; start(req.day); }
+    else { if (today() < firstDay()) MODE = 'bgm'; start(); }   // Normal isn't open yet: show Extreme
   })
   .catch(() => { $('status').textContent = 'Could not load the BGM data.'; });
 addEventListener('resize', () => { if (answer) drawBar(); });

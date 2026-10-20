@@ -366,9 +366,9 @@ window.archiveHere = { modes: [MODE], current: () => MODE, result: resultFor, pl
 const noteResult = () => {
   if (over) {
     try { localStorage.setItem(`mapleWordle:result:${MODE}:${day}`, resultFor(MODE, day)); } catch {}
-    if (live) earnGame(MODE, day, resultFor(MODE, day));   // mesos (fx.js), today's puzzle only
+    earnGame(MODE, day, resultFor(MODE, day));   // mesos (fx.js): Archive days pay 10%
   }
-  mesoGain(MODE, day, over && live);   // the spinning "+mesos" under the result
+  mesoGain(MODE, day, over);   // the spinning "+mesos" under the result
 };
 const closeArchive = () => { $('archive').hidden = true; };
 

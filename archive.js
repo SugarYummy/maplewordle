@@ -12,7 +12,8 @@
     { mode: 'normal', label: 'Boss - Normal', page: './', first: D(2026, 10, 10), row: 0 },
     { mode: 'hard', label: 'Boss - Hard', page: './', first: D(2026, 10, 10), row: 0 },
     { mode: 'extreme', label: 'Boss - Extreme', page: './', first: D(2026, 10, 10), row: 0 },
-    { mode: 'bgm', label: 'Boss - BGM Clip', page: 'bgm', first: D(2026, 10, 20), row: 1 },
+    { mode: 'bgmnormal', label: 'BGM Clip - Normal', page: 'bgm', first: D(2026, 10, 21), row: 1 },
+    { mode: 'bgm', label: 'BGM Clip - Extreme', page: 'bgm', first: D(2026, 10, 20), row: 1 },
     { mode: 'sound', label: 'Boss - Sound Clip', soon: true, row: 1 },   // coming soon: shown, can't be opened
     { mode: 'class', label: 'Class - Wordle', page: 'class', first: D(2026, 10, 11), row: 2 },
     { mode: 'anim', label: 'Class - Attack Animation', page: 'animation', first: D(2026, 10, 12), row: 2 },

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Maple Wordle - BGM Clip</title>
 <script src="move.js?v=1"></script>
-<link rel="stylesheet" href="style.css?v=53">
+<link rel="stylesheet" href="style.css?v=61">
 </head>
 <body>
 <button id="archiveBtn" class="panel">Archive</button>
@@ -28,6 +28,11 @@
   <button class="on" data-new="bgmClip" data-meso="bgm">BGM Clip</button>
   <button disabled>Sound Clip<small>Coming soon</small></button>
 </div>
+<div id="modes">Mode:
+  <button data-mode="bgmnormal" class="on">Normal</button>
+  <button data-mode="bgm">Extreme</button>
+</div>
+<p class="eggnote" id="eggNote" hidden>🥚 You can only see Easter eggs in <b>Extreme</b> mode, play it for a chance to unlock possible Easter eggs!</p>
 <div class="infostrip" id="infostrip">
   <div><span class="k" id="puzzleLabel">Puzzle</span><span class="v" id="puzzle"></span></div>
   <div><span class="k" id="timerLabel">Next in</span><span class="v" id="timer"></span></div>
@@ -59,6 +64,12 @@
 <button id="skip">Skip</button>
 <button id="infoBtn" title="How to play">?</button>
 </div>
+<div class="table-wrap" id="hintWrap" hidden>
+<table id="hintTable">
+  <thead><tr><th>World</th><th>Gender</th><th>Region</th><th>Phases</th><th>HP</th><th>Entry Lv</th></tr></thead>
+  <tbody><tr id="hintRow"></tr></tbody>
+</table>
+</div>
 <div id="bonus" hidden>
   <h3 id="bonusTitle">Bonus: Where does this BGM play?</h3>
   <p id="bonusHelp">The whole track is unlocked now. Click the bar to jump around.</p>
@@ -83,7 +94,7 @@
   <div id="clip-right" class="peekclip"><img src="images/peek/moeko.png" alt=""></div>
   <div id="credit" class="panel">Made by Yuki with Love &lt;3</div>
 </div>
-<button id="version" class="panel">alpha v4.2</button>
+<button id="version" class="panel">alpha v4.3</button>
 <div id="info" hidden>
   <div class="panel">
     <h2>How to play</h2>
@@ -98,8 +109,8 @@
     <p class="closebar"><button id="changelogClose">Close</button></p>
   </div>
 </div>
-<script src="fx.js?v=37"></script>
-<script src="archive.js?v=4"></script>
-<script src="bgm.js?v=12"></script>
+<script src="fx.js?v=48"></script>
+<script src="archive.js?v=5"></script>
+<script src="bgm.js?v=19"></script>
 </body>
 </html>

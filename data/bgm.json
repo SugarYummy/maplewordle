@@ -1,5 +1,5 @@
 {
- "_about": "BGM Clip data, built from the confirmed Boss BGM checklist. bosses: every boss you can guess, in checklist order; areas: where each track plays, in the order the bonus round lists them (a boss without areas can be guessed but is never the answer). tracks: len in seconds; starts = whole seconds a random-start day may begin at; loop = shorter than 30 s, so it repeats. mashups: bonus for bosses with only one BGM: guess whose mashup it is (one guess). egg: a hidden extra when the mashup (or, on a track, the whole track after the game) plays. unlock: shop items a track's day finds: bonus right / won (that day only) / winAny (Archive too).",
+ "_about": "BGM Clip data, built from the confirmed Boss BGM checklist. bosses: every boss you can guess, in checklist order (clues: Normal mode hints from Boss Wordle, its lowest difficulty); areas: where each track plays, in the order the bonus round lists them (a boss without areas can be guessed but is never the answer). tracks: len in seconds; starts = whole seconds a random-start day may begin at; loop = shorter than 30 s, so it repeats. mashups: bonus for bosses with only one BGM: guess whose mashup it is (one guess). egg: a hidden extra when the mashup (or, on a track, the whole track after the game) plays. unlock: shop items a track's day finds: bonus right / won (that day only) / winAny (Archive too).",
  "bosses": [
   {
    "name": "Zakum",
@@ -13,7 +13,15 @@
      "label": "Battle",
      "track": "10989e3de6"
     }
-   ]
+   ],
+   "clues": {
+    "World": "Maple World",
+    "Gender": "Other",
+    "Region": "All",
+    "Phases": "1 (Easy)",
+    "HP": "2.2M (Easy)",
+    "Entry Lv": "50 (Easy)"
+   }
   },
   {
    "name": "Papulatus",
@@ -27,7 +35,15 @@
      "label": "Battle",
      "track": "116573d1f1"
     }
-   ]
+   ],
+   "clues": {
+    "World": "Maple World",
+    "Gender": "Other",
+    "Region": "All",
+    "Phases": "2 (Easy)",
+    "HP": "400M (Easy)",
+    "Entry Lv": "115 (Easy)"
+   }
   },
   {
    "name": "Magnus",
@@ -41,7 +57,15 @@
      "label": "Battle",
      "track": "3eebd0e491"
     }
-   ]
+   ],
+   "clues": {
+    "World": "Grandis",
+    "Gender": "Male",
+    "Region": "All",
+    "Phases": "1 (Easy)",
+    "HP": "400M (Easy)",
+    "Entry Lv": "115 (Easy)"
+   }
   },
   {
    "name": "Hilla",
@@ -55,7 +79,15 @@
      "label": "Battle",
      "track": "8f00ce6c32"
     }
-   ]
+   ],
+   "clues": {
+    "World": "Maple World",
+    "Gender": "Female",
+    "Region": "All",
+    "Phases": "1 (Normal)",
+    "HP": "500M (Normal)",
+    "Entry Lv": "85 (Normal)"
+   }
   },
   {
    "name": "Mori Ranmaru",
@@ -69,7 +101,15 @@
      "label": "Battle",
      "track": "81cecef2bc"
     }
-   ]
+   ],
+   "clues": {
+    "World": "Maple World",
+    "Gender": "Male",
+    "Region": "All except KMS",
+    "Phases": "1 (Normal)",
+    "HP": "1B (Normal)",
+    "Entry Lv": "120 (Normal)"
+   }
   },
   {
    "name": "Horntail",
@@ -91,7 +131,15 @@
      "label": "Phase 3",
      "track": "2e348b6217"
     }
-   ]
+   ],
+   "clues": {
+    "World": "Maple World",
+    "Gender": "Other",
+    "Region": "All",
+    "Phases": "3 (Easy)",
+    "HP": "1.018B (Easy)",
+    "Entry Lv": "130 (Easy)"
+   }
   },
   {
    "name": "Pierre",
@@ -105,7 +153,15 @@
      "label": "Battle",
      "track": "544fd0c04b"
     }
-   ]
+   ],
+   "clues": {
+    "World": "Maple World",
+    "Gender": "Male",
+    "Region": "All",
+    "Phases": "1 (Normal)",
+    "HP": "315M (Normal)",
+    "Entry Lv": "125 (Normal)"
+   }
   },
   {
    "name": "Von Bon",
@@ -119,7 +175,15 @@
      "label": "Battle",
      "track": "a5144e481c"
     }
-   ]
+   ],
+   "clues": {
+    "World": "Maple World",
+    "Gender": "Male",
+    "Region": "All",
+    "Phases": "1 (Normal)",
+    "HP": "315M (Normal)",
+    "Entry Lv": "125 (Normal)"
+   }
   },
   {
    "name": "Crimson Queen",
@@ -133,7 +197,15 @@
      "label": "Battle",
      "track": "f1284db1b8"
     }
-   ]
+   ],
+   "clues": {
+    "World": "Maple World",
+    "Gender": "Female",
+    "Region": "All",
+    "Phases": "1 (Normal)",
+    "HP": "315M (Normal)",
+    "Entry Lv": "125 (Normal)"
+   }
   },
   {
    "name": "Vellum",
@@ -147,7 +219,15 @@
      "label": "Battle",
      "track": "b19fb65c6e"
     }
-   ]
+   ],
+   "clues": {
+    "World": "Maple World",
+    "Gender": "Other",
+    "Region": "All",
+    "Phases": "1 (Normal)",
+    "HP": "550M (Normal)",
+    "Entry Lv": "125 (Normal)"
+   }
   },
   {
    "name": "Von Leon",
@@ -161,7 +241,15 @@
      "label": "Battle",
      "track": "064b476107"
     }
-   ]
+   ],
+   "clues": {
+    "World": "Maple World",
+    "Gender": "Male",
+    "Region": "All",
+    "Phases": "1 (Hard)",
+    "HP": "10.5B (Hard)",
+    "Entry Lv": "125 (Hard)"
+   }
   },
   {
    "name": "Arkarium",
@@ -175,7 +263,15 @@
      "label": "Battle",
      "track": "d2dc87baca"
     }
-   ]
+   ],
+   "clues": {
+    "World": "Maple World",
+    "Gender": "Male",
+    "Region": "All",
+    "Phases": "1 (Normal)",
+    "HP": "12.6B (Normal)",
+    "Entry Lv": "140 (Normal)"
+   }
   },
   {
    "name": "Gollux",
@@ -201,7 +297,15 @@
      "label": "Phase 3",
      "track": "425f67a380"
     }
-   ]
+   ],
+   "clues": {
+    "World": "Masteria",
+    "Gender": "Other",
+    "Region": "JMS/CMS/GMS",
+    "Phases": "3 (Hell)",
+    "HP": "770B (Hell)",
+    "Entry Lv": "180 (Hell)"
+   }
   },
   {
    "name": "OMNI-CLN",
@@ -215,7 +319,15 @@
      "label": "Battle",
      "track": "6f0927f18a"
     }
-   ]
+   ],
+   "clues": {
+    "World": "Maple World",
+    "Gender": "Other",
+    "Region": "All",
+    "Phases": "1",
+    "HP": "1.68B",
+    "Entry Lv": "180"
+   }
   },
   {
    "name": "Pink Bean",
@@ -229,7 +341,15 @@
      "label": "Battle",
      "track": "af4d8c482a"
     }
-   ]
+   ],
+   "clues": {
+    "World": "Maple World",
+    "Gender": "Male",
+    "Region": "All",
+    "Phases": "1 (Normal)",
+    "HP": "2.1B (Normal)",
+    "Entry Lv": "140 (Normal)"
+   }
   },
   {
    "name": "Cygnus",
@@ -243,7 +363,15 @@
      "label": "Battle",
      "track": "d4b3a593e3"
     }
-   ]
+   ],
+   "clues": {
+    "World": "Maple World",
+    "Gender": "Female",
+    "Region": "All except KMS",
+    "Phases": "1 (Normal)",
+    "HP": "63B (Normal)",
+    "Entry Lv": "165 (Normal)"
+   }
   },
   {
    "name": "Princess No",
@@ -257,7 +385,15 @@
      "label": "Battle",
      "track": "95deefc630"
     }
-   ]
+   ],
+   "clues": {
+    "World": "Maple World",
+    "Gender": "Female",
+    "Region": "All except KMS",
+    "Phases": "1",
+    "HP": "500B",
+    "Entry Lv": "180"
+   }
   },
   {
    "name": "Akechi Mitsuhide",
@@ -287,7 +423,15 @@
      "label": "Loot Room",
      "track": "4069413b3b"
     }
-   ]
+   ],
+   "clues": {
+    "World": "Maple World",
+    "Gender": "Male",
+    "Region": "JMS/GMS/MSEA",
+    "Phases": "2",
+    "HP": "700B",
+    "Entry Lv": "200"
+   }
   },
   {
    "name": "Lotus",
@@ -325,7 +469,15 @@
      "label": "Loot Room",
      "track": "a1d4f1eeb1"
     }
-   ]
+   ],
+   "clues": {
+    "World": "Maple World",
+    "Gender": "Male",
+    "Region": "All",
+    "Phases": "3 (Hard)",
+    "HP": "33.285T (Hard)",
+    "Entry Lv": "190 (Hard)"
+   }
   },
   {
    "name": "Damien",
@@ -355,7 +507,15 @@
      "label": "Loot Room",
      "track": "47708d971a"
     }
-   ]
+   ],
+   "clues": {
+    "World": "Maple World",
+    "Gender": "Male",
+    "Region": "All",
+    "Phases": "2 (Hard)",
+    "HP": "36T (Hard)",
+    "Entry Lv": "190 (Hard)"
+   }
   },
   {
    "name": "Guardian Angel Slime",
@@ -377,7 +537,15 @@
      "label": "Loot Room",
      "track": "507353a6f5"
     }
-   ]
+   ],
+   "clues": {
+    "World": "Maple World",
+    "Gender": "Other",
+    "Region": "All",
+    "Phases": "1 (Chaos)",
+    "HP": "90T (Chaos)",
+    "Entry Lv": "210 (Chaos)"
+   }
   },
   {
    "name": "Lucid",
@@ -403,7 +571,15 @@
      "label": "Loot Room",
      "track": "03163b0aae"
     }
-   ]
+   ],
+   "clues": {
+    "World": "Arcane River",
+    "Gender": "Female",
+    "Region": "All",
+    "Phases": "3 (Hard)",
+    "HP": "117.6T (Hard)",
+    "Entry Lv": "220 (Hard)"
+   }
   },
   {
    "name": "Will",
@@ -429,7 +605,15 @@
      "label": "Loot Room",
      "track": "c50f4593cc"
     }
-   ]
+   ],
+   "clues": {
+    "World": "Arcane River",
+    "Gender": "Male",
+    "Region": "All",
+    "Phases": "3 (Hard)",
+    "HP": "126T (Hard)",
+    "Entry Lv": "235 (Hard)"
+   }
   },
   {
    "name": "Gloom",
@@ -451,7 +635,15 @@
      "label": "Loot Room",
      "track": "cc0babf385"
     }
-   ]
+   ],
+   "clues": {
+    "World": "Arcane River",
+    "Gender": "Other",
+    "Region": "All",
+    "Phases": "1 (Chaos)",
+    "HP": "127.05T (Chaos)",
+    "Entry Lv": "245 (Chaos)"
+   }
   },
   {
    "name": "Verus Hilla",
@@ -469,7 +661,15 @@
      "label": "Loot Room",
      "track": "7cbc13fb9d"
     }
-   ]
+   ],
+   "clues": {
+    "World": "Arcane River",
+    "Gender": "Female",
+    "Region": "All",
+    "Phases": "1 (Hard)",
+    "HP": "178.5T (Hard)",
+    "Entry Lv": "250 (Hard)"
+   }
   },
   {
    "name": "Malicia",
@@ -503,7 +703,15 @@
      "label": "Loot Room",
      "track": "ca1e41bf1e"
     }
-   ]
+   ],
+   "clues": {
+    "World": "Maple World",
+    "Gender": "Female",
+    "Region": "JMS/CMS/TMS/MSEA",
+    "Phases": "4 (Extreme)",
+    "HP": "300Q+ (Extreme)",
+    "Entry Lv": "250 (Extreme)"
+   }
   },
   {
    "name": "Darknell",
@@ -521,7 +729,15 @@
      "label": "Loot Room",
      "track": "47283fccfe"
     }
-   ]
+   ],
+   "clues": {
+    "World": "Arcane River",
+    "Gender": "Male",
+    "Region": "All",
+    "Phases": "1 (Hard)",
+    "HP": "157.5T (Hard)",
+    "Entry Lv": "255 (Hard)"
+   }
   },
   {
    "name": "Black Mage",
@@ -555,7 +771,15 @@
      "label": "Loot Room",
      "track": "d45510653b"
     }
-   ]
+   ],
+   "clues": {
+    "World": "Arcane River",
+    "Gender": "Male",
+    "Region": "All",
+    "Phases": "4 (Hard)",
+    "HP": "472.5T (Hard)",
+    "Entry Lv": "255 (Hard)"
+   }
   },
   {
    "name": "Chosen Seren",
@@ -589,7 +813,15 @@
      "label": "Loot Room",
      "track": "b2a9e7901c"
     }
-   ]
+   ],
+   "clues": {
+    "World": "Grandis",
+    "Gender": "Female",
+    "Region": "All",
+    "Phases": "2 (Hard)",
+    "HP": "483T (Hard)",
+    "Entry Lv": "260 (Hard)"
+   }
   },
   {
    "name": "Kalos",
@@ -615,7 +847,15 @@
      "label": "Loot Room",
      "track": "fa673ef7df"
     }
-   ]
+   ],
+   "clues": {
+    "World": "Grandis",
+    "Gender": "Male",
+    "Region": "All",
+    "Phases": "2 (Chaos)",
+    "HP": "5.126Q (Chaos)",
+    "Entry Lv": "265 (Chaos)"
+   }
   },
   {
    "name": "First Adversary",
@@ -641,7 +881,15 @@
      "label": "Loot Room",
      "track": "4a371e5950"
     }
-   ]
+   ],
+   "clues": {
+    "World": "Grandis",
+    "Gender": "Male",
+    "Region": "All",
+    "Phases": "3 (Hard)",
+    "HP": "10.45Q (Hard)",
+    "Entry Lv": "270 (Hard)"
+   }
   },
   {
    "name": "Kaling",
@@ -667,7 +915,15 @@
      "label": "Loot Room",
      "track": "63014d1236"
     }
-   ]
+   ],
+   "clues": {
+    "World": "Grandis",
+    "Gender": "Female",
+    "Region": "All",
+    "Phases": "3 (Hard)",
+    "HP": "9.423Q (Hard)",
+    "Entry Lv": "275 (Hard)"
+   }
   },
   {
    "name": "Malefic Star",
@@ -689,7 +945,15 @@
      "label": "Loot Room",
      "track": "b5fec4f94a"
     }
-   ]
+   ],
+   "clues": {
+    "World": "Grandis",
+    "Gender": "Female",
+    "Region": "All",
+    "Phases": "1 (Hard)",
+    "HP": "14.74Q (Hard)",
+    "Entry Lv": "280 (Hard)"
+   }
   },
   {
    "name": "Bellona",
@@ -719,7 +983,15 @@
      "label": "Loot Room",
      "track": "4cacdea280"
     }
-   ]
+   ],
+   "clues": {
+    "World": "Grandis",
+    "Gender": "Female",
+    "Region": "KMS only",
+    "Phases": "2 (Hard)",
+    "HP": "13.716Q (Hard)",
+    "Entry Lv": "280 (Hard)"
+   }
   },
   {
    "name": "Limbo",
@@ -761,7 +1033,15 @@
      "label": "Loot Room",
      "track": "ab79752171"
     }
-   ]
+   ],
+   "clues": {
+    "World": "Grandis",
+    "Gender": "Male",
+    "Region": "All",
+    "Phases": "3 (Hard)",
+    "HP": "12.432Q (Hard)",
+    "Entry Lv": "285 (Hard)"
+   }
   },
   {
    "name": "Baldrix",
@@ -795,7 +1075,15 @@
      "label": "Loot Room",
      "track": "7fbcf17591"
     }
-   ]
+   ],
+   "clues": {
+    "World": "Grandis",
+    "Gender": "Male",
+    "Region": "All",
+    "Phases": "3 (Hard)",
+    "HP": "20.1Q (Hard)",
+    "Entry Lv": "290 (Hard)"
+   }
   },
   {
    "name": "Jupiter",
@@ -829,7 +1117,15 @@
      "label": "Loot Room",
      "track": "f880890df7"
     }
-   ]
+   ],
+   "clues": {
+    "World": "Grandis",
+    "Gender": "Male",
+    "Region": "All",
+    "Phases": "1 (Hard)",
+    "HP": "49.4Q (Hard)",
+    "Entry Lv": "295 (Hard)"
+   }
   },
   {
    "name": "Kai",
@@ -851,7 +1147,15 @@
      "label": "Loot Room",
      "track": "ca346934fa"
     }
-   ]
+   ],
+   "clues": {
+    "World": "Other",
+    "Gender": "Male",
+    "Region": "Seasonal",
+    "Phases": "2 (Normal)",
+    "HP": "126T (Normal)",
+    "Entry Lv": "270 (Normal)"
+   }
   },
   {
    "name": "Mayrin",
@@ -873,7 +1177,15 @@
      "label": "Loot Room",
      "track": "ee16b3714f"
     }
-   ]
+   ],
+   "clues": {
+    "World": "Other",
+    "Gender": "Female",
+    "Region": "Seasonal",
+    "Phases": "2 (Normal)",
+    "HP": "117.85T (Normal)",
+    "Entry Lv": "270 (Normal)"
+   }
   },
   {
    "name": "Balrog",
@@ -887,7 +1199,15 @@
      "label": "Battle",
      "track": "2e348b6217"
     }
-   ]
+   ],
+   "clues": {
+    "World": "Maple World",
+    "Gender": "Male",
+    "Region": "All",
+    "Phases": "1",
+    "HP": "4.788M",
+    "Entry Lv": "65"
+   }
   },
   {
    "name": "Ursus",
@@ -913,7 +1233,15 @@
      "label": "Phase 4",
      "track": "0bb3cc0bd5"
     }
-   ]
+   ],
+   "clues": {
+    "World": "Maple World",
+    "Gender": "Other",
+    "Region": "GMS only",
+    "Phases": "1",
+    "HP": "2.625T",
+    "Entry Lv": "100"
+   }
   },
   {
    "name": "Yakuza Boss",
@@ -923,7 +1251,15 @@
      "label": "Battle",
      "track": "86aad34e67"
     }
-   ]
+   ],
+   "clues": {
+    "World": "Maple World",
+    "Gender": "Male",
+    "Region": "JMS/GMS/MSEA",
+    "Phases": "1",
+    "HP": "1B",
+    "Entry Lv": "160"
+   }
   },
   {
    "name": "Frenzied Gigatoad",
@@ -933,7 +1269,15 @@
      "label": "Battle",
      "track": "5124c61549"
     }
-   ]
+   ],
+   "clues": {
+    "World": "Maple World",
+    "Gender": "Other",
+    "Region": "JMS/GMS/MSEA",
+    "Phases": "1",
+    "HP": "900M",
+    "Entry Lv": "170"
+   }
   },
   {
    "name": "Extreme Bigfoot",
@@ -943,7 +1287,15 @@
      "label": "Battle",
      "track": "f715b12dd8"
     }
-   ]
+   ],
+   "clues": {
+    "World": "Maple World",
+    "Gender": "Other",
+    "Region": "All",
+    "Phases": "1",
+    "HP": "15T",
+    "Entry Lv": "260"
+   }
   },
   {
    "name": "Julieta",
@@ -953,7 +1305,12 @@
      "label": "Battle",
      "track": "3d665b6410"
     }
-   ]
+   ],
+   "clues": {
+    "World": "Maple World",
+    "Gender": "Female",
+    "Region": "Removed"
+   }
   },
   {
    "name": "Inferno Wolf",
@@ -963,7 +1320,15 @@
      "label": "Battle",
      "track": "0bb3cc0bd5"
     }
-   ]
+   ],
+   "clues": {
+    "World": "Maple World",
+    "Gender": "Other",
+    "Region": "Removed",
+    "Phases": "1 (Normal)",
+    "HP": "10B (Normal)",
+    "Entry Lv": "10 (Normal)"
+   }
   },
   {
    "name": "Gerand Darmoor",
@@ -977,22 +1342,43 @@
      "label": "Apostle",
      "track": "196a846790"
     }
-   ]
+   ],
+   "clues": {
+    "World": "Grandis",
+    "Gender": "Male",
+    "Region": "All",
+    "Entry Lv": "300+"
+   }
   },
   {
    "name": "Reina",
    "image": "images/bosses/reina.png",
-   "areas": []
+   "areas": [],
+   "clues": {
+    "World": "Grandis",
+    "Gender": "Female",
+    "Region": "All"
+   }
   },
   {
    "name": "Cross",
    "image": "images/bosses/cross.png",
-   "areas": []
+   "areas": [],
+   "clues": {
+    "World": "Maple World",
+    "Gender": "Male",
+    "Region": "Removed"
+   }
   },
   {
    "name": "Havoc",
    "image": "images/bosses/havoc.png",
-   "areas": []
+   "areas": [],
+   "clues": {
+    "World": "Grandis",
+    "Gender": "Male",
+    "Region": "All"
+   }
   }
  ],
  "tracks": {

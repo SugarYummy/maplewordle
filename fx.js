@@ -231,56 +231,41 @@ function resultSound(won, delay, file) {
 // Sound on/off button and volume slider in the top right corner (both remembered per browser).
 // The slider shows on hover (computers) or after a tap on the button (phones).
 // Turning sound off also stops a sound playing now.
+// Settings (the ⚙️ in the top-right corner, a window like the Changelog): sound on/off and volume, and the background
+// effect (the falling leaves on 2x weekends) on/off.
+const FX_KEY = 'mapleWordle:bgEffect';   // 'off' turns the background effect off; on by default
+const bgEffectOn = () => { try { return localStorage.getItem(FX_KEY) !== 'off'; } catch { return true; } };
 (() => {
-  const box = document.createElement('div');
-  box.id = 'soundBox';
-  box.className = 'panel';
   const btn = document.createElement('button');
-  btn.id = 'soundBtn';
-  const slider = document.createElement('input');
-  slider.type = 'range';
-  slider.min = 0;
-  slider.max = 100;
-  slider.value = sliderVolume();
-  const show = () => {
-    btn.textContent = muted() ? '🔇' : '🔊';
-    btn.title = muted() ? 'Sound off (click to turn on)' : 'Sound on (click to turn off)';
-    slider.title = `Volume ${slider.value}%`;
-    slider.disabled = muted();
-  };
-  // Phones can't hover, so there the first tap opens the slider and the next tap mutes; tapping elsewhere closes it.
+  btn.id = 'settingsBtn';
+  btn.className = 'panel';
+  btn.title = 'Settings';
+  btn.textContent = '⚙️';
   btn.addEventListener('click', () => {
-    if (PHONE && !box.classList.contains('open')) return box.classList.add('open');
-    try { localStorage.setItem(muteKey, muted() ? '0' : '1'); } catch {}
-    if (muted() && audioCtx) { audioCtx.close(); audioCtx = master = null; }
+    const body = popup('settings', 'Settings');
+    body.innerHTML = '<div class="setrow"><span class="setlabel">Sound</span><button id="setMute"></button>' +
+      '<input id="setVol" type="range" min="0" max="100"><span id="setVolPct"></span></div>' +
+      '<div class="setrow"><span class="setlabel">Background effect</span><span class="seg"><button data-fx="on">On</button><button data-fx="off">Off</button></span></div>' +
+      '<p class="setnote">The background effect is the falling leaves you see while 2x mesos weekends are on.</p>';
+    const mute = body.querySelector('#setMute'), vol = body.querySelector('#setVol'), pct = body.querySelector('#setVolPct');
+    vol.value = sliderVolume();
+    const show = () => {
+      mute.textContent = muted() ? '🔇 Off' : '🔊 On';
+      mute.title = muted() ? 'Sound off (click to turn on)' : 'Sound on (click to turn off)';
+      vol.disabled = muted();
+      pct.textContent = vol.value + '%';
+      for (const b of body.querySelectorAll('[data-fx]')) b.classList.toggle('on', (b.dataset.fx === 'on') === bgEffectOn());
+    };
+    mute.addEventListener('click', () => {
+      lsSet(muteKey, muted() ? '0' : '1');
+      if (muted() && audioCtx) { audioCtx.close(); audioCtx = master = null; }
+      show();
+    });
+    vol.addEventListener('input', () => { saveSliderVolume(vol.value); show(); });
+    for (const b of body.querySelectorAll('[data-fx]')) b.addEventListener('click', () => { lsSet(FX_KEY, b.dataset.fx); show(); leaves(); });
     show();
   });
-  slider.addEventListener('input', () => { saveSliderVolume(slider.value); show(); placeTip(); });
-
-  // "50%" bubble under the slider's dot: shows while the pointer is on the dot or dragging it, follows it as it moves.
-  const tip = document.createElement('div');
-  tip.id = 'volTip';
-  tip.hidden = true;
-  let held = false;
-  const dotX = () => {   // the dot's centre on screen (browsers draw it about 16 px wide, kept inside the track)
-    const r = slider.getBoundingClientRect();
-    return r.left + 8 + (r.width - 16) * slider.value / 100;
-  };
-  const placeTip = () => {
-    if (tip.hidden) return;
-    tip.textContent = slider.value + '%';
-    tip.style.left = dotX() - box.getBoundingClientRect().left + 'px';
-  };
-  const showTip = (on) => { tip.hidden = !on; placeTip(); };
-  slider.addEventListener('pointermove', (e) => { if (!held) showTip(Math.abs(e.clientX - dotX()) <= 10); });
-  slider.addEventListener('pointerleave', () => { if (!held) showTip(false); });
-  slider.addEventListener('pointerdown', () => { held = true; box.classList.add('held'); showTip(true); });
-  addEventListener('pointerup', () => { if (held) { held = false; box.classList.remove('held'); showTip(false); } });
-  addEventListener('pointercancel', () => { if (held) { held = false; box.classList.remove('held'); showTip(false); } });
-  document.addEventListener('click', (e) => { if (!box.contains(e.target)) box.classList.remove('open'); });
-  show();
-  box.append(btn, slider, tip);
-  document.body.appendChild(box);
+  document.body.appendChild(btn);
 })();
 
 // "NEW" tag on a game tab (data-new="<key>"): shows until the date below, and goes away for good once you click that tab.
@@ -421,41 +406,68 @@ drawThemeButton();
 // Each table: mesos for winning in 1, 2, 3, ... guesses; the last number is for any more guesses than that, or a loss.
 const MESO_TABLE = {
   story: [100, 20, 10, 5, 2, 1, 0], normal: [100, 50, 20, 10, 5, 2, 1], hard: [100, 50, 30, 20, 10, 5],
-  extreme: [100, 75, 50, 25, 10], bgm: [100, 50, 20, 10, 5], class: [100, 50, 25, 10, 5], anim: [100, 40, 20, 10, 5],
+  extreme: [100, 75, 50, 25, 10], bgmnormal: [50, 40, 30, 20, 10, 5, 2], bgm: [100, 80, 60, 40, 20, 10], class: [100, 50, 25, 10, 5], anim: [100, 40, 20, 10, 5],
   sound: [100, 40, 20, 10, 5], map: [100, 80, 60, 40, 20, 10, 5],
 };
-const MESO_BONUS = { bgm: 20, sound: 20, map: 50 };   // bonus question right
+// Tables used before Oct 21 (BGM Clip had only what's now Extreme, with lower pay).
+const MESO_TABLE_OLD = { bgm: [100, 50, 20, 10, 5] };
+const MESO_BONUS = { bgmnormal: 20, bgm: 20, sound: 20, map: 50 };   // bonus question right
 const MESO_SPECIAL = 100;                               // ...unless it's one of the hidden glitch days
 const MESO_NAMES = { shop: 'Shop', story: 'Boss Wordle - Story', normal: 'Boss Wordle - Normal', hard: 'Boss Wordle - Hard',
-  extreme: 'Boss Wordle - Extreme', bgm: 'Boss - BGM Clip', sound: 'Boss - Sound Clip', class: 'Class - Wordle',
+  extreme: 'Boss Wordle - Extreme', bgmnormal: 'BGM Clip - Normal', bgm: 'BGM Clip - Extreme', sound: 'Boss - Sound Clip', class: 'Class - Wordle',
   anim: 'Class - Attack Animation', map: 'Guess the Map' };
 const MESO_SOON = new Set(['sound', 'map']);
 const MESO_DAY = (y, m, d) => Date.UTC(y, m - 1, d) / 86400000;
 // BGM Clip launch week: everything it pays (bonus too) is x3, Oct 20 to Oct 26.
-const MESO_EVENTS = [{ mode: 'bgm', from: MESO_DAY(2026, 10, 20), to: MESO_DAY(2026, 10, 26), times: 3 }];
-const mesoTimes = (mode, day) => MESO_EVENTS.find((e) => e.mode === mode && day >= e.from && day <= e.to)?.times ?? 1;
+const MESO_EVENTS = [{ mode: 'bgm', label: 'BGM Clip', from: MESO_DAY(2026, 10, 20), to: MESO_DAY(2026, 10, 26), times: 3 },
+  { mode: 'bgmnormal', label: 'BGM Clip', from: MESO_DAY(2026, 10, 20), to: MESO_DAY(2026, 10, 26), times: 3 }];
+// Weekends (Saturday and Sunday, UTC days: Friday 5pm to Sunday 5pm Pacific) pay 2x on that day's own puzzles, on top
+// of any game event; Archive days don't get it.
+const isWeekend = (day) => [0, 6].includes(new Date(day * 86400000).getUTCDay());
+const weekendNow = () => isWeekend(Math.floor(Date.now() / 86400000));
+const mesoTimes = (mode, day) => (MESO_EVENTS.find((e) => e.mode === mode && day >= e.from && day <= e.to)?.times ?? 1)
+  * (isWeekend(day) && !isArchive(day) ? 2 : 1);
 const MESO_LOG_KEY = 'mapleWordle:mesoLog';   // [{ key: "<mode>:<day>" or "<mode>+bonus:<day>", day, mode, what, amount }]
 function mesoLog() { try { return JSON.parse(lsGet(MESO_LOG_KEY) || '[]'); } catch { return []; } }
 const mesoTotal = () => mesoLog().reduce((s, e) => s + e.amount, 0);
-function earnMeso(key, mode, day, what, base) {
+// Archive days (any day before today) pay 10%, rounded up.
+const isArchive = (day) => day < Math.floor(Date.now() / 86400000);
+const mesoPay = (base, mode, day) => Math.ceil(base * mesoTimes(mode, day) * (isArchive(day) ? 0.1 : 1));
+function earnMeso(key, mode, day, what, base, final = false) {
   const log = mesoLog();
   if (log.some((e) => e.key === key)) return;
-  const amount = base * mesoTimes(mode, day);
+  const amount = final ? base : mesoPay(base, mode, day);
+  if (isArchive(day)) what += ' (Archive 10%)';
   if (amount > 0) {
-    log.push({ key, mode, day, what, amount });
+    log.push({ key, mode, day, what, amount, times: mesoTimes(mode, day) });
     lsSet(MESO_LOG_KEY, JSON.stringify(log));
   }
   drawMeso(amount);
 }
+// Boss Wordle and BGM Clip (from Oct 21): only your best mode each day pays. A better result on another mode pays the
+// difference, so the day's total is always your best one. A game's bonus pays once a day, whichever mode it's in.
+const MESO_GROUPS = [['story', 'normal', 'hard', 'extreme'], ['bgmnormal', 'bgm']];
+const groupOf = (mode) => MESO_GROUPS.find((g) => g.includes(mode));
+const BEST_ONLY_FROM = MESO_DAY(2026, 10, 21);
 // A game calls this when today's puzzle is over, with its Archive result ("Won 3/6", "Won in 4", "Lost").
 function earnGame(mode, day, result) {
-  const t = MESO_TABLE[mode];
+  const t = (day < BEST_ONLY_FROM && MESO_TABLE_OLD[mode]) || MESO_TABLE[mode];
   if (!t) return;
   const m = /^Won (?:in )?(\d+)/.exec(result);
   const n = m ? +m[1] : Infinity;
-  earnMeso(`${mode}:${day}`, mode, day, m ? `Won in ${n}` : 'Lost', t[Math.min(n, t.length) - 1]);
+  let amount = mesoPay(t[Math.min(n, t.length) - 1], mode, day), what = m ? `Won in ${n}` : 'Lost';
+  const group = groupOf(mode);
+  if (group && day >= BEST_ONLY_FROM) {
+    const log = mesoLog();
+    if (log.some((e) => e.key === `${mode}:${day}`)) return;
+    const best = log.filter((e) => group.some((w) => e.key === `${w}:${day}`)).reduce((s, e) => s + e.amount, 0);
+    if (amount <= best) return;
+    if (best) { what += isArchive(day) ? ' (better than another mode)' : ' (better than earlier today)'; amount -= best; }
+  }
+  earnMeso(`${mode}:${day}`, mode, day, what, amount, true);
 }
 function earnBonus(mode, day, special) {
+  if (day >= BEST_ONLY_FROM && groupOf(mode)?.some((m) => mesoLog().some((e) => e.key === `${m}+bonus:${day}`))) return;
   earnMeso(`${mode}+bonus:${day}`, mode, day, 'Bonus', special ? MESO_SPECIAL : MESO_BONUS[mode] ?? 0);
 }
 const fmt = (n) => n.toLocaleString('en-US');
@@ -479,6 +491,9 @@ function drawMeso(gained = 0) {
     game.appendChild(corner);
   }
   btn.querySelector('span').textContent = fmt(mesoTotal());
+  if (weekendNow() && !btn.querySelector('.mesotag')) {
+    btn.appendChild(Object.assign(document.createElement('span'), { className: 'mesotag weekendtag', textContent: '2x Weekend', title: 'Weekend: 2x mesos today!' }));
+  }
   if (gained > 0) {
     const plus = Object.assign(document.createElement('span'), { className: 'mesoplus', textContent: `+${fmt(gained)}` });
     btn.appendChild(plus);
@@ -523,8 +538,9 @@ function openMeso(page = 1) {
   const last = Math.max(1, Math.ceil(all.length / MESO_PER_PAGE));
   page = Math.min(Math.max(1, page), last);
   const recent = all.slice((page - 1) * MESO_PER_PAGE, page * MESO_PER_PAGE);
-  const ev = MESO_EVENTS.filter((e) => today <= e.to)
-    .map((e) => `<p class="mesoevent">🎉 <b>${MESO_NAMES[e.mode]}</b> pays <b>${e.times}x</b> mesos from ${mesoDate(e.from)} to ${mesoDate(e.to)}!</p>`).join('');
+  const weekend = weekendNow() ? '<p class="mesoevent">🍁 <b>Weekend</b>: today\'s puzzles pay <b>2x</b> mesos!</p>' : '';
+  const ev = weekend + MESO_EVENTS.filter((e, i, all) => today <= e.to && all.findIndex((x) => x.label === e.label) === i)
+    .map((e) => `<p class="mesoevent">🎉 <b>${e.label ?? MESO_NAMES[e.mode]}</b> pays <b>${e.times}x</b> mesos from ${mesoDate(e.from)} to ${mesoDate(e.to)}!</p>`).join('');
   const rows = (mode) => {
     const t = MESO_TABLE[mode];
     const cells = t.map((v, i) => `<td>${i + 1}${i === t.length - 1 ? '+' : ''}</td>`).join('');
@@ -535,19 +551,20 @@ function openMeso(page = 1) {
   };
   body.innerHTML =
     `<p class="mesototal"><img src="images/fx/meso-gold.png" alt=""> ${fmt(mesoTotal())}</p>` + ev +
-    '<p>Finish today\'s puzzles to earn mesos. The fewer guesses, the more you get! (Archive days don\'t pay.) Spend them in the 🛍️ Shop.</p>' +
+    '<p>Finish puzzles to earn mesos. The fewer guesses, the more you get! Archive days pay 10% (rounded up). Spend them in the 🛍️ Shop.</p>' +
     (all.length ? '<h3>Recent</h3><ul class="mesorecent">' + recent.map((e) =>
-      `<li><span>${mesoDate(e.day)} · ${MESO_NAMES[e.mode] ?? e.mode} · ${e.what}${mesoTimes(e.mode, e.day) > 1 ? ` (${mesoTimes(e.mode, e.day)}x)` : ''}</span><b>${e.amount < 0 ? '−' + fmt(-e.amount) : '+' + fmt(e.amount)}</b></li>`).join('') + '</ul>' + pager(page, last) : '') +
-    '<h3 class="mesohow">How to earn</h3>' + Object.keys(MESO_TABLE).map(rows).join('');
+      `<li><span>${mesoDate(e.day)} · ${MESO_NAMES[e.mode] ?? e.mode} · ${e.what}${(e.times ?? 1) > 1 ? ` (${e.times}x)` : ''}</span><b>${e.amount < 0 ? '−' + fmt(-e.amount) : '+' + fmt(e.amount)}</b></li>`).join('') + '</ul>' + pager(page, last) : '') +
+    '<h3 class="mesohow">How to earn</h3><p class="mesobonus">Boss Wordle and BGM Clip: only your best mode each day pays (do better on another mode and you get the difference), and the bonus pays once a day.</p>' +
+    Object.keys(MESO_TABLE).map(rows).join('');
   for (const b of body.querySelectorAll('[data-page]')) b.addEventListener('click', () => openMeso(+b.dataset.page));
 }
 
 // ---- Shop: items only show up once you've found them (e.g. Lucid's Garden of Eternal Dream: hear it in BGM Clip on its
 // day and get the bonus right, not from the Archive). Buying one spends mesos and adds it to your themes.
 const SHOP = {
-  lucid: { name: 'Garden of Eternal Dream', kind: 'Moving background', price: 100000 },
-  lucidBloom: { name: 'Lucid in Bloom', kind: 'Background', price: 50000 },
-  lucidNight: { name: "Lucid's Starry Night", kind: 'Background', price: 50000 },
+  lucid: { name: 'Garden of Eternal Dream', kind: 'Moving background', price: 10000 },
+  lucidBloom: { name: 'Lucid in Bloom', kind: 'Background', price: 5000 },
+  lucidNight: { name: "Lucid's Starry Night", kind: 'Background', price: 5000 },
 };
 const SHOP_KEY = 'mapleWordle:shop';   // items found so far
 function shopFound() { try { return JSON.parse(lsGet(SHOP_KEY) || '[]').filter((t) => t in SHOP); } catch { return []; } }
@@ -619,18 +636,60 @@ function mesoGain(mode, day, show) {
   if (!status) return;
   let el = document.getElementById('mesoGain');
   const got = show ? mesoLog().filter((e) => e.key === `${mode}:${day}` || e.key === `${mode}+bonus:${day}`).reduce((s, e) => s + e.amount, 0) : 0;
-  if (!got) { el?.remove(); return; }
+  // Nothing for this mode because another mode already paid more today (Boss Wordle / BGM Clip): say so.
+  const group = groupOf(mode), elsewhere = show && !got && group && day >= BEST_ONLY_FROM
+    && mesoLog().some((e) => group.some((m) => m !== mode && e.key === `${m}:${day}`));
+  if (!got && !elsewhere) { el?.remove(); return; }
   if (!el) {
     el = document.createElement('p');
     el.id = 'mesoGain';
     el.innerHTML = '<img src="images/fx/meso-gold.png" alt=""><span></span>';
-    el.title = 'Mesos earned today';
+    el.title = 'Mesos earned for this puzzle';
     el.addEventListener('click', () => openMeso());
     status.after(el);
   }
   el.querySelector('span').textContent = `+${fmt(got)}`;
+  el.classList.toggle('none', !got);
+  if (!got) el.querySelector('span').textContent = `+0 (you already earned more on another mode ${isArchive(day) ? 'that day' : 'today'})`;
 }
+// Under the Mode buttons (Boss Wordle, BGM Clip): only your best mode each day pays.
+(() => {
+  const modes = document.getElementById('modes');
+  if (!modes || Math.floor(Date.now() / 86400000) < BEST_ONLY_FROM) return;
+  const note = document.createElement('p');
+  note.className = 'mesonote';
+  note.innerHTML = '<img src="images/fx/meso-gold.png" alt=""><span>You only get mesos for your <b>best</b> mode each day.</span>';
+  note.title = 'Do better on another mode and you get the difference.';
+  modes.after(note);
+})();
 drawMeso();
+// Weekend background effect: a few small maple leaves drifting down behind the game (Settings can turn it off).
+let leafTimer = null;
+function leaves() {
+  const on = weekendNow() && bgEffectOn() && !matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let box = document.getElementById('leaves');
+  if (!on) { clearInterval(leafTimer); leafTimer = null; box?.remove(); return; }
+  if (leafTimer) return;
+  box = Object.assign(document.createElement('div'), { id: 'leaves' });
+  box.setAttribute('aria-hidden', 'true');
+  document.body.prepend(box);
+  const drop = () => {
+    if (document.hidden || box.childElementCount >= 10) return;
+    const leaf = box.appendChild(Object.assign(document.createElement('img'), { src: 'images/fx/leaf.png', alt: '' }));
+    const size = 10 + Math.random() * 8, x = Math.random() * 100, drift = (Math.random() - 0.5) * 160;
+    const spin = (Math.random() < 0.5 ? -1 : 1) * (180 + Math.random() * 360), secs = 7 + Math.random() * 4;
+    leaf.style.cssText = `width:${size}px;left:${x}vw`;
+    leaf.animate([
+      { transform: 'translate(0, -30px) rotate(0deg)', opacity: 0 },
+      { opacity: 0.85, offset: 0.08 },
+      { transform: `translate(${drift * 0.6}px, 50vh) rotate(${spin / 2}deg)`, offset: 0.5 },
+      { transform: `translate(${drift}px, calc(100vh + 30px)) rotate(${spin}deg)`, opacity: 0.85 },
+    ], { duration: secs * 1000, easing: 'linear' }).onfinish = () => leaf.remove();
+  };
+  drop();
+  leafTimer = setInterval(drop, 700);
+}
+leaves();
 // A game's tab shows its meso event while it's on, e.g. "3x" with a gold meso on BGM Clip.
 for (const btn of document.querySelectorAll('[data-meso]')) {
   const today = Math.floor(Date.now() / 86400000);
