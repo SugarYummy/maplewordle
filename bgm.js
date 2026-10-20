@@ -345,7 +345,14 @@ function start(d) {
 }
 // Before launch day the page is empty apart from this note.
 function notOpenYet() {
-  for (const id of ['player', 'pickrow', 'bonus', 'infostrip', 'rows', 'share', 'hintWrap']) $(id).hidden = true;
+  // Clear anything left from the other mode's game (its result, mesos line and Everyone's results).
+  for (const id of ['player', 'pickrow', 'bonus', 'infostrip', 'rows', 'share', 'hintWrap', 'stats']) $(id).hidden = true;
+  over = false;
+  stopMashup();
+  eggScene(null);
+  mesoGain(MODE, day, false);
+  firstTryGlow(false);
+  document.querySelector('.game').classList.remove('diamond');
   $('status').textContent = `${MODES[MODE].name} mode opens at the next reset!`;
 }
 
@@ -573,7 +580,7 @@ async function loadStats() {
   if (!STATS_URL) return;
   const sentKey = `mapleWordle:sent:${MODE}:${day}`;
   const url = `${STATS_URL}?mode=${MODE}&day=${day}`;
-  const shownDay = day;
+  const shownDay = day, shownMode = MODE;
   let sent = false;
   try { sent = localStorage.getItem(sentKey) === '1'; } catch {}
   try {
@@ -583,7 +590,7 @@ async function loadStats() {
     if (!res.ok) return;
     const { counts, bonus: bonusCounts } = await res.json();
     if (!sent) { try { localStorage.setItem(sentKey, '1'); } catch {} }
-    if (day === shownDay && over) renderStats(counts, String(score), bonusCounts);
+    if (day === shownDay && MODE === shownMode && over) renderStats(counts, String(score), bonusCounts);
   } catch {}
 }
 // The bonus answer is sent once per day too (only when there was a bonus), then the results are drawn again with it.
