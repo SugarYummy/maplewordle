@@ -475,3 +475,10 @@ body.glitch .game.glow.diamond { animation: glitchslice 2.3s steps(1) infinite, 
 #mesoBtn .mesotag { top: -9px; right: -9px; }
 #mesoBtn .weekendtag { white-space: nowrap; right: -12px; }
 @media (max-width: 700px) { #mesoBtn .weekendtag { right: -3px; top: -12px; } }
+/* (i) buttons in Settings: hover (or tap) shows what the setting does. */
+.infotip { width: 22px; height: 22px; padding: 0; margin-left: 4px; border-radius: 4px; border: 1px solid rgba(0, 0, 0, 0.25);   /* like the [?] button */
+           background: rgba(255, 255, 255, 0.7); font-family: inherit; font-size: 13px; font-weight: bold; line-height: 1; cursor: pointer; vertical-align: middle; }
+.infotip:hover { background: rgba(255, 255, 255, 0.95); }
+.infotip.open { background: #222; color: #fff; }
+.tiptext { margin: -4px 0 8px; padding: 6px 10px; border-radius: 6px; background: #222; color: #fff; font-size: 12px; line-height: 1.35; }
+.tiptext[hidden] { display: none; }

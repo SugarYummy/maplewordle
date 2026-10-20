@@ -243,10 +243,28 @@ const bgEffectOn = () => { try { return localStorage.getItem(FX_KEY) !== 'off'; 
   btn.textContent = '⚙️';
   btn.addEventListener('click', () => {
     const body = popup('settings', 'Settings');
-    body.innerHTML = '<div class="setrow"><span class="setlabel">Sound</span><button id="setMute"></button>' +
-      '<input id="setVol" type="range" min="0" max="100"><span id="setVolPct"></span></div>' +
-      '<div class="setrow"><span class="setlabel">Background effect</span><span class="seg"><button data-fx="on">On</button><button data-fx="off">Off</button></span></div>' +
-      '<p class="setnote">The background effect is the falling leaves you see while 2x mesos weekends are on.</p>';
+    // The (i) after each name explains it: hover on a computer, tap on a phone.
+    const tip = (text) => `<button class="infotip" type="button" aria-label="What is this?" data-tip="${text}">i</button>`;
+    body.innerHTML = `<div class="setrow"><span class="setlabel">Sound ${tip('The sound effects when a game ends (the win / lose music). The slider sets how loud they are. BGM Clip has its own volume next to Play.')}</span>` +
+      '<button id="setMute"></button><input id="setVol" type="range" min="0" max="100"><span id="setVolPct"></span></div>' +
+      `<div class="setrow"><span class="setlabel">Background effect ${tip('Falling maple leaves in the background while 2x meso weekends are on.')}</span>` +
+      '<span class="seg"><button data-fx="on">On</button><button data-fx="off">Off</button></span></div>';
+    // Each (i) gets a dark box under its row: shown while hovered (computer) or after a tap (phone), so it never goes off
+    // the window's edges.
+    for (const t of body.querySelectorAll('.infotip')) {
+      const box = Object.assign(document.createElement('p'), { className: 'tiptext', textContent: t.dataset.tip, hidden: true });
+      t.closest('.setrow').after(box);
+      t.addEventListener('mouseenter', () => { if (!PHONE) box.hidden = false; });
+      t.addEventListener('mouseleave', () => { if (!PHONE && !t.classList.contains('open')) box.hidden = true; });
+      t.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const open = !t.classList.contains('open');
+        for (const x of body.querySelectorAll('.infotip.open')) { x.classList.remove('open'); x.closest('.setrow').nextElementSibling.hidden = true; }
+        t.classList.toggle('open', open);
+        box.hidden = !open;
+      });
+    }
+    body.addEventListener('click', () => { for (const x of body.querySelectorAll('.infotip.open')) { x.classList.remove('open'); x.closest('.setrow').nextElementSibling.hidden = true; } });
     const mute = body.querySelector('#setMute'), vol = body.querySelector('#setVol'), pct = body.querySelector('#setVolPct');
     vol.value = sliderVolume();
     const show = () => {
