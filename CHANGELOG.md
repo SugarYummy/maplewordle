@@ -1,5 +1,8 @@
 # Maple Wordle changelog
 
+## alpha v4.3.1 - 21 October 2026
+- Fixed [BGM Clip] Normal Mode not displaying hints properly.
+
 ## alpha v4.3 - 21 October 2026
 - BGM Clip now has two modes, each with its own BGM every day:
 - Normal (new): 7 guesses, and the clip always starts at the beginning. Each guess unlocks more: 1s, 5s, 10s, 30s, 60s, then the whole track. From your 3rd guess, every wrong guess opens another hint (the boss's World, Gender, Region, Phases, HP or Entry Lv), and your 6th guess always gets its Entry Lv
