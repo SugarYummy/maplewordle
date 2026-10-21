@@ -381,8 +381,11 @@ function renderHints() {
   if (!newRules()) return;
   const c = answer.boss.clues || {};
   const keys = Object.keys(c).sort((x, y) => hash(`${MODE}|${day}|clue|${x}`) - hash(`${MODE}|${day}|clue|${y}`));
-  const first = keys[0], second = first === 'Entry Lv' ? keys[1] : c['Entry Lv'] ? 'Entry Lv' : keys[1];
-  const open = new Set([[3, first], [5, second]].filter(([n, k]) => k && guesses.length >= n).map(([, k]) => k));
+  // A new column opens after every wrong guess from the 3rd on, in a random order, with the Entry Lv always the one that
+  // opens for your 6th guess: 1 hint on guess 4, 2 on guess 5, 3 (with Entry Lv) on guess 6, 4 on guess 7.
+  const order = keys.filter((k) => k !== 'Entry Lv');
+  if (c['Entry Lv']) order.splice(2, 0, 'Entry Lv');
+  const open = new Set(order.slice(0, Math.max(0, guesses.length - 2)));
   const row = $('hintRow');
   row.innerHTML = '';
   for (const k of HINT_COLS) {
@@ -852,7 +855,7 @@ function openInfo() {
     `Listen to today's BGM clip and guess which boss fight it's from. You get <b>${maxGuesses()}</b> guesses. Normal and Extreme each have their own BGM every day at 00:00 UTC (same as Maple reset).`,
     ...(newRules() ? [
       'Your first guess gets <b>1 second</b> of the clip. Each wrong guess or Skip unlocks more: 5s, 10s, 30s, 60s, then the <b>whole track</b>. Miss all 7 and you lose.',
-      'Hints: after your <b>3rd</b> guess you get one of the boss\'s World, Gender, Region, Phases, HP or Entry Lv (like Boss Wordle\'s columns). On your <b>6th</b> guess you get its Entry Lv too.',
+      'Hints: after your <b>3rd</b> guess, and after every wrong guess after that, one more of the boss\'s World, Gender, Region, Phases, HP or Entry Lv opens (like Boss Wordle\'s columns). Your <b>6th</b> guess always gets its Entry Lv.',
       'Play starts and pauses the clip. It stops at what you\'ve unlocked, and pressing Play again starts it over. You can\'t skip ahead.',
       'The clip always starts at the very beginning of the track.',
     ] : [
