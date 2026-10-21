@@ -554,12 +554,8 @@ function renderTitle() {
   $('titleAsk').hidden = title != null;
   const res = $('titleResult');
   if (title == null) {
-    const sel = $('titlePick');
-    if (!sel.options.length) {
-      sel.appendChild(new Option('Pick a title…', ''));
-      for (const t of [...new Set(Object.values(data.tracks).map((x) => x.title))].sort((x, y) => x.localeCompare(y))) sel.appendChild(new Option(t, t));
-    }
-    sel.value = '';
+    $('titlePick').value = '';
+    $('titleList').hidden = true;
     res.textContent = '';
     res.className = '';
   } else {
@@ -567,15 +563,53 @@ function renderTitle() {
     res.className = titleRight() ? 'right' : 'wrong';
   }
 }
-$('titleGo').addEventListener('click', () => {
-  const pick = $('titlePick').value;
-  if (!pick || title != null || !over) return;
+// Bonus 2's box: type to search every BGM title (A-Z); click one, or use the arrow keys and Enter.
+const allTitles = () => (allTitles.list ??= [...new Set(Object.values(data.tracks).map((x) => x.title))].sort((x, y) => x.localeCompare(y)));
+let titleActive = -1;
+function titleMatches() {
+  const q = $('titlePick').value.trim().toLowerCase();
+  return q ? allTitles().filter((t) => t.toLowerCase().includes(q)) : allTitles();
+}
+function showTitleList() {
+  const box = $('titleList'), items = titleMatches();
+  box.innerHTML = '';
+  items.forEach((t, i) => {
+    const el = box.appendChild(Object.assign(document.createElement('div'), { className: 'item' + (i === titleActive ? ' active' : ''), textContent: t }));
+    el.addEventListener('mousedown', (e) => { e.preventDefault(); $('titlePick').value = t; box.hidden = true; titleGuess(); });
+    el.addEventListener('mousemove', () => { if (titleActive !== i) { titleActive = i; showTitleList(); } });
+  });
+  if (!items.length) box.appendChild(Object.assign(document.createElement('div'), { className: 'none', textContent: 'No title matches' }));
+  box.hidden = false;
+  box.querySelector('.active')?.scrollIntoView({ block: 'nearest' });
+}
+$('titlePick').addEventListener('input', () => { titleActive = 0; showTitleList(); });
+$('titlePick').addEventListener('focus', () => { titleActive = -1; showTitleList(); });
+$('titlePick').addEventListener('blur', () => { $('titleList').hidden = true; });
+$('titlePick').addEventListener('keydown', (e) => {
+  const n = titleMatches().length;
+  if (e.key === 'ArrowDown') { e.preventDefault(); titleActive = Math.min(n - 1, titleActive + 1); showTitleList(); }
+  else if (e.key === 'ArrowUp') { e.preventDefault(); titleActive = Math.max(0, titleActive - 1); showTitleList(); }
+  else if (e.key === 'Escape') $('titleList').hidden = true;
+  else if (e.key === 'Enter') {
+    e.preventDefault();
+    const m = titleMatches();
+    const exact = m.find((t) => t.toLowerCase() === $('titlePick').value.trim().toLowerCase());
+    const pick = exact ?? m[Math.max(0, titleActive)];
+    if (pick && (exact || titleActive >= 0 || m.length === 1)) { $('titlePick').value = pick; $('titleList').hidden = true; titleGuess(); }
+  }
+});
+$('titleGo').addEventListener('click', () => titleGuess());
+function titleGuess() {
+  const typed = $('titlePick').value.trim().toLowerCase();
+  const pick = allTitles().find((t) => t.toLowerCase() === typed);   // has to be one of the titles
+  if (!pick) { if (typed) showTitleList(); return; }
+  if (title != null || !over) return;
   title = pick;
   save();
   renderEnd();
   noteResult();
   sendTitle(titleRight());
-});
+}
 $('bonusGo').addEventListener('click', () => {
   const pick = $('bonusPick').value;
   if (!pick || bonus != null || !over) return;
@@ -866,7 +900,7 @@ function openInfo() {
     ]),
     'The BGM can be from any part of the fight: the waiting room, any phase, the loot room and more.',
     ...(yellowOn() ? ['A few tracks play in two boss fights (Horntail and Balrog, Ursus and Inferno Wolf). Picking the other boss shows <b>yellow</b>: right track, wrong boss. It still counts as a miss.'] : []),
-    ...(titleOn() ? ["<b>Bonus 2:</b> guess the track's <b>title</b> from the list (every BGM title, A-Z). One guess, and it pays <b>+70 mesos</b>. The title stays hidden until you answer."] : []),
+    ...(titleOn() ? ["<b>Bonus 2:</b> type the track's <b>title</b> (it suggests every BGM title as you type). One guess, and it pays <b>+70 mesos</b>. The title stays hidden until you answer."] : []),
     '<b>Bonus:</b> when the game is over the whole track unlocks (click the bar to jump around). Guess which part of the fight it plays in. It\'s just for fun and won\'t change your result. ' +
       (newRules() ? 'Bosses with only one BGM have no bonus.' : 'Bosses with only one BGM have no bonus, except on the rare day a <b>mashup</b> shows up instead: guess whose BGM mashup it is, with one guess.'),
     'Win on your first guess for a ⭐ in the Archive. Get the bonus right too for a 💎.',

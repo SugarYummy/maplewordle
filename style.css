@@ -533,10 +533,19 @@ body.glitch .game.glow.rainbow { animation: glitchslice 2.3s steps(1) infinite; 
   background: linear-gradient(rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.75)) padding-box,
               conic-gradient(from var(--rb), #ff3c3c, #ffa01e, #ffe628, #3cd25a, #328cff, #aa50ff, #ff3c3c) border-box; }
 @media (prefers-reduced-motion: reduce) { .game.rainbow, .game.glow.rainbow, .game.rainbow::before, .game.rainbow::after, #archiveList button.rainbow { animation: none; } }
-#titlePick { font-family: inherit; font-size: 15px; padding: 4px; max-width: 100%; } #titleGo { font-family: inherit; } #titleHead { margin: 14px 0 4px; }
+#titleAsk { display: flex; gap: 6px; justify-content: center; margin: 6px 0; }
+#titleField { position: relative; flex: 1; max-width: 320px; }
+#titlePick { width: 100%; box-sizing: border-box; font-family: inherit; font-size: 15px; padding: 6px 8px; border: 1px solid #999; border-radius: 4px; }
+#titleList { position: absolute; top: 100%; left: 0; right: 0; max-height: 240px; overflow-y: auto; z-index: 6; background: #fff; border: 1px solid #999; text-align: left; }
+#titleList[hidden] { display: none; }
+#titleList .item { padding: 5px 8px; cursor: pointer; font-size: 14px; }
+#titleList .item.active { background: #ddd; }
+#titleList .none { padding: 5px 8px; font-size: 14px; color: #888; }
+#titleAsk[hidden] { display: none; } #titleGo { font-family: inherit; } #titleHead { margin: 14px 0 4px; }
 /* Settings > Transparent box: the main game box has no background (borders and glows stay). */
 /* Settings > Box opacity (fx.js sets the variables). */
 .game { background: rgba(255, 255, 255, var(--boxA, .55)); backdrop-filter: blur(var(--boxBlur, 10px)); -webkit-backdrop-filter: blur(var(--boxBlur, 10px)); }
 #setBox { width: 120px; accent-color: #e0a000; }
 #setBoxPct { min-width: 3em; font-variant-numeric: tabular-nums; }
 .vipctl { flex-wrap: wrap; } .vipctl button.on { font-weight: 700; outline: 2px solid #333; background: rgba(255, 255, 255, 0.95); }
+#titleGo { font-size: 15px; padding: 4px 10px; }

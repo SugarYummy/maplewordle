@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Maple Wordle - BGM Clip</title>
 <script src="move.js?v=1"></script>
-<link rel="stylesheet" href="style.css?v=84">
+<link rel="stylesheet" href="style.css?v=86">
 </head>
 <body>
 <button id="archiveBtn" class="panel">Archive</button>
@@ -79,7 +79,7 @@
   <p id="bonusResult"></p>
   <div id="titleBox" hidden>
     <h3 id="titleHead">Bonus 2: What's this BGM called?</h3>
-    <p id="titleAsk"><select id="titlePick"></select> <button id="titleGo">Guess</button></p>
+    <div id="titleAsk"><div id="titleField"><input id="titlePick" placeholder="Type a BGM title" autocomplete="off"><div id="titleList" hidden></div></div> <button id="titleGo">Guess</button></div>
     <p id="titleResult"></p>
   </div>
 </div>
@@ -117,6 +117,6 @@
 </div>
 <script src="fx.js?v=57"></script>
 <script src="archive.js?v=6"></script>
-<script src="bgm.js?v=30"></script>
+<script src="bgm.js?v=32"></script>
 </body>
 </html>
