@@ -2,6 +2,7 @@
 
 ## alpha v4.3.1 - 21 October 2026
 - Fixed [BGM Clip] Normal Mode not displaying hints properly.
+- Fixed [BGM Clip] Bonus 2 text box.
 
 ## alpha v4.3 - 21 October 2026
 - BGM Clip now has two modes, each with its own BGM every day:
