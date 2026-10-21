@@ -257,8 +257,8 @@ td.flip { animation: flip 0.5s ease both; }
 #bonus p { margin: 6px 0; }
 #bonusPick { font-family: inherit; font-size: 15px; padding: 4px; }
 #bonusGo { font-family: inherit; font-size: 15px; padding: 4px 12px; }
-#bonusResult.right { color: #1d6b1d; font-weight: bold; }
-#bonusResult.wrong { color: #8a1c1c; font-weight: bold; }
+#bonusResult.right, #titleResult.right { color: #1d6b1d; font-weight: bold; }
+#bonusResult.wrong, #titleResult.wrong { color: #8a1c1c; font-weight: bold; }
 
 /* BGM Clip 💎 (first guess + bonus right): blue instead of gold, on the game box and its Archive day. */
 #archiveList button.diamond { border-color: rgba(30, 140, 255, 0.9); background: rgba(170, 215, 255, 0.55); animation: rowglowblue 0.8s ease-in-out infinite alternate; }
@@ -440,7 +440,7 @@ body.glitch .game.glow.diamond { animation: glitchslice 2.3s steps(1) infinite, 
   box-shadow: 0 4px 10px rgba(176, 120, 0, 0.35), 0 0 0 3px rgba(255, 211, 77, 0.45); }
 .shopitem button:not(.poor):active { transform: translateY(0) scale(0.97); box-shadow: 0 1px 3px rgba(176, 120, 0, 0.35); }
 .shopitem button.poor { cursor: not-allowed; }
-#bonusHelp, #bonusResult { white-space: pre-line; }   /* bgm.js breaks these into two lines */
+#bonusHelp, #bonusResult, #titleResult { white-space: pre-line; }   /* bgm.js breaks these into two lines */
 #status { white-space: pre-line; }   /* BGM Clip puts its last-guess hint on a second line */
 #hintTable { margin: 4px auto 10px; } #hintTable td, #hintTable th { min-width: 56px; font-size: 15px; } #hintWrap[hidden] { display: none; }
 @media (max-width: 700px) { #hintTable td, #hintTable th { min-width: 0; font-size: 12px; padding: 4px 4px; } }

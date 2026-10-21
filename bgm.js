@@ -448,15 +448,16 @@ function guess(name) {
 
 // Bonus round only for bosses with more than one BGM (every part of the fight is listed, even ones sharing a track).
 const hasBonus = (boss) => new Set(boss.areas.map((a) => a.track)).size > 1;
-// First-guess win with every bonus of the day right: 💎 (blue glow) with one bonus, 🌈 (rainbow glow) with both
-// Bonus 1 and Bonus 2. Days with no bonus at all stay ⭐.
+// First-guess win: 💎 (blue glow) with at least one bonus right, 🌈 (rainbow) with both Bonus 1 and Bonus 2 right.
+// No bonus right (or no bonus that day) stays ⭐.
 function badgeFor(d, ans, g, b, t) {
   if (g.length !== 1 || g[0] !== ans.name) return '';
   const tests = [];
   if (ans.bonus) tests.push(b != null && ans.bonus.right.includes(b));
   if (titleOnFor(d, ans)) tests.push(t != null && t === ans.t.title);
-  if (!tests.length || !tests.every(Boolean)) return '';
-  return tests.length === 2 ? '🌈' : '💎';
+  const right = tests.filter(Boolean).length;
+  if (!right) return '';
+  return tests.length === 2 && right === 2 ? '🌈' : '💎';
 }
 const badge = () => over ? badgeFor(day, answer, guesses, bonus, title) : '';
 function renderEnd() {
@@ -552,7 +553,7 @@ function renderTitle() {
     res.textContent = '';
     res.className = '';
   } else {
-    res.textContent = (titleRight() ? 'Correct! ' : `Wrong! You picked "${title}". `) + `The track is "${answer.t.title}".`;
+    res.textContent = (titleRight() ? 'Correct!' : `Wrong! You picked "${title}".`) + `\nThe track is "${answer.t.title}".`;
     res.className = titleRight() ? 'right' : 'wrong';
   }
 }
