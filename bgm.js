@@ -563,7 +563,7 @@ function renderTitle() {
     res.className = titleRight() ? 'right' : 'wrong';
   }
 }
-// Bonus 2's box: type to search every BGM title (A-Z); click one, or use the arrow keys and Enter.
+// Bonus 2's box: type to search every BGM title (A-Z); click one (or arrow keys + Enter) to fill it in, then Guess.
 const allTitles = () => (allTitles.list ??= [...new Set(Object.values(data.tracks).map((x) => x.title))].sort((x, y) => x.localeCompare(y)));
 let titleActive = -1;
 function titleMatches() {
@@ -575,7 +575,7 @@ function showTitleList() {
   box.innerHTML = '';
   items.forEach((t, i) => {
     const el = box.appendChild(Object.assign(document.createElement('div'), { className: 'item' + (i === titleActive ? ' active' : ''), textContent: t }));
-    el.addEventListener('mousedown', (e) => { e.preventDefault(); $('titlePick').value = t; box.hidden = true; titleGuess(); });
+    el.addEventListener('mousedown', (e) => { e.preventDefault(); $('titlePick').value = t; box.hidden = true; });
     el.addEventListener('mousemove', () => { if (titleActive !== i) { titleActive = i; showTitleList(); } });
   });
   if (!items.length) box.appendChild(Object.assign(document.createElement('div'), { className: 'none', textContent: 'No title matches' }));
@@ -595,7 +595,7 @@ $('titlePick').addEventListener('keydown', (e) => {
     const m = titleMatches();
     const exact = m.find((t) => t.toLowerCase() === $('titlePick').value.trim().toLowerCase());
     const pick = exact ?? m[Math.max(0, titleActive)];
-    if (pick && (exact || titleActive >= 0 || m.length === 1)) { $('titlePick').value = pick; $('titleList').hidden = true; titleGuess(); }
+    if (pick && (exact || titleActive >= 0 || m.length === 1)) { $('titlePick').value = pick; $('titleList').hidden = true; }
   }
 });
 $('titleGo').addEventListener('click', () => titleGuess());
