@@ -1,5 +1,5 @@
 {
- "_about": "BGM Clip data, built from the confirmed Boss BGM checklist. bosses: every boss you can guess, in checklist order (clues: Normal mode hints from Boss Wordle, its lowest difficulty); areas: where each track plays, in the order the bonus round lists them (a boss without areas can be guessed but is never the answer). tracks: len in seconds; starts = whole seconds a random-start day may begin at; loop = shorter than 30 s, so it repeats. mashups: bonus for bosses with only one BGM: guess whose mashup it is (one guess). egg: a hidden extra when the mashup (or, on a track, the whole track after the game) plays. unlock: shop items a track's day finds: bonus right / won (that day only) / winAny (Archive too).",
+ "_about": "BGM Clip data, built from the confirmed Boss BGM checklist. bosses: every boss you can guess, in checklist order (clues: Normal mode hints from Boss Wordle, its lowest difficulty); areas: where each track plays, in the order the bonus round lists them (a boss without areas can be guessed but is never the answer). tracks: len in seconds; starts = whole seconds a random-start day may begin at; loop = shorter than 30 s, so it repeats. mashups: bonus for bosses with only one BGM: guess whose mashup it is (one guess). egg: a hidden extra when the mashup (or, on a track, the whole track after the game) plays. unlock: shop items a track's day finds: bonus right / won (that day only) / winAny (Archive too). noTitle: a track whose title gives the answer away (it has the phase in it), so it has no Bonus 2.",
  "bosses": [
   {
    "name": "Zakum",
@@ -10666,7 +10666,8 @@
     73,
     74,
     75
-   ]
+   ],
+   "noTitle": true
   },
   "d200d2bdf4": {
    "title": "Bellona - Phase 1 (Insane)",
@@ -10686,7 +10687,8 @@
     11,
     12,
     13
-   ]
+   ],
+   "noTitle": true
   },
   "ba4e0932ab": {
    "title": "Bellona - Phase 2 (Normal)",
@@ -10774,7 +10776,8 @@
     82,
     83,
     84
-   ]
+   ],
+   "noTitle": true
   },
   "cdf546d6f0": {
    "title": "Bellona - Phase 2 (Insane)",
@@ -10782,7 +10785,8 @@
    "starts": [
     0
    ],
-   "loop": true
+   "loop": true,
+   "noTitle": true
   },
   "4cacdea280": {
    "title": "An Uneasy Victory",

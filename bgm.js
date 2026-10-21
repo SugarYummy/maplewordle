@@ -319,7 +319,7 @@ function save() {
 // everywhere until it's answered.
 const TITLE_FROM = Date.UTC(2026, 9, 21) / DAY_MS;
 // Not on mashup days: those already have their special bonus.
-const titleOnFor = (d, ans) => d >= TITLE_FROM && ans?.bonus?.kind !== 'mashup';
+const titleOnFor = (d, ans) => d >= TITLE_FROM && ans?.bonus?.kind !== 'mashup' && !ans?.t.noTitle;   // noTitle: the title gives it away
 const titleOn = () => titleOnFor(day, answer);
 const titleShown = () => !titleOn() || title != null;
 const titleRight = () => title != null && title === answer.t.title;
