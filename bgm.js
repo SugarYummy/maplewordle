@@ -505,7 +505,7 @@ function renderEnd() {
     $('bonusResult').className = '';
   } else {
     const ok = b.right.includes(bonus);
-    $('bonusResult').textContent = (ok ? 'Correct! ' : `Wrong! You picked ${bonus}. `) + (mash
+    $('bonusResult').textContent = (ok ? 'Correct! ' : `Wrong! You picked ${bonus}.\n`) + (mash
       ? `It's ${b.mashup.boss}'s BGM.` + (titleShown() ? `\nToday's track was "${answer.t.title}".` : '')
       : `It plays in: ${b.right.join(', ')}.` + (titleOn() ? '' : `\n${trackLine}`));   // with Bonus 2, the title shows there
     $('bonusResult').className = ok ? 'right' : 'wrong';
