@@ -42,14 +42,18 @@ function hash(str) {
 // is that the same boss never comes up two days running (even with a different BGM).
 // Normal leaves out the special tracks (an "egg" one, like Lucid's Garden of Eternal Dream), and never picks the
 // boss Extreme has that day, so the two modes are two different BGMs.
-const modePool = () => MODE === 'bgm' ? pool : pool.filter((e) => !data.tracks[e.track].egg);
+// From Oct 22 Normal also leaves out bosses that are too obscure for it (new, region-only or event ones).
+const NORMAL_SKIP = ['Cross', 'Malicia', 'Gerand Darmoor', 'Bellona'];
+const NORMAL_SKIP_FROM = Date.UTC(2026, 9, 22) / DAY_MS;
+const modePool = (d) => MODE === 'bgm' ? pool
+  : pool.filter((e) => !data.tracks[e.track].egg && !(d >= NORMAL_SKIP_FROM && NORMAL_SKIP.includes(e.boss.name)));
 const schedules = {};   // per mode
 function inMode(m, f) { const was = MODE; MODE = m; try { return f(); } finally { MODE = was; } }
 function entryFor(d) {
   const s = schedules[MODE] ??= { days: [], used: new Set() };
-  const FIRST_DAY = firstDay(), all = modePool();
+  const FIRST_DAY = firstDay();
   while (FIRST_DAY + s.days.length <= d) {
-    const day = FIRST_DAY + s.days.length;
+    const day = FIRST_DAY + s.days.length, all = modePool(day);
     const prev = s.days[s.days.length - 1];
     const other = MODE === 'bgm' ? null : inMode('bgm', () => entryFor(day));   // Extreme's pick that day
     let left = all.filter((e) => !s.used.has(e.key));

@@ -1,5 +1,5 @@
 {
- "_about": "BGM Clip data, built from the confirmed Boss BGM checklist. bosses: every boss you can guess, in checklist order (clues: Normal mode hints from Boss Wordle, its lowest difficulty); areas: where each track plays, in the order the bonus round lists them (a boss without areas can be guessed but is never the answer). tracks: len in seconds; starts = whole seconds a random-start day may begin at; loop = shorter than 30 s, so it repeats. mashups: bonus for bosses with only one BGM: guess whose mashup it is (one guess). egg: a hidden extra when the mashup (or, on a track, the whole track after the game) plays. unlock: shop items a track's day finds: bonus right / won (that day only) / winAny (Archive too). noTitle: a track whose title gives the answer away (it has the phase in it), so it has no Bonus 2.",
+ "_about": "BGM Clip data, built from the confirmed Boss BGM checklist. bosses: every boss you can guess, in checklist order (clues: Normal mode hints from Boss Wordle, its lowest difficulty); areas: where each track plays, in the order the bonus round lists them (a boss without areas can be guessed but is never the answer). tracks: len in seconds; starts = whole seconds a random-start day may begin at; loop = shorter than 30 s, so it repeats. mashups: bonus for bosses with only one BGM: guess whose mashup it is (one guess). egg: a hidden extra when the mashup (or, on a track, the whole track after the game) plays. unlock: shop items a track's day finds: bonus right / won (that day only) / winAny (Archive too). noTitle: a track whose title gives the answer away (it names the part of the fight), so it has no Bonus 2.",
  "bosses": [
   {
    "name": "Zakum",
@@ -6145,7 +6145,8 @@
     118,
     119,
     120
-   ]
+   ],
+   "noTitle": true
   },
   "5c38c0f743": {
    "title": "Guardian Slime - Wave",
@@ -6208,7 +6209,8 @@
     54,
     55,
     56
-   ]
+   ],
+   "noTitle": true
   },
   "03163b0aae": {
    "title": "Shattered Time",
@@ -7390,7 +7392,8 @@
     56,
     57,
     58
-   ]
+   ],
+   "noTitle": true
   },
   "d1d1b060a3": {
    "title": "Malitia - Inside",
@@ -7458,7 +7461,8 @@
     59,
     60,
     61
-   ]
+   ],
+   "noTitle": true
   },
   "839be329b3": {
    "title": "Into the Darkness",
@@ -7603,7 +7607,8 @@
     65,
     66,
     67
-   ]
+   ],
+   "noTitle": true
   },
   "ca1e41bf1e": {
    "title": "The Breeze That Carried Sorrow",
