@@ -412,8 +412,16 @@ async function openChangelog() {
           }
           body.appendChild(h);
           list = body.appendChild(document.createElement('ul'));
-        } else if (line.startsWith('- ') && list) {
-          list.appendChild(document.createElement('li')).textContent = line.slice(2);
+        } else if (list && /^\s*[-*] /.test(line)) {
+          // "- item" (or "* item"); indent it (2+ spaces or a tab) to put it under the bullet above it.
+          const depth = line.match(/^\s*/)[0].replace(/\t/g, '  ').length >> 1;
+          let ul = list;
+          for (let i = 0; i < depth; i++) {
+            const last = ul.lastElementChild;
+            if (!last) break;
+            ul = last.querySelector(':scope > ul') || last.appendChild(document.createElement('ul'));
+          }
+          ul.appendChild(document.createElement('li')).textContent = line.replace(/^\s*[-*] /, '');
         }
       }
     } catch {
