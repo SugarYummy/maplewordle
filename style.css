@@ -549,3 +549,4 @@ body.glitch .game.glow.rainbow { animation: glitchslice 2.3s steps(1) infinite; 
 #setBoxPct { min-width: 3em; font-variant-numeric: tabular-nums; }
 .vipctl { flex-wrap: wrap; } .vipctl button.on { font-weight: 700; outline: 2px solid #333; background: rgba(255, 255, 255, 0.95); }
 #titleGo { font-size: 15px; padding: 4px 10px; }
+#changelogBody ul ul { list-style-type: circle; }   /* every sub-bullet level is a hollow circle */
