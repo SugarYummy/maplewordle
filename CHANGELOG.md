@@ -1,8 +1,9 @@
 # Maple Wordle changelog
 
 ## alpha v4.3.1 - 21 October 2026
-- Fixed [BGM Clip] Normal Mode not displaying hints properly.
-- Fixed [BGM Clip] Bonus 2 text box.
+[BGM Clip] Fixes:
+- Normal Mode not displaying hints properly.
+- You can now type in [Bonus 2] textbox.
 
 ## alpha v4.3 - 21 October 2026
 - BGM Clip now has two modes, each with its own BGM every day:
