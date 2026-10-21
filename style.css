@@ -551,3 +551,5 @@ body.glitch .game.glow.rainbow { animation: glitchslice 2.3s steps(1) infinite; 
 #titleGo { font-size: 15px; padding: 4px 10px; }
 #changelogBody ul ul { list-style-type: circle; }   /* every sub-bullet level is a hollow circle */
 #changelogBody .clnote { margin: 4px 0 0; font-weight: 600; }
+#changelogBody h3 { text-decoration: underline; text-underline-offset: 3px; }
+#changelogBody h3 .date { display: inline-block; }   /* keeps the date out of the underline */
