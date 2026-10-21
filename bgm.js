@@ -43,7 +43,7 @@ function hash(str) {
 // Normal leaves out the special tracks (an "egg" one, like Lucid's Garden of Eternal Dream), and never picks the
 // boss Extreme has that day, so the two modes are two different BGMs.
 // From Oct 22 Normal also leaves out bosses that are too obscure for it (new, region-only or event ones).
-const NORMAL_SKIP = ['Cross', 'Malicia', 'Gerand Darmoor', 'Bellona'];
+const NORMAL_SKIP = ['Cross', 'Malicia', 'Gerand Darmoor', 'Bellona', 'Julieta', 'Inferno Wolf', 'Yakuza Boss', 'Frenzied Gigatoad', 'Balrog'];
 const NORMAL_SKIP_FROM = Date.UTC(2026, 9, 22) / DAY_MS;
 const modePool = (d) => MODE === 'bgm' ? pool
   : pool.filter((e) => !data.tracks[e.track].egg && !(d >= NORMAL_SKIP_FROM && NORMAL_SKIP.includes(e.boss.name)));
@@ -103,7 +103,10 @@ function bonusFor(ans, d) {
   return { kind: 'mashup', mashup: m, right: [m.boss] };
 }
 const isRight = (name) => name === answer.name;
-const isClose = (name) => !isRight(name) && answer.owners.includes(name);   // same track, other boss
+// Same track, other boss (Horntail / Balrog, Ursus / Inferno Wolf): yellow. Not in Normal from Oct 22, which has none of
+// those bosses as answers, so there it's just a miss.
+const yellowOn = () => MODE === 'bgm' || day < NORMAL_SKIP_FROM;
+const isClose = (name) => yellowOn() && !isRight(name) && answer.owners.includes(name);
 const won = () => guesses.some(isRight);
 
 // ---- The player: one locked bar. Play / pause; it stops at what you've unlocked and starts over from there. ----
@@ -859,7 +862,7 @@ function openInfo() {
       'The clip starts either at the very beginning of the track or somewhere in the middle (50/50).',
     ]),
     'The BGM can be from any part of the fight: the waiting room, any phase, the loot room and more.',
-    'A few tracks play in two boss fights (Horntail and Balrog, Ursus and Inferno Wolf). Picking the other boss shows <b>yellow</b>: right track, wrong boss. It still counts as a miss.',
+    ...(yellowOn() ? ['A few tracks play in two boss fights (Horntail and Balrog, Ursus and Inferno Wolf). Picking the other boss shows <b>yellow</b>: right track, wrong boss. It still counts as a miss.'] : []),
     ...(titleOn() ? ["<b>Bonus 2:</b> guess the track's <b>title</b> from the list (every BGM title, A-Z). One guess, and it pays <b>+70 mesos</b>. The title stays hidden until you answer."] : []),
     '<b>Bonus:</b> when the game is over the whole track unlocks (click the bar to jump around). Guess which part of the fight it plays in. It\'s just for fun and won\'t change your result. ' +
       (newRules() ? 'Bosses with only one BGM have no bonus.' : 'Bosses with only one BGM have no bonus, except on the rare day a <b>mashup</b> shows up instead: guess whose BGM mashup it is, with one guess.'),
