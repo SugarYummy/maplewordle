@@ -540,4 +540,3 @@ body.glitch .game.glow.rainbow { animation: glitchslice 2.3s steps(1) infinite; 
 #setBox { width: 120px; accent-color: #e0a000; }
 #setBoxPct { min-width: 3em; font-variant-numeric: tabular-nums; }
 .vipctl { flex-wrap: wrap; } .vipctl button.on { font-weight: 700; outline: 2px solid #333; background: rgba(255, 255, 255, 0.95); }
-.eggnote { white-space: normal; max-width: calc(100% - 24px); }
