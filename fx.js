@@ -269,7 +269,7 @@ applyBox();
       '<button id="setMute"></button><input id="setVol" type="range" min="0" max="100"><span id="setVolPct"></span></div>' +
       `<div class="setrow"><span class="setlabel">Box opacity ${tip('How see-through the main game box is. 0%: no box, the whole background shows. 50%: the usual frosted box. 100%: solid, no background inside the box.')}</span>` +
       '<input id="setBox" type="range" min="0" max="100" step="5"><span id="setBoxPct"></span></div>' +
-      `<div class="setrow"><span class="setlabel">Background effect ${tip('Falling maple leaves in the background while 2x meso weekends are on.')}</span>` +
+      `<div class="setrow"><span class="setlabel">Background effect ${tip('Falling maple leaves in the background while 2x meso weekends are on, and holiday effects on holidays.')}</span>` +
       '<span class="seg"><button data-fx="on">On</button><button data-fx="off">Off</button></span></div>' +
       `<div class="setrow"><span class="setlabel">Secret passcode ${tip('VIP access given to those who help make this website!')}</span>` +
       (vip.on ? '<span class="vipon">✨ VIP unlocked</span>'
@@ -312,7 +312,7 @@ applyBox();
       show();
     });
     vol.addEventListener('input', () => { saveSliderVolume(vol.value); show(); });
-    for (const b of body.querySelectorAll('[data-fx]')) b.addEventListener('click', () => { lsSet(FX_KEY, b.dataset.fx); show(); leaves(); });
+    for (const b of body.querySelectorAll('[data-fx]')) b.addEventListener('click', () => { lsSet(FX_KEY, b.dataset.fx); show(); leaves(); halloweenFx(); });
     const boxIn = body.querySelector('#setBox');
     boxIn.value = boxOpacity();
     boxIn.addEventListener('input', () => { lsSet(BOX_KEY, boxIn.value); applyBox(); show(); });
@@ -480,7 +480,9 @@ const HOLIDAYS = {
   halloween: { month: 10, day: 31, name: 'Haunted Mansion', kind: 'Background (Halloween only)', price: 500 },
 };
 const holidayToday = (d = new Date()) => Object.keys(HOLIDAYS).find((k) => HOLIDAYS[k].month === d.getUTCMonth() + 1 && HOLIDAYS[k].day === d.getUTCDate());
+// fade: false (just show it), true (1 s, picking a theme) or a number of seconds (2 at midnight on a holiday).
 function applyTheme(fade = false) {
+  const secs = fade === true ? 1 : fade || 0;
   const pick = lsGet(THEME_KEY);
   const t = holidayToday() ?? (ownedThemes().includes(pick) ? pick : 'default');
   const old = [...document.querySelectorAll('.themebg')];
@@ -492,13 +494,17 @@ function applyTheme(fade = false) {
     el.dataset.theme = t;
     el.style.backgroundImage = `url("${THEME_IMG[t]}")`;
     if (THEME_VIDEO[t]) el.appendChild(bgVideo(t));
-    if (fade) { el.style.opacity = 0; requestAnimationFrame(() => requestAnimationFrame(() => { el.style.opacity = 1; })); }
+    if (secs) {
+      el.style.transition = `opacity ${secs}s ease`;
+      el.style.opacity = 0;
+      requestAnimationFrame(() => requestAnimationFrame(() => { el.style.opacity = 1; }));
+    }
     document.body.prepend(el);
     old.forEach((o) => document.body.prepend(o));   // keep the old one underneath while the new one fades in
-    if (fade) setTimeout(gone, 1100); else gone();
-  } else if (fade) {
-    old.forEach((o) => { o.style.opacity = 0; });
-    setTimeout(gone, 1100);
+    if (secs) setTimeout(gone, secs * 1000 + 100); else gone();
+  } else if (secs) {
+    old.forEach((o) => { o.style.transition = `opacity ${secs}s ease`; o.style.opacity = 0; });
+    setTimeout(gone, secs * 1000 + 100);
   } else gone();
   return t;
 }
@@ -874,3 +880,57 @@ fetch('CHANGELOG.md', { cache: 'no-cache' }).then((r) => r.text()).then((md) => 
   const btn = document.getElementById('version');
   if (m && btn) btn.textContent = m[1].trim().replace(/\bv\.(?=\d)/, 'v');   // "alpha v.4.3.2" shows as "alpha v4.3.2"
 }).catch(() => {});
+
+// Halloween effects (holiday specials, Oct 31): Stirge bats and Pumpkin Bats flying across the top, a Jr. Wraith ghost
+// drifting by now and then, and a low fog, all behind the game box. Settings > Background effect turns them off.
+let hwTimer = null;
+function halloweenFx() {
+  const on = holidayToday() === 'halloween' && bgEffectOn() && !matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let box = document.getElementById('hwfx');
+  if (!on) { clearInterval(hwTimer); hwTimer = null; box?.remove(); return; }
+  if (hwTimer) return;
+  box = Object.assign(document.createElement('div'), { id: 'hwfx' });
+  box.setAttribute('aria-hidden', 'true');
+  box.innerHTML = '<div class="fog f1"></div><div class="fog f2"></div>';
+  document.body.prepend(box);
+  const rand = (a, b) => a + Math.random() * (b - a);
+  const fly = (src, size, secs) => {   // across the screen at a random height in the top half, bobbing up and down
+    const img = box.appendChild(Object.assign(document.createElement('img'), { src, alt: '', className: 'flyer' }));
+    const ltr = Math.random() < 0.5, y = rand(4, 45), bob = rand(15, 40);
+    img.style.cssText = `width:${size}px;top:${y}vh;${ltr ? 'transform:scaleX(-1)' : ''}`;
+    const from = ltr ? -15 : 110, to = ltr ? 110 : -15, flip = ltr ? ' scaleX(-1)' : '';
+    img.animate([0, 0.25, 0.5, 0.75, 1].map((t, i) => ({ transform: `translate(${from + (to - from) * t}vw, ${i % 2 ? -bob : 0}px)${flip}` })),
+      { duration: secs * 1000, easing: 'linear' }).onfinish = () => img.remove();
+  };
+  const ghost = () => {   // fades in at the side of the screen, drifts up a little, fades out
+    const img = box.appendChild(Object.assign(document.createElement('img'), { src: 'images/holiday/fx/ghost.gif', alt: '', className: 'ghost' }));
+    const left = Math.random() < 0.5 ? rand(2, 18) : rand(78, 94);
+    img.style.cssText = `width:${Math.round(rand(46, 64))}px;left:${left}vw;top:${rand(45, 70)}vh`;
+    img.animate([{ opacity: 0, transform: 'translateY(0)' }, { opacity: 0.75, offset: 0.25 }, { opacity: 0.75, offset: 0.7 }, { opacity: 0, transform: 'translateY(-60px)' }],
+      { duration: 9000, easing: 'ease-in-out' }).onfinish = () => img.remove();
+  };
+  let tick = 0;
+  const step = () => {
+    if (holidayToday() !== 'halloween') return halloweenFx();   // the page stayed open past Halloween: stop
+    if (document.hidden) return;
+    tick++;
+    if (box.querySelectorAll('.flyer').length < 4) fly('images/holiday/fx/bat.gif', Math.round(rand(34, 50)), rand(11, 17));
+    if (tick % 5 === 0) fly('images/holiday/fx/pumpkin-bats.gif', 64, 22);
+    if (tick % 4 === 2 && !box.querySelector('.ghost')) ghost();
+  };
+  step();
+  hwTimer = setInterval(step, 2500);
+}
+halloweenFx();
+
+// Midnight (the site's UTC day changing) with the page open: a holiday's background fades in over 2 s when it starts
+// and fades back out over 2 s when it ends; its effects start / stop with it.
+let fxDay = Math.floor(Date.now() / 86400000);
+setInterval(() => {
+  const d = Math.floor(Date.now() / 86400000);
+  if (d === fxDay) return;
+  fxDay = d;
+  applyTheme(2);
+  halloweenFx();
+  leaves();
+}, 1000);

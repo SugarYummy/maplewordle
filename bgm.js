@@ -524,8 +524,38 @@ function renderEnd() {
 // The mashup plays on its own little player in the bonus box (Play on the main bar stops it, and the other way round).
 // A mashup with an "egg" also changes the page while it plays: the background fades to that boss's map (and stays for
 // the day) and the screen glitches until the mashup stops.
+// The main bar follows the mashup meanwhile, and every 0.5-2 s it glitches: it jumps to a random point of the mashup
+// for a moment, then snaps back (only the bar: the sound keeps playing).
 let mashupAudio = null;
-function glitch(on) { document.body.classList.toggle('glitch', on); }
+const eggBar = { on: false, raf: 0, timer: 0, fake: null };
+function glitch(on) {
+  document.body.classList.toggle('glitch', on);
+  cancelAnimationFrame(eggBar.raf);
+  clearTimeout(eggBar.timer);
+  eggBar.fake = null;
+  $('track').classList.remove('barglitch');
+  if (!on) { if (eggBar.on) { eggBar.on = false; drawBar(); } return; }
+  eggBar.on = true;
+  const tick = () => { drawEggBar(); eggBar.raf = requestAnimationFrame(tick); };
+  const jump = () => {
+    eggBar.timer = setTimeout(() => {
+      eggBar.fake = Math.random();
+      $('track').classList.add('barglitch');
+      eggBar.timer = setTimeout(() => { eggBar.fake = null; $('track').classList.remove('barglitch'); jump(); }, 120 + Math.random() * 180);
+    }, 500 + Math.random() * 1500);
+  };
+  tick();
+  jump();
+}
+function drawEggBar() {
+  const len = mashupAudio?.duration;
+  if (!len) return;
+  const at = (eggBar.fake ?? mashupAudio.currentTime / len) * 100;
+  $('fill').style.width = at + '%';
+  $('open').style.width = '100%';
+  $('markerText').textContent = `${clock(at / 100 * len)} / ${clock(len)}`;
+  placeMarker(at);
+}
 function stopMashup() {
   if (mashupAudio) { mashupAudio.pause(); mashupAudio = null; }
   $('mashupPlay').textContent = '▶\uFE0E Play the mashup';

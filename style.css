@@ -242,6 +242,11 @@ td.flip { animation: flip 0.5s ease both; }
 #tickLabels span.end { transform: translateX(-100%); }
 #tickLabels span.open { opacity: 1; font-weight: bold; }
 #track.seek #bar { cursor: pointer; }
+/* Easter egg mashup: the bar's moment of jumping to a random point */
+#track.barglitch #bar { transform: translateX(3px) skewX(-6deg);
+                        filter: drop-shadow(3px 0 0 rgba(255, 0, 80, 0.8)) drop-shadow(-3px 0 0 rgba(0, 220, 255, 0.8)); }
+#track.barglitch #fill { background: #c6f; }
+#track.barglitch #markerText { transform: translateX(-46%); text-shadow: 2px 0 rgba(255, 0, 80, 0.8), -2px 0 rgba(0, 220, 255, 0.8); }
 #controls { display: flex; justify-content: center; align-items: center; gap: 12px; margin-top: 6px; }
 #play { width: 44px; height: 40px; border-radius: 4px; border: 1px solid rgba(0, 0, 0, 0.35); background: #fff;
         font-size: 18px; font-family: inherit; cursor: pointer; }
@@ -553,3 +558,18 @@ body.glitch .game.glow.rainbow { animation: glitchslice 2.3s steps(1) infinite; 
 #changelogBody .clnote { margin: 4px 0 0; font-weight: 600; }
 #changelogBody h3 { text-decoration: underline; text-underline-offset: 3px; }
 #changelogBody h3 .date { display: inline-block; }   /* keeps the date out of the underline */
+/* Halloween effects (fx.js halloweenFx): behind the game box, like the weekend leaves. */
+#hwfx { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+#hwfx img { position: absolute; image-rendering: pixelated; }
+#hwfx .flyer { left: 0; }
+#hwfx .ghost { opacity: 0; }
+#hwfx .fog { position: absolute; left: -50%; width: 200%; bottom: -6vh; height: 34vh;
+  background: radial-gradient(ellipse 18% 55% at 12% 70%, rgba(210, 220, 240, .28), transparent 70%),
+              radial-gradient(ellipse 22% 60% at 38% 75%, rgba(210, 220, 240, .22), transparent 70%),
+              radial-gradient(ellipse 20% 55% at 63% 72%, rgba(210, 220, 240, .26), transparent 70%),
+              radial-gradient(ellipse 24% 60% at 88% 76%, rgba(210, 220, 240, .22), transparent 70%);
+  filter: blur(6px); animation: fogdrift 50s linear infinite; }
+#hwfx .fog.f2 { bottom: -10vh; opacity: .8; animation-duration: 80s; animation-direction: reverse; }
+@keyframes fogdrift { to { transform: translateX(25%); } }
+/* A BGM Clip Easter egg background (glitch maps, Lucid's sky) takes over: no Halloween effects while it's up. */
+body[class*="egg-"] #hwfx, body:has(.eggscene) #hwfx { display: none; }
