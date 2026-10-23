@@ -127,7 +127,7 @@ function loadTrack() {
   audio.ended = false;
   audio.pos = winStart();
   const id = audio.id;
-  audio.raw = fetch(`audio/bgm/${id}.mp3`).then((r) => r.arrayBuffer());
+  audio.raw = fetch(`audio/bgm/${id}.mp3${data.tracks[id].v ? '?v=' + data.tracks[id].v : ''}`).then((r) => r.arrayBuffer());   // v: a replaced file
   audio.raw.catch(() => {});
   ensureCtx();
   decoded().catch(() => {});   // decode now, so Play starts right away

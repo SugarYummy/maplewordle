@@ -357,6 +357,7 @@ async function vipShow(body) {
     vip.list = Object.keys(d.tracks);
     for (const b of d.bosses) for (const a of b.areas) (vip.names[a.track] ??= new Set()).add(b.name);
     vip.titles = Object.fromEntries(Object.entries(d.tracks).map(([k, t]) => [k, t.title]));
+    vip.versions = Object.fromEntries(Object.entries(d.tracks).map(([k, t]) => [k, t.v]));
   }
   body.querySelector('#vipPlay').onclick = () => {
     if (!vip.audio) return vipNext();
@@ -397,7 +398,7 @@ function vipNext() {
   let v = 50;
   try { v = Number(localStorage.getItem('mapleWordle:bgmVolume') ?? 50); } catch {}
   vip.audio.volume = Math.min(1, v / 50);   // the same volume as BGM Clip's player
-  vip.audio.src = `audio/bgm/${id}.mp3`;
+  vip.audio.src = `audio/bgm/${id}.mp3${vip.versions?.[id] ? '?v=' + vip.versions[id] : ''}`;
   vip.audio.play().catch(() => {});
   vipDraw();
 }
