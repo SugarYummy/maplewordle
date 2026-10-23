@@ -449,9 +449,10 @@ function showTimer(label, s) {
 // that map as a background for every page. Kept in this browser for good. Default is free for everyone, so the
 // Theme button (above the credit box) only shows once you've unlocked another one.
 const THEMES = { default: 'Default', deepsea: 'Unglamoured Ruins', limbo: "Limbo's Subconscious", vonbon: "Von Bon's Realm", bellona: 'Solatum',
-  lucid: 'Garden of Eternal Dream', lucidBloom: 'Lucid in Bloom', lucidNight: "Lucid's Starry Night" };
+  lucid: 'Garden of Eternal Dream', lucidBloom: 'Lucid in Bloom', lucidNight: "Lucid's Starry Night", halloween: 'Haunted Mansion' };
 const THEME_IMG = { deepsea: 'images/deepsea.webp', limbo: 'images/limbo.webp', vonbon: 'images/vonbon.webp', bellona: 'images/bellona.webp',
-  lucid: 'images/lucid-dream.jpg?v=2', lucidBloom: 'images/lucid-bloom.webp', lucidNight: 'images/lucid-night.webp' };
+  lucid: 'images/lucid-dream.jpg?v=2', lucidBloom: 'images/lucid-bloom.webp', lucidNight: 'images/lucid-night.webp',
+  halloween: 'images/holiday/halloween.webp' };
 // Moving backgrounds: a looping video over the still picture (which shows until the video starts).
 const THEME_VIDEO = { lucid: ['video/lucid-dream.webm?v=2', 'video/lucid-dream.mp4?v=2'] };
 function bgVideo(t) {
@@ -472,9 +473,16 @@ function ownedThemes() {
 }
 // The theme is its own layer under everything (a playing mashup's egg background still shows on top of it).
 // Picking one in the window fades it in over the old one; on page load it's just there.
+// Holiday specials (images/holiday/): on its day each year (the site's UTC day), a holiday's background replaces
+// whatever theme you have on, on every page. BGM Clip Extreme's Easter egg backgrounds still go on top of it. The same
+// day it's in the shop (price in mesos), so you can keep it as a theme for any day.
+const HOLIDAYS = {
+  halloween: { month: 10, day: 31, name: 'Haunted Mansion', kind: 'Background (Halloween only)', price: 500 },
+};
+const holidayToday = (d = new Date()) => Object.keys(HOLIDAYS).find((k) => HOLIDAYS[k].month === d.getUTCMonth() + 1 && HOLIDAYS[k].day === d.getUTCDate());
 function applyTheme(fade = false) {
   const pick = lsGet(THEME_KEY);
-  const t = ownedThemes().includes(pick) ? pick : 'default';
+  const t = holidayToday() ?? (ownedThemes().includes(pick) ? pick : 'default');
   const old = [...document.querySelectorAll('.themebg')];
   if ((old.at(-1)?.dataset.theme ?? 'default') === t) return t;
   const gone = () => old.forEach((el) => el.remove());
@@ -714,12 +722,17 @@ function openMeso(page = 1) {
 // ---- Shop: items only show up once you've found them (e.g. Lucid's Garden of Eternal Dream: hear it in BGM Clip on its
 // day and get the bonus right, not from the Archive). Buying one spends mesos and adds it to your themes.
 const SHOP = {
+  ...HOLIDAYS,   // holiday specials: in the shop only on their day
   lucid: { name: 'Garden of Eternal Dream', kind: 'Moving background', price: 10000 },
   lucidBloom: { name: 'Lucid in Bloom', kind: 'Background', price: 5000 },
   lucidNight: { name: "Lucid's Starry Night", kind: 'Background', price: 5000 },
 };
 const SHOP_KEY = 'mapleWordle:shop';   // items found so far
-function shopFound() { try { return JSON.parse(lsGet(SHOP_KEY) || '[]').filter((t) => t in SHOP); } catch { return []; } }
+function shopFound() {
+  let found = [];
+  try { found = JSON.parse(lsGet(SHOP_KEY) || '[]').filter((t) => t in SHOP && !(t in HOLIDAYS)); } catch {}
+  return [...(holidayToday() ? [holidayToday()] : []), ...found];
+}
 function shopUnlock(t) {
   if (!(t in SHOP) || shopFound().includes(t)) return;
   lsSet(SHOP_KEY, JSON.stringify([...shopFound(), t]));
