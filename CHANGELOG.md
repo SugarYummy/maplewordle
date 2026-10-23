@@ -4,6 +4,8 @@
 [BGM Clip] Fixes:
 - Fixed today's [Extreme Mode] audio clip.
 - Completely reworked how audio plays to avoid audio peaking.
+[Audio] Fixes:
+- Completely changed all audio files from Mono (64k) to Stereo (128k) or higher.
 
 ## alpha v4.3.1 - 21 October 2026
 [BGM Clip] Fixes:
