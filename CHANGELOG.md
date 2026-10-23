@@ -1,6 +1,6 @@
 # Maple Wordle changelog
 
-## alpha v.4.3.2 - 23 October 2026
+## alpha v4.3.2 - 23 October 2026
 [BGM Clip] Fixes:
 - Fixed today's [Extreme Mode] audio clip.
 
