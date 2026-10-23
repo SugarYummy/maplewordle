@@ -539,7 +539,7 @@ $('mashupPlay').addEventListener('click', () => {
   stopResultSounds();
   const m = answer.bonus.mashup;
   if (!mashupAudio) {
-    mashupAudio = new Audio(`audio/bgm/${m.file}.mp3`);
+    mashupAudio = new Audio(`audio/bgm/${m.file}.mp3?v=2`);   // v: remade in stereo 128k
     mashupAudio.addEventListener('ended', () => { $('mashupPlay').textContent = '▶\uFE0E Play the mashup'; glitch(false); });
   }
   mashupAudio.volume = Math.min(1, bgmVolume() / 50);
