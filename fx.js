@@ -853,3 +853,11 @@ for (const btn of document.querySelectorAll('[data-meso]')) {
   tag.innerHTML = `${times}x<img src="images/fx/meso-gold.png" alt="mesos">`;
   btn.appendChild(tag);
 }
+
+// The version button (bottom left) shows the newest version in CHANGELOG.md (its first "## alpha vX.Y - date" line), so
+// a changelog edit on GitHub updates it too. The text in the page is only a fallback until that loads.
+fetch('CHANGELOG.md', { cache: 'no-cache' }).then((r) => r.text()).then((md) => {
+  const m = md.match(/^## (.+?)(?: - .*)?$/m);
+  const btn = document.getElementById('version');
+  if (m && btn) btn.textContent = m[1].trim().replace(/\bv\.(?=\d)/, 'v');   // "alpha v.4.3.2" shows as "alpha v4.3.2"
+}).catch(() => {});
