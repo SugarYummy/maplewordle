@@ -50,6 +50,11 @@ footer.panel { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%
 /* Close button stays visible at the bottom while the window scrolls. */
 .closebar { position: sticky; bottom: -16px; margin: 0 -16px -16px; padding: 10px 0 14px;
             background: rgba(255, 255, 255, 0.35); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+/* Every window's Close: like the shop popups' buttons (light grey, see .buybtns .plain) */
+.closebar button { font-family: inherit; font-size: 15px; font-weight: 700; min-width: 96px; padding: 6px 18px; border-radius: 8px;
+                   cursor: pointer; color: #222; background: #f2f2f2; border: 1px solid rgba(0, 0, 0, 0.25);
+                   transition: transform 0.15s ease, filter 0.15s ease; }
+.closebar button:hover { transform: translateY(-2px) scale(1.05); filter: brightness(1.04); }
 #changelogBody .date { font-size: 13px; font-weight: normal; margin-left: 8px; opacity: 0.75; }
 #changelogBody ul, #infoBody ul { margin: 0; padding-left: 20px; }
 #infoBody li { margin: 2px 0; }
