@@ -930,26 +930,30 @@ function tooPoor(btn, it) {
   swap(fmt(it.price - mesoTotal()), true);
   setTimeout(() => swap(fmt(it.price), false), 2150);
 }
-// "Are you sure?" before buying: the item's picture, name and price, a green Yes and a red No (Esc / outside = No).
-function askBuy(t) {
+// A small window over the shop about one item: its picture and name (and price), then two buttons. Resolves true for
+// the first button; the second, Esc or a click outside resolve false (and only close this, the shop stays open).
+function itemPopup(t, title, withPrice, [okText, okClass], [noText, noClass]) {
   const it = SHOP[t];
   return new Promise((done) => {
     const win = document.createElement('div');
     win.className = 'popup buyask';
-    win.innerHTML = '<div class="panel"><h2>Are you sure you want to purchase?</h2>' +
+    win.innerHTML = `<div class="panel"><h2>${title}</h2>` +
       `<span class="themepic" style="background-image:url('${it.img ?? THEME_IMG[t]}')"></span><b class="buyname">${it.name}</b>` +
-      `<span class="price"><img src="images/fx/meso-gold.png" alt=""> <span>${fmt(it.price)}</span></span>` +
-      '<p class="buybtns"><button class="yes">Yes</button><button class="no">No</button></p></div>';
-    const close = (ok) => { win.remove(); removeEventListener('keydown', esc, true); done(ok); };
-    const esc = (e) => { if (e.key === 'Escape') { e.stopImmediatePropagation(); close(false); } };   // only this popup, the shop stays open
-    win.querySelector('.yes').addEventListener('click', () => close(true));
-    win.querySelector('.no').addEventListener('click', () => close(false));
+      (withPrice ? `<span class="price"><img src="images/fx/meso-gold.png" alt=""> <span>${fmt(it.price)}</span></span>` : '') +
+      `<p class="buybtns"><button class="${okClass}">${okText}</button><button class="${noClass}">${noText}</button></p></div>`;
+    const [ok, no] = win.querySelectorAll('.buybtns button');
+    const close = (yes) => { win.remove(); removeEventListener('keydown', esc, true); done(yes); };
+    const esc = (e) => { if (e.key === 'Escape') { e.stopImmediatePropagation(); close(false); } };
+    ok.addEventListener('click', () => close(true));
+    no.addEventListener('click', () => close(false));
     win.addEventListener('click', (e) => { if (e.target === win) close(false); });
     addEventListener('keydown', esc, true);
     document.body.appendChild(win);
-    win.querySelector('.yes').focus();
+    ok.focus();
   });
 }
+// "Are you sure?" before buying: a green Yes and a red No.
+const askBuy = (t) => itemPopup(t, 'Are you sure you want to purchase?', true, ['Yes', 'yes'], ['No', 'no']);
 async function buy(t, btn) {
   const it = SHOP[t];
   if (!it || shopOwned(t)) return;
@@ -970,6 +974,11 @@ async function buy(t, btn) {
   applyTheme(true);
   drawMeso();
   openShop();
+  // Bought: Customize closes the shop and opens the Customize window on the item's tab
+  if (await itemPopup(t, 'Successfully Purchased!', false, ['Customize', 'yes'], ['Close', 'plain'])) {
+    document.getElementById('shop').hidden = true;
+    document.getElementById('themeBtn')?.click();
+  }
 }
 
 // BGM Clip's moving Easter egg backgrounds (a track with "egg" in data/bgm.json): fades in over the page while that

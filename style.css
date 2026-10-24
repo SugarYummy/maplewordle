@@ -406,6 +406,7 @@ body.glitch .game.glow.diamond { animation: glitchslice 2.3s steps(1) infinite, 
                   cursor: pointer; color: #fff; border: 1px solid rgba(0, 0, 0, 0.25); transition: transform 0.15s ease, filter 0.15s ease; }
 .buybtns .yes { background: #2fa84f; }
 .buybtns .no { background: #d9443b; }
+.buybtns .plain { background: #f2f2f2; color: #222; }
 .buybtns button:hover { transform: translateY(-2px) scale(1.05); filter: brightness(1.08); }
 .popupbody { width: min(440px, calc(100vw - 96px)); text-align: left; }
 .popupbody h3 { margin: 14px 0 4px; }
