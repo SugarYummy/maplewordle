@@ -58,6 +58,9 @@ footer.panel { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%
 /* Hide the scrollbar but keep scrolling (wheel, trackpad, touch). */
 #archive .panel, #changelog .panel, #info .panel { scrollbar-width: none; }
 #archive .panel::-webkit-scrollbar, #changelog .panel::-webkit-scrollbar, #info .panel::-webkit-scrollbar { display: none; }
+/* While one of these windows is open, scrolling only moves the window, never the page behind it. */
+#archive .panel, #changelog .panel, #info .panel { overscroll-behavior: contain; }
+html:has(#archive:not([hidden]), #changelog:not([hidden]), #info:not([hidden])) { overflow: hidden; }
 #archiveTabs { margin-bottom: 8px; }
 #archiveList button { display: block; width: 100%; margin: 4px 0; padding: 6px; text-align: left;
                       background: rgba(255, 255, 255, 0.4); border: 1px solid rgba(0, 0, 0, 0.15); border-radius: 6px; cursor: pointer; }
