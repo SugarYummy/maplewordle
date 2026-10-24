@@ -881,10 +881,19 @@ fetch('CHANGELOG.md', { cache: 'no-cache' }).then((r) => r.text()).then((md) => 
   if (m && btn) btn.textContent = m[1].trim().replace(/\bv\.(?=\d)/, 'v');   // "alpha v.4.3.2" shows as "alpha v4.3.2"
 }).catch(() => {});
 // Changelog text (every game's Changelog window): **bold** shows bold, the same as on GitHub. Anything else stays plain text.
+// A section heading that starts with ✨ ("### ✨ New") makes its words sparkle a little.
 function clText(el, text) {
+  let into = el;
+  const m = el.classList.contains('clsect') && text.match(/^✨\s*(.+)$/);
+  if (m) {
+    el.append('✨ ');
+    into = el.appendChild(document.createElement('span'));
+    into.className = 'sparkle';
+    text = m[1];
+  }
   text.split(/(\*\*[^*]+\*\*)/).forEach((part, i) => {
-    if (i % 2) el.appendChild(document.createElement('b')).textContent = part.slice(2, -2);
-    else if (part) el.appendChild(document.createTextNode(part));
+    if (i % 2) into.appendChild(document.createElement('b')).textContent = part.slice(2, -2);
+    else if (part) into.appendChild(document.createTextNode(part));
   });
   return el;
 }
