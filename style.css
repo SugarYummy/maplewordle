@@ -59,8 +59,8 @@ footer.panel { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%
 #archive .panel, #changelog .panel, #info .panel { scrollbar-width: none; }
 #archive .panel::-webkit-scrollbar, #changelog .panel::-webkit-scrollbar, #info .panel::-webkit-scrollbar { display: none; }
 /* While one of these windows is open, scrolling only moves the window, never the page behind it. */
-#archive .panel, #changelog .panel, #info .panel { overscroll-behavior: contain; }
-html:has(#archive:not([hidden]), #changelog:not([hidden]), #info:not([hidden])) { overflow: hidden; }
+#archive .panel, #changelog .panel, #info .panel, #themes .panel { overscroll-behavior: contain; }
+html:has(#archive:not([hidden]), #changelog:not([hidden]), #info:not([hidden]), #themes:not([hidden])) { overflow: hidden; }
 #archiveTabs { margin-bottom: 8px; }
 #archiveList button { display: block; width: 100%; margin: 4px 0; padding: 6px; text-align: left;
                       background: rgba(255, 255, 255, 0.4); border: 1px solid rgba(0, 0, 0, 0.15); border-radius: 6px; cursor: pointer; }
@@ -135,8 +135,8 @@ td.flip { animation: flip 0.5s ease both; }
 @keyframes flip { from { transform: rotateX(90deg); } to { transform: rotateX(0); } }
 /* Win confetti (fx.js). */
 .confetti { position: fixed; inset: 0; pointer-events: none; z-index: 10; overflow: hidden; }
-/* First-guess win: Sol Hecate: Helia's skill screen over the whole page (fx.js playHelia), under the mesos */
-.heliafx { position: fixed; inset: 0; width: 100vw; height: 100vh; object-fit: cover; z-index: 9; pointer-events: none; }
+/* First-guess win: a Sol Hecate skill screen over the whole page (fx.js playHecate), under the mesos */
+.hecatefx { position: fixed; inset: 0; width: 100vw; height: 100vh; object-fit: cover; z-index: 9; pointer-events: none; }
 .confetti b { position: absolute; left: 0; top: 0; will-change: transform; }
 .confetti b.fall { top: -40px; animation: confetti-fall linear both; }
 .confetti i { display: block; background: center / contain no-repeat; image-rendering: pixelated; }
@@ -351,7 +351,12 @@ body.glitch .game.glow.diamond { animation: glitchslice 2.3s steps(1) infinite, 
 #themes[hidden] { display: none; }
 #themes .panel { margin-top: 48px; max-height: calc(100vh - 96px); overflow-y: auto; min-width: 280px; scrollbar-width: none; }
 #themes .panel::-webkit-scrollbar { display: none; }
-.themehelp { margin: 0 0 10px; font-size: 14px; }
+.themehelp { margin: 0 0 10px; font-size: 14px; max-width: 360px; margin-inline: auto; }
+.themetabs { display: flex; justify-content: center; gap: 6px; flex-wrap: wrap; margin: 0 0 10px; }
+.themetabs button { font-family: inherit; font-size: 14px; padding: 5px 12px; border-radius: 8px; border: 1px solid rgba(0, 0, 0, 0.25);
+                    background: rgba(255, 255, 255, 0.55); cursor: pointer; }
+.themetabs button:hover { background: rgba(255, 255, 255, 0.85); }
+.themetabs button.on { font-weight: bold; outline: 2px solid #333; background: rgba(255, 255, 255, 0.9); }
 #themeList { display: flex; flex-direction: column; gap: 8px; width: min(360px, calc(100vw - 96px)); margin: 0 auto 8px; }
 .themecard { display: flex; align-items: center; gap: 12px; padding: 6px; border-radius: 8px; cursor: pointer; font-family: inherit;
              font-size: 15px; text-align: left; border: 1px solid rgba(0, 0, 0, 0.2); background: rgba(255, 255, 255, 0.5); }

@@ -86,35 +86,58 @@ function firstTryGlow(on) {
   document.querySelector('.game')?.classList.toggle('glow', on);
 }
 
-// First-guess win: a Sol Hecate skin's skill screen plays over the page first, and the meso show starts when it bursts.
-// One random skin is fetched a few seconds after the page loads (so it's ready while you're guessing; if it isn't yet,
-// the mesos just start right away). A win uses it up; switching to another mode (Story / Normal / Hard / Extreme) then
-// fetches another random one. Pages with only one game mode don't fetch again.
-// Safari can't show a see-through WebM, so it gets the same clip as an animated WebP.
-const HECATE = [   // burst: ms into the clip when it bursts
-  { name: 'Helia', webm: 'video/helia.webm', webp: 'video/helia.webp', ms: 2880, burst: 900 },
-];
-const HECATE_ON = false;   // off for now: it's going to be something you buy in the shop
+// First-guess win: a Sol Hecate skill screen plays over the page first, and the meso show starts when it bursts.
+// Everyone has the default one; the shop's Helia bundle adds 5 colours. In the Customize window (Win Effect) you pick one
+// or more, and each win plays a random one of those.
+// One is fetched a few seconds after the page loads (so it's ready while you're guessing; if it isn't yet, the mesos
+// just start right away). A win uses it up; switching to another mode (Story / Normal / Hard / Extreme) then fetches
+// another one. Pages with only one game mode don't fetch again.
+// Safari can't show a see-through WebM, so it gets the same clip as an animated WebP (video/hecate/<id>.webm / .webp,
+// picture images/fx/hecate/<id>.webp).
+const HECATE = {   // ms: clip length, burst: ms into the clip when it bursts (frame 15 of 48, 60 ms each)
+  default: { name: 'Sol Hecate', ms: 2880, burst: 900 },
+  helia1: { name: 'Helia (Pink)', ms: 2880, burst: 900, pack: 'helia' },
+  helia2: { name: 'Helia (Gold)', ms: 2880, burst: 900, pack: 'helia' },
+  helia3: { name: 'Helia (Blue)', ms: 2880, burst: 900, pack: 'helia' },
+  helia4: { name: 'Helia (Red)', ms: 2880, burst: 900, pack: 'helia' },
+  helia5: { name: 'Helia (Dark)', ms: 2880, burst: 900, pack: 'helia' },
+};
+const EFFECTS_KEY = 'mapleWordle:effects', WINFX_KEY = 'mapleWordle:winFx';   // packs bought; win effects picked
+function ownedEffects() {
+  try { return JSON.parse(lsGet(EFFECTS_KEY) || '[]'); } catch { return []; }
+}
+const ownedSkins = () => Object.keys(HECATE).filter((id) => !HECATE[id].pack || ownedEffects().includes(HECATE[id].pack));
+function pickedSkins() {
+  let got = [];
+  try { got = JSON.parse(lsGet(WINFX_KEY) || '[]'); } catch {}
+  got = got.filter((id) => ownedSkins().includes(id));
+  return got.length ? got : ['default'];
+}
+function setPickedSkins(ids) {
+  lsSet(WINFX_KEY, JSON.stringify(ids));
+  if (hecate && !ids.includes(hecate.id)) { hecate = null; loadHecate(); }   // the one waiting isn't picked any more
+}
 const SAFARI = /^((?!chrome|chromium|android|crios|fxios|edg).)*safari/i.test(navigator.userAgent);
-let hecate = null, hecateLoading = false, hecateLast = null;   // hecate: { skin, blob } ready to play
+let hecate = null, hecateLoading = false, hecateLast = null;   // hecate: { id, skin, blob } ready to play
 function loadHecate() {
-  if (!HECATE_ON || hecate || hecateLoading) return;
-  const pool = HECATE.length > 1 ? HECATE.filter((s) => s !== hecateLast) : HECATE;
-  const skin = pool[Math.floor(Math.random() * pool.length)];
+  if (hecate || hecateLoading) return;
+  const picked = pickedSkins();
+  const pool = picked.length > 1 ? picked.filter((id) => id !== hecateLast) : picked;
+  const id = pool[Math.floor(Math.random() * pool.length)];
   hecateLoading = true;
-  fetch(SAFARI ? skin.webp : skin.webm).then((r) => (r.ok ? r.blob() : null))
-    .then((blob) => { if (blob) hecate = { skin, blob }; }).catch(() => {}).finally(() => { hecateLoading = false; });
+  fetch(`video/hecate/${id}.${SAFARI ? 'webp' : 'webm'}`).then((r) => (r.ok ? r.blob() : null))
+    .then((blob) => { if (blob) hecate = { id, skin: HECATE[id], blob }; }).catch(() => {}).finally(() => { hecateLoading = false; });
 }
 setTimeout(loadHecate, 3000);
 document.addEventListener('click', (e) => { if (e.target.closest?.('#modes button') && hecateLast) loadHecate(); });
 function playHecate() {
   if (!hecate) return 0;
-  const { skin, blob } = hecate;
+  const { id, skin, blob } = hecate;
   hecate = null;
-  hecateLast = skin;
+  hecateLast = id;
   const url = URL.createObjectURL(blob);   // a fresh URL each time, so the WebP starts from its first frame
   const el = document.createElement(SAFARI ? 'img' : 'video');
-  el.className = 'heliafx';
+  el.className = 'hecatefx';
   let gone = false;
   const done = () => { if (gone) return; gone = true; el.remove(); URL.revokeObjectURL(url); };
   if (SAFARI) setTimeout(done, skin.ms + 20);
@@ -553,42 +576,66 @@ function applyTheme(fade = false) {
   } else gone();
   return t;
 }
-// The Theme button opens a window like the Changelog: a box for each theme you have (only those), click one to use it.
+// The Customize button (only once you have a theme besides Default, or a win effect from the shop) opens a window like
+// the Changelog with 3 tabs: Background (click a theme to use it), Win Effect (click to tick / untick; a random one of the
+// ticked ones plays when you win in 1 guess, at least one stays ticked) and Custom Effects (nothing to buy yet).
+let customTab = 'bg';
 function drawThemeButton() {
   document.getElementById('themeBtn')?.remove();
   document.getElementById('themes')?.remove();
   const own = ownedThemes();
-  if (own.length < 2) return;
+  if (own.length < 2 && !ownedEffects().length) return;
   const btn = document.createElement('button');
   btn.id = 'themeBtn';
   btn.className = 'panel';
   btn.innerHTML = '<img src="images/home.png" alt="">';
-  btn.title = 'Themes';
-  btn.setAttribute('aria-label', 'Themes');
+  btn.title = 'Customize';
+  btn.setAttribute('aria-label', 'Customize');
   if (lsGet(THEME_NEW_KEY) === '1') btn.appendChild(Object.assign(document.createElement('span'), { className: 'newtag', textContent: 'NEW' }));
   const win = document.createElement('div');
   win.id = 'themes';
   win.hidden = true;
-  win.innerHTML = '<div class="panel"><h2>Themes</h2><p class="themehelp">Your backgrounds. Pick one to use it on every page.</p>' +
+  win.innerHTML = '<div class="panel"><h2>Customize</h2><p class="themetabs"><button data-tab="bg">Background</button>' +
+    '<button data-tab="win">Win Effect</button><button data-tab="fx">Custom Effects</button></p><p class="themehelp"></p>' +
     '<div id="themeList"></div><p class="closebar"><button id="themesClose">Close</button></p></div>';
-  const list = win.querySelector('#themeList');
+  const list = win.querySelector('#themeList'), help = win.querySelector('.themehelp');
+  const card = (img, label, on, click) => {
+    const c = document.createElement('button');
+    c.className = 'themecard' + (on ? ' on' : '');
+    const pic = document.createElement('span');
+    pic.className = 'themepic' + (img ? '' : ' default');
+    if (img) pic.style.backgroundImage = `url("${img}")`;
+    const name = document.createElement('span');
+    name.className = 'themename';
+    name.textContent = label;
+    c.append(pic, name);
+    if (click) c.addEventListener('click', click);
+    list.appendChild(c);
+  };
   const fill = () => {
     list.innerHTML = '';
-    const cur = applyTheme(true);
-    for (const t of own) {
-      const card = document.createElement('button');
-      card.className = 'themecard' + (t === cur ? ' on' : '');
-      const pic = document.createElement('span');
-      pic.className = 'themepic' + (t === 'default' ? ' default' : '');
-      if (THEME_IMG[t]) pic.style.backgroundImage = `url("${THEME_IMG[t]}")`;
-      const name = document.createElement('span');
-      name.className = 'themename';
-      name.textContent = THEMES[t] + (t === cur ? ' (in use)' : '');
-      card.append(pic, name);
-      card.addEventListener('click', () => { lsSet(THEME_KEY, t); fill(); });
-      list.appendChild(card);
+    for (const b of win.querySelectorAll('.themetabs button')) b.classList.toggle('on', b.dataset.tab === customTab);
+    if (customTab === 'win') {
+      help.textContent = 'Plays when you win in 1 guess. Tick one or more: each win plays a random one of them.';
+      const picked = pickedSkins();
+      for (const id of ownedSkins()) {
+        const on = picked.includes(id);
+        card(`images/fx/hecate/${id}.webp`, HECATE[id].name + (on ? ' ✓' : ''), on, () => {
+          if (on && picked.length === 1) return;   // keep at least one
+          setPickedSkins(on ? picked.filter((x) => x !== id) : [...picked, id]);
+          fill();
+        });
+      }
+    } else if (customTab === 'fx') {
+      help.textContent = 'More effects are coming to the shop later!';
+      card('images/fx/hecate/none.webp', 'No Effect (in use)', true);
+    } else {
+      help.textContent = 'Your backgrounds. Pick one to use it on every page.';
+      const cur = applyTheme(true);
+      for (const t of own) card(THEME_IMG[t], THEMES[t] + (t === cur ? ' (in use)' : ''), t === cur, () => { lsSet(THEME_KEY, t); fill(); });
     }
   };
+  for (const b of win.querySelectorAll('.themetabs button')) b.addEventListener('click', () => { customTab = b.dataset.tab; fill(); });
   btn.addEventListener('click', () => {
     fill();
     win.hidden = false;
@@ -770,19 +817,24 @@ function openMeso(page = 1) {
   for (const b of body.querySelectorAll('[data-page]')) b.addEventListener('click', () => openMeso(+b.dataset.page));
 }
 
-// ---- Shop: items only show up once you've found them (e.g. Lucid's Garden of Eternal Dream: hear it in BGM Clip on its
-// day and get the bonus right, not from the Archive). Buying one spends mesos and adds it to your themes.
+// ---- Shop: most items only show up once you've found them (e.g. Lucid's Garden of Eternal Dream: hear it in BGM Clip on
+// its day and get the bonus right, not from the Archive); "always" ones are there from the start. Buying a background
+// adds it to your themes; buying an effect pack (effect: true) adds its win effects (see HECATE).
 const SHOP = {
   ...HOLIDAYS,   // holiday specials: in the shop only on their day
+  helia: { name: 'Sol Hecate: Helia', kind: 'Guess in 1 win effect (bundle)', price: 5000, always: true, effect: true,
+           img: 'images/fx/hecate/helia-bundle.webp' },
   lucid: { name: 'Garden of Eternal Dream', kind: 'Moving background', price: 10000 },
   lucidBloom: { name: 'Lucid in Bloom', kind: 'Background', price: 5000 },
   lucidNight: { name: "Lucid's Starry Night", kind: 'Background', price: 5000 },
 };
+const shopOwned = (t) => (SHOP[t]?.effect ? ownedEffects() : ownedThemes()).includes(t);
 const SHOP_KEY = 'mapleWordle:shop';   // items found so far
 function shopFound() {
   let found = [];
   try { found = JSON.parse(lsGet(SHOP_KEY) || '[]').filter((t) => t in SHOP && !(t in HOLIDAYS)); } catch {}
-  return [...(holidayToday() ? [holidayToday()] : []), ...found];
+  const always = Object.keys(SHOP).filter((t) => SHOP[t].always && !found.includes(t));
+  return [...(holidayToday() ? [holidayToday()] : []), ...always, ...found];
 }
 function shopUnlock(t) {
   if (!(t in SHOP) || shopFound().includes(t)) return;
@@ -793,11 +845,11 @@ function openShop() {
   const found = shopFound(), have = mesoTotal();
   body.innerHTML = `<p class="mesototal"><img src="images/fx/meso-gold.png" alt=""> ${fmt(have)}</p>` +
     (found.length ? '<div class="shoplist">' + found.map((t) => {
-      const it = SHOP[t], owned = ownedThemes().includes(t);
+      const it = SHOP[t], owned = shopOwned(t);
       // Not enough mesos: a greyed-out Buy; clicking it flashes how many more you need in the price (red, 2 s).
       const btn = owned ? '<span class="owned">Owned ✓</span>'
         : `<button data-buy="${t}"${have < it.price ? ' class="poor" title="Not enough mesos"' : ''}>Buy</button>`;
-      return `<div class="shopitem"><span class="themepic" style="background-image:url('${THEME_IMG[t]}')"></span>` +
+      return `<div class="shopitem"><span class="themepic" style="background-image:url('${it.img ?? THEME_IMG[t]}')"></span>` +
         `<span class="shopinfo"><b>${it.name}</b><small>${it.kind}</small><span class="price"><img src="images/fx/meso-gold.png" alt=""> <span>${fmt(it.price)}</span></span></span>${btn}</div>`;
     }).join('') + '</div>' : '<p class="shopempty">Nothing here yet... 👀</p>') +
     '<p class="mesoshop">More cosmetics are coming to the shop later, so save up your mesos!</p>';
@@ -816,14 +868,21 @@ function tooPoor(btn, it) {
 }
 function buy(t, btn) {
   const it = SHOP[t];
-  if (!it || ownedThemes().includes(t)) return;
+  if (!it || shopOwned(t)) return;
   if (mesoTotal() < it.price) return btn && tooPoor(btn, it);
   if (!confirm(`Buy ${it.name} for ${fmt(it.price)} mesos?`)) return;
   const log = mesoLog();
   log.push({ key: `shop:${t}`, mode: 'shop', day: Math.floor(Date.now() / 86400000), what: `Bought ${it.name}`, amount: -it.price });
   lsSet(MESO_LOG_KEY, JSON.stringify(log));
-  lsSet(THEMES_KEY, JSON.stringify(ownedThemes().filter((x) => x !== 'default').concat(t)));
-  lsSet(THEME_KEY, t);   // use it straight away
+  if (it.effect) {   // an effect pack: tick all of its win effects straight away
+    lsSet(EFFECTS_KEY, JSON.stringify([...ownedEffects(), t]));
+    setPickedSkins(Object.keys(HECATE).filter((id) => HECATE[id].pack === t));
+    customTab = 'win';
+  } else {
+    lsSet(THEMES_KEY, JSON.stringify(ownedThemes().filter((x) => x !== 'default').concat(t)));
+    lsSet(THEME_KEY, t);   // use it straight away
+    customTab = 'bg';
+  }
   lsSet(THEME_NEW_KEY, '1');
   drawThemeButton();
   applyTheme(true);
