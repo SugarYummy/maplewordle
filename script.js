@@ -611,42 +611,7 @@ async function openChangelog() {
   if (!body.childElementCount) {
     try {
       const md = await (await fetch('CHANGELOG.md', { cache: 'no-cache' })).text();
-      let list = null;
-      for (const line of md.split('\n')) {
-        if (line.startsWith('## ')) {
-          // "## alpha v1.1 - 10 October 2026": version in bold, then "- date" in smaller text.
-          const [ver, date] = line.slice(3).split(' - ');
-          const h = document.createElement('h3');
-          h.textContent = ver;
-          if (date) {
-            const d = document.createElement('span');
-            d.className = 'date';
-            d.textContent = '- ' + date;
-            h.appendChild(d);
-          }
-          body.appendChild(h);
-          list = body.appendChild(document.createElement('ul'));
-        } else if (list && /^\s*[-*] /.test(line)) {
-          // "- item" (or "* item"); indent it (2+ spaces or a tab) to put it under the bullet above it.
-          const depth = line.match(/^\s*/)[0].replace(/\t/g, '  ').length >> 1;
-          let ul = list;
-          for (let i = 0; i < depth; i++) {
-            const last = ul.lastElementChild;
-            if (!last) break;
-            ul = last.querySelector(':scope > ul') || last.appendChild(document.createElement('ul'));
-          }
-          clText(ul.appendChild(document.createElement('li')), line.replace(/^\s*[-*] /, ''));
-        } else if (list && line.trim() && (!line.startsWith('#') || line.startsWith('### '))) {
-          // A plain line ("[BGM Clip] Fixes:") is a small heading, "### ✨ New" a section heading; the bullets after
-          // either go under it.
-          if (!list.childElementCount) list.remove();   // no bullets came before it
-          const p = body.appendChild(document.createElement('p'));
-          p.className = 'clnote';
-          if (line.startsWith('### ')) p.classList.add('clsect');
-          clText(p, line.slice(line.startsWith('### ') ? 4 : 0).trim());
-          list = body.appendChild(document.createElement('ul'));
-        }
-      }
+      buildChangelog(body, md);   // fx.js
     } catch {
       body.textContent = 'Could not load the changelog.';
     }

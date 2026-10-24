@@ -567,8 +567,21 @@ body.glitch .game.glow.rainbow { animation: glitchslice 2.3s steps(1) infinite; 
 @keyframes twinkle { 0%, 60%, 100% { opacity: 0; transform: scale(0.4) rotate(0deg); } 75% { opacity: 0.9; transform: scale(1) rotate(45deg); } }
 @keyframes sparkglow { 0%, 100% { text-shadow: none; } 50% { text-shadow: 0 0 8px rgba(255, 200, 60, 0.6); } }
 @media (prefers-reduced-motion: reduce) { .sparkle, .sparkle::before, .sparkle::after { animation: none; } }
-#changelogBody h3 { text-decoration: underline; text-underline-offset: 3px; }
-#changelogBody h3 .date { display: inline-block; }   /* keeps the date out of the underline */
+/* Changelog boxes (fx.js buildChangelog): a group per major version (alpha v4, v3, ...) holding a box per version, both
+   styled like the Archive's day buttons and opened / closed by clicking their title. */
+#changelogBody .clgroup { margin: 8px 0; padding: 4px 8px; border: 1px solid rgba(0, 0, 0, 0.25); border-radius: 8px;
+                          background: rgba(255, 255, 255, 0.2); }
+#changelogBody .clver { margin: 6px 0; padding: 4px 8px; border: 1px solid rgba(0, 0, 0, 0.15); border-radius: 6px;
+                        background: rgba(255, 255, 255, 0.4); }
+#changelogBody summary { cursor: pointer; list-style: none; padding: 2px 0; }
+#changelogBody summary::-webkit-details-marker { display: none; }
+#changelogBody summary::before { content: '▸'; display: inline-block; width: 1em; opacity: 0.6; }
+#changelogBody details[open] > summary::before { content: '▾'; }
+#changelogBody .clgroup > summary { font-size: 1.25em; font-weight: 800; }
+#changelogBody .clver > summary { font-size: 1.05em; }
+#changelogBody .clver > summary:hover, #changelogBody .clgroup > summary:hover { opacity: 0.75; }
+#changelogBody .clver[open] > summary { margin-bottom: 2px; }
+#changelogBody .clver > ul { margin-bottom: 4px; }
 /* Halloween effects (fx.js halloweenFx): behind the game box, like the weekend leaves. */
 #hwfx { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
 #hwfx img { position: absolute; image-rendering: pixelated; }

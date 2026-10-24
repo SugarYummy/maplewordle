@@ -880,6 +880,57 @@ fetch('CHANGELOG.md', { cache: 'no-cache' }).then((r) => r.text()).then((md) => 
   const btn = document.getElementById('version');
   if (m && btn) btn.textContent = m[1].trim().replace(/\bv\.(?=\d)/, 'v');   // "alpha v.4.3.2" shows as "alpha v4.3.2"
 }).catch(() => {});
+// The Changelog window (every game) built from CHANGELOG.md. Each "## alpha v4.3 - date" is a box you can open and close,
+// and the versions are grouped by their first number (alpha v4, alpha v3, ...) in bigger boxes that open and close too.
+// Only the newest group and its newest version start open.
+function buildChangelog(body, md) {
+  let group = null, major = null, ver = null, list = null;
+  for (const line of md.split('\n')) {
+    if (line.startsWith('## ')) {
+      const [name, date] = line.slice(3).trim().split(' - ');
+      const label = name.replace(/\bv\.(?=\d)/, 'v');   // "alpha v.4.3" shows as "alpha v4.3"
+      const maj = (label.match(/^.*?v\d+/) || [label])[0];   // "alpha v4.3.2" -> "alpha v4"
+      if (maj !== major) {
+        major = maj;
+        group = body.appendChild(document.createElement('details'));
+        group.className = 'clgroup';
+        group.open = body.childElementCount === 1;
+        group.appendChild(document.createElement('summary')).textContent = maj;
+      }
+      ver = group.appendChild(document.createElement('details'));
+      ver.className = 'clver';
+      ver.open = group.open && group.childElementCount === 2;   // the group's first version (after its summary)
+      const s = ver.appendChild(document.createElement('summary'));
+      s.appendChild(document.createElement('b')).textContent = label;
+      if (date) {
+        const d = s.appendChild(document.createElement('span'));
+        d.className = 'date';
+        d.textContent = '- ' + date;
+      }
+      list = ver.appendChild(document.createElement('ul'));
+    } else if (list && /^\s*[-*] /.test(line)) {
+      // "- item" (or "* item"); indent it (2+ spaces or a tab) to put it under the bullet above it.
+      const depth = line.match(/^\s*/)[0].replace(/\t/g, '  ').length >> 1;
+      let ul = list;
+      for (let i = 0; i < depth; i++) {
+        const last = ul.lastElementChild;
+        if (!last) break;
+        ul = last.querySelector(':scope > ul') || last.appendChild(document.createElement('ul'));
+      }
+      clText(ul.appendChild(document.createElement('li')), line.replace(/^\s*[-*] /, ''));
+    } else if (list && line.trim() && (!line.startsWith('#') || line.startsWith('### '))) {
+      // A plain line ("[BGM Clip] Fixes:") is a small heading, "### ✨ New" a section heading; the bullets after
+      // either go under it.
+      if (!list.childElementCount) list.remove();   // no bullets came before it
+      const p = ver.appendChild(document.createElement('p'));
+      p.className = 'clnote';
+      if (line.startsWith('### ')) p.classList.add('clsect');
+      clText(p, line.slice(line.startsWith('### ') ? 4 : 0).trim());
+      list = ver.appendChild(document.createElement('ul'));
+    }
+  }
+  for (const ul of body.querySelectorAll('.clver > ul:empty')) ul.remove();
+}
 // Changelog text (every game's Changelog window): **bold** shows bold, the same as on GitHub. Anything else stays plain text.
 // A section heading that starts with ✨ ("### ✨ New") makes its words sparkle a little.
 function clText(el, text) {
