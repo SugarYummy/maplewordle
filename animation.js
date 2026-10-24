@@ -422,12 +422,14 @@ async function openChangelog() {
             ul = last.querySelector(':scope > ul') || last.appendChild(document.createElement('ul'));
           }
           clText(ul.appendChild(document.createElement('li')), line.replace(/^\s*[-*] /, ''));
-        } else if (list && line.trim() && !line.startsWith('#')) {
-          // A plain line ("[BGM Clip] Fixes:") is a small heading; the bullets after it go under it.
+        } else if (list && line.trim() && (!line.startsWith('#') || line.startsWith('### '))) {
+          // A plain line ("[BGM Clip] Fixes:") is a small heading, "### ✨ New" a section heading; the bullets after
+          // either go under it.
           if (!list.childElementCount) list.remove();   // no bullets came before it
           const p = body.appendChild(document.createElement('p'));
           p.className = 'clnote';
-          clText(p, line.trim());
+          if (line.startsWith('### ')) p.classList.add('clsect');
+          clText(p, line.slice(line.startsWith('### ') ? 4 : 0).trim());
           list = body.appendChild(document.createElement('ul'));
         }
       }
