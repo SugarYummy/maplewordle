@@ -94,10 +94,11 @@ function firstTryGlow(on) {
 const HECATE = [   // burst: ms into the clip when it bursts
   { name: 'Helia', webm: 'video/helia.webm', webp: 'video/helia.webp', ms: 2880, burst: 900 },
 ];
+const HECATE_ON = false;   // off for now: it's going to be something you buy in the shop
 const SAFARI = /^((?!chrome|chromium|android|crios|fxios|edg).)*safari/i.test(navigator.userAgent);
 let hecate = null, hecateLoading = false, hecateLast = null;   // hecate: { skin, blob } ready to play
 function loadHecate() {
-  if (hecate || hecateLoading) return;
+  if (!HECATE_ON || hecate || hecateLoading) return;
   const pool = HECATE.length > 1 ? HECATE.filter((s) => s !== hecateLast) : HECATE;
   const skin = pool[Math.floor(Math.random() * pool.length)];
   hecateLoading = true;
