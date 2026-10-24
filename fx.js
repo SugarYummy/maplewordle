@@ -822,11 +822,11 @@ function openMeso(page = 1) {
 // adds it to your themes; buying an effect pack (effect: true) adds its win effects (see HECATE).
 const SHOP = {
   ...HOLIDAYS,   // holiday specials: in the shop only on their day
-  helia: { name: 'Sol Hecate: Helia', kind: 'Guess in 1 win effect (bundle)', price: 5000, always: true, effect: true,
+  helia: { name: 'Sol Hecate: Helia', kind: 'Guess in 1 win effect (bundle)', price: 2000, always: true, effect: true,
            img: 'images/fx/hecate/helia-bundle.webp' },
-  lucid: { name: 'Garden of Eternal Dream', kind: 'Moving background', price: 10000 },
-  lucidBloom: { name: 'Lucid in Bloom', kind: 'Background', price: 5000 },
-  lucidNight: { name: "Lucid's Starry Night", kind: 'Background', price: 5000 },
+  lucid: { name: 'Garden of Eternal Dream', kind: 'Moving background', price: 5000 },
+  lucidBloom: { name: 'Lucid in Bloom', kind: 'Background', price: 2500 },
+  lucidNight: { name: "Lucid's Starry Night", kind: 'Background', price: 2500 },
 };
 const shopOwned = (t) => (SHOP[t]?.effect ? ownedEffects() : ownedThemes()).includes(t);
 const SHOP_KEY = 'mapleWordle:shop';   // items found so far
@@ -866,11 +866,31 @@ function tooPoor(btn, it) {
   swap(fmt(it.price - mesoTotal()), true);
   setTimeout(() => swap(fmt(it.price), false), 2150);
 }
-function buy(t, btn) {
+// "Are you sure?" before buying: the item's picture, name and price, a green Yes and a red No (Esc / outside = No).
+function askBuy(t) {
+  const it = SHOP[t];
+  return new Promise((done) => {
+    const win = document.createElement('div');
+    win.className = 'popup buyask';
+    win.innerHTML = '<div class="panel"><h2>Are you sure you want to purchase?</h2>' +
+      `<span class="themepic" style="background-image:url('${it.img ?? THEME_IMG[t]}')"></span><b class="buyname">${it.name}</b>` +
+      `<span class="price"><img src="images/fx/meso-gold.png" alt=""> <span>${fmt(it.price)}</span></span>` +
+      '<p class="buybtns"><button class="yes">Yes</button><button class="no">No</button></p></div>';
+    const close = (ok) => { win.remove(); removeEventListener('keydown', esc, true); done(ok); };
+    const esc = (e) => { if (e.key === 'Escape') { e.stopImmediatePropagation(); close(false); } };   // only this popup, the shop stays open
+    win.querySelector('.yes').addEventListener('click', () => close(true));
+    win.querySelector('.no').addEventListener('click', () => close(false));
+    win.addEventListener('click', (e) => { if (e.target === win) close(false); });
+    addEventListener('keydown', esc, true);
+    document.body.appendChild(win);
+    win.querySelector('.yes').focus();
+  });
+}
+async function buy(t, btn) {
   const it = SHOP[t];
   if (!it || shopOwned(t)) return;
   if (mesoTotal() < it.price) return btn && tooPoor(btn, it);
-  if (!confirm(`Buy ${it.name} for ${fmt(it.price)} mesos?`)) return;
+  if (!await askBuy(t) || shopOwned(t) || mesoTotal() < it.price) return;
   const log = mesoLog();
   log.push({ key: `shop:${t}`, mode: 'shop', day: Math.floor(Date.now() / 86400000), what: `Bought ${it.name}`, amount: -it.price });
   lsSet(MESO_LOG_KEY, JSON.stringify(log));

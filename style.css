@@ -382,6 +382,20 @@ body.glitch .game.glow.diamond { animation: glitchslice 2.3s steps(1) infinite, 
 .popup[hidden] { display: none; }
 .popup .panel { margin-top: 48px; max-height: calc(100vh - 96px); overflow-y: auto; min-width: 280px; scrollbar-width: none; }
 .popup .panel::-webkit-scrollbar { display: none; }
+/* Shop: "Are you sure you want to purchase?" (fx.js askBuy), over the shop window */
+.popup.buyask { z-index: 5; align-items: center; }
+.buyask .panel { margin-top: 0; display: flex; flex-direction: column; align-items: center; gap: 8px; max-width: 340px; }
+.buyask h2 { font-size: 20px; margin: 0 0 4px; }
+.buyask .themepic { width: 224px; height: 126px; border: 1px solid rgba(0, 0, 0, 0.2); }
+.buyask .buyname { font-size: 17px; }
+.buyask .price { display: flex; align-items: center; gap: 5px; font-weight: 700; font-size: 17px; color: #8a6000; }
+.buyask .price img { width: 20px; height: 20px; image-rendering: pixelated; }
+.buybtns { display: flex; gap: 12px; margin: 6px 0 2px; }
+.buybtns button { font-family: inherit; font-size: 16px; font-weight: 700; min-width: 96px; padding: 7px 18px; border-radius: 8px;
+                  cursor: pointer; color: #fff; border: 1px solid rgba(0, 0, 0, 0.25); transition: transform 0.15s ease, filter 0.15s ease; }
+.buybtns .yes { background: #2fa84f; }
+.buybtns .no { background: #d9443b; }
+.buybtns button:hover { transform: translateY(-2px) scale(1.05); filter: brightness(1.08); }
 .popupbody { width: min(440px, calc(100vw - 96px)); text-align: left; }
 .popupbody h3 { margin: 14px 0 4px; }
 .popupbody h3 small { font-weight: normal; opacity: 0.7; }
