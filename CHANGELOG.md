@@ -1,5 +1,9 @@
 # Maple Wordle changelog
 
+## alpha v.4.3.3 - 24 October 2026
+### 🐛 Bug Fixes
+- **[BGM Clip]** Fixed BGM mashup's laggy dropdown menu when selecting a boss.
+
 ## alpha v4.3.2 - 23 October 2026
 ### 🔧 Changes
 - **[Audio]** Completely changed all audio files from Mono (64k) to Stereo (128k) or higher.
