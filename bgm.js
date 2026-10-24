@@ -904,13 +904,13 @@ async function openChangelog() {
             if (!last) break;
             ul = last.querySelector(':scope > ul') || last.appendChild(document.createElement('ul'));
           }
-          ul.appendChild(document.createElement('li')).textContent = line.replace(/^\s*[-*] /, '');
+          clText(ul.appendChild(document.createElement('li')), line.replace(/^\s*[-*] /, ''));
         } else if (list && line.trim() && !line.startsWith('#')) {
           // A plain line ("[BGM Clip] Fixes:") is a small heading; the bullets after it go under it.
           if (!list.childElementCount) list.remove();   // no bullets came before it
           const p = body.appendChild(document.createElement('p'));
           p.className = 'clnote';
-          p.textContent = line.trim();
+          clText(p, line.trim());
           list = body.appendChild(document.createElement('ul'));
         }
       }

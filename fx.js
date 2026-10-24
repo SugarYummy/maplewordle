@@ -880,6 +880,20 @@ fetch('CHANGELOG.md', { cache: 'no-cache' }).then((r) => r.text()).then((md) => 
   const btn = document.getElementById('version');
   if (m && btn) btn.textContent = m[1].trim().replace(/\bv\.(?=\d)/, 'v');   // "alpha v.4.3.2" shows as "alpha v4.3.2"
 }).catch(() => {});
+// Changelog text (every game's Changelog window): **bold** and a few GitHub emoji codes like :sparkles:, the same as
+// GitHub shows them. Anything else stays plain text.
+const CL_EMOJI = { sparkles: '✨', star: '⭐', star2: '🌟', gem: '💎', rainbow: '🌈', tada: '🎉', fire: '🔥', new: '🆕',
+  wrench: '🔧', hammer: '🔨', bug: '🐛', warning: '⚠️', musical_note: '🎵', notes: '🎶', art: '🎨', moneybag: '💰',
+  coin: '🪙', gift: '🎁', jack_o_lantern: '🎃', ghost: '👻', heart: '❤️', x: '❌', white_check_mark: '✅', zap: '⚡',
+  rocket: '🚀', lock: '🔒', mag: '🔍', speaker: '🔈', sound: '🔉', loud_sound: '🔊', mute: '🔇', gear: '⚙️' };
+function clText(el, text) {
+  text = text.replace(/:([a-z0-9_+-]+):/g, (all, k) => CL_EMOJI[k] || all);
+  text.split(/(\*\*[^*]+\*\*)/).forEach((part, i) => {
+    if (i % 2) el.appendChild(document.createElement('b')).textContent = part.slice(2, -2);
+    else if (part) el.appendChild(document.createTextNode(part));
+  });
+  return el;
+}
 
 // Halloween effects (holiday specials, Oct 31): Stirge bats and Pumpkin Bats flying across the top, a Jr. Wraith ghost
 // drifting by now and then, and a low fog, all behind the game box. Settings > Background effect turns them off.
