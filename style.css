@@ -357,6 +357,17 @@ body.glitch .game.glow.diamond { animation: glitchslice 2.3s steps(1) infinite, 
                     background: rgba(255, 255, 255, 0.55); cursor: pointer; }
 .themetabs button:hover { background: rgba(255, 255, 255, 0.85); }
 .themetabs button.on { font-weight: bold; outline: 2px solid #333; background: rgba(255, 255, 255, 0.9); }
+/* "NEW" tags (fx.js newTag): the Shop button, shop items, the Customize tabs and cards */
+#shopBtn, .shopitem, .themetabs button, .themecard { position: relative; }
+.shopitem .newtag, .themecard .newtag { top: -5px; left: -5px; font-size: 9px; line-height: 13px; padding: 0 4px; }
+/* Win Effect: a bought bundle opens and closes like a Changelog box, its colours inside */
+.fxbundle > summary { list-style: none; }
+.fxbundle > summary::-webkit-details-marker { display: none; }
+.fxbundle > summary::after { content: '▸'; margin-left: auto; padding: 0 10px; font-size: 18px; opacity: 0.6; }
+.fxbundle[open] > summary::after { content: '▾'; }
+.fxbundle .themename small { display: block; font-weight: normal; font-size: 12px; opacity: 0.75; }
+.fxbundlelist { display: flex; flex-direction: column; gap: 6px; margin: 6px 0 2px 18px; }
+.fxbundlelist .themecard { font-size: 14px; }
 #themeList { display: flex; flex-direction: column; gap: 8px; width: min(360px, calc(100vw - 96px)); margin: 0 auto 8px; }
 .themecard { display: flex; align-items: center; gap: 12px; padding: 6px; border-radius: 8px; cursor: pointer; font-family: inherit;
              font-size: 15px; text-align: left; border: 1px solid rgba(0, 0, 0, 0.2); background: rgba(255, 255, 255, 0.5); }

@@ -97,10 +97,10 @@ function firstTryGlow(on) {
 const HECATE = {   // ms: clip length, burst: ms into the clip when it bursts (frame 15 of 48, 60 ms each)
   default: { name: 'Sol Hecate', ms: 2880, burst: 900 },
   helia1: { name: 'Helia (Pink)', ms: 2880, burst: 900, pack: 'helia' },
-  helia2: { name: 'Helia (Gold)', ms: 2880, burst: 900, pack: 'helia' },
+  helia2: { name: 'Helia (Yellow)', ms: 2880, burst: 900, pack: 'helia' },
   helia3: { name: 'Helia (Blue)', ms: 2880, burst: 900, pack: 'helia' },
   helia4: { name: 'Helia (Red)', ms: 2880, burst: 900, pack: 'helia' },
-  helia5: { name: 'Helia (Dark)', ms: 2880, burst: 900, pack: 'helia' },
+  helia5: { name: 'Helia (Purple)', ms: 2880, burst: 900, pack: 'helia' },
 };
 const EFFECTS_KEY = 'mapleWordle:effects', WINFX_KEY = 'mapleWordle:winFx';   // packs bought; win effects picked
 function ownedEffects() {
@@ -531,7 +531,7 @@ function bgVideo(t) {
   v.play?.().catch(() => {});
   return v;
 }
-const THEMES_KEY = 'mapleWordle:themes', THEME_KEY = 'mapleWordle:theme', THEME_NEW_KEY = 'mapleWordle:themeNew';
+const THEMES_KEY = 'mapleWordle:themes', THEME_KEY = 'mapleWordle:theme';
 const lsGet = (k) => { try { return localStorage.getItem(k); } catch { return null; } };
 const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch {} };
 function ownedThemes() {
@@ -578,8 +578,19 @@ function applyTheme(fade = false) {
 }
 // The Customize button (only once you have a theme besides Default, or a win effect from the shop) opens a window like
 // the Changelog with 3 tabs: Background (click a theme to use it), Win Effect (click to tick / untick; a random one of the
-// ticked ones plays when you win in 1 guess, at least one stays ticked) and Custom Effects (nothing to buy yet).
+// ticked ones plays when you win in 1 guess, at least one stays ticked; a bought bundle opens and closes like a Changelog
+// box) and Custom Effects (nothing to buy yet).
+// Something you just got (bought or unlocked) is "NEW" on the button, on its tab and on itself until you've seen that tab.
 let customTab = 'bg';
+const CUSTOM_NEW_KEY = 'mapleWordle:customNew';   // [shop item / theme ids] not seen in the Customize window yet
+const customNew = () => { try { return JSON.parse(lsGet(CUSTOM_NEW_KEY) || '[]'); } catch { return []; } };
+const customTabOf = (id) => (SHOP[id]?.effect ? 'win' : 'bg');
+function markCustomNew(id) {
+  lsSet(CUSTOM_NEW_KEY, JSON.stringify([...customNew().filter((x) => x !== id), id]));
+  customTab = customTabOf(id);   // the window opens on its tab
+}
+const newTag = () => Object.assign(document.createElement('span'), { className: 'newtag', textContent: 'NEW' });
+const bundleOpen = new Set();   // bundles opened in the Win Effect tab (stay open while you click around)
 function drawThemeButton() {
   document.getElementById('themeBtn')?.remove();
   document.getElementById('themes')?.remove();
@@ -591,7 +602,6 @@ function drawThemeButton() {
   btn.innerHTML = '<img src="images/home.png" alt="">';
   btn.title = 'Customize';
   btn.setAttribute('aria-label', 'Customize');
-  if (lsGet(THEME_NEW_KEY) === '1') btn.appendChild(Object.assign(document.createElement('span'), { className: 'newtag', textContent: 'NEW' }));
   const win = document.createElement('div');
   win.id = 'themes';
   win.hidden = true;
@@ -599,7 +609,8 @@ function drawThemeButton() {
     '<button data-tab="win">Win Effect</button><button data-tab="fx">Custom Effects</button></p><p class="themehelp"></p>' +
     '<div id="themeList"></div><p class="closebar"><button id="themesClose">Close</button></p></div>';
   const list = win.querySelector('#themeList'), help = win.querySelector('.themehelp');
-  const card = (img, label, on, click) => {
+  let fresh = new Set();   // NEW in the tab on screen (kept while the window stays open)
+  const card = (into, img, label, on, click, isNew) => {
     const c = document.createElement('button');
     c.className = 'themecard' + (on ? ' on' : '');
     const pic = document.createElement('span');
@@ -609,37 +620,74 @@ function drawThemeButton() {
     name.className = 'themename';
     name.textContent = label;
     c.append(pic, name);
+    if (isNew) c.appendChild(newTag());
     if (click) c.addEventListener('click', click);
-    list.appendChild(c);
+    into.appendChild(c);
+    return c;
+  };
+  const tags = () => {   // NEW on the button and on the tabs that still have something unseen
+    const unseen = customNew();
+    btn.querySelector('.newtag')?.remove();
+    if (unseen.length) btn.appendChild(newTag());
+    for (const b of win.querySelectorAll('.themetabs button')) {
+      b.querySelector('.newtag')?.remove();
+      if ([...unseen, ...fresh].some((id) => customTabOf(id) === b.dataset.tab)) b.appendChild(newTag());
+    }
   };
   const fill = () => {
     list.innerHTML = '';
     for (const b of win.querySelectorAll('.themetabs button')) b.classList.toggle('on', b.dataset.tab === customTab);
+    if (!win.hidden) {   // looking at this tab: its NEW items are seen now (they keep their tag until the window closes)
+      const unseen = customNew();
+      for (const id of unseen) if (customTabOf(id) === customTab) fresh.add(id);
+      lsSet(CUSTOM_NEW_KEY, JSON.stringify(unseen.filter((id) => customTabOf(id) !== customTab)));
+    }
+    tags();
     if (customTab === 'win') {
       help.textContent = 'Plays when you win in 1 guess. Tick one or more: each win plays a random one of them.';
       const picked = pickedSkins();
-      for (const id of ownedSkins()) {
+      const toggle = (id) => {
         const on = picked.includes(id);
-        card(`images/fx/hecate/${id}.webp`, HECATE[id].name + (on ? ' ✓' : ''), on, () => {
-          if (on && picked.length === 1) return;   // keep at least one
-          setPickedSkins(on ? picked.filter((x) => x !== id) : [...picked, id]);
-          fill();
-        });
+        if (on && picked.length === 1) return;   // keep at least one
+        setPickedSkins(on ? picked.filter((x) => x !== id) : [...picked, id]);
+        fill();
+      };
+      const skinCard = (into, id) => { const on = picked.includes(id); card(into, `images/fx/hecate/${id}.webp`, HECATE[id].name + (on ? ' ✓' : ''), on, () => toggle(id)); };
+      for (const id of ownedSkins().filter((x) => !HECATE[x].pack)) skinCard(list, id);
+      for (const pack of ownedEffects()) {
+        const ids = ownedSkins().filter((x) => HECATE[x].pack === pack);
+        const n = ids.filter((x) => picked.includes(x)).length;
+        const box = document.createElement('details');
+        box.className = 'fxbundle';
+        box.open = bundleOpen.has(pack);
+        box.addEventListener('toggle', () => { if (box.open) bundleOpen.add(pack); else bundleOpen.delete(pack); });
+        const sum = document.createElement('summary');
+        sum.className = 'themecard' + (n ? ' on' : '');
+        const pic = Object.assign(document.createElement('span'), { className: 'themepic' });
+        pic.style.backgroundImage = `url("${SHOP[pack].img}")`;
+        const name = Object.assign(document.createElement('span'), { className: 'themename' });
+        name.append(SHOP[pack].name, Object.assign(document.createElement('small'), { textContent: `${n} of ${ids.length} on` }));
+        sum.append(pic, name);
+        if (fresh.has(pack)) sum.appendChild(newTag());
+        const inner = Object.assign(document.createElement('div'), { className: 'fxbundlelist' });
+        for (const id of ids) skinCard(inner, id);
+        box.append(sum, inner);
+        list.appendChild(box);
       }
     } else if (customTab === 'fx') {
       help.textContent = 'More effects are coming to the shop later!';
-      card('images/fx/hecate/none.webp', 'No Effect (in use)', true);
+      card(list, 'images/fx/hecate/none.webp', 'No Effect (in use)', true);
     } else {
       help.textContent = 'Your backgrounds. Pick one to use it on every page.';
       const cur = applyTheme(true);
-      for (const t of own) card(THEME_IMG[t], THEMES[t] + (t === cur ? ' (in use)' : ''), t === cur, () => { lsSet(THEME_KEY, t); fill(); });
+      for (const t of own) card(list, THEME_IMG[t], THEMES[t] + (t === cur ? ' (in use)' : ''), t === cur, () => { lsSet(THEME_KEY, t); fill(); }, fresh.has(t));
     }
   };
   for (const b of win.querySelectorAll('.themetabs button')) b.addEventListener('click', () => { customTab = b.dataset.tab; fill(); });
   btn.addEventListener('click', () => {
-    fill();
     win.hidden = false;
-    if (lsGet(THEME_NEW_KEY) === '1') { lsSet(THEME_NEW_KEY, '0'); btn.querySelector('.newtag')?.remove(); }
+    fresh = new Set();
+    fill();
   });
   win.querySelector('#themesClose').addEventListener('click', () => { win.hidden = true; });
   win.addEventListener('click', (e) => { if (e.target === win) win.hidden = true; });
@@ -650,11 +698,10 @@ function drawThemeButton() {
 function unlockTheme(t) {
   if (!(t in THEMES) || ownedThemes().includes(t)) return;
   lsSet(THEMES_KEY, JSON.stringify(ownedThemes().filter((x) => x !== 'default').concat(t)));
-  lsSet(THEME_NEW_KEY, '1');
+  markCustomNew(t);
   drawThemeButton();
 }
 applyTheme();
-drawThemeButton();
 
 // ---- Mesos: finishing today's puzzle (not an Archive day) pays mesos, once per game per day. Kept in this browser.
 // Each table: mesos for winning in 1, 2, 3, ... guesses; the last number is for any more guesses than that, or a loss.
@@ -746,6 +793,7 @@ function drawMeso(gained = 0) {
     shop.addEventListener('click', openShop);
     corner.append(btn, shop);
     game.appendChild(corner);
+    shopNewTag();
   }
   btn.querySelector('span').textContent = fmt(mesoTotal());
   if (weekendNow() && !btn.querySelector('.mesotag')) {
@@ -829,6 +877,7 @@ const SHOP = {
   lucidNight: { name: "Lucid's Starry Night", kind: 'Background', price: 2500 },
 };
 const shopOwned = (t) => (SHOP[t]?.effect ? ownedEffects() : ownedThemes()).includes(t);
+drawThemeButton();   // here, not with applyTheme above: the Customize window needs SHOP
 const SHOP_KEY = 'mapleWordle:shop';   // items found so far
 function shopFound() {
   let found = [];
@@ -840,16 +889,31 @@ function shopUnlock(t) {
   if (!(t in SHOP) || shopFound().includes(t)) return;
   lsSet(SHOP_KEY, JSON.stringify([...shopFound(), t]));
 }
+// NEW on the Shop button while it has something you haven't seen yet (not owned); opening the shop sees them all, and
+// they keep a NEW tag in the shop until the page reloads.
+const SHOP_SEEN_KEY = 'mapleWordle:shopSeen';
+const shopSeen = () => { try { return JSON.parse(lsGet(SHOP_SEEN_KEY) || '[]'); } catch { return []; } };
+const shopNew = () => shopFound().filter((t) => !shopSeen().includes(t) && !shopOwned(t));
+const shopFresh = new Set();
+function shopNewTag() {
+  const b = document.getElementById('shopBtn');
+  if (!b) return;
+  b.querySelector('.newtag')?.remove();
+  if (shopNew().length) b.appendChild(newTag());
+}
 function openShop() {
   const body = popup('shop', 'Shop');
   const found = shopFound(), have = mesoTotal();
+  for (const t of shopNew()) shopFresh.add(t);
+  lsSet(SHOP_SEEN_KEY, JSON.stringify([...new Set([...shopSeen(), ...found])]));
+  shopNewTag();
   body.innerHTML = `<p class="mesototal"><img src="images/fx/meso-gold.png" alt=""> ${fmt(have)}</p>` +
     (found.length ? '<div class="shoplist">' + found.map((t) => {
       const it = SHOP[t], owned = shopOwned(t);
       // Not enough mesos: a greyed-out Buy; clicking it flashes how many more you need in the price (red, 2 s).
       const btn = owned ? '<span class="owned">Owned ✓</span>'
         : `<button data-buy="${t}"${have < it.price ? ' class="poor" title="Not enough mesos"' : ''}>Buy</button>`;
-      return `<div class="shopitem"><span class="themepic" style="background-image:url('${it.img ?? THEME_IMG[t]}')"></span>` +
+      return `<div class="shopitem">${shopFresh.has(t) && !owned ? '<span class="newtag">NEW</span>' : ''}<span class="themepic" style="background-image:url('${it.img ?? THEME_IMG[t]}')"></span>` +
         `<span class="shopinfo"><b>${it.name}</b><small>${it.kind}</small><span class="price"><img src="images/fx/meso-gold.png" alt=""> <span>${fmt(it.price)}</span></span></span>${btn}</div>`;
     }).join('') + '</div>' : '<p class="shopempty">Nothing here yet... 👀</p>') +
     '<p class="mesoshop">More cosmetics are coming to the shop later, so save up your mesos!</p>';
@@ -897,13 +961,11 @@ async function buy(t, btn) {
   if (it.effect) {   // an effect pack: tick all of its win effects straight away
     lsSet(EFFECTS_KEY, JSON.stringify([...ownedEffects(), t]));
     setPickedSkins(Object.keys(HECATE).filter((id) => HECATE[id].pack === t));
-    customTab = 'win';
   } else {
     lsSet(THEMES_KEY, JSON.stringify(ownedThemes().filter((x) => x !== 'default').concat(t)));
     lsSet(THEME_KEY, t);   // use it straight away
-    customTab = 'bg';
   }
-  lsSet(THEME_NEW_KEY, '1');
+  markCustomNew(t);
   drawThemeButton();
   applyTheme(true);
   drawMeso();
