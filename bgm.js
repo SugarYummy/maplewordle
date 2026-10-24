@@ -504,10 +504,11 @@ function renderEnd() {
   if (bonus == null) {
     const sel = $('bonusPick');
     sel.innerHTML = '';
-    if (mash) {
-      sel.appendChild(new Option('Pick a boss…', ''));
-      for (const o of [...bosses].sort((x, y) => x.name.localeCompare(y.name))) sel.appendChild(new Option(o.name, o.name));
-    } else {
+    sel.hidden = mash;   // a mashup asks for a boss: the search box below instead of a dropdown
+    $('bossField').hidden = !mash;
+    $('bossPick').value = '';
+    $('bossList').hidden = true;
+    if (!mash) {
       sel.appendChild(new Option('Pick a part of the fight…', ''));
       for (const l of [...new Set(answer.boss.areas.map((a) => a.label))]) sel.appendChild(new Option(l, l));
     }
@@ -640,8 +641,53 @@ function titleGuess() {
   noteResult();
   sendTitle(titleRight());
 }
+// The mashup bonus's box: the same boss search as the main guess box (photos, A-Z); click one (or arrow keys + Enter) to
+// fill it in, then Guess.
+let bossActive = -1;
+function bossMatches() {
+  const q = $('bossPick').value.trim().toLowerCase();
+  return bosses.filter((e) => e.name.toLowerCase().includes(q)).sort((a, b) => a.name.localeCompare(b.name));
+}
+function showBossList() {
+  const box = $('bossList'), items = bossMatches();
+  box.innerHTML = '';
+  items.forEach((e, i) => {
+    const el = box.appendChild(document.createElement('div'));
+    el.className = 'item' + (i === bossActive ? ' active' : '');
+    el.appendChild(Object.assign(document.createElement('img'), { src: e.image, alt: '' }));
+    el.appendChild(document.createElement('span')).textContent = e.name;
+    el.addEventListener('mousedown', (ev) => { ev.preventDefault(); $('bossPick').value = e.name; box.hidden = true; });
+    el.addEventListener('mousemove', () => { if (bossActive !== i) setBossActive(i); });
+  });
+  if (!items.length) box.appendChild(Object.assign(document.createElement('div'), { className: 'none', textContent: 'No boss matches' }));
+  box.hidden = false;
+  box.querySelector('.active')?.scrollIntoView({ block: 'nearest' });
+}
+function setBossActive(i) {   // just moves the highlight, so the photos aren't redrawn
+  bossActive = i;
+  [...$('bossList').children].forEach((el, j) => el.classList.toggle('active', j === i));
+  $('bossList').children[i]?.scrollIntoView({ block: 'nearest' });
+}
+$('bossPick').addEventListener('input', () => { bossActive = 0; showBossList(); });
+$('bossPick').addEventListener('focus', () => { bossActive = -1; showBossList(); });
+$('bossPick').addEventListener('blur', () => { $('bossList').hidden = true; });
+$('bossPick').addEventListener('keydown', (e) => {
+  const m = bossMatches();
+  if (e.key === 'ArrowDown') { e.preventDefault(); if ($('bossList').hidden) showBossList(); setBossActive(Math.min(m.length - 1, bossActive + 1)); }
+  else if (e.key === 'ArrowUp') { e.preventDefault(); setBossActive(Math.max(0, bossActive - 1)); }
+  else if (e.key === 'Escape') $('bossList').hidden = true;
+  else if (e.key === 'Enter') {
+    e.preventDefault();
+    const exact = m.find((x) => x.name.toLowerCase() === $('bossPick').value.trim().toLowerCase());
+    const pick = exact ?? m[Math.max(0, bossActive)];
+    if (pick && (exact || bossActive >= 0 || m.length === 1)) { $('bossPick').value = pick.name; $('bossList').hidden = true; }
+  }
+});
 $('bonusGo').addEventListener('click', () => {
-  const pick = $('bonusPick').value;
+  const mash = answer.bonus?.kind === 'mashup';
+  const typed = $('bossPick').value.trim().toLowerCase();
+  const pick = mash ? bosses.find((e) => e.name.toLowerCase() === typed)?.name : $('bonusPick').value;   // has to be one of the bosses
+  if (!pick && mash && typed) { showBossList(); return; }
   if (!pick || bonus != null || !over) return;
   bonus = pick;
   save();

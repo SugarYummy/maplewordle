@@ -260,8 +260,19 @@ td.flip { animation: flip 0.5s ease both; }
 #bonus { margin: 12px auto; padding: 8px 16px 12px; max-width: 420px; border-radius: 12px; background: rgba(255, 255, 255, 0.6); }
 #bonus h3 { margin: 4px 0; }
 #bonus p { margin: 6px 0; }
+#bonusAsk { display: flex; gap: 6px; justify-content: center; align-items: center; margin: 6px 0; }
 #bonusPick { font-family: inherit; font-size: 15px; padding: 4px; }
+#bonusPick[hidden], #bossField[hidden], #bossList[hidden] { display: none; }
 #bonusGo { font-family: inherit; font-size: 15px; padding: 4px 12px; }
+/* The mashup bonus: the main guess box's boss search (photos, A-Z) instead of a dropdown */
+#bossField { position: relative; flex: 1; max-width: 320px; }
+#bossPick { width: 100%; box-sizing: border-box; font-family: inherit; font-size: 15px; padding: 6px 8px; border: 1px solid #999; border-radius: 4px; }
+#bossList { position: absolute; top: 100%; left: 0; right: 0; max-height: 260px; overflow-y: auto; z-index: 6;
+            background: #fff; border: 1px solid #999; text-align: left; }
+#bossList .item { display: flex; align-items: center; gap: 10px; padding: 4px 8px; cursor: pointer; }
+#bossList .item img { width: 36px; height: 36px; object-fit: contain; flex: none; }
+#bossList .item.active { background: #ddd; }
+#bossList .none { padding: 5px 8px; font-size: 14px; color: #888; }
 #bonusResult.right, #titleResult.right { color: #1d6b1d; font-weight: bold; }
 #bonusResult.wrong, #titleResult.wrong { color: #8a1c1c; font-weight: bold; }
 

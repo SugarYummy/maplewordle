@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Maple Wordle - BGM Clip</title>
 <script src="move.js?v=1"></script>
-<link rel="stylesheet" href="style.css?v=96">
+<link rel="stylesheet" href="style.css?v=97">
 </head>
 <body>
 <button id="archiveBtn" class="panel">Archive</button>
@@ -75,7 +75,7 @@
   <h3 id="bonusTitle">Bonus: Where does this BGM play?</h3>
   <p id="bonusHelp">The whole track is unlocked now. Click the bar to jump around.</p>
   <p id="mashupRow" hidden><button id="mashupPlay">▶&#xFE0E; Play the mashup</button></p>
-  <p id="bonusAsk"><select id="bonusPick"></select> <button id="bonusGo">Guess</button></p>
+  <div id="bonusAsk"><select id="bonusPick"></select><div id="bossField" hidden><input id="bossPick" placeholder="Search for a boss" autocomplete="off"><div id="bossList" hidden></div></div> <button id="bonusGo">Guess</button></div>
   <p id="bonusResult"></p>
   <div id="titleBox" hidden>
     <h3 id="titleHead">Bonus 2: What's this BGM called?</h3>
@@ -117,6 +117,6 @@
 </div>
 <script src="fx.js?v=68"></script>
 <script src="archive.js?v=6"></script>
-<script src="bgm.js?v=42"></script>
+<script src="bgm.js?v=43"></script>
 </body>
 </html>
