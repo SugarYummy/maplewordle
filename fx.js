@@ -86,10 +86,54 @@ function firstTryGlow(on) {
   document.querySelector('.game')?.classList.toggle('glow', on);
 }
 
-// First-guess win, timed to its music (35 s): the game box shakes (and starts glowing), meso fountains spray up from both
-// bottom corners for 5 s, then mesos rain from the top, getting lighter until just before the music fades out.
+// First-guess win: a Sol Hecate skin's skill screen plays over the page first, and the meso show starts when it bursts.
+// One random skin is fetched a few seconds after the page loads (so it's ready while you're guessing; if it isn't yet,
+// the mesos just start right away). A win uses it up; switching to another mode (Story / Normal / Hard / Extreme) then
+// fetches another random one. Pages with only one game mode don't fetch again.
+// Safari can't show a see-through WebM, so it gets the same clip as an animated WebP.
+const HECATE = [   // burst: ms into the clip when it bursts
+  { name: 'Helia', webm: 'video/helia.webm', webp: 'video/helia.webp', ms: 2880, burst: 900 },
+];
+const SAFARI = /^((?!chrome|chromium|android|crios|fxios|edg).)*safari/i.test(navigator.userAgent);
+let hecate = null, hecateLoading = false, hecateLast = null;   // hecate: { skin, blob } ready to play
+function loadHecate() {
+  if (hecate || hecateLoading) return;
+  const pool = HECATE.length > 1 ? HECATE.filter((s) => s !== hecateLast) : HECATE;
+  const skin = pool[Math.floor(Math.random() * pool.length)];
+  hecateLoading = true;
+  fetch(SAFARI ? skin.webp : skin.webm).then((r) => (r.ok ? r.blob() : null))
+    .then((blob) => { if (blob) hecate = { skin, blob }; }).catch(() => {}).finally(() => { hecateLoading = false; });
+}
+setTimeout(loadHecate, 3000);
+document.addEventListener('click', (e) => { if (e.target.closest?.('#modes button') && hecateLast) loadHecate(); });
+function playHecate() {
+  if (!hecate) return 0;
+  const { skin, blob } = hecate;
+  hecate = null;
+  hecateLast = skin;
+  const url = URL.createObjectURL(blob);   // a fresh URL each time, so the WebP starts from its first frame
+  const el = document.createElement(SAFARI ? 'img' : 'video');
+  el.className = 'heliafx';
+  let gone = false;
+  const done = () => { if (gone) return; gone = true; el.remove(); URL.revokeObjectURL(url); };
+  if (SAFARI) setTimeout(done, skin.ms + 20);
+  else {
+    Object.assign(el, { muted: true, playsInline: true, autoplay: true });
+    el.addEventListener('ended', done);
+    setTimeout(done, skin.ms + 1000);
+  }
+  el.src = url;
+  document.body.appendChild(el);
+  el.play?.().catch(done);
+  return skin.burst;
+}
 function bigWin() {
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  setTimeout(mesoShow, playHecate());
+}
+// Timed to its music (35 s): the game box shakes (and starts glowing), meso fountains spray up from both bottom corners
+// for 5 s, then mesos rain from the top, getting lighter until just before the music fades out.
+function mesoShow() {
   const game = document.querySelector('.game');
   if (game) {
     game.classList.remove('shake', 'glow');

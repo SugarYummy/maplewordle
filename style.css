@@ -135,6 +135,8 @@ td.flip { animation: flip 0.5s ease both; }
 @keyframes flip { from { transform: rotateX(90deg); } to { transform: rotateX(0); } }
 /* Win confetti (fx.js). */
 .confetti { position: fixed; inset: 0; pointer-events: none; z-index: 10; overflow: hidden; }
+/* First-guess win: Sol Hecate: Helia's skill screen over the whole page (fx.js playHelia), under the mesos */
+.heliafx { position: fixed; inset: 0; width: 100vw; height: 100vh; object-fit: cover; z-index: 9; pointer-events: none; }
 .confetti b { position: absolute; left: 0; top: 0; will-change: transform; }
 .confetti b.fall { top: -40px; animation: confetti-fall linear both; }
 .confetti i { display: block; background: center / contain no-repeat; image-rendering: pixelated; }
