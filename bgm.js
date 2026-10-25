@@ -165,7 +165,7 @@ async function decode(id, raw) {
 }
 async function play() {
   stopResultSounds();   // the win / lose music stops so you can listen again
-  if (mashupAudio) { mashupAudio.pause(); $('mashupPlay').textContent = '▶\uFE0E Play the mashup'; glitch(false); }
+  if (mashupAudio) { mashupAudio.pause(); $('mashupPlay').textContent = '▶\uFE0E Play the mashup'; mashupStopped(); }
   ensureCtx();
   audio.ctx.resume();
   const id = audio.id;
@@ -500,13 +500,14 @@ function renderEnd() {
   const waiting = over && ((!!answer.bonus && bonus == null) || (titleOn() && title == null));
   $('bonusCall').hidden = !waiting;
   box.classList.toggle('waiting', waiting);
-  stopMashup();
+  if (mashupKey !== `${MODE}|${day}|${answer.bonus?.mashup?.file}`) stopMashup();   // keeps playing through a redraw (e.g. answering the bonus)
   trackEgg();
   if (!over) return;
   renderTitle();
   const b = answer.bonus;
   const trackLine = titleShown() ? `The track is "${answer.t.title}".` : '';
   $('mashupRow').hidden = b?.kind !== 'mashup';
+  if (isLimboEgg()) limboLoad();   // ready before Play is pressed
   $('bonusAsk').hidden = !b || bonus != null;
   if (!b) {
     $('bonusTitle').textContent = 'The whole track is unlocked';
@@ -545,7 +546,7 @@ function renderEnd() {
 // the day) and the screen glitches until the mashup stops.
 // The main bar follows the mashup meanwhile, and every 0.5-2 s it glitches: it jumps to a random point of the mashup
 // for a moment, then snaps back (only the bar: the sound keeps playing).
-let mashupAudio = null;
+let mashupAudio = null, mashupKey = null;   // key: mode | day | file of the mashup loaded
 const eggBar = { on: false, raf: 0, timer: 0, fake: null };
 function glitch(on) {
   document.body.classList.toggle('glitch', on);
@@ -575,26 +576,139 @@ function drawEggBar() {
   $('markerText').textContent = `${clock(at / 100 * len)} / ${clock(len)}`;
   placeMarker(at);
 }
+// Limbo's Easter egg (the glitched Abyss of Truth mashup, today only): Play brings in Limbo's Subconscious. A full-screen
+// fade-in covers the page, and under it the alert border, the glitch and the map come in; every few seconds a glitch
+// swaps the map between its light and dark side (white border on the light side, black on the dark). Until the bonus is
+// answered, pausing keeps all of it. Answering it plays it out: the border fades, the glitch stops, a full-screen
+// fade-out covers the page, the music stops and the normal background is back. After that, Play brings it in again and
+// Pause plays it out. Clips in video/limbo/: <name>.webm (see-through), .webp for Safari (fx.js SAFARI).
+const LIMBO_CLIPS = { 'screen-in': 1740, 'screen-out': 900, 'border-white-in': 840, 'border-white-loop': 0, 'border-white-out': 300,
+  'border-black-in': 840, 'border-black-loop': 0, 'border-black-out': 300 };   // ms (0: loops)
+const LIMBO_COVERED = 780;   // ms into the fade-in while the page is still fully covered
+const limbo = { on: false, leaving: false, dark: false, swap: 0, blobs: null };
+const isLimboEgg = () => live && answer?.bonus?.mashup?.egg === 'limbo';
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+function limboLoad() {   // fetched once (on a Limbo mashup day, when the bonus shows up)
+  limbo.blobs ??= Promise.all(Object.keys(LIMBO_CLIPS).map((n) => fetch(`video/limbo/${n}.${SAFARI ? 'webp' : 'webm'}`)
+    .then((r) => (r.ok ? r.blob() : null)).catch(() => null).then((b) => [n, b]))).then(Object.fromEntries);
+  return limbo.blobs;
+}
+async function limboClip(name, parent, cls) {   // plays one clip (from its first frame); resolves when it's over
+  const blob = (await limboLoad())[name];
+  if (!blob) return null;
+  const url = URL.createObjectURL(blob);
+  const el = document.createElement(SAFARI ? 'img' : 'video');
+  el.className = cls;
+  if (!SAFARI) Object.assign(el, { muted: true, playsInline: true, autoplay: true, loop: !LIMBO_CLIPS[name] });
+  el.src = url;
+  el.dataset.url = url;
+  parent.appendChild(el);
+  el.play?.().catch(() => {});
+  return el;
+}
+const limboGone = (el) => { if (!el) return; URL.revokeObjectURL(el.dataset.url); el.remove(); };
+function limboSide(dark) {   // light / dark map, and the matching border loop
+  limbo.dark = dark;
+  $('limbobg')?.classList.toggle('dark', dark);
+  for (const el of document.querySelectorAll('#limboborder .loop')) el.hidden = el.dataset.dark !== String(dark);
+}
+async function limboEnter() {
+  if (limbo.on) return;
+  limbo.on = true;
+  await limboLoad();
+  if (!limbo.on || limbo.leaving) return;
+  const screen = await limboClip('screen-in', document.body, 'limboscreen');
+  await sleep(LIMBO_COVERED);
+  if (!limbo.on) return limboGone(screen);
+  // under the cover: the map, the border and the glitch
+  const bg = Object.assign(document.createElement('div'), { id: 'limbobg' });
+  bg.innerHTML = '<div class="light"></div><div class="dark"></div>';
+  document.body.prepend(bg);
+  const border = Object.assign(document.createElement('div'), { id: 'limboborder' });
+  document.body.appendChild(border);
+  for (const dark of [false, true]) {
+    const el = await limboClip(`border-${dark ? 'black' : 'white'}-loop`, border, 'loop');
+    if (el) { el.dataset.dark = String(dark); el.hidden = true; }
+  }
+  limboSide(false);
+  const enter = await limboClip('border-white-in', border, 'in');
+  for (const el of border.querySelectorAll('.loop')) el.hidden = true;   // the entrance first, then the loop
+  glitch(true);
+  setTimeout(() => { limboGone(enter); if (limbo.on && !limbo.leaving) limboSide(limbo.dark); }, LIMBO_CLIPS['border-white-in']);
+  setTimeout(() => limboGone(screen), LIMBO_CLIPS['screen-in'] - LIMBO_COVERED + 50);
+  const swap = () => {
+    limbo.swap = setTimeout(() => {
+      if (!limbo.on || limbo.leaving) return;
+      document.body.classList.add('limboswap');
+      setTimeout(() => limboSide(!limbo.dark), 120);   // swap in the middle of the flash
+      setTimeout(() => document.body.classList.remove('limboswap'), 320);
+      swap();
+    }, 5000 + Math.random() * 3000);
+  };
+  swap();
+}
+async function limboExit() {
+  if (!limbo.on || limbo.leaving) return;
+  limbo.leaving = true;
+  clearTimeout(limbo.swap);
+  document.body.classList.remove('limboswap');
+  glitch(false);
+  const border = $('limboborder');
+  for (const el of border?.querySelectorAll('.loop') ?? []) el.hidden = true;
+  const out = border && await limboClip(`border-${limbo.dark ? 'black' : 'white'}-out`, border, 'out');
+  await sleep(LIMBO_CLIPS['border-white-out']);
+  limboGone(out);
+  for (const el of border?.querySelectorAll('video, img') ?? []) limboGone(el);
+  border?.remove();
+  const screen = await limboClip('screen-out', document.body, 'limboscreen');
+  await sleep(LIMBO_CLIPS['screen-out']);   // the page is covered now
+  if (mashupAudio && !mashupAudio.paused) mashupAudio.pause();
+  $('mashupPlay').textContent = '▶\uFE0E Play the mashup';
+  $('limbobg')?.remove();
+  if (screen) { screen.style.transition = 'opacity 0.4s ease'; screen.style.opacity = 0; }
+  await sleep(450);
+  limboGone(screen);
+  limbo.on = limbo.leaving = false;
+}
+function limboKill() {   // right away (another day or mode)
+  clearTimeout(limbo.swap);
+  document.body.classList.remove('limboswap');
+  for (const el of document.querySelectorAll('#limboborder video, #limboborder img, .limboscreen')) limboGone(el);
+  $('limboborder')?.remove();
+  $('limbobg')?.remove();
+  limbo.on = limbo.leaving = false;
+}
+// The mashup stopped (paused, ended, or the main Play took over): a glitch egg's screen glitch stops, except Limbo's
+// before the bonus is answered.
+function mashupStopped() {
+  if (limbo.on) { if (bonus != null) limboExit(); }
+  else glitch(false);
+}
 function stopMashup() {
   if (mashupAudio) { mashupAudio.pause(); mashupAudio = null; }
+  mashupKey = null;
   $('mashupPlay').textContent = '▶\uFE0E Play the mashup';
   glitch(false);
+  limboKill();
   const egg = answer.bonus?.mashup?.egg;
   for (const c of [...document.body.classList]) if (c.startsWith('egg-') && c !== `egg-${egg}`) document.body.classList.remove(c);
 }
 $('mashupPlay').addEventListener('click', () => {
-  if (mashupAudio && !mashupAudio.paused) { mashupAudio.pause(); $('mashupPlay').textContent = '▶\uFE0E Play the mashup'; glitch(false); return; }
+  if (mashupAudio && !mashupAudio.paused) { mashupAudio.pause(); $('mashupPlay').textContent = '▶\uFE0E Play the mashup'; mashupStopped(); return; }
+  if (limbo.leaving) return;   // let Limbo's fade-out finish first
   pause();
   stopResultSounds();
   const m = answer.bonus.mashup;
   if (!mashupAudio) {
     mashupAudio = new Audio(`audio/bgm/${m.file}.mp3?v=2`);   // v: remade in stereo 128k
-    mashupAudio.addEventListener('ended', () => { $('mashupPlay').textContent = '▶\uFE0E Play the mashup'; glitch(false); });
+    mashupKey = `${MODE}|${day}|${m.file}`;
+    mashupAudio.addEventListener('ended', () => { $('mashupPlay').textContent = '▶\uFE0E Play the mashup'; mashupStopped(); });
   }
   mashupAudio.volume = Math.min(1, bgmVolume() / 50);
   mashupAudio.play().catch(() => {});
   $('mashupPlay').textContent = '❚❚ Pause the mashup';
-  if (m.egg && live) { document.body.classList.add(`egg-${m.egg}`); glitch(true); }   // the Easter egg is for today only, not the Archive
+  if (isLimboEgg()) limboEnter();
+  else if (m.egg && live) { document.body.classList.add(`egg-${m.egg}`); glitch(true); }   // the Easter egg is for today only, not the Archive
 });
 function renderTitle() {
   $('titleBox').hidden = !titleOn();
@@ -711,6 +825,7 @@ $('bonusGo').addEventListener('click', () => {
   save();
   renderEnd();
   noteResult();
+  if (limbo.on) limboExit();
   const ok = answer.bonus.right.includes(pick);
   sendBonus(ok);
   // A glitch mashup's bonus right on today's puzzle unlocks its map as a theme (fx.js); the Archive doesn't count.
