@@ -1,5 +1,11 @@
 # Maple Wordle changelog
 
+## alpha v4.4.2 - 26 October 2026
+### 🔧 Changes
+- **[Shop]** Hidden items now show up as locked cards with their price, so you can save up for them.
+### 🥚 Easter Egg
+- **[Easter Egg]** Even more easter eggs added!
+
 ## alpha v4.4.1 - 25 October 2026
 ### ✨ New
 - **[Shop]** Added [Sol Hecate: Mimica] win effect bundle!
