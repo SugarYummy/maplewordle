@@ -581,7 +581,8 @@ function ownedThemes() {
 // whatever theme you have on, on every page. BGM Clip Extreme's Easter egg backgrounds still go on top of it. The same
 // day it's in the shop (price in mesos), so you can keep it as a theme for any day.
 const HOLIDAYS = {
-  halloween: { month: 10, day: 31, name: 'Haunted Mansion', kind: 'Background (Halloween only)', price: 500 },
+  halloween: { month: 10, day: 31, name: 'Haunted Mansion', kind: 'Background + Halloween effects (Bundle of 2, Halloween only)', price: 500,
+               hidden: true, effect: true, themes: ['halloween'], img: 'images/fx/halloween-bundle.webp', zoom: 'images/fx/halloween-bundle-big.webp' },
 };
 const holidayToday = (d = new Date()) => Object.keys(HOLIDAYS).find((k) => HOLIDAYS[k].month === d.getUTCMonth() + 1 && HOLIDAYS[k].day === d.getUTCDate());
 // fade: false (just show it), true (1 s, picking a theme) or a number of seconds (2 at midnight on a holiday).
@@ -619,7 +620,7 @@ function applyTheme(fade = false) {
 // Something you just got (bought or unlocked) is "NEW" on the button, on its tab and on itself until the page reloads.
 let customTab = 'bg';
 const customFresh = new Set();   // shop item / theme ids got since this page loaded
-const customTabOf = (id) => (CUSTOM_FX_PACKS.includes(id) ? 'fx' : SHOP[id]?.effect ? 'win' : 'bg');
+const customTabOf = (id) => (CUSTOM_FX_PACKS.includes(id) || id === 'halloween' ? 'fx' : SHOP[id]?.effect ? 'win' : 'bg');
 function markCustomNew(id) {
   customFresh.add(id);
   customTab = customTabOf(id);   // the window opens on its tab
@@ -709,6 +710,11 @@ function drawThemeButton() {
       const cur = customFx();
       const fxCard = (into, id) => card(into, CUSTOM_FX[id].img, CUSTOM_FX[id].name + (id === cur ? ' (in use)' : ''), id === cur, () => { setCustomFx(id); fill(); });
       for (const id of ownedCustomFx().filter((x) => !CUSTOM_FX[x].pack)) fxCard(list, id);
+      if (hwFxOwned()) {   // Halloween's bats, ghosts and fog: on / off, on top of anything else
+        const on = hwFxOn();
+        card(list, 'images/fx/halloween-fx.webp', 'Halloween Night (bats, ghosts, fog)' + (on ? ' (on)' : ' (off)'), on,
+          () => { setHwFx(!on); fill(); }, customFresh.has('halloween'));
+      }
       // a bought set: one box (like the Win Effect bundles) with its effects, and Limbo's light / dark swap switch
       for (const pack of CUSTOM_FX_PACKS.filter((x) => ownedEffects().includes(x))) {
         const ids = ownedCustomFx().filter((x) => CUSTOM_FX[x].pack === pack);
@@ -723,7 +729,7 @@ function drawThemeButton() {
         pic.style.backgroundImage = `url("${SHOP[pack].img}")`;
         const name = Object.assign(document.createElement('span'), { className: 'themename' });
         name.append(SHOP[pack].name, Object.assign(document.createElement('small'), {
-          textContent: pack === 'limboSub' && limboAllOn() ? 'All Limbo effects on'
+          textContent: pack !== 'limboSub' ? (using ? 'On' : 'Off') : limboAllOn() ? 'All Limbo effects on'
             : [using ? CUSTOM_FX[using].name.replace(/^.*\((\w+)\)$/, '$1 border on') : 'Border off',
               pack === 'limboSub' && limboGuessOn() && 'wrong guess on'].filter(Boolean).join(' · ') }));
         sum.append(pic, name);
@@ -794,6 +800,7 @@ function setCustomFx(id) {
     lsSet(CUSTOM_FX_KEY, id);
   }
   cfxPreview();
+  halloweenFx();
 }
 // The alert border (Limbo's set) is only on the page while a game is down to its last 2 guesses (Story Mode and Attack
 // Animation have no limit, so never), and for a moment when you pick one in Customize. It comes in with its entrance
@@ -1021,10 +1028,11 @@ function setLimboAll(on) {
   if (on) { limboDarkSide = false; gfxClips(); limboFailLoad(); }
   applyTheme(true);
   if (on) cfxPreview(); else drawCustomFx();
+  halloweenFx();
   limboTransitions();
   limboDragons();
 }
-function limboAllOff() { if (limboAllOn()) { lsSet(LIMBO_ALL_KEY, '0'); applyTheme(true); drawCustomFx(); limboTransitions(); limboDragons(); } }   // you picked something yourself
+function limboAllOff() { if (limboAllOn()) { lsSet(LIMBO_ALL_KEY, '0'); applyTheme(true); drawCustomFx(); halloweenFx(); limboTransitions(); limboDragons(); } }   // you picked something yourself
 // Losing with the alert border on plays Limbo's fail screen full screen, in the border's colour (white or black).
 const LIMBO_FAIL_MS = 3900;
 function limboFailLoad() { cfxClip('fail-white'); cfxClip('fail-black'); if (limboAllOn()) TRANS_CLIPS.forEach(cfxClip); }   // ready when needed
@@ -1075,8 +1083,11 @@ const MESO_EVENTS = [{ mode: 'bgm', label: 'BGM Clip', from: MESO_DAY(2026, 10, 
 // of any game event; Archive days don't get it.
 const isWeekend = (day) => [0, 6].includes(new Date(day * 86400000).getUTCDay());
 const weekendNow = () => isWeekend(Math.floor(Date.now() / 86400000));
-const mesoTimes = (mode, day) => (MESO_EVENTS.find((e) => e.mode === mode && day >= e.from && day <= e.to)?.times ?? 1)
-  * (isWeekend(day) && !isArchive(day) ? 2 : 1);
+// Halloween (Oct 31, UTC day): that day's own puzzles pay 5x, instead of the weekend / event multipliers (no stacking).
+const HALLOWEEN_TIMES = 5;
+const isHalloween = (day) => holidayToday(new Date(day * 86400000)) === 'halloween';
+const mesoTimes = (mode, day) => (isHalloween(day) && !isArchive(day) ? HALLOWEEN_TIMES
+  : (MESO_EVENTS.find((e) => e.mode === mode && day >= e.from && day <= e.to)?.times ?? 1) * (isWeekend(day) && !isArchive(day) ? 2 : 1));
 const MESO_LOG_KEY = 'mapleWordle:mesoLog';   // [{ key: "<mode>:<day>" or "<mode>+bonus:<day>", day, mode, what, amount }]
 function mesoLog() { try { return JSON.parse(lsGet(MESO_LOG_KEY) || '[]'); } catch { return []; } }
 const mesoTotal = () => mesoLog().reduce((s, e) => s + e.amount, 0);
@@ -1145,7 +1156,9 @@ function drawMeso(gained = 0) {
     shopNewTag();
   }
   btn.querySelector('span').textContent = fmt(mesoTotal());
-  if (weekendNow() && !btn.querySelector('.mesotag')) {
+  if (isHalloween(Math.floor(Date.now() / 86400000)) && !btn.querySelector('.mesotag')) {
+    btn.appendChild(Object.assign(document.createElement('span'), { className: 'mesotag weekendtag', textContent: `🎃 ${HALLOWEEN_TIMES}x Halloween`, title: `Halloween: ${HALLOWEEN_TIMES}x mesos today!` }));
+  } else if (weekendNow() && !btn.querySelector('.mesotag')) {
     btn.appendChild(Object.assign(document.createElement('span'), { className: 'mesotag weekendtag', textContent: '2x Weekend', title: 'Weekend: 2x mesos today!' }));
   }
   if (gained > 0) {
@@ -1192,7 +1205,9 @@ function openMeso(page = 1) {
   const last = Math.max(1, Math.ceil(all.length / MESO_PER_PAGE));
   page = Math.min(Math.max(1, page), last);
   const recent = all.slice((page - 1) * MESO_PER_PAGE, page * MESO_PER_PAGE);
-  const weekend = weekendNow() ? '<p class="mesoevent">🍁 <b>Weekend</b>: today\'s puzzles pay <b>2x</b> mesos!</p>' : '';
+  // Halloween: 5x today (in place of the weekend's 2x).
+  const weekend = isHalloween(today) ? `<p class="mesoevent">🎃 <b>Halloween</b>: today's puzzles pay <b>${HALLOWEEN_TIMES}x</b> mesos!</p>`
+    : weekendNow() ? '<p class="mesoevent">🍁 <b>Weekend</b>: today\'s puzzles pay <b>2x</b> mesos!</p>' : '';
   const ev = weekend + MESO_EVENTS.filter((e, i, all) => today <= e.to && all.findIndex((x) => x.label === e.label) === i)
     .map((e) => `<p class="mesoevent">🎉 <b>${e.label ?? MESO_NAMES[e.mode]}</b> pays <b>${e.times}x</b> mesos from ${mesoDate(e.from)} to ${mesoDate(e.to)}!</p>`).join('');
   const rows = (mode) => {
@@ -1271,7 +1286,7 @@ function openShop() {
   lsSet(SHOP_SEEN_KEY, JSON.stringify([...new Set([...shopSeen(), ...found])]));
   shopNewTag();
   // A "hidden" item not found yet: a locked card with just its price (no picture or name), so people can save up for it.
-  const locked = Object.keys(SHOP).filter((t) => SHOP[t].hidden && !found.includes(t)).map((t) =>
+  const locked = Object.keys(SHOP).filter((t) => SHOP[t].hidden && !found.includes(t) && !shopOwned(t)).map((t) =>
     `<div class="shopitem lockeditem"><span class="themepic hiddenpic">?</span>` +
     `<span class="shopinfo"><b>Hidden</b><small>A secret ${/Bundle/.test(SHOP[t].kind) ? 'bundle' : 'item'}. Keep playing, it shows up here on a special day 👀</small>` +
     `<span class="price"><img src="images/fx/meso-gold.png" alt=""> <span>${fmt(SHOP[t].price)}</span></span></span><span class="locked">🔒 Locked</span></div>`).join('');
@@ -1355,6 +1370,7 @@ async function buy(t, btn) {
       if (t !== 'limboSub') lsSet(THEME_KEY, it.themes[0]);
     }
     if (t === 'limboSub') setLimboAll(true);   // Limbo mode on (your own settings stay underneath)
+    if (t === 'halloween') setHwFx(true);   // its bats, ghosts and fog, on
   } else {
     lsSet(THEMES_KEY, JSON.stringify(ownedThemes().filter((x) => x !== 'default').concat(t)));
     lsSet(THEME_KEY, t);   // use it straight away
@@ -1454,7 +1470,7 @@ for (const btn of document.querySelectorAll('[data-meso]')) {
   if (times <= 1) continue;
   const tag = document.createElement('span');
   tag.className = 'mesotag';
-  tag.title = `${times}x mesos this week!`;
+  tag.title = `${times}x mesos today!`;
   tag.innerHTML = `${times}x<img src="images/fx/meso-gold.png" alt="mesos">`;
   btn.appendChild(tag);
 }
@@ -1537,9 +1553,17 @@ function clText(el, text) {
 
 // Halloween effects (holiday specials, Oct 31): Stirge bats and Pumpkin Bats flying across the top, a Jr. Wraith ghost
 // drifting by now and then, and a low fog, all behind the game box. Settings > Background effect turns them off.
+// The Haunted Mansion bundle's custom effect puts them on any day, on top of any other effect (Limbo mode turns
+// everything else off, these too).
 let hwTimer = null;
+const HW_FX_KEY = 'mapleWordle:hwFx';
+const hwFxOwned = () => ownedEffects().includes('halloween');
+const hwFxOn = () => hwFxOwned() && lsGet(HW_FX_KEY) !== '0';
+function setHwFx(on) { limboAllOff(); lsSet(HW_FX_KEY, on ? '1' : '0'); halloweenFx(); }
+const hwWanted = () => !limboAllOn() && (holidayToday() === 'halloween' || hwFxOn())
+  && bgEffectOn() && !matchMedia('(prefers-reduced-motion: reduce)').matches;
 function halloweenFx() {
-  const on = holidayToday() === 'halloween' && bgEffectOn() && !matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const on = hwWanted();
   let box = document.getElementById('hwfx');
   if (!on) { clearInterval(hwTimer); hwTimer = null; box?.remove(); return; }
   if (hwTimer) return;
@@ -1565,7 +1589,7 @@ function halloweenFx() {
   };
   let tick = 0;
   const step = () => {
-    if (holidayToday() !== 'halloween') return halloweenFx();   // the page stayed open past Halloween: stop
+    if (!hwWanted()) return halloweenFx();   // the page stayed open past Halloween (or the effect went off): stop
     if (document.hidden) return;
     tick++;
     if (box.querySelectorAll('.flyer').length < 4) fly('images/holiday/fx/bat.gif', Math.round(rand(34, 50)), rand(11, 17));
