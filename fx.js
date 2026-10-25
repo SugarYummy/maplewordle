@@ -101,6 +101,11 @@ const HECATE = {   // ms: clip length, burst: ms into the clip when it bursts (f
   helia3: { name: 'Helia (Blue)', ms: 2880, burst: 900, pack: 'helia' },
   helia4: { name: 'Helia (Red)', ms: 2880, burst: 900, pack: 'helia' },
   helia5: { name: 'Helia (Purple)', ms: 2880, burst: 900, pack: 'helia' },
+  mimica1: { name: 'Mimica (Blue)', ms: 2880, burst: 900, pack: 'mimica' },
+  mimica2: { name: 'Mimica (Yellow)', ms: 2880, burst: 900, pack: 'mimica' },
+  mimica3: { name: 'Mimica (Black)', ms: 2880, burst: 900, pack: 'mimica' },
+  mimica4: { name: 'Mimica (Pink)', ms: 2880, burst: 900, pack: 'mimica' },
+  mimica5: { name: 'Mimica (Purple)', ms: 2880, burst: 900, pack: 'mimica' },
 };
 const EFFECTS_KEY = 'mapleWordle:effects', WINFX_KEY = 'mapleWordle:winFx';   // packs bought; win effects picked
 function ownedEffects() {
@@ -863,6 +868,8 @@ const SHOP = {
   ...HOLIDAYS,   // holiday specials: in the shop only on their day
   helia: { name: 'Sol Hecate: Helia', kind: 'Guess in 1 win effect (bundle)', price: 2000, always: true, effect: true, added: Date.UTC(2026, 9, 24),
            img: 'images/fx/hecate/helia-bundle.webp', zoom: 'images/fx/hecate/helia-bundle-big.webp' },
+  mimica: { name: 'Sol Hecate: Mimica', kind: 'Guess in 1 win effect (bundle)', price: 2000, always: true, effect: true, added: Date.UTC(2026, 9, 25),
+            img: 'images/fx/hecate/mimica-bundle.webp', zoom: 'images/fx/hecate/mimica-bundle-big.webp' },
   lucid: { name: 'Garden of Eternal Dream', kind: 'Moving background', price: 5000 },
   lucidBloom: { name: 'Lucid in Bloom', kind: 'Background', price: 2500 },
   lucidNight: { name: "Lucid's Starry Night", kind: 'Background', price: 2500 },
@@ -970,9 +977,9 @@ async function buy(t, btn) {
   const log = mesoLog();
   log.push({ key: `shop:${t}`, mode: 'shop', day: Math.floor(Date.now() / 86400000), what: `Bought ${it.name}`, amount: -it.price });
   lsSet(MESO_LOG_KEY, JSON.stringify(log));
-  if (it.effect) {   // an effect pack: tick all of its win effects straight away
+  if (it.effect) {   // an effect pack: tick all of its win effects straight away (along with the bought ones already ticked)
     lsSet(EFFECTS_KEY, JSON.stringify([...ownedEffects(), t]));
-    setPickedSkins(Object.keys(HECATE).filter((id) => HECATE[id].pack === t));
+    setPickedSkins([...pickedSkins().filter((id) => HECATE[id].pack), ...Object.keys(HECATE).filter((id) => HECATE[id].pack === t)]);
   } else {
     lsSet(THEMES_KEY, JSON.stringify(ownedThemes().filter((x) => x !== 'default').concat(t)));
     lsSet(THEME_KEY, t);   // use it straight away
