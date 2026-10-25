@@ -268,8 +268,8 @@ function stopResultSounds() {
 // Call during the click / Enter that ends the game: browsers only allow sound that starts from a user action.
 // Starts downloading the sound right away and plays it after `delay` ms (when the cards have flipped).
 // `file` picks a different track (a key of SOUNDS); default is the win / lose track.
-function resultSound(won, delay, file) {
-  if (muted()) return;
+// The shared AudioContext (made on first use; browsers only let it play after a click or key press).
+function soundCtx() {
   try {
     if (!audioCtx) {
       audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -278,8 +278,13 @@ function resultSound(won, delay, file) {
       master.connect(audioCtx.destination);
     }
     audioCtx.resume();
-  } catch { return; }
-  const ctx = audioCtx;
+    return audioCtx;
+  } catch { return null; }
+}
+function resultSound(won, delay, file) {
+  if (muted()) return;
+  const ctx = soundCtx();
+  if (!ctx) return;
   const ready = fetch(SOUNDS[file] || (won ? SOUNDS.win : SOUNDS.lose)).then((r) => r.arrayBuffer()).then((b) => ctx.decodeAudioData(b));
   const due = Date.now() + delay;
   const gen = resultGen;
@@ -301,6 +306,30 @@ function resultSound(won, delay, file) {
     src.onended = () => resultPlaying.delete(src);
   }).catch(() => {});
 }
+
+// Short interface sounds (the Cash Shop's hover tick on the shop's buttons): fetched and decoded once, then played right
+// away, through the same volume and sound on/off as everything else. uiSound() with no name just gets them ready
+// (call it from a click, so the browser lets the sound play later on hover).
+const UI_SOUNDS = { hover: ['sounds/hover.mp3', 0.35] };   // file, volume (like SOUND_VOLUME)
+const uiBuffers = {};
+let uiLast = 0;
+function uiSound(name) {
+  const ctx = soundCtx();
+  if (!ctx) return;
+  for (const k in UI_SOUNDS) uiBuffers[k] ??= fetch(UI_SOUNDS[k][0]).then((r) => r.arrayBuffer()).then((b) => ctx.decodeAudioData(b)).catch(() => null);
+  if (!name || muted() || performance.now() - uiLast < 60) return;   // 60 ms apart at most, when sliding across buttons
+  uiLast = performance.now();
+  uiBuffers[name].then((buffer) => {
+    if (!buffer) return;
+    const gain = ctx.createGain();
+    gain.gain.value = UI_SOUNDS[name][1] * (PHONE ? 2 : 1);
+    const src = ctx.createBufferSource();
+    src.buffer = buffer;
+    src.connect(gain).connect(master);
+    src.start();
+  });
+}
+const hoverSound = (el) => el.addEventListener('mouseenter', () => uiSound('hover'));
 
 // Sound on/off button and volume slider in the top right corner (both remembered per browser).
 // The slider shows on hover (computers) or after a tap on the button (phones).
@@ -919,7 +948,8 @@ function openShop() {
         `<span class="shopinfo"><b>${it.name}</b><small>${it.kind}</small><span class="price"><img src="images/fx/meso-gold.png" alt=""> <span>${fmt(it.price)}</span></span></span>${btn}</div>`;
     }).join('') + '</div>' : '<p class="shopempty">Nothing here yet... 👀</p>') +
     '<p class="mesoshop">More cosmetics are coming to the shop later, so save up your mesos!</p>';
-  for (const b of body.querySelectorAll('[data-buy]')) b.addEventListener('click', () => buy(b.dataset.buy, b));
+  uiSound();   // opened by a click: get the hover sound ready
+  for (const b of body.querySelectorAll('[data-buy]')) { b.addEventListener('click', () => buy(b.dataset.buy, b)); hoverSound(b); }
   for (const pic of body.querySelectorAll('[data-zoom]')) pic.addEventListener('click', () => zoomItem(pic.dataset.zoom));
 }
 // A shop item's picture, big (its "zoom" picture if it has a sharper one), with its name. Click anywhere or Esc closes it
@@ -962,6 +992,8 @@ function itemPopup(t, title, withPrice, [okText, okClass], [noText, noClass]) {
     const esc = (e) => { if (e.key === 'Escape') { e.stopImmediatePropagation(); close(false); } };
     ok.addEventListener('click', () => close(true));
     no.addEventListener('click', () => close(false));
+    hoverSound(ok);
+    hoverSound(no);
     win.addEventListener('click', (e) => { if (e.target === win) close(false); });
     addEventListener('keydown', esc, true);
     document.body.appendChild(win);
