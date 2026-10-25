@@ -580,13 +580,12 @@ function applyTheme(fade = false) {
 // the Changelog with 3 tabs: Background (click a theme to use it), Win Effect (click to tick / untick; a random one of the
 // ticked ones plays when you win in 1 guess, at least one stays ticked; a bought bundle opens and closes like a Changelog
 // box) and Custom Effects (nothing to buy yet).
-// Something you just got (bought or unlocked) is "NEW" on the button, on its tab and on itself until you've seen that tab.
+// Something you just got (bought or unlocked) is "NEW" on the button, on its tab and on itself until the page reloads.
 let customTab = 'bg';
-const CUSTOM_NEW_KEY = 'mapleWordle:customNew';   // [shop item / theme ids] not seen in the Customize window yet
-const customNew = () => { try { return JSON.parse(lsGet(CUSTOM_NEW_KEY) || '[]'); } catch { return []; } };
+const customFresh = new Set();   // shop item / theme ids got since this page loaded
 const customTabOf = (id) => (SHOP[id]?.effect ? 'win' : 'bg');
 function markCustomNew(id) {
-  lsSet(CUSTOM_NEW_KEY, JSON.stringify([...customNew().filter((x) => x !== id), id]));
+  customFresh.add(id);
   customTab = customTabOf(id);   // the window opens on its tab
 }
 const newTag = () => Object.assign(document.createElement('span'), { className: 'newtag', textContent: 'NEW' });
@@ -609,7 +608,6 @@ function drawThemeButton() {
     '<button data-tab="win">Win Effect</button><button data-tab="fx">Custom Effects</button></p><p class="themehelp"></p>' +
     '<div id="themeList"></div><p class="closebar"><button id="themesClose">Close</button></p></div>';
   const list = win.querySelector('#themeList'), help = win.querySelector('.themehelp');
-  let fresh = new Set();   // NEW in the tab on screen (kept while the window stays open)
   const card = (into, img, label, on, click, isNew) => {
     const c = document.createElement('button');
     c.className = 'themecard' + (on ? ' on' : '');
@@ -625,23 +623,17 @@ function drawThemeButton() {
     into.appendChild(c);
     return c;
   };
-  const tags = () => {   // NEW on the button and on the tabs that still have something unseen
-    const unseen = customNew();
+  const tags = () => {   // NEW on the button and on the tabs with something new
     btn.querySelector('.newtag')?.remove();
-    if (unseen.length) btn.appendChild(newTag());
+    if (customFresh.size) btn.appendChild(newTag());
     for (const b of win.querySelectorAll('.themetabs button')) {
       b.querySelector('.newtag')?.remove();
-      if ([...unseen, ...fresh].some((id) => customTabOf(id) === b.dataset.tab)) b.appendChild(newTag());
+      if ([...customFresh].some((id) => customTabOf(id) === b.dataset.tab)) b.appendChild(newTag());
     }
   };
   const fill = () => {
     list.innerHTML = '';
     for (const b of win.querySelectorAll('.themetabs button')) b.classList.toggle('on', b.dataset.tab === customTab);
-    if (!win.hidden) {   // looking at this tab: its NEW items are seen now (they keep their tag until the window closes)
-      const unseen = customNew();
-      for (const id of unseen) if (customTabOf(id) === customTab) fresh.add(id);
-      lsSet(CUSTOM_NEW_KEY, JSON.stringify(unseen.filter((id) => customTabOf(id) !== customTab)));
-    }
     tags();
     if (customTab === 'win') {
       help.textContent = 'Plays when you win in 1 guess. Tick one or more: each win plays a random one of them.';
@@ -668,7 +660,7 @@ function drawThemeButton() {
         const name = Object.assign(document.createElement('span'), { className: 'themename' });
         name.append(SHOP[pack].name, Object.assign(document.createElement('small'), { textContent: `${n} of ${ids.length} on` }));
         sum.append(pic, name);
-        if (fresh.has(pack)) sum.appendChild(newTag());
+        if (customFresh.has(pack)) sum.appendChild(newTag());
         const inner = Object.assign(document.createElement('div'), { className: 'fxbundlelist' });
         for (const id of ids) skinCard(inner, id);
         box.append(sum, inner);
@@ -680,13 +672,12 @@ function drawThemeButton() {
     } else {
       help.textContent = 'Your backgrounds. Pick one to use it on every page.';
       const cur = applyTheme(true);
-      for (const t of own) card(list, THEME_IMG[t], THEMES[t] + (t === cur ? ' (in use)' : ''), t === cur, () => { lsSet(THEME_KEY, t); fill(); }, fresh.has(t));
+      for (const t of own) card(list, THEME_IMG[t], THEMES[t] + (t === cur ? ' (in use)' : ''), t === cur, () => { lsSet(THEME_KEY, t); fill(); }, customFresh.has(t));
     }
   };
   for (const b of win.querySelectorAll('.themetabs button')) b.addEventListener('click', () => { customTab = b.dataset.tab; fill(); });
   btn.addEventListener('click', () => {
     win.hidden = false;
-    fresh = new Set();
     fill();
   });
   win.querySelector('#themesClose').addEventListener('click', () => { win.hidden = true; });
@@ -870,7 +861,7 @@ function openMeso(page = 1) {
 // adds it to your themes; buying an effect pack (effect: true) adds its win effects (see HECATE).
 const SHOP = {
   ...HOLIDAYS,   // holiday specials: in the shop only on their day
-  helia: { name: 'Sol Hecate: Helia', kind: 'Guess in 1 win effect (bundle)', price: 2000, always: true, effect: true,
+  helia: { name: 'Sol Hecate: Helia', kind: 'Guess in 1 win effect (bundle)', price: 2000, always: true, effect: true, added: Date.UTC(2026, 9, 24),
            img: 'images/fx/hecate/helia-bundle.webp' },
   lucid: { name: 'Garden of Eternal Dream', kind: 'Moving background', price: 5000 },
   lucidBloom: { name: 'Lucid in Bloom', kind: 'Background', price: 2500 },
@@ -889,11 +880,14 @@ function shopUnlock(t) {
   if (!(t in SHOP) || shopFound().includes(t)) return;
   lsSet(SHOP_KEY, JSON.stringify([...shopFound(), t]));
 }
-// NEW on the Shop button while it has something you haven't seen yet (not owned); opening the shop sees them all, and
-// they keep a NEW tag in the shop until the page reloads.
+// NEW on the Shop button while it has something you haven't seen yet (not owned). An item put in the shop for everyone
+// ("added": its UTC day) is only NEW for 3 days after that; one you found yourself is NEW until you've seen it. Opening
+// the shop sees them all, and they keep a NEW tag in the shop until the page reloads.
+const SHOP_NEW_DAYS = 3;
 const SHOP_SEEN_KEY = 'mapleWordle:shopSeen';
 const shopSeen = () => { try { return JSON.parse(lsGet(SHOP_SEEN_KEY) || '[]'); } catch { return []; } };
-const shopNew = () => shopFound().filter((t) => !shopSeen().includes(t) && !shopOwned(t));
+const shopRecent = (t) => !SHOP[t].added || Date.now() < SHOP[t].added + SHOP_NEW_DAYS * 86400000;
+const shopNew = () => shopFound().filter((t) => shopRecent(t) && !shopSeen().includes(t) && !shopOwned(t));
 const shopFresh = new Set();
 function shopNewTag() {
   const b = document.getElementById('shopBtn');
