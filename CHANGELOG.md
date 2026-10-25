@@ -1,5 +1,9 @@
 # Maple Wordle changelog
 
+## alpha v4.4.1 - 25 October 2026
+### ✨ New
+- **[Shop]** Added [Sol Hecate: Mimica] win effect bundle!
+
 ## alpha v4.4 - 25 October 2026
 ### ✨ New [Guess-in-1] Effect Added!
 - **[General]** Guessing in 1 now plays a Sol Hecate effect.
