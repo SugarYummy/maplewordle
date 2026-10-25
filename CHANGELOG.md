@@ -7,6 +7,7 @@
 ### 🐛 Bug Fixes
 - **[BGM Clip]** Fixed BGM being silent at the start of some clips.
 - **[BGM Clip]** Fixed the BGM stuttering when clicking the play bar after the game.
+- **[BGM Clip]** Enhance BGM playback bar dragging experience.
 
 ## alpha v4.4 - 25 October 2026
 ### ✨ New [Guess-in-1] Effect Added!
