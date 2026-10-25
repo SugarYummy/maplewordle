@@ -231,11 +231,12 @@ const SOUNDS = { win: 'sounds/star-force-success.mp3', lose: 'sounds/star-force-
   animWin: 'sounds/rest-of-the-broken-truth.mp3',   // Malefic Star's Rest of the Broken Truth 0:15-0:36, Attack Animation win on guess 2-3
   classLose: 'sounds/the-breeze-that-carried-sorrow.mp3',   // Malitia's The Breeze That Carried Sorrow 0:00-0:18 (1 s fade-in), Class Wordle loss
   firstTry: 'sounds/the-unblessed-cathedral-descend.mp3',   // Mayrin's The Unblessed Cathedral -Descend- 1:07-1:42 (1 s fade-in), any first-guess win
-  classWin: 'sounds/succession-bloom.mp3' };   // First Adversary's Succession Bloom 1:03-1:27 (1 s fade-in), Class Wordle win on guess 2-5
+  classWin: 'sounds/succession-bloom.mp3',   // First Adversary's Succession Bloom 1:03-1:27 (1 s fade-in), Class Wordle win on guess 2-5
+  purchase: 'sounds/purchase.mp3' };   // the Cash Shop's buy sound (0.8 s), when you buy something in the shop
 // Tracks that play longer than SOUND_SECONDS: seconds before the fade-out starts (fade-out is SOUND_FADE).
 const SOUND_LENGTH = { animWin: 19, classLose: 16, firstTry: 33, classWin: 22 };
 // Tracks louder than SOUND_VOLUME.
-const SOUND_LOUDER = { firstTry: 0.30 };
+const SOUND_LOUDER = { firstTry: 0.30, purchase: 0.6 };
 // Phone and tablet speakers are much quieter, so they play everything twice as loud (12%, and 60% for a first-guess win).
 const PHONE = matchMedia('(hover: none) and (pointer: coarse)').matches;
 const muteKey = 'mapleWordle:muted';
@@ -866,9 +867,9 @@ function openMeso(page = 1) {
 // adds it to your themes; buying an effect pack (effect: true) adds its win effects (see HECATE).
 const SHOP = {
   ...HOLIDAYS,   // holiday specials: in the shop only on their day
-  helia: { name: 'Sol Hecate: Helia', kind: 'Guess in 1 win effect (bundle)', price: 2000, always: true, effect: true, added: Date.UTC(2026, 9, 24),
+  helia: { name: 'Sol Hecate: Helia', kind: 'Guess in 1 win effect (Bundle of 5)', price: 2000, always: true, effect: true, added: Date.UTC(2026, 9, 24),
            img: 'images/fx/hecate/helia-bundle.webp', zoom: 'images/fx/hecate/helia-bundle-big.webp' },
-  mimica: { name: 'Sol Hecate: Mimica', kind: 'Guess in 1 win effect (bundle)', price: 2000, always: true, effect: true, added: Date.UTC(2026, 9, 25),
+  mimica: { name: 'Sol Hecate: Mimica', kind: 'Guess in 1 win effect (Bundle of 5)', price: 2000, always: true, effect: true, added: Date.UTC(2026, 9, 25),
             img: 'images/fx/hecate/mimica-bundle.webp', zoom: 'images/fx/hecate/mimica-bundle-big.webp' },
   lucid: { name: 'Garden of Eternal Dream', kind: 'Moving background', price: 5000 },
   lucidBloom: { name: 'Lucid in Bloom', kind: 'Background', price: 2500 },
@@ -984,6 +985,7 @@ async function buy(t, btn) {
     lsSet(THEMES_KEY, JSON.stringify(ownedThemes().filter((x) => x !== 'default').concat(t)));
     lsSet(THEME_KEY, t);   // use it straight away
   }
+  resultSound(true, 0, 'purchase');
   markCustomNew(t);
   drawThemeButton();
   applyTheme(true);
