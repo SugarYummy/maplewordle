@@ -4,6 +4,8 @@
 ### ✨ New
 - **[Shop]** Added [Sol Hecate: Mimica] win effect bundle!
 - **[Shop]** Added Cash Shop sounds.
+### 🐛 Bug Fixes
+- **[BGM Clip]** Fixed [Extreme Mode] BGM being silent in the first 0.5s.
 
 ## alpha v4.4 - 25 October 2026
 ### ✨ New [Guess-in-1] Effect Added!
