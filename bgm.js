@@ -279,9 +279,12 @@ function seek(e) {
   audio.ended = false;
   if (was) play(); else drawBar();
 }
-$('bar').addEventListener('pointerdown', (e) => { if (!over) return; dragging = true; $('bar').setPointerCapture(e.pointerId); seek(e); });
+// A click jumps once, on press; letting go only jumps again if the bar was dragged somewhere else (jumping twice to the
+// same spot replayed the first ~0.1 s, which sounded like a stutter).
+let downX = 0;
+$('bar').addEventListener('pointerdown', (e) => { if (!over) return; dragging = true; downX = e.clientX; $('bar').setPointerCapture(e.pointerId); seek(e); });
 $('bar').addEventListener('pointermove', (e) => { if (dragging) { const r = $('bar').getBoundingClientRect(); const x = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)); $('fill').style.width = x * 100 + '%'; placeMarker(x * 100); } });
-$('bar').addEventListener('pointerup', (e) => { if (dragging) { dragging = false; seek(e); } });
+$('bar').addEventListener('pointerup', (e) => { if (dragging) { dragging = false; if (Math.abs(e.clientX - downX) > 3) seek(e); } });
 
 $('bgmVol').value = bgmVolume();
 $('bgmVol').addEventListener('input', () => {
