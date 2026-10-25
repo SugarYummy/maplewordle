@@ -3,7 +3,7 @@
 ## alpha v4.4.1 - 25 October 2026
 ### ✨ New
 - **[Shop]** Added [Sol Hecate: Mimica] win effect bundle!
-- **[Shop]** Added a purchase sound when you buy any items.
+- **[Shop]** Added Cash Shop sounds.
 
 ## alpha v4.4 - 25 October 2026
 ### ✨ New [Guess-in-1] Effect Added!
