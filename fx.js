@@ -551,9 +551,10 @@ function showTimer(label, s) {
 // Secret themes: getting a glitch mashup's bonus right in BGM Clip on the day itself (not from the Archive) unlocks
 // that map as a background for every page. Kept in this browser for good. Default is free for everyone, so the
 // Theme button (above the credit box) only shows once you've unlocked another one.
-const THEMES = { default: 'Default', deepsea: 'Unglamoured Ruins', limbo: "Limbo's Subconscious", vonbon: "Von Bon's Realm", bellona: 'Solatum',
+const THEMES = { default: 'Default', deepsea: 'Unglamoured Ruins', limbo: "Limbo's Subconscious (Light)", limboDark: "Limbo's Subconscious (Dark)",
+  vonbon: "Von Bon's Realm", bellona: 'Solatum',
   lucid: 'Garden of Eternal Dream', lucidBloom: 'Lucid in Bloom', lucidNight: "Lucid's Starry Night", halloween: 'Haunted Mansion' };
-const THEME_IMG = { deepsea: 'images/deepsea.webp', limbo: 'images/limbo.webp', vonbon: 'images/vonbon.webp', bellona: 'images/bellona.webp',
+const THEME_IMG = { deepsea: 'images/deepsea.webp', limbo: 'images/limbo.webp', limboDark: 'images/limbo-dark.webp', vonbon: 'images/vonbon.webp', bellona: 'images/bellona.webp',
   lucid: 'images/lucid-dream.jpg?v=2', lucidBloom: 'images/lucid-bloom.webp', lucidNight: 'images/lucid-night.webp',
   halloween: 'images/holiday/halloween.webp' };
 // Moving backgrounds: a looping video over the still picture (which shows until the video starts).
@@ -618,7 +619,7 @@ function applyTheme(fade = false) {
 // Something you just got (bought or unlocked) is "NEW" on the button, on its tab and on itself until the page reloads.
 let customTab = 'bg';
 const customFresh = new Set();   // shop item / theme ids got since this page loaded
-const customTabOf = (id) => (SHOP[id]?.effect ? 'win' : 'bg');
+const customTabOf = (id) => (CUSTOM_FX_PACKS.includes(id) ? 'fx' : SHOP[id]?.effect ? 'win' : 'bg');
 function markCustomNew(id) {
   customFresh.add(id);
   customTab = customTabOf(id);   // the window opens on its tab
@@ -681,7 +682,7 @@ function drawThemeButton() {
       };
       const skinCard = (into, id) => { const on = picked.includes(id); card(into, `images/fx/hecate/${id}.webp`, HECATE[id].name + (on ? ' ✓' : ''), on, () => toggle(id)); };
       for (const id of ownedSkins().filter((x) => !HECATE[x].pack)) skinCard(list, id);
-      for (const pack of ownedEffects()) {
+      for (const pack of ownedEffects().filter((x) => Object.values(HECATE).some((h) => h.pack === x))) {
         const ids = ownedSkins().filter((x) => HECATE[x].pack === pack);
         const n = ids.filter((x) => picked.includes(x)).length;
         const box = document.createElement('details');
@@ -702,8 +703,21 @@ function drawThemeButton() {
         list.appendChild(box);
       }
     } else if (customTab === 'fx') {
-      help.textContent = 'More effects are coming to the shop later!';
-      card(list, 'images/fx/hecate/none.webp', 'No Effect (in use)', true);
+      help.textContent = 'Effects on every page. Pick one (these don\'t stack).';
+      const cur = customFx();
+      for (const id of ownedCustomFx()) {
+        card(list, CUSTOM_FX[id].img, CUSTOM_FX[id].name + (id === cur ? ' (in use)' : ''), id === cur, () => { setCustomFx(id); fill(); },
+          customFresh.has(CUSTOM_FX[id].pack));
+      }
+      if (ownedEffects().includes('limboSub')) {   // Limbo's set: swap light / dark side (background + border) now and then
+        const row = Object.assign(document.createElement('label'), { className: 'fxswitch' });
+        row.innerHTML = '<input type="checkbox"><span class="knob"></span><span>Swap Limbo\'s light and dark side (background + border) every 30-60 s</span>';
+        const box = row.querySelector('input');
+        box.checked = limboSwapOn();
+        box.addEventListener('change', () => { setLimboSwap(box.checked); fill(); });
+        list.appendChild(row);
+      }
+      if (ownedCustomFx().length < 2) list.appendChild(Object.assign(document.createElement('p'), { className: 'themehelp', textContent: 'More effects are coming to the shop later!' }));
     } else {
       help.textContent = 'Your backgrounds. Pick one to use it on every page.';
       const cur = applyTheme(true);
@@ -720,6 +734,73 @@ function drawThemeButton() {
   addEventListener('keydown', (e) => { if (e.key === 'Escape') win.hidden = true; });
   fill();
   document.body.append(btn, win);
+}
+// Custom effects (Customize > Custom Effects): one at a time, on every page. Limbo's alert borders (from the shop's
+// "Limbo's Subconscious" set) come in with their entrance, then loop over the page's edges. With the swap switch on,
+// every 30-60 s a glitch swaps Limbo's light side (light background, white border) and dark side (dark background,
+// black border). Clips: video/limbo/border-<white|black>-<in|loop>.webm (.webp on Safari).
+const CUSTOM_FX = {
+  none: { name: 'No Effect', img: 'images/fx/hecate/none.webp' },
+  limboWhite: { name: 'Limbo Alert Border (White)', img: 'images/fx/limbo-border-white.webp', pack: 'limboSub', color: 'white' },
+  limboBlack: { name: 'Limbo Alert Border (Black)', img: 'images/fx/limbo-border-black.webp', pack: 'limboSub', color: 'black' },
+};
+const CUSTOM_FX_PACKS = ['limboSub'];
+const CUSTOM_FX_KEY = 'mapleWordle:customFx', LIMBO_SWAP_KEY = 'mapleWordle:limboSwap';
+const ownedCustomFx = () => Object.keys(CUSTOM_FX).filter((id) => !CUSTOM_FX[id].pack || ownedEffects().includes(CUSTOM_FX[id].pack));
+const customFx = () => { const id = lsGet(CUSTOM_FX_KEY); return ownedCustomFx().includes(id) ? id : 'none'; };
+const limboSwapOn = () => ownedEffects().includes('limboSub') && lsGet(LIMBO_SWAP_KEY) === '1';
+function setCustomFx(id) { lsSet(CUSTOM_FX_KEY, id); drawCustomFx(true); }
+function setLimboSwap(on) {
+  lsSet(LIMBO_SWAP_KEY, on ? '1' : '0');
+  if (on) { lsSet(CUSTOM_FX_KEY, limboFxDark() ? 'limboBlack' : 'limboWhite'); lsSet(THEME_KEY, limboFxDark() ? 'limboDark' : 'limbo'); applyTheme(true); }
+  drawCustomFx(on);
+}
+const limboFxDark = () => customFx() === 'limboBlack';
+const cfxClips = {};
+function cfxClip(name) {
+  cfxClips[name] ??= fetch(`video/limbo/${name}.${SAFARI ? 'webp' : 'webm'}`).then((r) => (r.ok ? r.blob() : null)).catch(() => null);
+  return cfxClips[name];
+}
+let cfxSwap = 0, cfxGen = 0;
+async function drawCustomFx(entrance = false) {
+  const gen = ++cfxGen;
+  clearTimeout(cfxSwap);
+  const fx = CUSTOM_FX[customFx()];
+  let layer = document.getElementById('cfx');
+  if (!fx.color) { layer?.remove(); return; }
+  const [loopBlob, inBlob] = await Promise.all([cfxClip(`border-${fx.color}-loop`), entrance ? cfxClip(`border-${fx.color}-in`) : null]);
+  if (gen !== cfxGen || !loopBlob) return;
+  if (!layer) { layer = Object.assign(document.createElement('div'), { id: 'cfx' }); document.body.appendChild(layer); }
+  const make = (blob, loop) => {
+    const el = document.createElement(SAFARI ? 'img' : 'video');
+    if (!SAFARI) Object.assign(el, { muted: true, playsInline: true, autoplay: true, loop });
+    el.src = URL.createObjectURL(blob);
+    el.play?.().catch(() => {});
+    return el;
+  };
+  for (const old of layer.children) URL.revokeObjectURL(old.src);
+  layer.innerHTML = '';
+  const loopEl = make(loopBlob, true);
+  layer.appendChild(loopEl);
+  if (inBlob) {   // the entrance first, then the loop
+    loopEl.hidden = true;
+    const inEl = make(inBlob, false);
+    layer.appendChild(inEl);
+    setTimeout(() => { if (gen === cfxGen) { loopEl.hidden = false; URL.revokeObjectURL(inEl.src); inEl.remove(); } }, 840);
+  }
+  if (limboSwapOn()) {
+    cfxSwap = setTimeout(() => {
+      document.body.classList.add('limboswap');
+      setTimeout(() => {
+        const dark = !limboFxDark();
+        lsSet(CUSTOM_FX_KEY, dark ? 'limboBlack' : 'limboWhite');
+        lsSet(THEME_KEY, dark ? 'limboDark' : 'limbo');
+        applyTheme(0.15);
+        drawCustomFx(false);
+      }, 120);
+      setTimeout(() => document.body.classList.remove('limboswap'), 320);
+    }, 30000 + Math.random() * 30000);
+  }
 }
 function unlockTheme(t) {
   if (!(t in THEMES) || ownedThemes().includes(t)) return;
@@ -898,6 +979,8 @@ const SHOP = {
   ...HOLIDAYS,   // holiday specials: in the shop only on their day
   helia: { name: 'Sol Hecate: Helia', kind: 'Guess in 1 win effect (Bundle of 5)', price: 2000, always: true, effect: true, added: Date.UTC(2026, 9, 24),
            img: 'images/fx/hecate/helia-bundle.webp', zoom: 'images/fx/hecate/helia-bundle-big.webp' },
+  limboSub: { name: "Limbo's Subconscious", kind: 'Backgrounds + alert borders (Bundle of 4)', price: 2500, effect: true,
+              themes: ['limbo', 'limboDark'], img: 'images/fx/limbo-bundle.webp', zoom: 'images/fx/limbo-bundle-big.webp' },
   mimica: { name: 'Sol Hecate: Mimica', kind: 'Guess in 1 win effect (Bundle of 5)', price: 2000, always: true, effect: true, added: Date.UTC(2026, 9, 25),
             img: 'images/fx/hecate/mimica-bundle.webp', zoom: 'images/fx/hecate/mimica-bundle-big.webp' },
   lucid: { name: 'Garden of Eternal Dream', kind: 'Moving background', price: 5000 },
@@ -906,6 +989,7 @@ const SHOP = {
 };
 const shopOwned = (t) => (SHOP[t]?.effect ? ownedEffects() : ownedThemes()).includes(t);
 drawThemeButton();   // here, not with applyTheme above: the Customize window needs SHOP
+drawCustomFx();
 const SHOP_KEY = 'mapleWordle:shop';   // items found so far
 function shopFound() {
   let found = [];
@@ -1013,6 +1097,12 @@ async function buy(t, btn) {
   if (it.effect) {   // an effect pack: tick all of its win effects straight away (along with the bought ones already ticked)
     lsSet(EFFECTS_KEY, JSON.stringify([...ownedEffects(), t]));
     setPickedSkins([...pickedSkins().filter((id) => HECATE[id].pack), ...Object.keys(HECATE).filter((id) => HECATE[id].pack === t)]);
+    if (it.themes) {   // and its backgrounds (the first one on straight away)
+      lsSet(THEMES_KEY, JSON.stringify([...new Set([...ownedThemes().filter((x) => x !== 'default'), ...it.themes])]));
+      lsSet(THEME_KEY, it.themes[0]);
+    }
+    const fx = Object.keys(CUSTOM_FX).find((id) => CUSTOM_FX[id].pack === t);
+    if (fx) setCustomFx(fx);
   } else {
     lsSet(THEMES_KEY, JSON.stringify(ownedThemes().filter((x) => x !== 'default').concat(t)));
     lsSet(THEME_KEY, t);   // use it straight away

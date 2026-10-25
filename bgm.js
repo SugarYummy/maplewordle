@@ -85,6 +85,14 @@ function answerFor(d) {
   ans.bonus = bonusFor(ans, d);
   return ans;
 }
+const GLITCH_PAUSE_FROM = Date.UTC(2026, 9, 26) / DAY_MS;
+const LIMBO_EGG_UNTIL = Date.UTC(2026, 10, 13) / DAY_MS;   // the last day Limbo's glitch mashup can be on
+function limboEggDay() {
+  if (limboEggDay.d !== undefined) return limboEggDay.d;
+  const days = [];
+  for (let x = GLITCH_PAUSE_FROM; x <= LIMBO_EGG_UNTIL; x++) if (!hasBonus(entryFor(x).boss)) days.push(x);
+  return (limboEggDay.d = days.length ? days[hash('bgm|limbo-egg-day') % days.length] : null);
+}
 // The bonus round. A boss with 2+ BGMs: which part of the fight does it play in (any part with that track is right).
 // A boss with one BGM usually has none, but each mashup in data/bgm.json "mashups" shows up on one of those days per
 // cycle (a cycle is as many days as there are entries): guess whose mashup it is, one guess.
@@ -92,8 +100,14 @@ function bonusFor(ans, d) {
   if (hasBonus(ans.boss)) {
     return { kind: 'area', right: ans.boss.areas.filter((a) => a.track === ans.track).map((a) => a.label) };
   }
-  const mashups = data.mashups || [];
+  let mashups = data.mashups || [];
   if (!mashups.length || MODE !== 'bgm') return null;   // mashups (and their glitch Easter eggs) are Extreme only
+  // From Oct 26 the glitch mashups (an "egg") are out of the rotation for now. Limbo's comes back on one day picked
+  // at random among Oct 26 - Nov 13's one-BGM days (a surprise: nothing on the site says which).
+  if (d >= GLITCH_PAUSE_FROM) {
+    if (d === limboEggDay()) { const m = mashups.find((x) => x.egg === 'limbo'); return { kind: 'mashup', mashup: m, right: [m.boss] }; }
+    mashups = mashups.filter((x) => !x.egg);
+  }
   const FIRST_DAY = firstDay();
   const cycle = Math.floor((d - FIRST_DAY) / pool.length), from = FIRST_DAY + cycle * pool.length;
   const quiet = [];   // this cycle's one-BGM days, in a shuffled order
@@ -828,8 +842,9 @@ $('bonusGo').addEventListener('click', () => {
   if (limbo.on) limboExit();
   const ok = answer.bonus.right.includes(pick);
   sendBonus(ok);
-  // A glitch mashup's bonus right on today's puzzle unlocks its map as a theme (fx.js); the Archive doesn't count.
-  if (ok && live && answer.bonus.mashup?.egg) unlockTheme(answer.bonus.mashup.egg);
+  // Limbo's glitch mashup's bonus right on today's puzzle puts its set (backgrounds + alert borders) in the shop (fx.js);
+  // the Archive doesn't count. (The other glitch mashups give nothing for now.)
+  if (ok && live && answer.bonus.mashup?.egg === 'limbo') shopUnlock('limboSub');
   if (ok && live) answer.t.unlock?.bonus?.forEach(shopUnlock);   // shows up in the meso shop (fx.js)
 });
 
