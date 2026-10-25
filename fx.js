@@ -1221,13 +1221,13 @@ const SHOP = {
   ...HOLIDAYS,   // holiday specials: in the shop only on their day
   helia: { name: 'Sol Hecate: Helia', kind: 'Guess in 1 win effect (Bundle of 5)', price: 2000, always: true, effect: true, added: Date.UTC(2026, 9, 24),
            img: 'images/fx/hecate/helia-bundle.webp', zoom: 'images/fx/hecate/helia-bundle-big.webp' },
-  limboSub: { name: "Limbo's Subconscious", kind: 'Backgrounds, alert borders + wrong guess effect (Bundle of 5) + a special toggle effect', price: 10000, effect: true,
+  limboSub: { hidden: true, name: "Limbo's Subconscious", kind: 'Backgrounds, alert borders + wrong guess effect (Bundle of 5) + a special toggle effect', price: 10000, effect: true,
               themes: ['limbo', 'limboDark'], img: 'images/fx/limbo-bundle.webp?v=2', zoom: 'images/fx/limbo-bundle-big.webp?v=2' },
   mimica: { name: 'Sol Hecate: Mimica', kind: 'Guess in 1 win effect (Bundle of 5)', price: 2000, always: true, effect: true, added: Date.UTC(2026, 9, 25),
             img: 'images/fx/hecate/mimica-bundle.webp', zoom: 'images/fx/hecate/mimica-bundle-big.webp' },
-  lucid: { name: 'Garden of Eternal Dream', kind: 'Moving background', price: 5000 },
-  lucidBloom: { name: 'Lucid in Bloom', kind: 'Background', price: 2500 },
-  lucidNight: { name: "Lucid's Starry Night", kind: 'Background', price: 2500 },
+  lucid: { hidden: true, name: 'Garden of Eternal Dream', kind: 'Moving background', price: 5000 },
+  lucidBloom: { hidden: true, name: 'Lucid in Bloom', kind: 'Background', price: 2500 },
+  lucidNight: { hidden: true, name: "Lucid's Starry Night", kind: 'Background', price: 2500 },
 };
 const shopOwned = (t) => (SHOP[t]?.effect ? ownedEffects() : ownedThemes()).includes(t);
 drawThemeButton();   // here, not with applyTheme above: the Customize window needs SHOP
@@ -1270,6 +1270,11 @@ function openShop() {
   for (const t of shopNew()) shopFresh.add(t);
   lsSet(SHOP_SEEN_KEY, JSON.stringify([...new Set([...shopSeen(), ...found])]));
   shopNewTag();
+  // A "hidden" item not found yet: a locked card with just its price (no picture or name), so people can save up for it.
+  const locked = Object.keys(SHOP).filter((t) => SHOP[t].hidden && !found.includes(t)).map((t) =>
+    `<div class="shopitem lockeditem"><span class="themepic hiddenpic">?</span>` +
+    `<span class="shopinfo"><b>Hidden</b><small>A secret ${/Bundle/.test(SHOP[t].kind) ? 'bundle' : 'item'}. Keep playing, it shows up here on a special day 👀</small>` +
+    `<span class="price"><img src="images/fx/meso-gold.png" alt=""> <span>${fmt(SHOP[t].price)}</span></span></span><span class="locked">🔒 Locked</span></div>`).join('');
   body.innerHTML = `<p class="mesototal"><img src="images/fx/meso-gold.png" alt=""> ${fmt(have)}</p>` +
     (found.length ? '<div class="shoplist">' + found.map((t) => {
       const it = SHOP[t], owned = shopOwned(t);
@@ -1278,7 +1283,7 @@ function openShop() {
         : `<button data-buy="${t}"${have < it.price ? ' class="poor" title="Not enough mesos"' : ''}>Buy</button>`;
       return `<div class="shopitem">${shopFresh.has(t) && !owned ? '<span class="newtag">NEW</span>' : ''}<span class="themepic zoomable" data-zoom="${t}" title="Click to zoom in" style="background-image:url('${it.img ?? THEME_IMG[t]}')"></span>` +
         `<span class="shopinfo"><b>${it.name}</b><small>${it.kind}</small><span class="price"><img src="images/fx/meso-gold.png" alt=""> <span>${fmt(it.price)}</span></span></span>${btn}</div>`;
-    }).join('') + '</div>' : '<p class="shopempty">Nothing here yet... 👀</p>') +
+    }).join('') + locked + '</div>' : '<p class="shopempty">Nothing here yet... 👀</p>') +
     '<p class="mesoshop">More cosmetics are coming to the shop later, so save up your mesos!</p>';
   uiSound();   // opened by a click: get the hover sound ready
   for (const b of body.querySelectorAll('[data-buy]')) { b.addEventListener('click', () => buy(b.dataset.buy, b)); hoverSound(b); }

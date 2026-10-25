@@ -712,3 +712,8 @@ body[class*="egg-"] #hwfx, body:has(.eggscene) #hwfx, body:has(#limbobg) #hwfx {
 .limbotrans .middle { width: 85vw; left: 15.2vw; bottom: -10.6vw; }
 .limbotrans .right { width: 85vw; left: 31vw; bottom: -10.6vw; }
 .limbotrans .end { width: 100vw; left: 0; bottom: -8.4vw; }
+/* A hidden shop item before it's found: a locked card with only its price */
+.shopitem .hiddenpic { display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #2b2b3a, #11111a);
+  color: rgba(255, 255, 255, 0.85); font-size: 30px; font-weight: 800; text-shadow: 0 0 8px rgba(180, 120, 255, 0.8); }
+.shopitem .locked { font-weight: 700; color: #777; padding: 0 8px; white-space: nowrap; }
+.shopitem.lockeditem b { color: #555; }
