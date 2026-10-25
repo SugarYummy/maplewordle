@@ -250,8 +250,9 @@ function drawTicks() {
     l.className = (i === guesses.length ? 'open' : '') + (at < 8 ? ' start' : '') + (at === 100 ? ' end' : '');
   }
 }
+let dragAt = null;   // seconds under the mouse while the bar is being dragged (the bar shows that, not the music)
 function drawBar() {
-  const p = nowPos();
+  const p = dragAt ?? nowPos();
   const t = over ? p : p - answer.start;
   const at = barAt(Math.max(0, t));
   $('fill').style.width = at + '%';
@@ -283,8 +284,20 @@ function seek(e) {
 // same spot replayed the first ~0.1 s, which sounded like a stutter).
 let downX = 0;
 $('bar').addEventListener('pointerdown', (e) => { if (!over) return; dragging = true; downX = e.clientX; $('bar').setPointerCapture(e.pointerId); seek(e); });
-$('bar').addEventListener('pointermove', (e) => { if (dragging) { const r = $('bar').getBoundingClientRect(); const x = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)); $('fill').style.width = x * 100 + '%'; placeMarker(x * 100); } });
-$('bar').addEventListener('pointerup', (e) => { if (dragging) { dragging = false; if (Math.abs(e.clientX - downX) > 3) seek(e); } });
+// While dragging, the green bar, the ▼ and the time follow the mouse; the music jumps there on release.
+$('bar').addEventListener('pointermove', (e) => {
+  if (!dragging || Math.abs(e.clientX - downX) <= 3) return;
+  const r = $('bar').getBoundingClientRect();
+  dragAt = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * answer.t.len;
+  drawBar();
+});
+$('bar').addEventListener('pointerup', (e) => {
+  if (!dragging) return;
+  dragging = false;
+  dragAt = null;
+  if (Math.abs(e.clientX - downX) > 3) seek(e); else drawBar();
+});
+$('bar').addEventListener('pointercancel', () => { dragging = false; dragAt = null; drawBar(); });
 
 $('bgmVol').value = bgmVolume();
 $('bgmVol').addEventListener('input', () => {
