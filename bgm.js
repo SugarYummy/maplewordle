@@ -70,13 +70,15 @@ function entryFor(d) {
   }
   return s.days[Math.max(0, d - FIRST_DAY)];
 }
-// From Oct 21 every clip starts at 0:00. Before that, half the days started at a random second that isn't quiet.
+// Normal: every clip starts at the beginning. Extreme: half the days at the beginning, half at a random second that
+// isn't quiet. "The beginning" skips a track's silent lead-in (data/bgm.json "lead", seconds), so the first guess
+// isn't spent on silence.
 function answerFor(d) {
   const e = entryFor(d);
   const boss = e.boss, track = e.track;
   const t = data.tracks[track];
   const h = hash(`${MODE}|${d}|start`);
-  const start = newRules() || !(h % 2) ? 0 : t.starts[(h >>> 1) % t.starts.length];
+  const start = newRules() || !(h % 2) ? (t.lead ?? 0) : t.starts[(h >>> 1) % t.starts.length];
   // Some tracks play in more than one boss fight: the other boss shows yellow (close, but not a win).
   const owners = bosses.filter((b) => b.areas.some((a) => a.track === track)).map((b) => b.name);
   const ans = { name: boss.name, boss, track, t, start, owners };

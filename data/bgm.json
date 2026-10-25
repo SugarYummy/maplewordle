@@ -4195,7 +4195,8 @@
     115,
     116
    ],
-   "v": 2
+   "v": 2,
+   "lead": 0.14
   },
   "d1abf61250": {
    "title": "Knight's Stronghold",
@@ -4946,7 +4947,8 @@
     103,
     104
    ],
-   "v": 2
+   "v": 2,
+   "lead": 0.23
   },
   "d181fbcac9": {
    "title": "Intruder Detection",
@@ -5329,7 +5331,8 @@
     94,
     95
    ],
-   "v": 2
+   "v": 2,
+   "lead": 0.2
   },
   "27b2053221": {
    "title": "Gravity Lord",
@@ -5433,7 +5436,8 @@
     96,
     97
    ],
-   "v": 2
+   "v": 2,
+   "lead": 0.34
   },
   "ec0205bf65": {
    "title": "Gravity Lord Rise",
@@ -5538,7 +5542,8 @@
     97,
     98
    ],
-   "v": 2
+   "v": 2,
+   "lead": 0.27
   },
   "a1d4f1eeb1": {
    "title": "Black Heaven Theme",
@@ -9194,7 +9199,8 @@
     88,
     89
    ],
-   "v": 2
+   "v": 2,
+   "lead": 0.69
   },
   "9c00e7d246": {
    "title": "Occupied Fortress",
@@ -9544,7 +9550,8 @@
     45,
     46
    ],
-   "v": 2
+   "v": 2,
+   "lead": 0.11
   },
   "4267e33708": {
    "title": "Courage Unbreakable",
@@ -10114,7 +10121,8 @@
     30,
     31
    ],
-   "v": 2
+   "v": 2,
+   "lead": 0.11
   },
   "dda0defd9e": {
    "title": "Ruination of Four Seasons",
@@ -10427,7 +10435,8 @@
     68,
     69
    ],
-   "v": 2
+   "v": 2,
+   "lead": 0.24
   },
   "5918556479": {
    "title": "Unveiled Deformity",
@@ -11934,7 +11943,8 @@
     70,
     71
    ],
-   "v": 2
+   "v": 2,
+   "lead": 0.13
   },
   "ebf775cf58": {
    "title": "Echoes of Ancient Deity",
@@ -12830,7 +12840,8 @@
     69,
     70
    ],
-   "v": 2
+   "v": 2,
+   "lead": 0.12
   },
   "737b0bef85": {
    "title": "Silent Protocol",
@@ -13074,7 +13085,8 @@
     64,
     65
    ],
-   "v": 2
+   "v": 2,
+   "lead": 0.23
   },
   "ca346934fa": {
    "title": "City of Eternal Night",
@@ -14313,7 +14325,8 @@
     89,
     90
    ],
-   "v": 2
+   "v": 2,
+   "lead": 0.47
   },
   "0bb3cc0bd5": {
    "title": "Desperately",
