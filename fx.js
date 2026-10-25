@@ -705,23 +705,49 @@ function drawThemeButton() {
     } else if (customTab === 'fx') {
       help.textContent = 'Effects on every page. Pick one (these don\'t stack).';
       const cur = customFx();
-      for (const id of ownedCustomFx()) {
-        card(list, CUSTOM_FX[id].img, CUSTOM_FX[id].name + (id === cur ? ' (in use)' : ''), id === cur, () => { setCustomFx(id); fill(); },
-          customFresh.has(CUSTOM_FX[id].pack));
-      }
-      if (ownedEffects().includes('limboSub')) {   // Limbo's set: swap light / dark side (background + border) now and then
-        const row = Object.assign(document.createElement('label'), { className: 'fxswitch' });
-        row.innerHTML = '<input type="checkbox"><span class="knob"></span><span>Swap Limbo\'s light and dark side (background + border) every 30-60 s</span>';
-        const box = row.querySelector('input');
-        box.checked = limboSwapOn();
-        box.addEventListener('change', () => { setLimboSwap(box.checked); fill(); });
-        list.appendChild(row);
+      const fxCard = (into, id) => card(into, CUSTOM_FX[id].img, CUSTOM_FX[id].name + (id === cur ? ' (in use)' : ''), id === cur, () => { setCustomFx(id); fill(); });
+      for (const id of ownedCustomFx().filter((x) => !CUSTOM_FX[x].pack)) fxCard(list, id);
+      // a bought set: one box (like the Win Effect bundles) with its effects, and Limbo's light / dark swap switch
+      for (const pack of CUSTOM_FX_PACKS.filter((x) => ownedEffects().includes(x))) {
+        const ids = ownedCustomFx().filter((x) => CUSTOM_FX[x].pack === pack);
+        const using = ids.find((x) => x === cur);
+        const box = document.createElement('details');
+        box.className = 'fxbundle';
+        box.open = bundleOpen.has(pack);
+        box.addEventListener('toggle', () => { if (box.open) bundleOpen.add(pack); else bundleOpen.delete(pack); });
+        const sum = document.createElement('summary');
+        sum.className = 'themecard' + (using ? ' on' : '');
+        const pic = Object.assign(document.createElement('span'), { className: 'themepic' });
+        pic.style.backgroundImage = `url("${SHOP[pack].img}")`;
+        const name = Object.assign(document.createElement('span'), { className: 'themename' });
+        name.append(SHOP[pack].name, Object.assign(document.createElement('small'), {
+          textContent: (using ? CUSTOM_FX[using].name.replace(/^.*\((\w+)\)$/, '$1 border on') : 'Off') + (pack === 'limboSub' && limboSwapOn() ? ' · swapping' : '') }));
+        sum.append(pic, name);
+        if (customFresh.has(pack)) sum.appendChild(newTag());
+        const inner = Object.assign(document.createElement('div'), { className: 'fxbundlelist' });
+        for (const id of ids) fxCard(inner, id);
+        if (pack === 'limboSub') {   // swap Limbo's light / dark side (background + border) now and then
+          const row = Object.assign(document.createElement('label'), { className: 'fxswitch' });
+          row.innerHTML = '<input type="checkbox"><span class="knob"></span><span>Swap Limbo\'s light and dark side (background + border) every 30-60 s</span>';
+          const sw = row.querySelector('input');
+          sw.checked = limboSwapOn();
+          sw.addEventListener('change', () => { setLimboSwap(sw.checked); fill(); });
+          inner.appendChild(row);
+        }
+        box.append(sum, inner);
+        list.appendChild(box);
       }
       if (ownedCustomFx().length < 2) list.appendChild(Object.assign(document.createElement('p'), { className: 'themehelp', textContent: 'More effects are coming to the shop later!' }));
     } else {
       help.textContent = 'Your backgrounds. Pick one to use it on every page.';
       const cur = applyTheme(true);
-      for (const t of own) card(list, THEME_IMG[t], THEMES[t] + (t === cur ? ' (in use)' : ''), t === cur, () => { lsSet(THEME_KEY, t); fill(); }, customFresh.has(t));
+      for (const t of own) card(list, THEME_IMG[t], THEMES[t] + (t === cur ? ' (in use)' : ''), t === cur, () => {
+        lsSet(THEME_KEY, t);
+        if (limboSwapOn()) {   // swapping: a Limbo background brings its border, any other background stops the swap
+          if (t === 'limbo' || t === 'limboDark') { limboPair(t === 'limboDark'); drawCustomFx(false); } else setLimboSwap(false);
+        }
+        fill();
+      }, customFresh.has(t));
     }
   };
   for (const b of win.querySelectorAll('.themetabs button')) b.addEventListener('click', () => { customTab = b.dataset.tab; fill(); });
@@ -749,10 +775,21 @@ const CUSTOM_FX_KEY = 'mapleWordle:customFx', LIMBO_SWAP_KEY = 'mapleWordle:limb
 const ownedCustomFx = () => Object.keys(CUSTOM_FX).filter((id) => !CUSTOM_FX[id].pack || ownedEffects().includes(CUSTOM_FX[id].pack));
 const customFx = () => { const id = lsGet(CUSTOM_FX_KEY); return ownedCustomFx().includes(id) ? id : 'none'; };
 const limboSwapOn = () => ownedEffects().includes('limboSub') && lsGet(LIMBO_SWAP_KEY) === '1';
-function setCustomFx(id) { lsSet(CUSTOM_FX_KEY, id); drawCustomFx(true); }
+function setCustomFx(id) {
+  lsSet(CUSTOM_FX_KEY, id);
+  if (limboSwapOn()) {   // swapping keeps Limbo's background and its border together
+    if (CUSTOM_FX[id]?.pack === 'limboSub') limboPair(id === 'limboBlack');
+    else lsSet(LIMBO_SWAP_KEY, '0');
+  }
+  drawCustomFx(true);
+}
+function limboPair(dark) {   // light background + white border, dark background + black border
+  lsSet(CUSTOM_FX_KEY, dark ? 'limboBlack' : 'limboWhite');
+  if (lsGet(THEME_KEY) !== (dark ? 'limboDark' : 'limbo')) { lsSet(THEME_KEY, dark ? 'limboDark' : 'limbo'); applyTheme(true); }
+}
 function setLimboSwap(on) {
   lsSet(LIMBO_SWAP_KEY, on ? '1' : '0');
-  if (on) { lsSet(CUSTOM_FX_KEY, limboFxDark() ? 'limboBlack' : 'limboWhite'); lsSet(THEME_KEY, limboFxDark() ? 'limboDark' : 'limbo'); applyTheme(true); }
+  if (on) limboPair(customFx() === 'limboBlack' || (customFx() === 'none' && lsGet(THEME_KEY) === 'limboDark'));
   drawCustomFx(on);
 }
 const limboFxDark = () => customFx() === 'limboBlack';
@@ -765,6 +802,7 @@ let cfxSwap = 0, cfxGen = 0;
 async function drawCustomFx(entrance = false) {
   const gen = ++cfxGen;
   clearTimeout(cfxSwap);
+  if (limboSwapOn() && CUSTOM_FX[customFx()].pack === 'limboSub') limboPair(limboFxDark());   // keep the pair matched
   const fx = CUSTOM_FX[customFx()];
   let layer = document.getElementById('cfx');
   if (!fx.color) { layer?.remove(); return; }
