@@ -862,7 +862,7 @@ function openMeso(page = 1) {
 const SHOP = {
   ...HOLIDAYS,   // holiday specials: in the shop only on their day
   helia: { name: 'Sol Hecate: Helia', kind: 'Guess in 1 win effect (bundle)', price: 2000, always: true, effect: true, added: Date.UTC(2026, 9, 24),
-           img: 'images/fx/hecate/helia-bundle.webp' },
+           img: 'images/fx/hecate/helia-bundle.webp', zoom: 'images/fx/hecate/helia-bundle-big.webp' },
   lucid: { name: 'Garden of Eternal Dream', kind: 'Moving background', price: 5000 },
   lucidBloom: { name: 'Lucid in Bloom', kind: 'Background', price: 2500 },
   lucidNight: { name: "Lucid's Starry Night", kind: 'Background', price: 2500 },
@@ -907,11 +907,25 @@ function openShop() {
       // Not enough mesos: a greyed-out Buy; clicking it flashes how many more you need in the price (red, 2 s).
       const btn = owned ? '<span class="owned">Owned ✓</span>'
         : `<button data-buy="${t}"${have < it.price ? ' class="poor" title="Not enough mesos"' : ''}>Buy</button>`;
-      return `<div class="shopitem">${shopFresh.has(t) && !owned ? '<span class="newtag">NEW</span>' : ''}<span class="themepic" style="background-image:url('${it.img ?? THEME_IMG[t]}')"></span>` +
+      return `<div class="shopitem">${shopFresh.has(t) && !owned ? '<span class="newtag">NEW</span>' : ''}<span class="themepic zoomable" data-zoom="${t}" title="Click to zoom in" style="background-image:url('${it.img ?? THEME_IMG[t]}')"></span>` +
         `<span class="shopinfo"><b>${it.name}</b><small>${it.kind}</small><span class="price"><img src="images/fx/meso-gold.png" alt=""> <span>${fmt(it.price)}</span></span></span>${btn}</div>`;
     }).join('') + '</div>' : '<p class="shopempty">Nothing here yet... 👀</p>') +
     '<p class="mesoshop">More cosmetics are coming to the shop later, so save up your mesos!</p>';
   for (const b of body.querySelectorAll('[data-buy]')) b.addEventListener('click', () => buy(b.dataset.buy, b));
+  for (const pic of body.querySelectorAll('[data-zoom]')) pic.addEventListener('click', () => zoomItem(pic.dataset.zoom));
+}
+// A shop item's picture, big (its "zoom" picture if it has a sharper one), with its name. Click anywhere or Esc closes it
+// (only this, the shop stays open).
+function zoomItem(t) {
+  const it = SHOP[t];
+  const win = document.createElement('div');
+  win.className = 'zoomview';
+  win.innerHTML = `<img src="${it.zoom ?? it.img ?? THEME_IMG[t]}" alt=""><b>${it.name}</b>`;
+  const close = () => { win.remove(); removeEventListener('keydown', esc, true); };
+  const esc = (e) => { if (e.key === 'Escape') { e.stopImmediatePropagation(); close(); } };
+  win.addEventListener('click', close);
+  addEventListener('keydown', esc, true);
+  document.body.appendChild(win);
 }
 function tooPoor(btn, it) {
   const price = btn.closest('.shopitem').querySelector('.price');

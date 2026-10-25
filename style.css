@@ -412,6 +412,14 @@ body.glitch .game.glow.diamond { animation: glitchslice 2.3s steps(1) infinite, 
 .buybtns .yes { background: #2fa84f; }
 .buybtns .no { background: #d9443b; }
 .buybtns .plain { background: #f2f2f2; color: #222; }
+/* Shop: click an item's picture to see it big (fx.js zoomItem) */
+.shopitem .zoomable { cursor: zoom-in; transition: transform 0.15s ease; }
+.shopitem .zoomable:hover { transform: scale(1.04); }
+.zoomview { position: fixed; inset: 0; z-index: 6; background: rgba(0, 0, 0, 0.75); display: flex; flex-direction: column;
+            align-items: center; justify-content: center; gap: 10px; cursor: zoom-out; animation: zoomin 0.18s ease; }
+.zoomview img { max-width: 92vw; max-height: 80vh; border-radius: 10px; box-shadow: 0 6px 30px rgba(0, 0, 0, 0.5); }
+.zoomview b { color: #fff; font-size: 20px; text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6); }
+@keyframes zoomin { from { opacity: 0; transform: scale(0.94); } to { opacity: 1; transform: none; } }
 .buybtns button:hover { transform: translateY(-2px) scale(1.05); filter: brightness(1.08); }
 .popupbody { width: min(440px, calc(100vw - 96px)); text-align: left; }
 .popupbody h3 { margin: 14px 0 4px; }
