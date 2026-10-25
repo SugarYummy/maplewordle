@@ -1,6 +1,12 @@
 # Maple Wordle changelog
 
-## alpha v.4.3.3 - 24 October 2026
+## alpha v4.4 - 25 October 2026
+### ✨ New [Guess-in-1] Effect Added!
+- **[General]** Guessing in 1 now plays a Sol Hecate effect.
+- **[General]** New Customize menu for your backgrounds and win effects.
+- **[Shop]** Added [Sol Hecate: Helia] win effect bundle!
+
+## alpha v4.3.3 - 24 October 2026
 ### 🐛 Bug Fixes
 - **[BGM Clip]** Fixed BGM mashup's laggy dropdown menu when selecting a boss.
 
