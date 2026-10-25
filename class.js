@@ -1,6 +1,8 @@
 // Guess the Class (Wordle style). Same daily rules as Guess the Boss: one class per UTC day, everyone gets
 // the same one, progress saved in the browser. One difficulty, 5 guesses (data/classes.json "attempts").
 let data, pool, day, live, answer, guesses, maxGuesses, over, matches, active;
+// For Limbo's alert border (fx.js): guesses left in the game showing.
+window.gameLeft = () => (!guesses ? null : { left: maxGuesses - guesses.length, over });
 
 const $ = (id) => document.getElementById(id);
 
@@ -227,9 +229,12 @@ function guess(name) {
   record(g);
   save();
   // Flip the new row in; on a win, confetti once the last cell has turned over.
-  let flipMs = flipRow($('rows').querySelector('tr:not(.bestrow):not(.hintrow):not(.answer)'));
+  const newRow = $('rows').querySelector('tr:not(.bestrow):not(.hintrow):not(.answer)');
+  let flipMs = flipRow(newRow);
+  limboGuess(newRow, g.name !== answer.name, flipMs);   // Limbo's wrong guess effect, if it's on
   flipMs = flipRow($('rows').querySelector('tr.answer'), flipMs);   // out of guesses: the answer turns over next
   if (over && guesses.includes(answer.name)) setTimeout(() => confetti(guesses.length === 1), flipMs);
+  if (over) limboOver(guesses.includes(answer.name), flipMs);   // Limbo's alert border: gone on a win, its fail screen on a loss
   if (over && live) resultSound(guesses.includes(answer.name), flipMs, !guesses.includes(answer.name) ? 'classLose' : guesses.length === 1 ? 'firstTry' : 'classWin');   // today's puzzle only
   for (const el of [$('status'), $('share'), $('rows').querySelector('.bestrow')]) revealAfter(el, flipMs);
   if (over) { updateStreak(); loadStats(); noteResult(); }

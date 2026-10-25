@@ -321,9 +321,9 @@ body.egg-limbo::before { opacity: 1; background-color: #3a3348; background-image
 #limbobg .light { background-color: #3a3348; background-image: url("images/limbo.webp"); }
 #limbobg .dark { background-color: #101826; background-image: url("images/limbo-dark.webp"); opacity: 0; }
 #limbobg.dark .dark { opacity: 1; }
-#limboborder, #cfx { position: fixed; inset: 0; z-index: 8; pointer-events: none; }
-#limboborder video, #limboborder img, #cfx video, #cfx img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: fill; }
-#cfx { z-index: 3; }   /* under the windows (Customize, Shop, ...), over the page */
+#limboborder, #cfx, .cfxout { position: fixed; inset: 0; z-index: 8; pointer-events: none; }
+#limboborder video, #limboborder img, #cfx video, #cfx img, .cfxout video, .cfxout img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: fill; }
+#cfx, .cfxout { z-index: 3; }   /* under the windows (Customize, Shop, ...), over the page */
 #cfx [hidden] { display: none; }
 body:has(#limboborder) #cfx { display: none; }   /* Limbo's Easter egg brings its own border */
 #limboborder [hidden] { display: none; }
@@ -689,3 +689,26 @@ body.glitch .game.glow.rainbow { animation: glitchslice 2.3s steps(1) infinite; 
 @keyframes fogdrift { to { transform: translateX(25%); } }
 /* A BGM Clip Easter egg background (glitch maps, Lucid's sky) takes over: no Halloween effects while it's up. */
 body[class*="egg-"] #hwfx, body:has(.eggscene) #hwfx, body:has(#limbobg) #hwfx { display: none; }
+/* Limbo's wrong guess effect: the bar / dragon clip over a guess row; while the row is eaten its text stays on top */
+.limboguess { position: absolute; z-index: 3; pointer-events: none; animation: gfxin 0.2s ease both; }   /* the bar fades in over 0.2 s */
+.limboguess.out { opacity: 0; transition: opacity 0.2s ease; }   /* right guess: the bar fades out over 0.2 s */
+.limboguess.still { animation: none; }   /* a dragon from before (page load) is just there */
+.limboguess > * { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: fill; }
+.limboguess > .dragon { left: -7%; width: 114%; }   /* head further right, tail further left (past the row's ends) */
+@keyframes gfxin { from { opacity: 0; } }
+.limboeaten > td, #rows .gbar.limboeaten { position: relative; z-index: 4; background: transparent !important; border-color: transparent;
+  color: #fff !important; text-shadow: 0 0 3px #000, 0 0 6px #000, 0 1px 2px #000; }
+/* the tile colour lives on in the text, so the clues still show under the dragon */
+.limboeaten > .green, #rows .gbar.limboeaten.green { color: #8f8 !important; }
+.limboeaten > .yellow, #rows .gbar.limboeaten.yellow { color: #ffe066 !important; }
+.limboeaten > .red, #rows .gbar.limboeaten.red { color: #ff8a8a !important; }
+/* Limbo's transition between its light and dark side (Limbo mode): pool along the bottom, three bursts, then the dome */
+.limbotrans { position: fixed; inset: 0; z-index: 9; pointer-events: none; overflow: hidden; }
+.limbotrans > * { position: absolute; height: auto; }
+.limbotrans .pre { width: 110vw; left: -5vw; bottom: -16vw; transition: opacity 0.5s ease; }
+.limbotrans .pre.out { opacity: 0; }
+/* the three bursts (sharks) each about as tall as the screen, overlapping: together they cover it */
+.limbotrans .left { width: 85vw; left: -31.3vw; bottom: -7.1vw; }
+.limbotrans .middle { width: 85vw; left: 15.2vw; bottom: -10.6vw; }
+.limbotrans .right { width: 85vw; left: 31vw; bottom: -10.6vw; }
+.limbotrans .end { width: 100vw; left: 0; bottom: -8.4vw; }

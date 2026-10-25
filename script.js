@@ -1,4 +1,6 @@
 let data, mode, day, live, pool, answer, guesses, maxGuesses, over, matches, active, hints;
+// For Limbo's alert border (fx.js): guesses left in the game showing (Story Mode has no limit).
+window.gameLeft = () => (!guesses || maxGuesses == null ? null : { left: maxGuesses - guesses.length, over });
 
 const $ = (id) => document.getElementById(id);
 
@@ -529,12 +531,15 @@ function guess(name) {
   record(g);
   save();
   // Flip the new row in; on a win, confetti once the last cell has turned over.
-  let flipMs = flipRow($('rows').querySelector('tr:not(.bestrow):not(.hintrow):not(.answer)'));
+  const newRow = $('rows').querySelector('tr:not(.bestrow):not(.hintrow):not(.answer)');
+  let flipMs = flipRow(newRow);
+  limboGuess(newRow, g.name !== answer.name, flipMs);   // Limbo's wrong guess effect, if it's on
   flipMs = flipRow($('rows').querySelector('tr.answer'), flipMs);   // out of guesses: the answer turns over next
   // A Story win that took 7+ guesses gets no confetti and no win sound. Sounds are for today's puzzle only.
   const won = guesses.includes(answer.name);
   const quietWin = won && mode === 'story' && guesses.length >= 7;
   if (over && won && !quietWin) setTimeout(() => confetti(guesses.length === 1), flipMs);
+  if (over) limboOver(won, flipMs);   // Limbo's alert border: gone on a win, its fail screen on a loss
   if (over && live && !quietWin) resultSound(won, flipMs, won && guesses.length === 1 ? 'firstTry' : mode !== 'extreme' ? undefined : !won ? 'extremeLose' : 'extremeWin');
   for (const el of [$('status'), $('share'), $('rows').querySelector('.bestrow')]) revealAfter(el, flipMs);
   if (over) { updateStreak(); loadStats(); noteResult(); }

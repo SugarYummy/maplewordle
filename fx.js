@@ -136,7 +136,7 @@ function loadHecate() {
 setTimeout(loadHecate, 3000);
 document.addEventListener('click', (e) => { if (e.target.closest?.('#modes button') && hecateLast) loadHecate(); });
 function playHecate() {
-  if (!hecate) return 0;
+  if (!hecate || limboAllOn()) return 0;   // Limbo mode: everything else is off
   const { id, skin, blob } = hecate;
   hecate = null;
   hecateLast = id;
@@ -588,7 +588,7 @@ const holidayToday = (d = new Date()) => Object.keys(HOLIDAYS).find((k) => HOLID
 function applyTheme(fade = false) {
   const secs = fade === true ? 1 : fade || 0;
   const pick = lsGet(THEME_KEY);
-  const t = holidayToday() ?? (ownedThemes().includes(pick) ? pick : 'default');
+  const t = limboAllOn() ? (limboDarkSide ? 'limboDark' : 'limbo') : holidayToday() ?? (ownedThemes().includes(pick) ? pick : 'default');
   const old = [...document.querySelectorAll('.themebg')];
   if ((old.at(-1)?.dataset.theme ?? 'default') === t) return t;
   const gone = () => old.forEach((el) => el.remove());
@@ -673,11 +673,13 @@ function drawThemeButton() {
     tags();
     if (customTab === 'win') {
       help.textContent = 'Plays when you win in 1 guess. Tick one or more: each win plays a random one of them.';
+      if (limboAllOn()) help.textContent = 'Limbo mode is on, so these are off for now. Ticking one turns Limbo mode off.';
       const picked = pickedSkins();
       const toggle = (id) => {
         const on = picked.includes(id);
         if (on && picked.length === 1) return;   // keep at least one
         setPickedSkins(on ? picked.filter((x) => x !== id) : [...picked, id]);
+        if (limboAllOn()) { limboAllOff(); drawCustomFx(); }
         fill();
       };
       const skinCard = (into, id) => { const on = picked.includes(id); card(into, `images/fx/hecate/${id}.webp`, HECATE[id].name + (on ? ' ✓' : ''), on, () => toggle(id)); };
@@ -703,7 +705,7 @@ function drawThemeButton() {
         list.appendChild(box);
       }
     } else if (customTab === 'fx') {
-      help.textContent = 'Effects on every page. Pick one (these don\'t stack).';
+      help.textContent = 'Effects on every page. Toggle effects replaces your customization.';
       const cur = customFx();
       const fxCard = (into, id) => card(into, CUSTOM_FX[id].img, CUSTOM_FX[id].name + (id === cur ? ' (in use)' : ''), id === cur, () => { setCustomFx(id); fill(); });
       for (const id of ownedCustomFx().filter((x) => !CUSTOM_FX[x].pack)) fxCard(list, id);
@@ -716,23 +718,29 @@ function drawThemeButton() {
         box.open = bundleOpen.has(pack);
         box.addEventListener('toggle', () => { if (box.open) bundleOpen.add(pack); else bundleOpen.delete(pack); });
         const sum = document.createElement('summary');
-        sum.className = 'themecard' + (using ? ' on' : '');
+        sum.className = 'themecard' + ((pack === 'limboSub' ? limboAnyOn() : using) ? ' on' : '');
         const pic = Object.assign(document.createElement('span'), { className: 'themepic' });
         pic.style.backgroundImage = `url("${SHOP[pack].img}")`;
         const name = Object.assign(document.createElement('span'), { className: 'themename' });
         name.append(SHOP[pack].name, Object.assign(document.createElement('small'), {
-          textContent: (using ? CUSTOM_FX[using].name.replace(/^.*\((\w+)\)$/, '$1 border on') : 'Off') + (pack === 'limboSub' && limboSwapOn() ? ' · swapping' : '') }));
+          textContent: pack === 'limboSub' && limboAllOn() ? 'All Limbo effects on'
+            : [using ? CUSTOM_FX[using].name.replace(/^.*\((\w+)\)$/, '$1 border on') : 'Border off',
+              pack === 'limboSub' && limboGuessOn() && 'wrong guess on'].filter(Boolean).join(' · ') }));
         sum.append(pic, name);
         if (customFresh.has(pack)) sum.appendChild(newTag());
         const inner = Object.assign(document.createElement('div'), { className: 'fxbundlelist' });
-        for (const id of ids) fxCard(inner, id);
-        if (pack === 'limboSub') {   // swap Limbo's light / dark side (background + border) now and then
+        if (pack === 'limboSub') {   // one switch for everything in Limbo's set
           const row = Object.assign(document.createElement('label'), { className: 'fxswitch' });
-          row.innerHTML = '<input type="checkbox"><span class="knob"></span><span>Swap Limbo\'s light and dark side (background + border) every 30-60 s</span>';
-          const sw = row.querySelector('input');
-          sw.checked = limboSwapOn();
-          sw.addEventListener('change', () => { setLimboSwap(sw.checked); fill(); });
+          row.innerHTML = '<input type="checkbox"><span class="knob"></span><span>Enable all Limbo effects, including hidden ones</span>';
+          const all = row.querySelector('input');
+          all.checked = limboAllOn();
+          all.addEventListener('change', () => { setLimboAll(all.checked); fill(); });
           inner.appendChild(row);
+        }
+        for (const id of ids) fxCard(inner, id);
+        if (pack === 'limboSub') {   // the wrong guess effect: on / off, works with any border
+          const on = limboGuessOn();
+          card(inner, 'images/fx/limbo-guess.webp', 'Limbo Wrong Guess Effect' + (on ? ' (on)' : ' (off)'), on, () => { setLimboGuess(!on); fill(); });
         }
         box.append(sum, inner);
         list.appendChild(box);
@@ -743,9 +751,8 @@ function drawThemeButton() {
       const cur = applyTheme(true);
       for (const t of own) card(list, THEME_IMG[t], THEMES[t] + (t === cur ? ' (in use)' : ''), t === cur, () => {
         lsSet(THEME_KEY, t);
-        if (limboSwapOn()) {   // swapping: a Limbo background brings its border, any other background stops the swap
-          if (t === 'limbo' || t === 'limboDark') { limboPair(t === 'limboDark'); drawCustomFx(false); } else setLimboSwap(false);
-        }
+        if (limboAllOn()) { limboAllOff(); drawCustomFx(); }
+        else applyTheme(true);
         fill();
       }, customFresh.has(t));
     }
@@ -771,51 +778,83 @@ const CUSTOM_FX = {
   limboBlack: { name: 'Limbo Alert Border (Black)', img: 'images/fx/limbo-border-black.webp', pack: 'limboSub', color: 'black' },
 };
 const CUSTOM_FX_PACKS = ['limboSub'];
-const CUSTOM_FX_KEY = 'mapleWordle:customFx', LIMBO_SWAP_KEY = 'mapleWordle:limboSwap';
+const CUSTOM_FX_KEY = 'mapleWordle:customFx';
 const ownedCustomFx = () => Object.keys(CUSTOM_FX).filter((id) => !CUSTOM_FX[id].pack || ownedEffects().includes(CUSTOM_FX[id].pack));
-const customFx = () => { const id = lsGet(CUSTOM_FX_KEY); return ownedCustomFx().includes(id) ? id : 'none'; };
-const limboSwapOn = () => ownedEffects().includes('limboSub') && lsGet(LIMBO_SWAP_KEY) === '1';
+const customFx = () => {
+  if (limboAllOn()) return limboDarkSide ? 'limboBlack' : 'limboWhite';   // Limbo mode: the border of the side showing
+  const id = lsGet(CUSTOM_FX_KEY);
+  return ownedCustomFx().includes(id) ? id : 'none';
+};
 function setCustomFx(id) {
-  lsSet(CUSTOM_FX_KEY, id);
-  if (limboSwapOn()) {   // swapping keeps Limbo's background and its border together
-    if (CUSTOM_FX[id]?.pack === 'limboSub') limboPair(id === 'limboBlack');
-    else lsSet(LIMBO_SWAP_KEY, '0');
+  if (limboAllOn() && CUSTOM_FX[id]?.pack === 'limboSub') {   // Limbo mode: picking a border just flips to that side
+    if ((id === 'limboBlack') !== limboDarkSide) { limboDarkSide = !limboDarkSide; applyTheme(true); }
+    limboTransitions();   // (a transition on its way doesn't swap it back)
+  } else {
+    limboAllOff();
+    lsSet(CUSTOM_FX_KEY, id);
   }
+  cfxPreview();
+}
+// The alert border (Limbo's set) is only on the page while a game is down to its last 2 guesses (Story Mode and Attack
+// Animation have no limit, so never), and for a moment when you pick one in Customize. It comes in with its entrance
+// and leaves with its exit. Win: it goes once the row has turned over. Lose: Limbo's fail screen in its colour plays,
+// and it goes under that.
+let cfxAlert = false, cfxHold = false, cfxPreviewing = false, cfxPreviewT = 0, failPending = false;
+const cfxShown = () => cfxAlert || cfxHold || cfxPreviewing;
+function cfxPreview() {
+  cfxPreviewing = true;
+  clearTimeout(cfxPreviewT);
   drawCustomFx(true);
+  cfxPreviewT = setTimeout(() => { cfxPreviewing = false; drawCustomFx(); }, 3000);
 }
-function limboPair(dark) {   // light background + white border, dark background + black border
-  lsSet(CUSTOM_FX_KEY, dark ? 'limboBlack' : 'limboWhite');
-  if (lsGet(THEME_KEY) !== (dark ? 'limboDark' : 'limbo')) { lsSet(THEME_KEY, dark ? 'limboDark' : 'limbo'); applyTheme(true); }
+function limboAlertCheck() {   // each game says how many guesses are left (window.gameLeft)
+  const g = window.gameLeft?.();
+  const was = cfxShown();
+  cfxAlert = !!g && !g.over && g.left <= 2;
+  if (cfxShown() !== was) drawCustomFx(cfxAlert);
 }
-function setLimboSwap(on) {
-  lsSet(LIMBO_SWAP_KEY, on ? '1' : '0');
-  if (on) limboPair(customFx() === 'limboBlack' || (customFx() === 'none' && lsGet(THEME_KEY) === 'limboDark'));
-  drawCustomFx(on);
+function limboOver(won, delay = 0) {   // game over (called by the games, with when the result shows)
+  const fx = CUSTOM_FX[customFx()];
+  if (!fx.color || !cfxShown()) return;
+  cfxHold = true;
+  const release = (ms) => setTimeout(() => { cfxHold = false; drawCustomFx(); }, ms);
+  if (won) return release(delay);
+  failPending = true;
+  setTimeout(() => {   // the fail screen in the colour showing now, over (and instead of) any transition on its way
+    failPending = false;
+    limboTransitionStop();
+    limboFail(CUSTOM_FX[customFx()].color ?? fx.color);
+  }, delay);
+  release(delay + 600);   // by then the fail screen covers everything
 }
-const limboFxDark = () => customFx() === 'limboBlack';
 const cfxClips = {};
 function cfxClip(name) {
   cfxClips[name] ??= fetch(`video/limbo/${name}.${SAFARI ? 'webp' : 'webm'}`).then((r) => (r.ok ? r.blob() : null)).catch(() => null);
   return cfxClips[name];
 }
-let cfxSwap = 0, cfxGen = 0;
+let cfxGen = 0;
 async function drawCustomFx(entrance = false) {
   const gen = ++cfxGen;
-  clearTimeout(cfxSwap);
-  if (limboSwapOn() && CUSTOM_FX[customFx()].pack === 'limboSub') limboPair(limboFxDark());   // keep the pair matched
   const fx = CUSTOM_FX[customFx()];
   let layer = document.getElementById('cfx');
-  if (!fx.color) { layer?.remove(); return; }
+  if (!fx.color || !cfxShown()) {   // not wanted now: its exit plays, then it's gone
+    if (!layer) return;
+    layer.removeAttribute('id');
+    layer.className = 'cfxout';
+    const out = await cfxClip(`border-${layer.dataset.color}-out`);
+    for (const old of layer.children) URL.revokeObjectURL(old.src);
+    layer.innerHTML = '';
+    if (!out) return layer.remove();
+    const el = layer.appendChild(gfxVideo(out, false));
+    setTimeout(() => { URL.revokeObjectURL(el.src); layer.remove(); }, 300);
+    return;
+  }
   const [loopBlob, inBlob] = await Promise.all([cfxClip(`border-${fx.color}-loop`), entrance ? cfxClip(`border-${fx.color}-in`) : null]);
   if (gen !== cfxGen || !loopBlob) return;
+  layer = document.getElementById('cfx');
   if (!layer) { layer = Object.assign(document.createElement('div'), { id: 'cfx' }); document.body.appendChild(layer); }
-  const make = (blob, loop) => {
-    const el = document.createElement(SAFARI ? 'img' : 'video');
-    if (!SAFARI) Object.assign(el, { muted: true, playsInline: true, autoplay: true, loop });
-    el.src = URL.createObjectURL(blob);
-    el.play?.().catch(() => {});
-    return el;
-  };
+  layer.dataset.color = fx.color;
+  const make = gfxVideo;
   for (const old of layer.children) URL.revokeObjectURL(old.src);
   layer.innerHTML = '';
   const loopEl = make(loopBlob, true);
@@ -826,20 +865,185 @@ async function drawCustomFx(entrance = false) {
     layer.appendChild(inEl);
     setTimeout(() => { if (gen === cfxGen) { loopEl.hidden = false; URL.revokeObjectURL(inEl.src); inEl.remove(); } }, 840);
   }
-  if (limboSwapOn()) {
-    cfxSwap = setTimeout(() => {
-      document.body.classList.add('limboswap');
-      setTimeout(() => {
-        const dark = !limboFxDark();
-        lsSet(CUSTOM_FX_KEY, dark ? 'limboBlack' : 'limboWhite');
-        lsSet(THEME_KEY, dark ? 'limboDark' : 'limbo');
-        applyTheme(0.15);
-        drawCustomFx(false);
-      }, 120);
-      setTimeout(() => document.body.classList.remove('limboswap'), 320);
-    }, 30000 + Math.random() * 30000);
-  }
 }
+let transTimer = 0, transGen = 0;
+function limboTransitions() {   // Limbo mode: a transition (and a swap of sides) every 30-60 s
+  clearTimeout(transTimer);
+  transGen++;
+  if (limboAllOn()) transTimer = setTimeout(limboTransition, 30000 + Math.random() * 30000);
+}
+function limboSwap() {   // the light and dark side (background + border) trade places, with a quick glitch
+  document.body.classList.add('limboswap');
+  setTimeout(() => {
+    limboDarkSide = !limboDarkSide;
+    applyTheme(0.15);
+    drawCustomFx(false);
+  }, 120);
+  setTimeout(() => document.body.classList.remove('limboswap'), 320);
+}
+// Limbo's transition (Limbo mode, between its sides): a dark pool spreads along the bottom of the screen, Limbo bursts
+// out of it in three places (left, middle, right), then a dome of light breaks and the sides swap under its flash.
+const TRANS_CLIPS = ['trans-pre', 'trans-left', 'trans-middle', 'trans-right', 'trans-end'];
+const TRANS_PRE = 1700, TRANS_BURST = 900, TRANS_END = 2340;   // bursts come up as the pool ends; the dome comes as they bite (frame 10)
+let transBox = null;
+function limboTransitionStop() {   // losing: the fail screen takes over (Limbo mode's next transition 30-60 s later)
+  if (transBox) { for (const el of transBox.children) URL.revokeObjectURL(el.src); transBox.remove(); transBox = null; }
+  limboTransitions();
+}
+async function limboTransition() {
+  if (failPending) return limboTransitions();   // a lost game's fail screen is on its way: not now
+  const gen = transGen;
+  const blobs = await Promise.all(TRANS_CLIPS.map(cfxClip));
+  if (gen !== transGen || !limboAllOn()) return;
+  if (blobs.some((b) => !b)) { limboSwap(); return limboTransitions(); }   // the clips didn't load: just swap
+  const box = transBox = Object.assign(document.createElement('div'), { className: 'limbotrans' });
+  document.body.appendChild(box);
+  const play = (i) => box.appendChild(gfxVideo(blobs[i], false)).classList.add(TRANS_CLIPS[i].slice(6));
+  const gone = () => { for (const el of box.children) URL.revokeObjectURL(el.src); box.remove(); if (transBox === box) transBox = null; };
+  const wait = (ms) => new Promise((ok) => setTimeout(ok, ms));
+  play(0);
+  await wait(TRANS_PRE);
+  if (gen !== transGen) return gone();   // Limbo mode turned off (or a side picked) meanwhile
+  box.firstElementChild.classList.add('out');   // the pool fades as Limbo bursts out of it
+  play(1); play(2); play(3);
+  await wait(TRANS_BURST);
+  if (gen !== transGen) return gone();
+  play(4);
+  await wait(180);
+  if (gen !== transGen) return gone();
+  if (!failPending) {   // (a lost game's fail screen is coming: it plays on, no swap, and the fail screen takes over)
+    limboSwap();
+    limboTransitions();   // the next one
+  }
+  await wait(Math.max(TRANS_END, 2880 - TRANS_BURST));   // the bursts' own clips run 2.88 s
+  gone();
+}
+// Limbo's wrong guess effect (in Limbo's set): a purple bar charges over the new guess row while it flips,
+// and a wrong guess gets swallowed by Limbo's dragon, which then stays on that row until the effect is turned off
+// (the guess text stays on top, tinted in its tile colour). Games that flip a row of clue tiles get the bar for
+// the whole flip; the others (nothing to wait for) get it for 0.5 s on wrong guesses.
+const GUESS_FX_KEY = 'mapleWordle:guessFx';
+const limboGuessOn = () => limboAllOn() || (ownedEffects().includes('limboSub') && lsGet(GUESS_FX_KEY) !== '0');
+const GFX = { x: 399, y: 340, w: 2183, h: 445, W: 2793, H: 1157 };   // the bar's body inside the clips (source pixels)
+const GFX_RUSH = 720;
+const gfxLayers = new Set();   // { row, layer, host }: every bar / dragon showing
+function gfxClips() { cfxClip('guess-bar'); cfxClip('guess-eat'); cfxClip('guess-idle'); }
+function gfxVideo(blob, loop) {
+  const el = document.createElement(SAFARI ? 'img' : 'video');
+  if (!SAFARI) Object.assign(el, { muted: true, playsInline: true, autoplay: true, loop });
+  el.src = URL.createObjectURL(blob);
+  el.play?.().catch(() => {});
+  return el;
+}
+function gfxDrop(g) {
+  gfxLayers.delete(g);
+  g.row.classList.remove('limboeaten');
+  delete g.row.dataset.gfx;
+  for (const el of g.layer.children) URL.revokeObjectURL(el.src);
+  g.layer.remove();
+}
+let gfxTracking = false;
+function gfxTrack() {   // keep every layer on its row (new guesses push rows down); read all, then write all
+  const pos = [...gfxLayers].map((g) => [g, g.row.isConnected && g.row.getBoundingClientRect(), g.host.getBoundingClientRect()]);
+  for (const [g, r, o] of pos) {
+    if (!r) { gfxDrop(g); continue; }   // the list was redrawn (another day picked)
+    const sx = r.width / GFX.w, sy = r.height / GFX.h;
+    Object.assign(g.layer.style, { left: r.left - o.left - GFX.x * sx + 'px', top: r.top - o.top - GFX.y * sy + 'px',
+      width: GFX.W * sx + 'px', height: GFX.H * sy + 'px' });
+  }
+  gfxTracking = gfxLayers.size > 0;
+  if (gfxTracking) requestAnimationFrame(gfxTrack);
+}
+function gfxLayer(row) {
+  const g = { row, host: row.closest('.game') ?? document.body, layer: Object.assign(document.createElement('div'), { className: 'limboguess' }) };
+  row.dataset.gfx = '1';
+  g.host.appendChild(g.layer);
+  gfxLayers.add(g);
+  if (!gfxTracking) gfxTrack();
+  return g;
+}
+async function limboDragon(row) {   // a wrong guess from before (page load): its dragon is just there
+  row.dataset.gfx = '1';
+  const blob = await cfxClip('guess-idle');
+  if (!blob || !row.isConnected || !limboGuessOn()) return;
+  const g = gfxLayer(row);
+  g.layer.classList.add('still');
+  g.layer.appendChild(gfxVideo(blob, true)).classList.add('dragon');
+  row.classList.add('limboeaten');
+}
+async function limboGuess(row, wrong, flipMs) {
+  if (!row || !limboGuessOn() || (flipMs == null && !wrong)) return;
+  row.dataset.gfx = '1';
+  const barMs = flipMs ?? 500;
+  const start = performance.now();
+  const [barBlob, eatBlob, idleBlob] = await Promise.all([cfxClip('guess-bar'), wrong && cfxClip('guess-eat'), wrong && cfxClip('guess-idle')]);
+  if (!barBlob || !row.isConnected) return;
+  const g = gfxLayer(row);
+  const bar = gfxVideo(barBlob, true);
+  g.layer.appendChild(bar);
+  const wait = (ms) => new Promise((ok) => setTimeout(ok, Math.max(0, ms)));
+  await wait(barMs - (performance.now() - start));
+  if (!gfxLayers.has(g)) return;
+  if (!wrong || !eatBlob || !idleBlob) {   // right: the bar fades out over 0.2 s
+    g.layer.classList.add('out');
+    await wait(200);
+    return gfxDrop(g);
+  }
+  const eat = gfxVideo(eatBlob, false);   // the dragon rushes in from the left and swallows the row...
+  g.layer.appendChild(eat).classList.add('dragon');
+  setTimeout(() => { URL.revokeObjectURL(bar.src); bar.remove(); }, 60);
+  await wait(250);
+  row.classList.add('limboeaten');
+  await wait(GFX_RUSH - 250);
+  if (!gfxLayers.has(g)) return;
+  const idle = gfxVideo(idleBlob, true);   // ...and stays there
+  g.layer.appendChild(idle).classList.add('dragon');
+  setTimeout(() => { URL.revokeObjectURL(eat.src); eat.remove(); }, 60);
+}
+// Every wrong guess row on the page gets its dragon (page load, or the effect turned on); turned off, they all go.
+const gfxWrong = (row) => !(row.matches('.gbar') ? row : row.firstElementChild)?.classList.contains('green');
+function limboDragons() {
+  if (!limboGuessOn()) { for (const g of [...gfxLayers]) gfxDrop(g); return; }
+  for (const row of document.querySelectorAll('#rows > tr:not(.bestrow):not(.hintrow):not(.answer), #rows > .gbar'))
+    if (!row.dataset.gfx && gfxWrong(row)) limboDragon(row);
+}
+// "Toggle all Limbo effects" (Limbo mode): Limbo's background + border (swapping light / dark side every 30-60 s)
+// and the wrong guess effect, with every other effect and background off. It goes on top of your own settings
+// without changing them, so turning it off brings back exactly what you had. Picking anything yourself ends it.
+const LIMBO_ALL_KEY = 'mapleWordle:limboAll';
+let limboDarkSide = false;
+const limboAllOn = () => ownedEffects().includes('limboSub') && lsGet(LIMBO_ALL_KEY) === '1';
+const limboAnyOn = () => limboAllOn() || (ownedEffects().includes('limboSub')
+  && (CUSTOM_FX[customFx()].pack === 'limboSub' || ['limbo', 'limboDark'].includes(lsGet(THEME_KEY)) || limboGuessOn()));
+function setLimboAll(on) {
+  if (on === limboAllOn()) return;
+  lsSet(LIMBO_ALL_KEY, on ? '1' : '0');
+  if (on) { limboDarkSide = false; gfxClips(); limboFailLoad(); }
+  applyTheme(true);
+  if (on) cfxPreview(); else drawCustomFx();
+  limboTransitions();
+  limboDragons();
+}
+function limboAllOff() { if (limboAllOn()) { lsSet(LIMBO_ALL_KEY, '0'); applyTheme(true); drawCustomFx(); limboTransitions(); limboDragons(); } }   // you picked something yourself
+// Losing with the alert border on plays Limbo's fail screen full screen, in the border's colour (white or black).
+const LIMBO_FAIL_MS = 3900;
+function limboFailLoad() { cfxClip('fail-white'); cfxClip('fail-black'); if (limboAllOn()) TRANS_CLIPS.forEach(cfxClip); }   // ready when needed
+async function limboFail(color, delay = 0) {
+  const start = performance.now();
+  const [blob] = await Promise.all([cfxClip(`fail-${color}`), new Promise((ok) => setTimeout(ok, delay))]);
+  if (!blob || performance.now() - start > delay + 3000) return;   // too late now (slow download)
+  const el = document.createElement(SAFARI ? 'img' : 'video');
+  el.className = 'limboscreen';
+  const url = URL.createObjectURL(blob);
+  const done = () => { el.remove(); URL.revokeObjectURL(url); };
+  if (SAFARI) setTimeout(done, LIMBO_FAIL_MS + 50);
+  else { Object.assign(el, { muted: true, playsInline: true, autoplay: true }); el.addEventListener('ended', done); setTimeout(done, LIMBO_FAIL_MS + 1500); }
+  el.src = url;
+  document.body.appendChild(el);
+  el.play?.().catch(done);
+}
+function setLimboGuess(on) { limboAllOff(); lsSet(GUESS_FX_KEY, on ? '1' : '0'); if (on) gfxClips(); limboDragons(); }
+
 function unlockTheme(t) {
   if (!(t in THEMES) || ownedThemes().includes(t)) return;
   lsSet(THEMES_KEY, JSON.stringify(ownedThemes().filter((x) => x !== 'default').concat(t)));
@@ -1017,8 +1221,8 @@ const SHOP = {
   ...HOLIDAYS,   // holiday specials: in the shop only on their day
   helia: { name: 'Sol Hecate: Helia', kind: 'Guess in 1 win effect (Bundle of 5)', price: 2000, always: true, effect: true, added: Date.UTC(2026, 9, 24),
            img: 'images/fx/hecate/helia-bundle.webp', zoom: 'images/fx/hecate/helia-bundle-big.webp' },
-  limboSub: { name: "Limbo's Subconscious", kind: 'Backgrounds + alert borders (Bundle of 4)', price: 2500, effect: true,
-              themes: ['limbo', 'limboDark'], img: 'images/fx/limbo-bundle.webp', zoom: 'images/fx/limbo-bundle-big.webp' },
+  limboSub: { name: "Limbo's Subconscious", kind: 'Backgrounds, alert borders + wrong guess effect (Bundle of 5) + a special toggle effect', price: 10000, effect: true,
+              themes: ['limbo', 'limboDark'], img: 'images/fx/limbo-bundle.webp?v=2', zoom: 'images/fx/limbo-bundle-big.webp?v=2' },
   mimica: { name: 'Sol Hecate: Mimica', kind: 'Guess in 1 win effect (Bundle of 5)', price: 2000, always: true, effect: true, added: Date.UTC(2026, 9, 25),
             img: 'images/fx/hecate/mimica-bundle.webp', zoom: 'images/fx/hecate/mimica-bundle-big.webp' },
   lucid: { name: 'Garden of Eternal Dream', kind: 'Moving background', price: 5000 },
@@ -1028,6 +1232,12 @@ const SHOP = {
 const shopOwned = (t) => (SHOP[t]?.effect ? ownedEffects() : ownedThemes()).includes(t);
 drawThemeButton();   // here, not with applyTheme above: the Customize window needs SHOP
 drawCustomFx();
+if (limboGuessOn()) gfxClips();   // ready for the first guess
+// Rows the game draws by itself (loading a day) get their dragons; a new guess's own effect marks its row first.
+const rowsList = document.getElementById('rows');
+if (rowsList) new MutationObserver(() => { if (limboGuessOn()) limboDragons(); limboAlertCheck(); }).observe(rowsList, { childList: true });
+if (limboAllOn() || CUSTOM_FX[customFx()].color) limboFailLoad();
+limboTransitions();
 const SHOP_KEY = 'mapleWordle:shop';   // items found so far
 function shopFound() {
   let found = [];
@@ -1137,10 +1347,9 @@ async function buy(t, btn) {
     setPickedSkins([...pickedSkins().filter((id) => HECATE[id].pack), ...Object.keys(HECATE).filter((id) => HECATE[id].pack === t)]);
     if (it.themes) {   // and its backgrounds (the first one on straight away)
       lsSet(THEMES_KEY, JSON.stringify([...new Set([...ownedThemes().filter((x) => x !== 'default'), ...it.themes])]));
-      lsSet(THEME_KEY, it.themes[0]);
+      if (t !== 'limboSub') lsSet(THEME_KEY, it.themes[0]);
     }
-    const fx = Object.keys(CUSTOM_FX).find((id) => CUSTOM_FX[id].pack === t);
-    if (fx) setCustomFx(fx);
+    if (t === 'limboSub') setLimboAll(true);   // Limbo mode on (your own settings stay underneath)
   } else {
     lsSet(THEMES_KEY, JSON.stringify(ownedThemes().filter((x) => x !== 'default').concat(t)));
     lsSet(THEME_KEY, t);   // use it straight away

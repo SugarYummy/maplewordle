@@ -25,6 +25,8 @@ const newRules = () => MODE === 'bgmnormal';
 const OLD_LIMITS = [0.5, 1, 2, 5, 10, 30];
 const NEW_LIMITS = [1, 5, 10, 30, 60];   // then the whole track (at least 60 s; shorter tracks loop)
 const maxGuesses = () => newRules() ? 7 : 6;
+// For Limbo's alert border (fx.js): guesses left in the game showing.
+window.gameLeft = () => (!guesses ? null : { left: maxGuesses() - guesses.length, over });
 const limitAt = (i) => newRules() ? (i < NEW_LIMITS.length ? NEW_LIMITS[i] : Math.max(60, answer.t.len)) : OLD_LIMITS[i];
 // The bar is a straight scale (0-30 s, or 0-60 s with the new rules, stretching to the whole track on the last guess),
 // so a checkpoint sits where it really is.
@@ -460,6 +462,7 @@ function guess(name) {
   record(name);
   save();
   $('rows').firstElementChild.classList.add('flip');   // the new bar flips in
+  limboGuess($('rows').firstElementChild, !name || !isRight(name));   // Limbo's wrong guess effect, if it's on (skips too)
   const flipMs = FLIP_TIME;
   for (const el of [$('status'), $('share')]) revealAfter(el, flipMs);
   if (!over) {
@@ -472,6 +475,7 @@ function guess(name) {
   drawTicks();
   setTimeout(renderEnd, flipMs);
   scheduleEnd();
+  limboOver(won(), flipMs);   // Limbo's alert border: gone on a win, its fail screen on a loss
   if (won()) {
     setTimeout(() => confetti(guesses.length === 1), flipMs);
     // First-guess win: Mayrin's Descend plays (the BGM pauses for it). Other wins: no music, the BGM is already playing.
@@ -517,6 +521,7 @@ function renderEnd() {
   if (mashupKey !== `${MODE}|${day}|${answer.bonus?.mashup?.file}`) stopMashup();   // keeps playing through a redraw (e.g. answering the bonus)
   trackEgg();
   if (!over) return;
+  if (live && answer.bonus?.mashup?.egg === 'limbo') shopUnlock('limboSub');   // played Limbo's day on the day (won or lost): Limbo's set is in the shop
   renderTitle();
   const b = answer.bonus;
   const trackLine = titleShown() ? `The track is "${answer.t.title}".` : '';
@@ -844,7 +849,6 @@ $('bonusGo').addEventListener('click', () => {
   sendBonus(ok);
   // Limbo's glitch mashup's bonus right on today's puzzle puts its set (backgrounds + alert borders) in the shop (fx.js);
   // the Archive doesn't count. (The other glitch mashups give nothing for now.)
-  if (ok && live && answer.bonus.mashup?.egg === 'limbo') shopUnlock('limboSub');
   if (ok && live) answer.t.unlock?.bonus?.forEach(shopUnlock);   // shows up in the meso shop (fx.js)
 });
 
