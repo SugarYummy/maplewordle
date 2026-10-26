@@ -974,14 +974,14 @@ function gfxLayer(row) {
 async function limboDragon(row) {   // a wrong guess from before (page load): its dragon is just there
   row.dataset.gfx = '1';
   const blob = await cfxClip('guess-idle');
-  if (!blob || !row.isConnected || !limboGuessOn()) return;
+  if (!blob || !gfxKeep(row, limboGuessOn())) return;
   const g = gfxLayer(row);
   g.layer.classList.add('still');
   g.layer.appendChild(gfxVideo(blob, true)).classList.add('dragon');
   row.classList.add('limboeaten');
 }
-async function limboGuess(row, wrong, flipMs) {
-  if (!row || !limboGuessOn() || (flipMs == null && !wrong)) return;
+async function limboGuess(row, wrong, flipMs, force = false) {   // force: show it even without the effect (Limbo's mashup)
+  if (!row || !(limboGuessOn() || force) || (flipMs == null && !wrong)) return;
   row.dataset.gfx = '1';
   const barMs = flipMs ?? 500;
   const start = performance.now();
@@ -1009,12 +1009,17 @@ async function limboGuess(row, wrong, flipMs) {
   g.layer.appendChild(idle).classList.add('dragon');
   setTimeout(() => { URL.revokeObjectURL(eat.src); eat.remove(); }, 60);
 }
-// Every wrong guess row on the page gets its dragon (page load, or the effect turned on); turned off, they all go.
+// Every wrong guess row (and wrong bonus answer) on the page gets its dragon (page load, or the effect turned on);
+// turned off, they all go (except on Limbo's mashup answer, which everyone sees).
 const gfxWrong = (row) => !(row.matches('.gbar') ? row : row.firstElementChild)?.classList.contains('green');
+const gfxResult = (el) => el.matches('#bonusResult, #titleResult');
+const gfxKeep = (el, on) => el.isConnected && (gfxResult(el) ? el.classList.contains('wrong') && (on || el.dataset.limbo === '1') : on);
 function limboDragons() {
-  if (!limboGuessOn()) { for (const g of [...gfxLayers]) gfxDrop(g); return; }
-  for (const row of document.querySelectorAll('#rows > tr:not(.bestrow):not(.hintrow):not(.answer), #rows > .gbar'))
-    if (!row.dataset.gfx && gfxWrong(row)) limboDragon(row);
+  const on = limboGuessOn();
+  for (const g of [...gfxLayers]) if (!gfxKeep(g.row, on)) gfxDrop(g);
+  const rows = on ? [...document.querySelectorAll('#rows > tr:not(.bestrow):not(.hintrow):not(.answer), #rows > .gbar')].filter(gfxWrong) : [];
+  const results = [...document.querySelectorAll('#bonusResult.wrong, #titleResult.wrong')].filter((el) => gfxKeep(el, on));
+  for (const el of [...rows, ...results]) if (!el.dataset.gfx) limboDragon(el);
 }
 // "Toggle all Limbo effects" (Limbo mode): Limbo's background + border (swapping light / dark side every 30-60 s)
 // and the wrong guess effect, with every other effect and background off. It goes on top of your own settings

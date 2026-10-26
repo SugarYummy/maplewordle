@@ -507,6 +507,8 @@ function badgeFor(d, ans, g, b, t) {
 }
 const badge = () => over ? badgeFor(day, answer, guesses, bonus, title) : '';
 function renderEnd() {
+  queueMicrotask(limboDragons);   // a wrong bonus answer from before gets its dragon back (fx.js)
+  $('bonusResult').dataset.limbo = isLimboEgg() ? '1' : '';   // Limbo's mashup: its dragon shows for everyone
   renderHints();
   drawTicks();
   drawBar();
@@ -532,7 +534,7 @@ function renderEnd() {
     $('bonusTitle').textContent = 'The whole track is unlocked';
     $('bonusHelp').textContent = 'Click the bar to jump around.';
     $('bonusResult').textContent = titleOn() ? '' : trackLine;
-    $('bonusResult').className = '';
+    markResult($('bonusResult'), '');
     return;
   }
   const mash = b.kind === 'mashup', n = titleOn() ? ' 1' : '';
@@ -551,13 +553,13 @@ function renderEnd() {
       for (const l of [...new Set(answer.boss.areas.map((a) => a.label))]) sel.appendChild(new Option(l, l));
     }
     $('bonusResult').textContent = '';
-    $('bonusResult').className = '';
+    markResult($('bonusResult'), '');
   } else {
     const ok = b.right.includes(bonus);
     $('bonusResult').textContent = (ok ? 'Correct! ' : `Wrong! You picked ${bonus}.\n`) + (mash
       ? `It's ${b.mashup.boss}'s BGM.` + (titleShown() ? `\nToday's track was "${answer.t.title}".` : '')
       : `It plays in: ${b.right.join(', ')}.` + (titleOn() ? '' : `\n${trackLine}`));   // with Bonus 2, the title shows there
-    $('bonusResult').className = ok ? 'right' : 'wrong';
+    markResult($('bonusResult'), ok ? 'right' : 'wrong');
   }
 }
 // The mashup plays on its own little player in the bonus box (Play on the main bar stops it, and the other way round).
@@ -605,7 +607,7 @@ const LIMBO_CLIPS = { 'screen-in': 1740, 'screen-out': 900, 'border-white-in': 8
   'border-black-in': 840, 'border-black-loop': 0, 'border-black-out': 300 };   // ms (0: loops)
 const LIMBO_COVERED = 780;   // ms into the fade-in while the page is still fully covered
 const limbo = { on: false, leaving: false, dark: false, swap: 0, blobs: null };
-const isLimboEgg = () => live && answer?.bonus?.mashup?.egg === 'limbo';
+const isLimboEgg = () => answer?.bonus?.mashup?.egg === 'limbo';   // the Archive gets Limbo's scene too (only the shop unlock is today-only)
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 function limboLoad() {   // fetched once (on a Limbo mashup day, when the bonus shows up)
   limbo.blobs ??= Promise.all(Object.keys(LIMBO_CLIPS).map((n) => fetch(`video/limbo/${n}.${SAFARI ? 'webp' : 'webm'}`)
@@ -729,6 +731,11 @@ $('mashupPlay').addEventListener('click', () => {
   if (isLimboEgg()) limboEnter();
   else if (m.egg && live) { document.body.classList.add(`egg-${m.egg}`); glitch(true); }   // the Easter egg is for today only, not the Archive
 });
+// A bonus answer line's colour (right / wrong / none); only that class changes, so Limbo's dragon (fx.js) keeps its own.
+function markResult(el, cls) {
+  el.classList.remove('right', 'wrong');
+  if (cls) el.classList.add(cls);
+}
 function renderTitle() {
   $('titleBox').hidden = !titleOn();
   if (!titleOn()) return;
@@ -739,10 +746,10 @@ function renderTitle() {
     $('titlePick').value = '';
     $('titleList').hidden = true;
     res.textContent = '';
-    res.className = '';
+    markResult(res, '');
   } else {
     res.textContent = (titleRight() ? 'Correct!' : `Wrong! You picked "${title}".`) + `\nThe track is "${answer.t.title}".`;
-    res.className = titleRight() ? 'right' : 'wrong';
+    markResult(res, titleRight() ? 'right' : 'wrong');
   }
 }
 // Bonus 2's box: type to search every BGM title (A-Z); click one (or arrow keys + Enter) to fill it in, then Guess.
@@ -789,6 +796,7 @@ function titleGuess() {
   title = pick;
   save();
   renderEnd();
+  limboGuess($('titleResult'), !titleRight());   // Limbo's wrong guess effect (if it's on): the dragon eats a wrong answer
   noteResult();
   sendTitle(titleRight());
 }
@@ -843,12 +851,12 @@ $('bonusGo').addEventListener('click', () => {
   bonus = pick;
   save();
   renderEnd();
+  const ok = answer.bonus.right.includes(pick);
+  // Limbo's wrong guess effect (if it's on) eats a wrong answer; on Limbo's mashup everyone gets to see it.
+  limboGuess($('bonusResult'), !ok, undefined, isLimboEgg());
   noteResult();
   if (limbo.on) limboExit();
-  const ok = answer.bonus.right.includes(pick);
   sendBonus(ok);
-  // Limbo's glitch mashup's bonus right on today's puzzle puts its set (backgrounds + alert borders) in the shop (fx.js);
-  // the Archive doesn't count. (The other glitch mashups give nothing for now.)
   if (ok && live) answer.t.unlock?.bonus?.forEach(shopUnlock);   // shows up in the meso shop (fx.js)
 });
 

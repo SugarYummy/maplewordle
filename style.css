@@ -722,3 +722,6 @@ input[type="search"] { -webkit-appearance: none; appearance: none; }
 input[type="search"]::-webkit-search-cancel-button, input[type="search"]::-webkit-search-decoration { -webkit-appearance: none; display: none; }
 /* The VIP passcode: a text box shown as dots (not a password box, so browsers don't treat the page as a login form). */
 #vipCode { -webkit-text-security: disc; text-security: disc; }
+/* A wrong bonus answer eaten by Limbo's dragon: its text on top, light red */
+#bonusResult.limboeaten, #titleResult.limboeaten { position: relative; z-index: 4; color: #ff8a8a !important;
+  text-shadow: 0 0 3px #000, 0 0 6px #000, 0 1px 2px #000; }
