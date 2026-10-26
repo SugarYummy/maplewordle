@@ -568,7 +568,8 @@ function renderEnd() {
 // the day) and the screen glitches until the mashup stops.
 // The main bar follows the mashup meanwhile, and every 0.5-2 s it glitches: it jumps to a random point of the mashup
 // for a moment, then snaps back (only the bar: the sound keeps playing).
-let mashupAudio = null, mashupKey = null;   // key: mode | day | file of the mashup loaded
+let mashupAudio = null, mashupKey = null, mashupHeard = null;   // heard: the mashup played at least once (its id)
+const mashupId = () => `${MODE}|${day}|${answer.bonus?.mashup?.file}`;   // key: mode | day | file of the mashup loaded
 const eggBar = { on: false, raf: 0, timer: 0, fake: null };
 function glitch(on) {
   document.body.classList.toggle('glitch', on);
@@ -728,6 +729,8 @@ $('mashupPlay').addEventListener('click', () => {
   }
   mashupAudio.volume = Math.min(1, bgmVolume() / 50);
   mashupAudio.play().catch(() => {});
+  mashupHeard = mashupKey;
+  if (bonus == null && $('bonusResult').textContent === 'Play the mashup first!') { $('bonusResult').textContent = ''; markResult($('bonusResult'), ''); }
   $('mashupPlay').textContent = '❚❚ Pause the mashup';
   if (isLimboEgg()) limboEnter();
   else if (m.egg && live) { document.body.classList.add(`egg-${m.egg}`); glitch(true); }   // the Easter egg is for today only, not the Archive
@@ -849,6 +852,12 @@ $('bonusGo').addEventListener('click', () => {
   const pick = mash ? bosses.find((e) => e.name.toLowerCase() === typed)?.name : $('bonusPick').value;   // has to be one of the bosses
   if (!pick && mash && typed) { showBossList(); return; }
   if (!pick || bonus != null || !over) return;
+  if (answer.bonus.mashup?.egg && mashupHeard !== mashupId()) {   // the special mashups: listen first, then guess
+    $('bonusResult').textContent = 'Play the mashup first!';
+    markResult($('bonusResult'), 'wrong');
+    $('mashupPlay').classList.remove('nudge'); void $('mashupPlay').offsetWidth; $('mashupPlay').classList.add('nudge');
+    return;
+  }
   bonus = pick;
   save();
   renderEnd();
