@@ -5,6 +5,8 @@
 - **[Shop]** Hidden items now show up as locked cards with their price, so you can save up for them.
 ### 🥚 Easter Egg
 - **[Easter Egg]** Even more easter eggs added!
+### 🐛 Bug Fixes
+- **[General]** Guess search box no longer randomly asks you to save password.
 
 ## alpha v4.4.1 - 25 October 2026
 ### ✨ New
