@@ -553,7 +553,7 @@ function showTimer(label, s) {
 // Secret themes: getting a glitch mashup's bonus right in BGM Clip on the day itself (not from the Archive) unlocks
 // that map as a background for every page. Kept in this browser for good. Default is free for everyone, so the
 // Theme button (above the credit box) only shows once you've unlocked another one.
-const THEMES = { default: 'Default', deepsea: 'Unglamoured Ruins', limbo: "Limbo's Subconscious (Light)", limboDark: "Limbo's Subconscious (Dark)",
+const THEMES = { default: 'Default', deepsea: 'Unglamoured Ruins', limbo: "Limbo's Subconscious Background (Light)", limboDark: "Limbo's Subconscious Background (Dark)",
   vonbon: "Von Bon's Realm", bellona: 'Solatum',
   lucid: 'Garden of Eternal Dream', lucidBloom: 'Lucid in Bloom', lucidNight: "Lucid's Starry Night", halloween: 'Haunted Mansion' };
 const THEME_IMG = { deepsea: 'images/deepsea.webp', limbo: 'images/limbo.webp', limboDark: 'images/limbo-dark.webp', vonbon: 'images/vonbon.webp', bellona: 'images/bellona.webp',
@@ -583,7 +583,8 @@ function ownedThemes() {
 // whatever theme you have on, on every page. BGM Clip Extreme's Easter egg backgrounds still go on top of it. The same
 // day it's in the shop (price in mesos), so you can keep it as a theme for any day.
 const HOLIDAYS = {
-  halloween: { month: 10, day: 31, name: 'Haunted Mansion', kind: 'Background + Halloween effects (Bundle of 2, Halloween only)', price: 500,
+  halloween: { month: 10, day: 31, name: 'Haunted Mansion', kind: 'Background + effect (Bundle of 2)', price: 500,
+               contents: ['Haunted Mansion', 'Halloween Night (bats, ghosts, fog)'],
                hidden: true, effect: true, themes: ['halloween'], img: 'images/fx/halloween-bundle.webp', zoom: 'images/fx/halloween-bundle-big.webp' },
 };
 const holidayToday = (d = new Date()) => Object.keys(HOLIDAYS).find((k) => HOLIDAYS[k].month === d.getUTCMonth() + 1 && HOLIDAYS[k].day === d.getUTCDate());
@@ -735,20 +736,26 @@ function drawThemeButton() {
             : [using ? CUSTOM_FX[using].name.replace(/^.*\((\w+)\)$/, '$1 border on') : 'Border off',
               pack === 'limboSub' && limboGuessOn() && 'wrong guess on'].filter(Boolean).join(' · ') }));
         sum.append(pic, name);
+        if (pack === 'limboSub') {   // one switch for everything in Limbo's set, on the box itself (no need to open it)
+          const row = Object.assign(document.createElement('label'), { className: 'fxswitch onbox', title: 'Enable all Limbo effects, including hidden ones' });
+          row.innerHTML = '<input type="checkbox"><span class="knob"></span><span>All effects</span>';
+          row.querySelector('input').checked = limboAllOn();
+          row.addEventListener('click', (e) => {   // (not the box's open / close)
+            e.preventDefault();
+            e.stopPropagation();
+            setLimboAll(!limboAllOn());
+            fill();
+          });
+          sum.appendChild(row);
+        }
         if (customFresh.has(pack)) sum.appendChild(newTag());
         const inner = Object.assign(document.createElement('div'), { className: 'fxbundlelist' });
-        if (pack === 'limboSub') {   // one switch for everything in Limbo's set
-          const row = Object.assign(document.createElement('label'), { className: 'fxswitch' });
-          row.innerHTML = '<input type="checkbox"><span class="knob"></span><span>Enable all Limbo effects, including hidden ones</span>';
-          const all = row.querySelector('input');
-          all.checked = limboAllOn();
-          all.addEventListener('change', () => { setLimboAll(all.checked); fill(); });
-          inner.appendChild(row);
-        }
         for (const id of ids) fxCard(inner, id);
         if (pack === 'limboSub') {   // the wrong guess effect: on / off, works with any border
           const on = limboGuessOn();
           card(inner, 'images/fx/limbo-guess.webp', 'Limbo Wrong Guess Effect' + (on ? ' (on)' : ' (off)'), on, () => { setLimboGuess(!on); fill(); });
+          const hud = hudOwnOn();   // the Erosion life count (and in Limbo mode, the map change timer)
+          card(inner, 'images/fx/limbo-hud.webp?v=2', 'Limbo Life Count / Timer' + (hud ? ' (on)' : ' (off)'), hud, () => { setLimboHud(!hud); fill(); });
         }
         box.append(sum, inner);
         list.appendChild(box);
@@ -875,11 +882,16 @@ async function drawCustomFx(entrance = false) {
     setTimeout(() => { if (gen === cfxGen) { loopEl.hidden = false; URL.revokeObjectURL(inEl.src); inEl.remove(); } }, 840);
   }
 }
-let transTimer = 0, transGen = 0;
+let transTimer = 0, transGen = 0, transAt = 0;   // transAt: when the next one starts (Limbo's HUD counts down to it)
 function limboTransitions() {   // Limbo mode: a transition (and a swap of sides) every 30-60 s
   clearTimeout(transTimer);
   transGen++;
-  if (limboAllOn()) transTimer = setTimeout(limboTransition, 30000 + Math.random() * 30000);
+  transAt = 0;
+  if (limboAllOn()) {   // whole seconds (30-60), so the first number shows for a full second
+    const wait = (30 + Math.floor(Math.random() * 31)) * 1000;
+    transAt = Date.now() + wait;
+    transTimer = setTimeout(limboTransition, wait);
+  }
 }
 function limboSwap() {   // the light and dark side (background + border) trade places, with a quick glitch
   document.body.classList.add('limboswap');
@@ -922,7 +934,8 @@ async function limboTransition() {
   if (gen !== transGen) return gone();
   if (!failPending) {   // (a lost game's fail screen is coming: it plays on, no swap, and the fail screen takes over)
     limboSwap();
-    limboTransitions();   // the next one
+    transAt = Date.now();   // (WARNING! stays those 0.12 s)
+    setTimeout(limboTransitions, 120);   // the next one, from the moment the background flips
   }
   await wait(Math.max(TRANS_END, 2880 - TRANS_BURST));   // the bursts' own clips run 2.88 s
   gone();
@@ -932,7 +945,7 @@ async function limboTransition() {
 // (the guess text stays on top, tinted in its tile colour). Games that flip a row of clue tiles get the bar for
 // the whole flip; the others (nothing to wait for) get it for 0.5 s on wrong guesses.
 const GUESS_FX_KEY = 'mapleWordle:guessFx';
-const limboGuessOn = () => limboAllOn() || (ownedEffects().includes('limboSub') && lsGet(GUESS_FX_KEY) !== '0');
+const limboGuessOn = () => limboAllOn() || (ownedEffects().includes('limboSub') && lsGet(GUESS_FX_KEY) === '1');
 const GFX = { x: 399, y: 340, w: 2183, h: 445, W: 2793, H: 1157 };   // the bar's body inside the clips (source pixels)
 const GFX_RUSH = 720;
 const gfxLayers = new Set();   // { row, layer, host }: every bar / dragon showing
@@ -1056,6 +1069,117 @@ async function limboFail(color, delay = 0) {
   el.src = url;
   document.body.appendChild(el);
   el.play?.().catch(done);
+}
+// Limbo's "Life Count / Timer" (Limbo's set: its own card in Customize, and on in Limbo mode; for everyone else only while
+// Limbo's mashup scene plays):
+// the in-game Erosion HUD. Erosion is your lives used: misses x 1000 / lives, to the nearest 5 (7 lives: 0145, 0285, ...),
+// 1000 when you lose, always 0000 with unlimited guesses. In Limbo mode a timer under it counts down to the next light /
+// dark transition (the last 5 s: WARNING!).
+const HUD_KEY = 'mapleWordle:limboHud';
+const hudOwnOn = () => ownedEffects().includes('limboSub') && (limboAllOn() || lsGet(HUD_KEY) === '1');   // Limbo mode: on too
+const hudWanted = () => hudOwnOn() || !!window.limboDayHud?.();
+function setLimboHud(on) { limboAllOff(); lsSet(HUD_KEY, on ? '1' : '0'); limboHud(); }
+const HUD = { w: 384, h: 217, num: [189, 117], timer: [199, 150] };   // a plate frame; where the digits go (art pixels)
+const hudArt = {};
+function hudLoad() {
+  for (const n of ['plate.webp', 'plate-warning.webp', 'digits-big.png', 'digits-small.png', 'timer-back.png'])
+    hudArt[n] ??= Object.assign(new Image(), { src: 'images/limbo-hud/' + n });
+  return Object.values(hudArt).every((im) => im.complete && im.naturalWidth);
+}
+const hudTime = (ms) => {   // HH:MM:SS (MM:SS under an hour)
+  const t = Math.max(0, Math.ceil(ms / 1000)), h = Math.floor(t / 3600), p = (n) => String(n).padStart(2, '0');
+  return (h ? p(h) + ':' : '') + p(Math.floor(t / 60) % 60) + ':' + p(t % 60);
+};
+// The timer as in the game: each ":" is the timerBack piece (its pink glow with the colon in the middle), the digits
+// (timerNumber, as they are: one draw each, so their faded top edge stays faded) on either side.
+// Into a canvas context at x (left) / y (top of the digits), scale k; returns the width.
+const TIMER_COLON = 14;   // room the colon takes between two digit groups (art pixels)
+function hudDigits(ctx, text, x, y, k, measure = false) {
+  const w = [...text].reduce((n, ch) => n + (ch === ':' ? TIMER_COLON : 13), -1) * k;
+  if (measure) return w;
+  const d = hudArt['digits-small.png'], back = hudArt['timer-back.png'];
+  ctx.save();
+  ctx.imageSmoothingEnabled = false;
+  let cx = x;
+  for (const ch of text) {   // the glow pieces first (under the digits)
+    if (ch === ':') ctx.drawImage(back, cx + (TIMER_COLON / 2 - 44) * k, y + (8 - 23) * k, 87 * k, 47 * k);   // its colon (43-44, 20-26) on the slot
+    cx += (ch === ':' ? TIMER_COLON : 13) * k;
+  }
+  cx = x;
+  for (const ch of text) {
+    if (ch !== ':') ctx.drawImage(d, +ch * 12, 0, 12, 16, cx, y, 12 * k, 16 * k);
+    cx += (ch === ':' ? TIMER_COLON : 13) * k;
+  }
+  ctx.restore();
+  return w;
+}
+let hudTimer = 0, hudShown = 0, hudFrame = 0;
+function hudTarget() {
+  if (window.limboErosionMax?.()) return 9999;   // Limbo's Easter egg day: maxed out
+  const g = window.gameLife?.();
+  if (!g || !g.max) return 0;
+  return g.lost ? 1000 : Math.min(1000, Math.round((g.misses * 1000) / g.max / 5) * 5);
+}
+// Where: with just the Life Count card on, it takes the info strip's middle box (the "Next … in" timer, shown in Limbo's
+// digits) and replaces the "Guesses left" line. In Limbo mode the info strip stays as it is, and the HUD sits under it
+// (in place of the "Guesses left" line) with the map change timer.
+const hudCell = () => document.getElementById('timer')?.parentElement;
+const hudUnder = () => limboAllOn();
+let hudMode = null;
+const HUD_STATUS = /^(Guesses left|Guess \d+ of|Guesses: \d+ \(unlimited\)|Unlimited guesses)/;
+function hudStatus(on) {   // hide the game's own guesses-left line (its other messages still show)
+  const st = document.getElementById('status');
+  if (st) st.classList.toggle('hudhide', on && HUD_STATUS.test(st.textContent));
+}
+function limboHud() {
+  let box = document.getElementById('limbohud');
+  const cell = hudCell();
+  const off = () => {
+    clearInterval(hudTimer); hudTimer = 0;
+    document.getElementById('limbohudbox')?.remove(); box?.remove(); box = null;
+    cell?.classList.remove('limbohudcell'); hudStatus(false); hudMode = null;
+  };
+  if (!hudWanted() || !cell) return off();
+  if (hudTimer && hudMode === hudUnder()) return;
+  off();   // (first time, or Limbo mode switched: rebuilt in the other spot)
+  hudMode = hudUnder();
+  hudLoad();
+  box = Object.assign(document.createElement('canvas'), { id: 'limbohud', width: HUD.w * 2, height: HUD.h * 2 });
+  box.setAttribute('aria-hidden', 'true');
+  if (hudMode) {
+    const wrap = Object.assign(document.createElement('div'), { id: 'limbohudbox' });
+    wrap.appendChild(box);
+    cell.parentElement.after(wrap);   // under the info strip
+  } else {
+    cell.appendChild(box);
+    cell.classList.add('limbohudcell');
+  }
+  hudShown = hudTarget();
+  const ctx = box.getContext('2d');
+  const draw = () => {
+    if (!hudWanted() || hudMode !== hudUnder()) return limboHud();
+    hudStatus(true);
+    if (!hudLoad()) return;
+    hudFrame = (hudFrame + 1) % 12;
+    const target = hudTarget();   // the counter rolls up (or down) in steps of 5, over about a second
+    const gap = Math.abs(target - hudShown);   // (the last step lands right on it, e.g. 9999)
+    if (gap) hudShown += Math.sign(target - hudShown) * Math.min(gap, Math.max(5, Math.round(gap / 4 / 5) * 5));
+    const left = transAt - Date.now();   // the swap (at the bite) starts the next countdown, so WARNING! ends there
+    const timed = hudMode && !!transAt;   // Limbo mode: the map change timer under the count
+    const warn = timed && left <= 5000;
+    ctx.clearRect(0, 0, box.width, box.height);
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(hudArt[warn ? 'plate-warning.webp' : 'plate.webp'], hudFrame * HUD.w, 0, HUD.w, HUD.h, 0, 0, HUD.w * 2, HUD.h * 2);
+    String(hudShown).padStart(4, '0').split('').forEach((ch, i) =>
+      ctx.drawImage(hudArt['digits-big.png'], +ch * 17, 0, 17, 21, (HUD.num[0] + i * 18) * 2, HUD.num[1] * 2, 34, 42));
+    if (!warn) {   // the map change timer (Limbo mode), or in the middle box the time to the next puzzle
+      const text = hudMode ? hudTime(timed ? left : 0) : hudTime(86400000 - (Date.now() % 86400000));
+      const w = hudDigits(ctx, text, 0, 0, 2, true);
+      hudDigits(ctx, text, HUD.timer[0] * 2 - w / 2, HUD.timer[1] * 2, 2);
+    }
+  };
+  draw();
+  hudTimer = setInterval(draw, 120);   // the plate's frames are 0.12 s
 }
 function setLimboGuess(on) { limboAllOff(); lsSet(GUESS_FX_KEY, on ? '1' : '0'); if (on) gfxClips(); limboDragons(); }
 
@@ -1243,7 +1367,9 @@ const SHOP = {
   ...HOLIDAYS,   // holiday specials: in the shop only on their day
   helia: { name: 'Sol Hecate: Helia', kind: 'Guess in 1 win effect (Bundle of 5)', price: 2000, always: true, effect: true, added: Date.UTC(2026, 9, 24),
            img: 'images/fx/hecate/helia-bundle.webp', zoom: 'images/fx/hecate/helia-bundle-big.webp' },
-  limboSub: { hidden: true, name: "Limbo's Subconscious", kind: 'Backgrounds, alert borders + wrong guess effect (Bundle of 5) + a special toggle effect', price: 10000, effect: true,
+  limboSub: { hidden: true, name: "Limbo's Subconscious", kind: 'Full Limbo set (Bundle of 6)', price: 10000, effect: true,
+              contents: ["Limbo's Subconscious Background (Light)", "Limbo's Subconscious Background (Dark)", 'Limbo Alert Border (White)', 'Limbo Alert Border (Black)',
+                'Limbo Wrong Guess Effect', 'Limbo Life Count / Timer'], bonus: 'Special toggle',
               themes: ['limbo', 'limboDark'], img: 'images/fx/limbo-bundle.webp?v=2', zoom: 'images/fx/limbo-bundle-big.webp?v=2' },
   mimica: { name: 'Sol Hecate: Mimica', kind: 'Guess in 1 win effect (Bundle of 5)', price: 2000, always: true, effect: true, added: Date.UTC(2026, 9, 25),
             img: 'images/fx/hecate/mimica-bundle.webp', zoom: 'images/fx/hecate/mimica-bundle-big.webp' },
@@ -1259,6 +1385,8 @@ if (limboGuessOn()) gfxClips();   // ready for the first guess
 const rowsList = document.getElementById('rows');
 if (rowsList) new MutationObserver(() => { if (limboGuessOn()) limboDragons(); limboAlertCheck(); }).observe(rowsList, { childList: true });
 if (limboAllOn() || CUSTOM_FX[customFx()].color) limboFailLoad();
+addEventListener('load', () => limboHud());   // (BGM Clip says if it's Limbo's day by then)
+setInterval(() => { if (!hudTimer && hudWanted()) limboHud(); }, 1000);   // e.g. Limbo's day picked in the Archive / bought now
 limboTransitions();
 const SHOP_KEY = 'mapleWordle:shop';   // items found so far
 function shopFound() {
@@ -1266,6 +1394,32 @@ function shopFound() {
   try { found = JSON.parse(lsGet(SHOP_KEY) || '[]').filter((t) => t in SHOP && !(t in HOLIDAYS)); } catch {}
   const always = Object.keys(SHOP).filter((t) => SHOP[t].always && !found.includes(t));
   return [...(holidayToday() ? [holidayToday()] : []), ...always, ...found];
+}
+// A bundle's "(Bundle of N)" in the shop: hover it (or tap it) for the list of what's inside, plus its bonus if it has one.
+const bundleList = (t) => SHOP[t].contents ?? Object.keys(HECATE).filter((id) => HECATE[id].pack === t).map((id) => HECATE[id].name);
+const bundleKind = (t) => SHOP[t].kind.replace(/Bundle of \d+/, (m) => (bundleList(t).length ? `<span class="bundletip" tabindex="0" data-tip="${t}">${m}</span>` : m));
+function bundleTip(el, show) {
+  document.getElementById('bundletipbox')?.remove();
+  if (!show) return;
+  const t = el.dataset.tip;
+  const box = Object.assign(document.createElement('div'), { id: 'bundletipbox' });
+  box.innerHTML = '<ol>' + bundleList(t).map((n) => `<li>${n}</li>`).join('') + '</ol>' +
+    (SHOP[t].bonus ? `<p><b>BONUS:</b> ${SHOP[t].bonus}</p>` : '');
+  document.body.appendChild(box);
+  const r = el.getBoundingClientRect(), w = box.offsetWidth, h = box.offsetHeight;
+  box.style.left = Math.max(8, Math.min(innerWidth - w - 8, r.left + r.width / 2 - w / 2)) + 'px';
+  box.style.top = (r.bottom + 6 + h > innerHeight ? r.top - h - 6 : r.bottom + 6) + 'px';
+  const watch = () => { if (!box.isConnected) return; if (!el.isConnected || !el.offsetParent) return box.remove(); requestAnimationFrame(watch); };
+  watch();   // (the shop closed under it)
+}
+function bundleTips(root) {
+  for (const el of root.querySelectorAll('.bundletip')) {
+    el.addEventListener('mouseenter', () => bundleTip(el, true));
+    el.addEventListener('mouseleave', () => bundleTip(el, false));
+    el.addEventListener('focus', () => bundleTip(el, true));
+    el.addEventListener('blur', () => bundleTip(el, false));
+    el.addEventListener('click', (e) => { e.stopPropagation(); bundleTip(el, !document.getElementById('bundletipbox')); });   // tap on phones
+  }
 }
 function shopUnlock(t, deal = true) {   // deal: found on its special day itself (not from the Archive): 90% off today
   if (!(t in SHOP) || shopFound().includes(t)) return;
@@ -1319,13 +1473,30 @@ function openShop() {
       const btn = owned ? '<span class="owned">Owned ✓</span>'
         : `<button data-buy="${t}"${have < shopPrice(t) ? ' class="poor" title="Not enough mesos"' : ''}>Buy</button>`;
       return `<div class="shopitem">${shopFresh.has(t) && !owned ? '<span class="newtag">NEW</span>' : ''}<span class="themepic zoomable" data-zoom="${t}" title="Click to zoom in" style="background-image:url('${it.img ?? THEME_IMG[t]}')"></span>` +
-        `<span class="shopinfo"><b>${it.name}</b><small>${it.kind}</small>${priceHtml(t)}` +
-        `${shopDeal(t) ? `<span class="dealtag">90% OFF · ${shopDealLeft()}</span>` : ''}</span>${btn}</div>`;
+        `<span class="shopinfo"><b>${it.name}</b><small>${bundleKind(t)}</small>${priceHtml(t)}` +
+        `${!shopDeal(t) ? '' : t === 'limboSub' ? '<span class="dealtag limbodeal">90% OFF <canvas class="limboclock"></canvas></span>'
+          : `<span class="dealtag">90% OFF · ${shopDealLeft()}</span>`}</span>${btn}</div>`;
     }).join('') + locked + '</div>' : '<p class="shopempty">Nothing here yet... 👀</p>') +
     '<p class="mesoshop">More cosmetics are coming to the shop later, so save up your mesos!</p>';
   uiSound();   // opened by a click: get the hover sound ready
   for (const b of body.querySelectorAll('[data-buy]')) { b.addEventListener('click', () => buy(b.dataset.buy, b)); hoverSound(b); }
   for (const pic of body.querySelectorAll('[data-zoom]')) pic.addEventListener('click', () => zoomItem(pic.dataset.zoom));
+  bundleTips(body);
+  const clock = body.querySelector('.limboclock');   // Limbo's sale: its time left in Limbo's glowing digits, ticking
+  if (clock) {
+    const tick = () => {
+      if (!clock.isConnected) return clearInterval(timer);
+      if (!hudLoad()) return;
+      const text = hudTime(86400000 - (Date.now() % 86400000)), k = 1;
+      const w = Math.ceil(hudDigits(null, text, 0, 0, k, true)) + 60;   // room for the colons' glow
+      if (clock.width !== w) Object.assign(clock, { width: w, height: 47 * k });
+      const ctx = clock.getContext('2d');
+      ctx.clearRect(0, 0, clock.width, clock.height);
+      hudDigits(ctx, text, 30, 15 * k, k);
+    };
+    const timer = setInterval(tick, 250);
+    tick();
+  }
 }
 // A shop item's picture, big (its "zoom" picture if it has a sharper one), with its name. Click anywhere or Esc closes it
 // (only this, the shop stays open).
@@ -1386,18 +1557,12 @@ async function buy(t, btn) {
   const log = mesoLog();
   log.push({ key: `shop:${t}`, mode: 'shop', day: Math.floor(Date.now() / 86400000), what: `Bought ${it.name}${price < it.price ? ' (90% off)' : ''}`, amount: -price });
   lsSet(MESO_LOG_KEY, JSON.stringify(log));
-  if (it.effect) {   // an effect pack: tick all of its win effects straight away (along with the bought ones already ticked)
+  // Bought: it's yours in Customize, nothing is put on (you pick what to use there)
+  if (it.effect) {
     lsSet(EFFECTS_KEY, JSON.stringify([...ownedEffects(), t]));
-    setPickedSkins([...pickedSkins().filter((id) => HECATE[id].pack), ...Object.keys(HECATE).filter((id) => HECATE[id].pack === t)]);
-    if (it.themes) {   // and its backgrounds (the first one on straight away)
-      lsSet(THEMES_KEY, JSON.stringify([...new Set([...ownedThemes().filter((x) => x !== 'default'), ...it.themes])]));
-      if (t !== 'limboSub') lsSet(THEME_KEY, it.themes[0]);
-    }
-    if (t === 'limboSub') setLimboAll(true);   // Limbo mode on (your own settings stay underneath)
-    if (t === 'halloween') setHwFx(true);   // its bats, ghosts and fog, on
+    if (it.themes) lsSet(THEMES_KEY, JSON.stringify([...new Set([...ownedThemes().filter((x) => x !== 'default'), ...it.themes])]));
   } else {
     lsSet(THEMES_KEY, JSON.stringify(ownedThemes().filter((x) => x !== 'default').concat(t)));
-    lsSet(THEME_KEY, t);   // use it straight away
   }
   resultSound(true, 0, 'purchase');
   markCustomNew(t);
@@ -1582,7 +1747,7 @@ function clText(el, text) {
 let hwTimer = null;
 const HW_FX_KEY = 'mapleWordle:hwFx';
 const hwFxOwned = () => ownedEffects().includes('halloween');
-const hwFxOn = () => hwFxOwned() && lsGet(HW_FX_KEY) !== '0';
+const hwFxOn = () => hwFxOwned() && lsGet(HW_FX_KEY) === '1';
 function setHwFx(on) { limboAllOff(); lsSet(HW_FX_KEY, on ? '1' : '0'); halloweenFx(); }
 const hwWanted = () => !limboAllOn() && (holidayToday() === 'halloween' || hwFxOn())
   && bgEffectOn() && !matchMedia('(prefers-reduced-motion: reduce)').matches;

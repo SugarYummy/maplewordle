@@ -27,6 +27,10 @@ const NEW_LIMITS = [1, 5, 10, 30, 60];   // then the whole track (at least 60 s;
 const maxGuesses = () => newRules() ? 7 : 6;
 // For Limbo's alert border (fx.js): guesses left in the game showing.
 window.gameLeft = () => (!guesses ? null : { left: maxGuesses() - guesses.length, over });
+// Limbo's life count (fx.js): misses (skips too) out of the lives.
+window.gameLife = () => (!guesses ? null : { misses: guesses.filter((n) => !isRight(n)).length, max: maxGuesses(), lost: over && !won() });
+window.limboDayHud = () => limbo.on && !limbo.leaving;   // without Limbo's HUD: it shows only while Limbo's mashup scene plays
+window.limboErosionMax = () => limbo.on && !limbo.leaving;   // while Limbo's mashup scene plays: Erosion 9999 (then back)
 const limitAt = (i) => newRules() ? (i < NEW_LIMITS.length ? NEW_LIMITS[i] : Math.max(60, answer.t.len)) : OLD_LIMITS[i];
 // The bar is a straight scale (0-30 s, or 0-60 s with the new rules, stretching to the whole track on the last guess),
 // so a checkpoint sits where it really is.

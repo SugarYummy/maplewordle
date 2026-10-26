@@ -1,6 +1,8 @@
 let data, mode, day, live, pool, answer, guesses, maxGuesses, over, matches, active, hints;
 // For Limbo's alert border (fx.js): guesses left in the game showing (Story Mode has no limit).
 window.gameLeft = () => (!guesses || maxGuesses == null ? null : { left: maxGuesses - guesses.length, over });
+// Limbo's life count (fx.js): Story Mode has no limit (always 0).
+window.gameLife = () => (!guesses || maxGuesses == null ? null : { misses: guesses.filter((n) => n !== answer.name).length, max: maxGuesses, lost: over && !guesses.includes(answer.name) });
 
 const $ = (id) => document.getElementById(id);
 

@@ -732,3 +732,28 @@ input[type="search"]::-webkit-search-cancel-button, input[type="search"]::-webki
 .price.deal s { color: #888; font-weight: 600; margin-right: 2px; }
 .dealtag { display: inline-block; margin-top: 2px; padding: 1px 7px; border-radius: 6px; background: #e0302a; color: #fff;
   font-size: 11px; font-weight: 800; letter-spacing: .3px; width: fit-content; }
+/* Limbo's Life Count / Timer (fx.js): the in-game Erosion HUD. Card only: in the info strip's middle box, with room around
+   it; Limbo mode: under the info strip. Its smoke fades out before the things around it. */
+.infostrip > div.limbohudcell { position: relative; padding: 14px 4px; }
+.infostrip:has(.limbohudcell) { margin: 26px auto 26px; }
+.infostrip:has(.limbohudcell) > div { display: flex; flex-direction: column; justify-content: center; }
+.limbohudcell > .k, .limbohudcell > .v { visibility: hidden; }
+#limbohud { position: absolute; left: 50%; width: 384px; height: 217px; z-index: 2; pointer-events: none; }
+.limbohudcell #limbohud { top: 50%; margin: -141px 0 0 -196px;
+  -webkit-mask-image: linear-gradient(transparent 33%, #000 45%); mask-image: linear-gradient(transparent 33%, #000 45%); }
+#limbohudbox { position: relative; height: 64px; margin: 4px auto 8px; pointer-events: none; }
+#limbohudbox #limbohud { top: 0; margin: -107px 0 0 -196px;
+  -webkit-mask-image: linear-gradient(transparent 41%, #000 50%, #000 76%, transparent 86%);
+  mask-image: linear-gradient(transparent 41%, #000 50%, #000 76%, transparent 86%); }
+#status.hudhide { display: none; }
+.dealtag.limbodeal { display: inline-flex; align-items: center; gap: 2px; background: #2a0f3d; padding: 0 4px 0 8px; }
+.limboclock { width: auto; height: 34px; margin: -6px -14px; image-rendering: pixelated; }
+/* A bundle box's own switch (Limbo's "All effects"), on the box itself: knob over a small label, before the arrow */
+.fxswitch.onbox { flex-direction: column; gap: 2px; margin-left: auto; padding: 0 4px; font-size: 10px; font-weight: 700; color: #444; }
+.fxbundle > summary:has(.onbox)::after { margin-left: 6px; }
+/* "(Bundle of N)" in the shop: dotted underline; hover / tap shows what's in it */
+.bundletip { text-decoration: underline dotted; text-underline-offset: 2px; cursor: help; }
+#bundletipbox { position: fixed; z-index: 30; text-align: left; max-width: 280px; padding: 8px 12px; border-radius: 10px; background: #fff; color: #1a2440;
+  border: 1px solid rgba(0, 0, 0, 0.15); font-size: 13px; line-height: 1.45; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25); pointer-events: none; }
+#bundletipbox ol { margin: 0; padding-left: 20px; }
+#bundletipbox p { margin: 4px 0 0; color: #b07800; }

@@ -3,6 +3,7 @@
 let data, pool, day, live, answer, guesses, maxGuesses, over, matches, active;
 // For Limbo's alert border (fx.js): guesses left in the game showing.
 window.gameLeft = () => (!guesses ? null : { left: maxGuesses - guesses.length, over });
+window.gameLife = () => (!guesses ? null : { misses: guesses.filter((n) => n !== answer.name).length, max: maxGuesses, lost: over && !guesses.includes(answer.name) });
 
 const $ = (id) => document.getElementById(id);
 
