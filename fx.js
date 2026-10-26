@@ -122,6 +122,8 @@ function setPickedSkins(ids) {
   lsSet(WINFX_KEY, JSON.stringify(ids));
   if (hecate && !ids.includes(hecate.id)) { hecate = null; loadHecate(); }   // the one waiting isn't picked any more
 }
+// The guess boxes are search boxes (no password manager pop-ups); Esc there shouldn't wipe what you typed.
+addEventListener('keydown', (e) => { if (e.key === 'Escape' && e.target.matches?.('input[type="search"]')) e.preventDefault(); }, true);
 const SAFARI = /^((?!chrome|chromium|android|crios|fxios|edg).)*safari/i.test(navigator.userAgent);
 let hecate = null, hecateLoading = false, hecateLast = null;   // hecate: { id, skin, blob } ready to play
 function loadHecate() {
@@ -376,7 +378,7 @@ applyBox();
       '<span class="seg"><button data-fx="on">On</button><button data-fx="off">Off</button></span></div>' +
       `<div class="setrow"><span class="setlabel">Secret passcode ${tip('VIP access given to those who help make this website!')}</span>` +
       (vip.on ? '<span class="vipon">✨ VIP unlocked</span>'
-        : '<span class="vipfield"><input id="vipCode" type="password" placeholder="Passcode" autocomplete="off"><span id="vipMsg"></span></span><button id="vipGo">Enter</button>') + '</div>' +
+        : '<span class="vipfield"><input id="vipCode" type="text" placeholder="Passcode" autocomplete="off" spellcheck="false" autocapitalize="off" data-1p-ignore data-lpignore="true" data-form-type="other"><span id="vipMsg"></span></span><button id="vipGo">Enter</button>') + '</div>' +
       '<div id="vipBox" hidden><div class="vipctl"><button id="vipPlay"></button><button id="vipReplay" title="Start this song over">⏮ Replay</button>' +
       '<button id="vipSkip">⏭ Skip</button><button id="vipLoop" title="Loop this song">🔁 Loop</button></div><p id="vipNow"></p>' +
       '<div id="vipTrack"><span id="vipText">0.0 / 0.0</span><span id="vipArrow">▼</span><div id="vipBar"><div id="vipFill"></div></div></div></div>';

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Maple Wordle - BGM Clip</title>
 <script src="move.js?v=1"></script>
-<link rel="stylesheet" href="style.css?v=117">
+<link rel="stylesheet" href="style.css?v=119">
 </head>
 <body>
 <button id="archiveBtn" class="panel">Archive</button>
@@ -59,7 +59,7 @@
 </div>
 <div class="pickrow" id="pickrow">
 <div id="picker">
-  <input id="guess" placeholder="Search for a boss" autocomplete="off">
+  <input id="guess" type="search" placeholder="Search for a boss" autocomplete="off" spellcheck="false" data-1p-ignore data-lpignore="true" data-form-type="other">
   <div id="list" hidden></div>
 </div>
 <button id="skip">Skip</button>
@@ -75,11 +75,11 @@
   <h3 id="bonusTitle">Bonus: Where does this BGM play?</h3>
   <p id="bonusHelp">The whole track is unlocked now. Click the bar to jump around.</p>
   <p id="mashupRow" hidden><button id="mashupPlay">▶&#xFE0E; Play the mashup</button></p>
-  <div id="bonusAsk"><select id="bonusPick"></select><div id="bossField" hidden><input id="bossPick" placeholder="Search for a boss" autocomplete="off"><div id="bossList" hidden></div></div> <button id="bonusGo">Guess</button></div>
+  <div id="bonusAsk"><select id="bonusPick"></select><div id="bossField" hidden><input id="bossPick" type="search" placeholder="Search for a boss" autocomplete="off" spellcheck="false" data-1p-ignore data-lpignore="true" data-form-type="other"><div id="bossList" hidden></div></div> <button id="bonusGo">Guess</button></div>
   <p id="bonusResult"></p>
   <div id="titleBox" hidden>
     <h3 id="titleHead">Bonus 2: What's this BGM called?</h3>
-    <div id="titleAsk"><div id="titleField"><input id="titlePick" placeholder="Type a BGM title" autocomplete="off"><div id="titleList" hidden></div></div> <button id="titleGo">Guess</button></div>
+    <div id="titleAsk"><div id="titleField"><input id="titlePick" type="search" placeholder="Type a BGM title" autocomplete="off" spellcheck="false" data-1p-ignore data-lpignore="true" data-form-type="other"><div id="titleList" hidden></div></div> <button id="titleGo">Guess</button></div>
     <p id="titleResult"></p>
   </div>
 </div>
@@ -115,7 +115,7 @@
     <p class="closebar"><button id="changelogClose">Close</button></p>
   </div>
 </div>
-<script src="fx.js?v=96"></script>
+<script src="fx.js?v=98"></script>
 <script src="archive.js?v=6"></script>
 <script src="bgm.js?v=53"></script>
 </body>
