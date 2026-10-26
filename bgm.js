@@ -523,7 +523,8 @@ function renderEnd() {
   if (mashupKey !== `${MODE}|${day}|${answer.bonus?.mashup?.file}`) stopMashup();   // keeps playing through a redraw (e.g. answering the bonus)
   trackEgg();
   if (!over) return;
-  if (live && answer.bonus?.mashup?.egg === 'limbo') shopUnlock('limboSub');   // played Limbo's day on the day (won or lost): Limbo's set is in the shop
+  // Limbo's mashup answered (right or wrong) on the day itself: Limbo's set is in the shop (the Archive doesn't count)
+  if (live && answer.bonus?.mashup?.egg === 'limbo' && bonus != null) shopUnlock('limboSub');
   renderTitle();
   const b = answer.bonus;
   const trackLine = titleShown() ? `The track is "${answer.t.title}".` : '';
