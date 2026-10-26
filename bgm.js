@@ -1069,7 +1069,10 @@ function shareText() {
   // First-guess win: just a star, or just the diamond / rainbow if the bonuses were right too.
   const grid = first ? (badge() || '⭐')
     : guesses.map((n) => !n ? '⬛' : isRight(n) ? '🟩' : isClose(n) ? '🟨' : '🟥').join('') + '⬜'.repeat(maxGuesses() - guesses.length);
-  const extra = grid === '💎' || grid === '🌈' ? ''
+  // An Easter egg mashup's bonus, answered (right or wrong): "SPECIAL 🔥🔥🔥" in place of the Bonus line, always shown.
+  const special = bonus != null && !!answer.bonus?.mashup?.egg;
+  const extra = special ? '\nSPECIAL 🔥🔥🔥' + (title == null || grid === '💎' || grid === '🌈' ? '' : `\nTitle ${titleRight() ? '✅' : '❌'}`)
+    : grid === '💎' || grid === '🌈' ? ''
     : (bonus == null ? '' : `\nBonus ${ok ? '✅' : '❌'}`) + (title == null ? '' : `\nTitle ${titleRight() ? '✅' : '❌'}`);
   return [`Maple Wordle - BGM Clip (${MODES[MODE].name}) #${day - firstDay() + 1} ${won() ? guesses.length : 'X'}/${maxGuesses()}`,
     grid + extra, 'https://ima.moe/maplewordle/bgm'].join('\n');
