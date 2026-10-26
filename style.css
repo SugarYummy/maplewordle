@@ -728,3 +728,7 @@ input[type="search"]::-webkit-search-cancel-button, input[type="search"]::-webki
 /* "Play the mashup first!": the Play button gives a little shake */
 #mashupPlay.nudge { animation: nudge 0.45s ease; }
 @keyframes nudge { 20%, 60% { transform: translateX(-5px); } 40%, 80% { transform: translateX(5px); } }
+/* A limited hidden item on the day you find it: 90% off (old price crossed out, a red tag with the time left) */
+.price.deal s { color: #888; font-weight: 600; margin-right: 2px; }
+.dealtag { display: inline-block; margin-top: 2px; padding: 1px 7px; border-radius: 6px; background: #e0302a; color: #fff;
+  font-size: 11px; font-weight: 800; letter-spacing: .3px; width: fit-content; }

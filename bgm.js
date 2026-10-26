@@ -867,7 +867,7 @@ $('bonusGo').addEventListener('click', () => {
   noteResult();
   if (limbo.on) limboExit();
   sendBonus(ok);
-  if (ok && live) answer.t.unlock?.bonus?.forEach(shopUnlock);   // shows up in the meso shop (fx.js)
+  if (ok && live) answer.t.unlock?.bonus?.forEach((t) => shopUnlock(t));   // shows up in the meso shop (fx.js)
 });
 
 // ---- Boss picker (every boss, A-Z) ----
@@ -1055,8 +1055,8 @@ const noteResult = () => {
   mesoGain(MODE, day, over);   // the spinning "+mesos" under the result (game + bonus)
   // Shop items this track's day finds by winning: "win" on the day itself, "winAny" from the Archive too (fx.js).
   if (over && won()) {
-    if (live) answer.t.unlock?.win?.forEach(shopUnlock);
-    answer.t.unlock?.winAny?.forEach(shopUnlock);
+    if (live) answer.t.unlock?.win?.forEach((t) => shopUnlock(t));
+    answer.t.unlock?.winAny?.forEach((t) => shopUnlock(t, live));   // from the Archive: unlocked, but full price
   }
 };
 const closeArchive = () => { $('archive').hidden = true; };

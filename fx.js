@@ -1267,10 +1267,25 @@ function shopFound() {
   const always = Object.keys(SHOP).filter((t) => SHOP[t].always && !found.includes(t));
   return [...(holidayToday() ? [holidayToday()] : []), ...always, ...found];
 }
-function shopUnlock(t) {
+function shopUnlock(t, deal = true) {   // deal: found on its special day itself (not from the Archive): 90% off today
   if (!(t in SHOP) || shopFound().includes(t)) return;
   lsSet(SHOP_KEY, JSON.stringify([...shopFound(), t]));
+  if (deal) lsSet(SHOP_FOUND_DAY_KEY, JSON.stringify({ ...shopFoundDay(), [t]: Math.floor(Date.now() / 86400000) }));
 }
+// Limited hidden items: 90% off for the rest of the (UTC) day you find them, e.g. Limbo's set found with 5 hours of its
+// day left is 90% off for those 5 hours; a holiday's item is 90% off all of its day. Still locked: full price.
+const SHOP_FOUND_DAY_KEY = 'mapleWordle:shopFoundDay';   // { item: the UTC day it was found }
+const SHOP_DEAL = 0.1;
+function shopFoundDay() { try { return JSON.parse(lsGet(SHOP_FOUND_DAY_KEY) || '{}'); } catch { return {}; } }
+const shopDeal = (t) => !!SHOP[t]?.hidden && !shopOwned(t)
+  && (holidayToday() === t || shopFoundDay()[t] === Math.floor(Date.now() / 86400000));
+const shopPrice = (t) => (shopDeal(t) ? Math.ceil(SHOP[t].price * SHOP_DEAL) : SHOP[t].price);
+const shopDealLeft = () => {   // until the site's day ends (UTC midnight)
+  const m = Math.ceil((86400000 - (Date.now() % 86400000)) / 60000);
+  return m >= 60 ? `${Math.floor(m / 60)}h ${m % 60}m left` : `${m}m left`;
+};
+const priceHtml = (t) => `<span class="price${shopDeal(t) ? ' deal' : ''}"><img src="images/fx/meso-gold.png" alt=""> ` +
+  (shopDeal(t) ? `<s>${fmt(SHOP[t].price)}</s> ` : '') + `<span>${fmt(shopPrice(t))}</span></span>`;
 // NEW on the Shop button while it has something you haven't seen yet (not owned). An item put in the shop for everyone
 // ("added": its UTC day) is only NEW for 3 days after that; one you found yourself is NEW until you've seen it. Opening
 // the shop sees them all, and they keep a NEW tag in the shop until the page reloads.
@@ -1302,9 +1317,10 @@ function openShop() {
       const it = SHOP[t], owned = shopOwned(t);
       // Not enough mesos: a greyed-out Buy; clicking it flashes how many more you need in the price (red, 2 s).
       const btn = owned ? '<span class="owned">Owned ✓</span>'
-        : `<button data-buy="${t}"${have < it.price ? ' class="poor" title="Not enough mesos"' : ''}>Buy</button>`;
+        : `<button data-buy="${t}"${have < shopPrice(t) ? ' class="poor" title="Not enough mesos"' : ''}>Buy</button>`;
       return `<div class="shopitem">${shopFresh.has(t) && !owned ? '<span class="newtag">NEW</span>' : ''}<span class="themepic zoomable" data-zoom="${t}" title="Click to zoom in" style="background-image:url('${it.img ?? THEME_IMG[t]}')"></span>` +
-        `<span class="shopinfo"><b>${it.name}</b><small>${it.kind}</small><span class="price"><img src="images/fx/meso-gold.png" alt=""> <span>${fmt(it.price)}</span></span></span>${btn}</div>`;
+        `<span class="shopinfo"><b>${it.name}</b><small>${it.kind}</small>${priceHtml(t)}` +
+        `${shopDeal(t) ? `<span class="dealtag">90% OFF · ${shopDealLeft()}</span>` : ''}</span>${btn}</div>`;
     }).join('') + locked + '</div>' : '<p class="shopempty">Nothing here yet... 👀</p>') +
     '<p class="mesoshop">More cosmetics are coming to the shop later, so save up your mesos!</p>';
   uiSound();   // opened by a click: get the hover sound ready
@@ -1324,7 +1340,7 @@ function zoomItem(t) {
   addEventListener('keydown', esc, true);
   document.body.appendChild(win);
 }
-function tooPoor(btn, it) {
+function tooPoor(btn, t) {
   const price = btn.closest('.shopitem').querySelector('.price');
   const num = price.querySelector('span');
   if (price.classList.contains('short')) return;
@@ -1332,8 +1348,8 @@ function tooPoor(btn, it) {
     price.classList.add('swap');
     setTimeout(() => { num.textContent = text; price.classList.toggle('short', short); price.classList.remove('swap'); }, 150);
   };
-  swap(fmt(it.price - mesoTotal()), true);
-  setTimeout(() => swap(fmt(it.price), false), 2150);
+  swap(fmt(shopPrice(t) - mesoTotal()), true);
+  setTimeout(() => swap(fmt(shopPrice(t)), false), 2150);
 }
 // A small window over the shop about one item: its picture and name (and price), then two buttons. Resolves true for
 // the first button; the second, Esc or a click outside resolve false (and only close this, the shop stays open).
@@ -1344,7 +1360,7 @@ function itemPopup(t, title, withPrice, [okText, okClass], [noText, noClass]) {
     win.className = 'popup buyask';
     win.innerHTML = `<div class="panel"><h2>${title}</h2>` +
       `<span class="themepic" style="background-image:url('${it.img ?? THEME_IMG[t]}')"></span><b class="buyname">${it.name}</b>` +
-      (withPrice ? `<span class="price"><img src="images/fx/meso-gold.png" alt=""> <span>${fmt(it.price)}</span></span>` : '') +
+      (withPrice ? priceHtml(t) : '') +
       `<p class="buybtns"><button class="${okClass}">${okText}</button><button class="${noClass}">${noText}</button></p></div>`;
     const [ok, no] = win.querySelectorAll('.buybtns button');
     const close = (yes) => { win.remove(); removeEventListener('keydown', esc, true); done(yes); };
@@ -1364,10 +1380,11 @@ const askBuy = (t) => itemPopup(t, 'Are you sure you want to purchase?', true, [
 async function buy(t, btn) {
   const it = SHOP[t];
   if (!it || shopOwned(t)) return;
-  if (mesoTotal() < it.price) return btn && tooPoor(btn, it);
-  if (!await askBuy(t) || shopOwned(t) || mesoTotal() < it.price) return;
+  const price = shopPrice(t);
+  if (mesoTotal() < price) return btn && tooPoor(btn, t);
+  if (!await askBuy(t) || shopOwned(t) || mesoTotal() < price) return;
   const log = mesoLog();
-  log.push({ key: `shop:${t}`, mode: 'shop', day: Math.floor(Date.now() / 86400000), what: `Bought ${it.name}`, amount: -it.price });
+  log.push({ key: `shop:${t}`, mode: 'shop', day: Math.floor(Date.now() / 86400000), what: `Bought ${it.name}${price < it.price ? ' (90% off)' : ''}`, amount: -price });
   lsSet(MESO_LOG_KEY, JSON.stringify(log));
   if (it.effect) {   // an effect pack: tick all of its win effects straight away (along with the bought ones already ticked)
     lsSet(EFFECTS_KEY, JSON.stringify([...ownedEffects(), t]));
