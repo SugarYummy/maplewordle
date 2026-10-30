@@ -1,5 +1,9 @@
 # Maple Wordle changelog
 
+## alpha v4.4.3 - 30 October 2026
+### 🐛 Bug Fixes
+- **[BGM Clip]** Clips now resume on next guess instead of restarting. Can also drag to a certain point of the BGM.
+
 ## alpha v4.4.2 - 26 October 2026
 ### 🔧 Changes
 - **[Shop]** Hidden items now show up as locked cards with their price, so you can save up for them.
