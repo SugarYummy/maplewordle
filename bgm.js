@@ -279,7 +279,7 @@ function drawBar() {
   $('open').style.width = (over ? 100 : barAt(limitAt(Math.min(guesses.length, maxGuesses() - 1)))) + '%';
   $('markerText').textContent = over ? `${clock(p)} / ${clock(answer.t.len)}` : `${Math.max(0, t).toFixed(1)}s`;   // how far into the clip
   $('play').textContent = audio.playing ? '❚❚' : '▶︎';
-  $('track').classList.toggle('seek', over);
+  $('track').classList.add('seek');
   placeMarker(at);
 }
 // The ▼ follows the playhead; the label above it slides along too but stays inside the bar's ends.
@@ -288,12 +288,16 @@ function placeMarker(at) {
   $('markerArrow').style.left = x + 'px';
   $('markerText').style.left = Math.max(tw / 2, Math.min(w - tw / 2, x)) + 'px';
 }
-// Bonus round only: click / drag the bar to jump anywhere in the track.
+// Click / drag the bar to jump around: during the game only within what you've unlocked, after it anywhere in the track.
 let dragging = false;
-function seek(e) {
-  if (!over) return;
+function barPos(e) {   // the track time (s) under the mouse
   const r = $('bar').getBoundingClientRect();
-  const pos = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * answer.t.len;
+  const f = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
+  return over ? f * answer.t.len : answer.start + f * barSeconds();
+}
+const unlockedAt = (pos) => over || pos <= winEnd() + 0.01;
+function seek(e) {
+  const pos = Math.min(barPos(e), over ? winEnd() : winEnd() - 0.05);   // (right at the end would count as 'start over')
   const was = audio.playing;
   stopAudio();
   audio.pos = pos;
@@ -303,12 +307,15 @@ function seek(e) {
 // A click jumps once, on press; letting go only jumps again if the bar was dragged somewhere else (jumping twice to the
 // same spot replayed the first ~0.1 s, which sounded like a stutter).
 let downX = 0;
-$('bar').addEventListener('pointerdown', (e) => { if (!over) return; dragging = true; downX = e.clientX; $('bar').setPointerCapture(e.pointerId); seek(e); });
+$('bar').addEventListener('pointerdown', (e) => {
+  if (!unlockedAt(barPos(e))) return;   // a part you haven't unlocked yet
+  dragging = true; downX = e.clientX; $('bar').setPointerCapture(e.pointerId); seek(e);
+});
 // While dragging, the green bar, the ▼ and the time follow the mouse; the music jumps there on release.
 $('bar').addEventListener('pointermove', (e) => {
-  if (!dragging || Math.abs(e.clientX - downX) <= 3) return;
-  const r = $('bar').getBoundingClientRect();
-  dragAt = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * answer.t.len;
+  if (!dragging) { $('bar').style.cursor = unlockedAt(barPos(e)) ? 'pointer' : 'not-allowed'; return; }
+  if (Math.abs(e.clientX - downX) <= 3) return;
+  dragAt = Math.min(barPos(e), winEnd());   // (not past what you've unlocked)
   drawBar();
 });
 $('bar').addEventListener('pointerup', (e) => {
@@ -470,6 +477,8 @@ function guess(name) {
   const flipMs = FLIP_TIME;
   for (const el of [$('status'), $('share')]) revealAfter(el, flipMs);
   if (!over) {
+    // Stopped at the end of what was unlocked: Play now carries on from there into the new part (not from the start).
+    if (audio.ended && audio.pos < winEnd() - 0.02) audio.ended = false;
     scheduleEnd();   // playing now: it keeps going up to the new unlock
     drawTicks();
     drawBar();
@@ -1126,12 +1135,12 @@ function openInfo() {
     ...(newRules() ? [
       'Your first guess gets <b>1 second</b> of the clip. Each wrong guess or Skip unlocks more: 5s, 10s, 30s, 60s, then the <b>whole track</b>. Miss all 7 and you lose.',
       'Hints: after your <b>3rd</b> guess, and after every wrong guess after that, one more of the boss\'s World, Gender, Region, Phases, HP or Entry Lv opens (like Boss Wordle\'s columns). Your <b>6th</b> guess always gets its Entry Lv.',
-      'Play starts and pauses the clip. It stops at what you\'ve unlocked, and pressing Play again starts it over. You can\'t skip ahead.',
+      'Play starts and pauses the clip. It stops at what you\'ve unlocked; a wrong guess or Skip lets it carry on from there, and once it\'s all played, Play starts it over. Click or drag the bar to jump around what you\'ve unlocked (not ahead).',
       'The clip always starts at the very beginning of the track.',
     ] : [
       'Your first guess gets <b>0.5 seconds</b> of the clip. Each wrong guess or Skip unlocks more: 1s, 2s, 5s, 10s, then 30s. Miss all 6 and you lose.',
       'A wrong guess only tells you it\'s wrong. Nothing else is revealed.',
-      'Play starts and pauses the clip. It stops at what you\'ve unlocked, and pressing Play again starts it over. You can\'t skip ahead.',
+      'Play starts and pauses the clip. It stops at what you\'ve unlocked; a wrong guess or Skip lets it carry on from there, and once it\'s all played, Play starts it over. Click or drag the bar to jump around what you\'ve unlocked (not ahead).',
       'The clip starts either at the very beginning of the track or somewhere in the middle (50/50).',
     ]),
     'The BGM can be from any part of the fight: the waiting room, any phase, the loot room and more.',
