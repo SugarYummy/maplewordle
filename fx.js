@@ -106,6 +106,9 @@ const HECATE = {   // ms: clip length, burst: ms into the clip when it bursts (f
   mimica3: { name: 'Mimica (Black)', ms: 2880, burst: 900, pack: 'mimica' },
   mimica4: { name: 'Mimica (Pink)', ms: 2880, burst: 900, pack: 'mimica' },
   mimica5: { name: 'Mimica (Purple)', ms: 2880, burst: 900, pack: 'mimica' },
+  // Limbo's set: its cutscene (a wide banner, shown whole). Also what a win in 1 plays in Limbo mode, and what getting
+  // Limbo's glitch mashup right plays for everyone. The mesos come as it fades out (frame 54 of 65).
+  limboCut: { name: 'Limbo Transition', ms: 4200, burst: 3480, pack: 'limboSub', wide: true, solo: true, v: 2 },   // solo: its own card, no box
 };
 const EFFECTS_KEY = 'mapleWordle:effects', WINFX_KEY = 'mapleWordle:winFx';   // packs bought; win effects picked
 function ownedEffects() {
@@ -128,23 +131,25 @@ const SAFARI = /^((?!chrome|chromium|android|crios|fxios|edg).)*safari/i.test(na
 let hecate = null, hecateLoading = false, hecateLast = null;   // hecate: { id, skin, blob } ready to play
 function loadHecate() {
   if (hecate || hecateLoading) return;
-  const picked = pickedSkins();
+  const picked = limboAllOn() ? ['limboCut'] : pickedSkins();   // Limbo mode: Limbo's cutscene
   const pool = picked.length > 1 ? picked.filter((id) => id !== hecateLast) : picked;
   const id = pool[Math.floor(Math.random() * pool.length)];
   hecateLoading = true;
-  fetch(`video/hecate/${id}.${SAFARI ? 'webp' : 'webm'}`).then((r) => (r.ok ? r.blob() : null))
+  fetch(`video/hecate/${id}.${SAFARI ? 'webp' : 'webm'}${HECATE[id].v ? '?v=' + HECATE[id].v : ''}`).then((r) => (r.ok ? r.blob() : null))
     .then((blob) => { if (blob) hecate = { id, skin: HECATE[id], blob }; }).catch(() => {}).finally(() => { hecateLoading = false; });
 }
 setTimeout(loadHecate, 3000);
 document.addEventListener('click', (e) => { if (e.target.closest?.('#modes button') && hecateLast) loadHecate(); });
-function playHecate() {
-  if (!hecate || limboAllOn()) return 0;   // Limbo mode: everything else is off
+function playHecate(special = false) {   // special: Limbo's mashup win (plays whatever was put in, Limbo mode or not)
+  if (!special && hecate && limboAllOn() !== (hecate.id === 'limboCut')) { hecate = null; loadHecate(); }   // Limbo mode turned on / off since
+  if (!hecate) return 0;
   const { id, skin, blob } = hecate;
   hecate = null;
   hecateLast = id;
+  if (!special) setTimeout(loadHecate, skin.ms + 500);   // the next one ready
   const url = URL.createObjectURL(blob);   // a fresh URL each time, so the WebP starts from its first frame
   const el = document.createElement(SAFARI ? 'img' : 'video');
-  el.className = 'hecatefx';
+  el.className = 'hecatefx' + (skin.wide ? ' widefx' : '');
   let gone = false;
   const done = () => { if (gone) return; gone = true; el.remove(); URL.revokeObjectURL(url); };
   if (SAFARI) setTimeout(done, skin.ms + 20);
@@ -161,6 +166,23 @@ function playHecate() {
 function bigWin() {
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   setTimeout(mesoShow, playHecate());
+}
+// Limbo's glitch mashup answered right (BGM Clip): Limbo's cutscene for everyone, then the meso show.
+let limboCutBlob = null;
+function limboCutLoad() {
+  limboCutBlob ??= fetch(`video/hecate/limboCut.${SAFARI ? 'webp' : 'webm'}?v=2`).then((r) => (r.ok ? r.blob() : null)).catch(() => null);
+  return limboCutBlob;
+}
+async function limboWin() {
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const blob = await limboCutLoad();
+  if (!blob) return mesoShow();
+  const keep = hecate;
+  hecate = { id: 'limboCut', skin: HECATE.limboCut, blob };
+  const was = hecateLast;
+  setTimeout(mesoShow, playHecate(true));
+  hecate = keep;
+  hecateLast = was;
 }
 // Timed to its music (35 s): the game box shakes (and starts glowing), meso fountains spray up from both bottom corners
 // for 5 s, then mesos rain from the top, getting lighter until just before the music fades out.
@@ -677,7 +699,7 @@ function drawThemeButton() {
     tags();
     if (customTab === 'win') {
       help.textContent = 'Plays when you win in 1 guess. Tick one or more: each win plays a random one of them.';
-      if (limboAllOn()) help.textContent = 'Limbo mode is on, so these are off for now. Ticking one turns Limbo mode off.';
+      if (limboAllOn()) help.textContent = 'Limbo mode is on, so a win in 1 plays Limbo Transition. Ticking one turns Limbo mode off.';
       const picked = pickedSkins();
       const toggle = (id) => {
         const on = picked.includes(id);
@@ -687,9 +709,9 @@ function drawThemeButton() {
         fill();
       };
       const skinCard = (into, id) => { const on = picked.includes(id); card(into, `images/fx/hecate/${id}.webp`, HECATE[id].name + (on ? ' ✓' : ''), on, () => toggle(id)); };
-      for (const id of ownedSkins().filter((x) => !HECATE[x].pack)) skinCard(list, id);
-      for (const pack of ownedEffects().filter((x) => Object.values(HECATE).some((h) => h.pack === x))) {
-        const ids = ownedSkins().filter((x) => HECATE[x].pack === pack);
+      for (const id of ownedSkins().filter((x) => !HECATE[x].pack || HECATE[x].solo)) skinCard(list, id);
+      for (const pack of ownedEffects().filter((x) => Object.values(HECATE).some((h) => h.pack === x && !h.solo))) {
+        const ids = ownedSkins().filter((x) => HECATE[x].pack === pack && !HECATE[x].solo);
         const n = ids.filter((x) => picked.includes(x)).length;
         const box = document.createElement('details');
         box.className = 'fxbundle';
@@ -1046,13 +1068,14 @@ function setLimboAll(on) {
   if (on === limboAllOn()) return;
   lsSet(LIMBO_ALL_KEY, on ? '1' : '0');
   if (on) { limboDarkSide = false; gfxClips(); limboFailLoad(); }
+  hecate = null; loadHecate();   // the win effect waiting: Limbo's cutscene in Limbo mode
   applyTheme(true);
   if (on) cfxPreview(); else drawCustomFx();
   halloweenFx();
   limboTransitions();
   limboDragons();
 }
-function limboAllOff() { if (limboAllOn()) { lsSet(LIMBO_ALL_KEY, '0'); applyTheme(true); drawCustomFx(); halloweenFx(); limboTransitions(); limboDragons(); } }   // you picked something yourself
+function limboAllOff() { if (limboAllOn()) { lsSet(LIMBO_ALL_KEY, '0'); applyTheme(true); drawCustomFx(); halloweenFx(); limboTransitions(); limboDragons(); hecate = null; loadHecate(); } }   // you picked something yourself
 // Losing with the alert border on plays Limbo's fail screen full screen, in the border's colour (white or black).
 const LIMBO_FAIL_MS = 3900;
 function limboFailLoad() { cfxClip('fail-white'); cfxClip('fail-black'); if (limboAllOn()) TRANS_CLIPS.forEach(cfxClip); }   // ready when needed
@@ -1367,9 +1390,9 @@ const SHOP = {
   ...HOLIDAYS,   // holiday specials: in the shop only on their day
   helia: { name: 'Sol Hecate: Helia', kind: 'Guess in 1 win effect (Bundle of 5)', price: 2000, always: true, effect: true, added: Date.UTC(2026, 9, 24),
            img: 'images/fx/hecate/helia-bundle.webp', zoom: 'images/fx/hecate/helia-bundle-big.webp' },
-  limboSub: { hidden: true, name: "Limbo's Subconscious", kind: 'Full Limbo set (Bundle of 6)', price: 10000, effect: true,
+  limboSub: { hidden: true, name: "Limbo's Subconscious", kind: 'Full Limbo set (Bundle of 7)', price: 10000, effect: true,
               contents: ["Limbo's Subconscious Background (Light)", "Limbo's Subconscious Background (Dark)", 'Limbo Alert Border (White)', 'Limbo Alert Border (Black)',
-                'Limbo Wrong Guess Effect', 'Limbo Life Count / Timer'], bonus: 'Special toggle',
+                'Limbo Wrong Guess Effect', 'Limbo Life Count / Timer', 'Limbo Transition (win effect)'], bonus: 'Special toggle',
               themes: ['limbo', 'limboDark'], img: 'images/fx/limbo-bundle.webp?v=2', zoom: 'images/fx/limbo-bundle-big.webp?v=2' },
   mimica: { name: 'Sol Hecate: Mimica', kind: 'Guess in 1 win effect (Bundle of 5)', price: 2000, always: true, effect: true, added: Date.UTC(2026, 9, 25),
             img: 'images/fx/hecate/mimica-bundle.webp', zoom: 'images/fx/hecate/mimica-bundle-big.webp' },

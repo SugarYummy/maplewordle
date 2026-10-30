@@ -757,3 +757,5 @@ input[type="search"]::-webkit-search-cancel-button, input[type="search"]::-webki
   border: 1px solid rgba(0, 0, 0, 0.15); font-size: 13px; line-height: 1.45; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25); pointer-events: none; }
 #bundletipbox ol { margin: 0; padding-left: 20px; }
 #bundletipbox p { margin: 4px 0 0; color: #b07800; }
+/* Limbo Transition (a wide win effect) fills the whole screen like the others (.hecatefx: cover): the sides run off a
+   normal screen, the top and bottom off a very wide one */

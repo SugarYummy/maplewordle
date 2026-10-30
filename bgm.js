@@ -542,7 +542,7 @@ function renderEnd() {
   const b = answer.bonus;
   const trackLine = titleShown() ? `The track is "${answer.t.title}".` : '';
   $('mashupRow').hidden = b?.kind !== 'mashup';
-  if (isLimboEgg()) limboLoad();   // ready before Play is pressed
+  if (isLimboEgg()) { limboLoad(); limboCutLoad(); }   // ready before Play is pressed (and Limbo's cutscene for a right answer)
   $('bonusAsk').hidden = !b || bonus != null;
   if (!b) {
     $('bonusTitle').textContent = 'The whole track is unlocked';
@@ -877,6 +877,7 @@ $('bonusGo').addEventListener('click', () => {
   const ok = answer.bonus.right.includes(pick);
   // Limbo's wrong guess effect (if it's on) eats a wrong answer; on Limbo's mashup everyone gets to see it.
   limboGuess($('bonusResult'), !ok, undefined, isLimboEgg());
+  if (ok && isLimboEgg()) limboWin();   // right: Limbo's cutscene, then the meso show
   noteResult();
   if (limbo.on) limboExit();
   sendBonus(ok);
