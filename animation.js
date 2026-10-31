@@ -373,7 +373,7 @@ const closeArchive = () => { $('archive').hidden = true; };
 
 function shareText() {
   const grid = guesses.length === 1 && guesses[0] === answer.name ? '⭐' : guesses.map((n) => n === answer.name ? '🟩' : '🟥').join('');   // first-guess win: just a star
-  return [`Maple Wordle - Attack Animation #${day - FIRST_DAY + 1} ${guesses.length} guess${guesses.length === 1 ? '' : 'es'}`,
+  return [`${isHalloween(day) ? '🎃 ' : ''}Maple Wordle - Attack Animation #${day - FIRST_DAY + 1} ${guesses.length} guess${guesses.length === 1 ? '' : 'es'}`,
     grid, 'https://ima.moe/maplewordle/animation'].join('\n');
 }
 function share() {

@@ -1088,7 +1088,7 @@ function shareText() {
   const extra = special ? '\nSPECIAL 🔥🔥🔥' + (title == null || grid === '💎' || grid === '🌈' ? '' : `\nTitle ${titleRight() ? '✅' : '❌'}`)
     : grid === '💎' || grid === '🌈' ? ''
     : (bonus == null ? '' : `\nBonus ${ok ? '✅' : '❌'}`) + (title == null ? '' : `\nTitle ${titleRight() ? '✅' : '❌'}`);
-  return [`Maple Wordle - BGM Clip (${MODES[MODE].name}) #${day - firstDay() + 1} ${won() ? guesses.length : 'X'}/${maxGuesses()}`,
+  return [`${isHalloween(day) ? '🎃 ' : ''}Maple Wordle - BGM Clip (${MODES[MODE].name}) #${day - firstDay() + 1} ${won() ? guesses.length : 'X'}/${maxGuesses()}`,
     grid + extra, 'https://ima.moe/maplewordle/bgm'].join('\n');
 }
 function share() {
