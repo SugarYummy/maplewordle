@@ -806,3 +806,16 @@ input[type="search"]::-webkit-search-cancel-button, input[type="search"]::-webki
 .fielderr:empty { display: none; }
 #acctRow:has(.acctinfo) { align-items: baseline; }   /* "Account" on the same line as "Welcome back, ...!" */
 .acctuid { display: block; margin-top: 2px; font-size: 12px; font-weight: 400; color: #777; }   /* the account's number, under Account */
+.themename.fxon { color: #1f8a3a; }   /* Customize > Custom Effects: an on / off effect, on */
+.themename.fxoff { color: #c0392b; }
+/* Customize: the ✓ / ✕ before an on / off effect, and the message that fades in over the window when something's clicked */
+.fxmark { display: inline-block; width: 1.3em; font-size: 1.05em; }
+#themes .panel { position: relative; }
+.fxtoast { position: absolute; left: 50%; bottom: 64px; transform: translate(-50%, 6px); z-index: 2; width: max-content; max-width: calc(100% - 40px); padding: 8px 16px;
+           border-radius: 10px; background: rgba(30, 30, 30, 0.9); color: #fff; font-size: 14px; font-weight: 600; text-align: center;
+           box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3); opacity: 0; pointer-events: none; transition: opacity 0.25s ease, transform 0.25s ease; }
+.fxtoast.show { opacity: 1; transform: translate(-50%, 0); }
+.fxtoast.yes { background: rgba(31, 120, 55, 0.95); }
+.fxtoast.no { background: rgba(170, 45, 35, 0.95); }
+.themecard.locked { cursor: not-allowed; }   /* Customize on a holiday: its background / effect can't be changed that day */
+.accttext:empty { display: none; }

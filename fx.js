@@ -846,6 +846,17 @@ function drawThemeButton() {
       if ([...customFresh].some((id) => customTabOf(id) === b.dataset.tab)) b.appendChild(newTag());
     }
   };
+  // A short message over the window (what a click just did, or why it can't), fading in then out after 2 s.
+  let toastTimer;
+  const toast = (text, kind = '') => {
+    win.querySelector('.fxtoast')?.remove();
+    const el = Object.assign(document.createElement('div'), { className: 'fxtoast ' + kind, textContent: text });
+    el.setAttribute('role', 'status');
+    win.querySelector('.panel').appendChild(el);
+    requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('show')));
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 300); }, 2000);
+  };
   const fill = () => {
     list.innerHTML = '';
     for (const b of win.querySelectorAll('.themetabs button')) b.classList.toggle('on', b.dataset.tab === customTab);
@@ -887,11 +898,30 @@ function drawThemeButton() {
       help.textContent = 'Effects on every page. Toggle effects replaces your customization.';
       const cur = customFx();
       const fxCard = (into, id) => card(into, CUSTOM_FX[id].img, CUSTOM_FX[id].name + (id === cur ? ' (in use)' : ''), id === cur, () => { setCustomFx(id); fill(); });
-      for (const id of ownedCustomFx().filter((x) => !CUSTOM_FX[x].pack)) fxCard(list, id);
-      if (hwFxOwned()) {   // Halloween's bats, ghosts and fog: on / off, on top of anything else
-        const on = hwFxOn();
-        card(list, 'images/fx/halloween-fx.webp', 'Halloween Night (bats, ghosts, fog)' + (on ? ' (on)' : ' (off)'), on,
-          () => { setHwFx(!on); fill(); }, customFresh.has('halloween'));
+      // First: one click turns every effect off (Limbo's set, its wrong guess effect and life count, Halloween Night).
+      card(list, CUSTOM_FX.none.img, 'Remove all effects', false, async () => {
+        if (!await acctAsk('Are you sure you want to remove all effects?', '', ['Yes', 'yes'], ['No', 'no'])) return;   // (account.js's small question window)
+        setCustomFx('none');
+        if (ownedEffects().includes('limboSub')) { setLimboGuess(false); setLimboHud(false); }
+        if (hwFxOwned()) setHwFx(false);
+        fill();
+        toast(holidayToday() === 'halloween' && hwFxOwned() ? 'All effects removed (except the holiday\'s, until it\'s over)' : 'All effects removed');
+      });
+      for (const id of ownedCustomFx().filter((x) => !CUSTOM_FX[x].pack && x !== 'none')) fxCard(list, id);
+      if (hwFxOwned()) {   // Halloween's bats, ghosts and fog: on / off, on top of anything else (its name green when on, red when off)
+        // On Halloween itself they're on for everyone (like its background), so the switch waits until it's over.
+        const holiday = holidayToday() === 'halloween', on = holiday || hwFxOn();
+        // On / off: green ✓ or red ✕ before its name (a shape too, not only a colour), and a message when it's switched.
+        let name = card(list, 'images/fx/halloween-fx.webp', 'Halloween Night (bats, ghosts, fog)', false, () => {
+          if (holiday) return toast('You cannot change effects on special occasional days.', 'no');
+          setHwFx(!on);
+          fill();
+          toast(`Halloween Night: ${on ? 'Off' : 'On'}`, on ? 'no' : 'yes');
+        }, customFresh.has('halloween'));
+        name.classList.toggle('locked', holiday);
+        name = name.querySelector('.themename');
+        name.classList.add(on ? 'fxon' : 'fxoff');
+        name.prepend(Object.assign(document.createElement('b'), { className: 'fxmark', textContent: on ? '✓' : '✕', ariaLabel: on ? 'On' : 'Off' }));
       }
       // a bought set: one box (like the Win Effect bundles) with its effects, and Limbo's light / dark swap switch
       for (const pack of CUSTOM_FX_PACKS.filter((x) => ownedEffects().includes(x))) {
@@ -939,12 +969,15 @@ function drawThemeButton() {
     } else {
       help.textContent = 'Your backgrounds. Pick one to use it on every page.';
       const cur = applyTheme(true);
+      // A holiday's background is on all of its day (see HOLIDAYS), so picking one does nothing until it's over.
+      const locked = !!holidayToday() && !limboAllOn();
       for (const t of own) card(list, THEME_IMG[t], THEMES[t] + (t === cur ? ' (in use)' : ''), t === cur, () => {
+        if (locked) return toast('You cannot change theme on special occasional days.', 'no');
         lsSet(THEME_KEY, t);
         if (limboAllOn()) { limboAllOff(); drawCustomFx(); }
         else applyTheme(true);
         fill();
-      }, customFresh.has(t));
+      }, customFresh.has(t)).classList.toggle('locked', locked);
     }
   };
   for (const b of win.querySelectorAll('.themetabs button')) b.addEventListener('click', () => { customTab = b.dataset.tab; fill(); });
