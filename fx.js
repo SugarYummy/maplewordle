@@ -1890,7 +1890,8 @@ leaves();
 // A game's tab shows its meso event while it's on, e.g. "3x" with a gold meso on BGM Clip.
 for (const btn of document.querySelectorAll('[data-meso]')) {
   const today = Math.floor(Date.now() / 86400000);
-  const times = mesoTimes(btn.dataset.meso, today);
+  // Only a game's own event (like BGM Clip's launch week): Halloween and weekends pay every game, so they're on the meso button instead.
+  const times = MESO_EVENTS.find((e) => e.mode === btn.dataset.meso && today >= e.from && today <= e.to)?.times ?? 1;
   if (times <= 1) continue;
   const tag = document.createElement('span');
   tag.className = 'mesotag';
