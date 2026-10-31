@@ -1,5 +1,11 @@
 # Maple Wordle changelog
 
+## alpha v4.5 - 31 October 2026
+### ✨ New [Account] System Added!
+- **[Account]** Create an account in ⚙️ [Settings] to save your progress.
+### 🥚 Easter Egg
+- **[Easter Egg]** Added more easter eggs! 👀
+
 ## alpha v4.4.3 - 30 October 2026
 ### 🐛 Bug Fixes
 - **[BGM Clip]** Clips now resume on next guess instead of restarting. Can also drag to a certain point of the BGM.
