@@ -511,7 +511,10 @@ body.glitch .game.glow.diamond { animation: glitchslice 2.3s steps(1) infinite, 
 .infostrip .v { display: block; font-size: 18px; font-weight: 700; color: #1a2440; font-variant-numeric: tabular-nums; }
 #status { font-size: 18px; font-weight: 700; }
 /* Moving backgrounds (fx.js): a looping video filling the screen, in a theme layer or BGM Clip's track Easter egg. */
-.themebg video, .eggscene video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.themebg video, .eggscene video, #limbobg video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.themebg video.off { opacity: 0; }   /* the other side of a pair: keeps playing, unseen */
+.themebg .themescreen, #limbobg .themescreen { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: fill; opacity: 0; }   /* stretched: its dark edges stay at the screen's edges */
+.themebg .themescreen.on, #limbobg .themescreen.on { opacity: 1; transition: opacity 0.25s linear 2s; }   /* comes in 2 s after the side does, like the game's (no fade going out: the swap's flash covers it) */
 .eggscene { position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: 0; transition: opacity 3s ease;
             background: #1b1430 center / cover no-repeat; }
 .eggscene.on { opacity: 1; }
@@ -557,12 +560,12 @@ body.glitch .game.glow.diamond { animation: glitchslice 2.3s steps(1) infinite, 
                font-size: 18px; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; max-width: none; }
 #settingsBtn:hover { background: rgba(255, 255, 255, 0.8); }
 .setrow { display: flex; align-items: center; gap: 10px; margin: 10px 0; flex-wrap: wrap; }
-.setlabel { font-weight: 700; min-width: 140px; }
-#setMute, .seg button { font-family: inherit; font-size: 14px; padding: 4px 10px; border-radius: 8px; cursor: pointer;
+.setlabel { font-weight: 700; min-width: 160px; }
+#setMute, #setBgm, .seg button { font-family: inherit; font-size: 14px; padding: 4px 10px; border-radius: 8px; cursor: pointer;
                         border: 1px solid rgba(0, 0, 0, 0.2); background: rgba(255, 255, 255, 0.6); }
-#setVol { width: 120px; accent-color: #e0a000; }
-#setVol:disabled { filter: grayscale(1) opacity(0.5); }
-#setVolPct { min-width: 3em; font-variant-numeric: tabular-nums; }
+#setVol, #setBgmVol { width: 120px; accent-color: #e0a000; }
+#setVol:disabled, #setBgmVol:disabled { filter: grayscale(1) opacity(0.5); }
+#setVolPct, #setBgmPct { min-width: 3em; font-variant-numeric: tabular-nums; }
 .seg { display: inline-flex; gap: 4px; }
 .seg button.on { font-weight: 700; outline: 2px solid #333; background: rgba(255, 255, 255, 0.95); }
 .setnote { font-size: 13px; opacity: 0.75; }
@@ -704,13 +707,16 @@ body[class*="egg-"] #hwfx, body:has(.eggscene) #hwfx, body:has(#limbobg) #hwfx {
 .limboeaten > .red, #rows .gbar.limboeaten.red { color: #ff8a8a !important; }
 /* Limbo's transition between its light and dark side (Limbo mode): pool along the bottom, three bursts, then the dome */
 .limbotrans { position: fixed; inset: 0; z-index: 9; pointer-events: none; overflow: hidden; }
+.limbowhite { position: fixed; inset: 0; z-index: -1; pointer-events: none; background: #fff; transition: opacity 0.12s linear; }   /* over the background, under the page */
+.limbowhite.out { opacity: 0; }
 .limbotrans > * { position: absolute; height: auto; }
-.limbotrans .pre { width: 110vw; left: -5vw; bottom: -16vw; transition: opacity 0.5s ease; }
-.limbotrans .pre.out { opacity: 0; }
-/* the three bursts (sharks) each about as tall as the screen, overlapping: together they cover it */
-.limbotrans .left { width: 85vw; left: -31.3vw; bottom: -7.1vw; }
-.limbotrans .middle { width: 85vw; left: 15.2vw; bottom: -10.6vw; }
-.limbotrans .right { width: 85vw; left: 31vw; bottom: -10.6vw; }
+.limbotrans { --plat: calc(50vh - 0.332 * max(100vh, 61.67vw)); }   /* the platform's top in the moving map (cover-fit 1920x1184, at 16.8% up) */
+/* Two big pools (1278x242: two 718-wide ones overlapping in the middle), lying on the platform; they spread, then loop */
+.limbotrans .pools { width: 160vw; left: -30vw; bottom: calc(var(--plat) - 8vh - 2.96vw); transition: opacity 0.3s ease; }
+.limbotrans .pools.out { opacity: 0; }
+/* The two sharks (1544x708: the left clip's shark facing left, the middle clip's other shark facing right; bases at x 555 / 957,
+   y 627) come out of the pools: small for a moment, then giant, heads past the top */
+.limbotrans .sharks { width: auto; height: 200vh; left: calc(50vw - 206.8vh); bottom: calc(var(--plat) - 42.9vh); }
 .limbotrans .end { width: 100vw; left: 0; bottom: -8.4vw; }
 /* A hidden shop item before it's found: a locked card with only its price */
 .shopitem .hiddenpic { display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #2b2b3a, #11111a);

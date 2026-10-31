@@ -135,6 +135,7 @@ function loadHecate() {
   const pool = picked.length > 1 ? picked.filter((id) => id !== hecateLast) : picked;
   const id = pool[Math.floor(Math.random() * pool.length)];
   hecateLoading = true;
+  if (id === 'limboCut') soundFile(SOUNDS.limboCut).catch(() => {});   // its sound ready too
   fetch(`video/hecate/${id}.${SAFARI ? 'webp' : 'webm'}${HECATE[id].v ? '?v=' + HECATE[id].v : ''}`).then((r) => (r.ok ? r.blob() : null))
     .then((blob) => { if (blob) hecate = { id, skin: HECATE[id], blob }; }).catch(() => {}).finally(() => { hecateLoading = false; });
 }
@@ -161,6 +162,10 @@ function playHecate(special = false) {   // special: Limbo's mashup win (plays w
   el.src = url;
   document.body.appendChild(el);
   el.play?.().catch(done);
+  if (id === 'limboCut') {   // Limbo's skill sound, in step with the cutscene (from when its video really starts)
+    if (SAFARI) resultSound(true, 150, 'limboCut');
+    else el.addEventListener('playing', () => resultSound(true, 150, 'limboCut'), { once: true });
+  }
   return skin.burst;
 }
 function bigWin() {
@@ -170,6 +175,7 @@ function bigWin() {
 // Limbo's glitch mashup answered right (BGM Clip): Limbo's cutscene for everyone, then the meso show.
 let limboCutBlob = null;
 function limboCutLoad() {
+  soundFile(SOUNDS.limboCut).catch(() => {});
   limboCutBlob ??= fetch(`video/hecate/limboCut.${SAFARI ? 'webp' : 'webm'}?v=2`).then((r) => (r.ok ? r.blob() : null)).catch(() => null);
   return limboCutBlob;
 }
@@ -256,11 +262,12 @@ const SOUNDS = { win: 'sounds/star-force-success.mp3', lose: 'sounds/star-force-
   classLose: 'sounds/the-breeze-that-carried-sorrow.mp3',   // Malitia's The Breeze That Carried Sorrow 0:00-0:18 (1 s fade-in), Class Wordle loss
   firstTry: 'sounds/the-unblessed-cathedral-descend.mp3',   // Mayrin's The Unblessed Cathedral -Descend- 1:07-1:42 (1 s fade-in), any first-guess win
   classWin: 'sounds/succession-bloom.mp3',   // First Adversary's Succession Bloom 1:03-1:27 (1 s fade-in), Class Wordle win on guess 2-5
-  purchase: 'sounds/purchase.mp3' };   // the Cash Shop's buy sound (0.8 s), when you buy something in the shop
+  purchase: 'sounds/purchase.mp3',   // the Cash Shop's buy sound (0.8 s), when you buy something in the shop
+  limboCut: 'sounds/limbo-cut.mp3' };   // Limbo's skill sound (5.4 s) with Limbo's cutscene, 0.15 s in: its big hit lands on the burst
 // Tracks that play longer than SOUND_SECONDS: seconds before the fade-out starts (fade-out is SOUND_FADE).
 const SOUND_LENGTH = { animWin: 19, classLose: 16, firstTry: 33, classWin: 22 };
 // Tracks louder than SOUND_VOLUME.
-const SOUND_LOUDER = { firstTry: 0.30, purchase: 0.6 };
+const SOUND_LOUDER = { firstTry: 0.30, purchase: 0.6, limboCut: 0.5 };   // limboCut: as loud as the first-guess music it plays with
 // Phone and tablet speakers are much quieter, so they play everything twice as loud (12%, and 60% for a first-guess win).
 const PHONE = matchMedia('(hover: none) and (pointer: coarse)').matches;
 const muteKey = 'mapleWordle:muted';
@@ -305,11 +312,17 @@ function soundCtx() {
     return audioCtx;
   } catch { return null; }
 }
+// A sound file's bytes, downloaded once (soundFile(SOUNDS.x) ahead of time, so one that must be on time starts on time).
+const soundBytes = {};
+function soundFile(src) {
+  soundBytes[src] ??= fetch(src).then((r) => (r.ok ? r.arrayBuffer() : Promise.reject())).catch((e) => { delete soundBytes[src]; throw e; });
+  return soundBytes[src];
+}
 function resultSound(won, delay, file) {
   if (muted()) return;
   const ctx = soundCtx();
   if (!ctx) return;
-  const ready = fetch(SOUNDS[file] || (won ? SOUNDS.win : SOUNDS.lose)).then((r) => r.arrayBuffer()).then((b) => ctx.decodeAudioData(b));
+  const ready = soundFile(SOUNDS[file] || (won ? SOUNDS.win : SOUNDS.lose)).then((b) => ctx.decodeAudioData(b.slice(0)));
   const due = Date.now() + delay;
   const gen = resultGen;
   ready.then((buffer) => {
@@ -394,6 +407,8 @@ applyBox();
     const tip = (text) => `<button class="infotip" type="button" aria-label="What is this?" data-tip="${text}">i</button>`;
     body.innerHTML = `<div class="setrow"><span class="setlabel">Sound ${tip('The sound effects when a game ends (the win / lose music). The slider sets how loud they are. BGM Clip has its own volume next to Play.')}</span>` +
       '<button id="setMute"></button><input id="setVol" type="range" min="0" max="100"><span id="setVolPct"></span></div>' +
+      (ownsThemeBgm() ? `<div class="setrow"><span class="setlabel">Background BGM ${tip("Music for backgrounds that come with their own (Limbo's Subconscious: Phase 3's White and Black tracks; Limbo Background: Phase 1's). It plays while that background is on, from your first click. Not on BGM Clip, so it doesn't get in the way of guessing.")}</span>` +
+        '<button id="setBgm"></button><input id="setBgmVol" type="range" min="0" max="100"><span id="setBgmPct"></span></div>' : '') +
       `<div class="setrow"><span class="setlabel">Box opacity ${tip('How see-through the main game box is. 0%: no box, the whole background shows. 50%: the usual frosted box. 100%: solid, no background inside the box.')}</span>` +
       '<input id="setBox" type="range" min="0" max="100" step="5"><span id="setBoxPct"></span></div>' +
       `<div class="setrow"><span class="setlabel">Background effect ${tip('Falling maple leaves in the background while 2x meso weekends are on, and holiday effects on holidays.')}</span>` +
@@ -432,7 +447,19 @@ applyBox();
       pct.textContent = vol.value + '%';
       for (const b of body.querySelectorAll('[data-fx]')) b.classList.toggle('on', (b.dataset.fx === 'on') === bgEffectOn());
       body.querySelector('#setBoxPct').textContent = boxOpacity() + '%';
+      if (bgmBtn) {
+        bgmBtn.textContent = themeBgmOn() ? '🎵 On' : '🔇 Off';
+        bgmBtn.title = themeBgmOn() ? 'Background BGM on (click to turn off)' : 'Background BGM off (click to turn on)';
+        bgmVol.disabled = !themeBgmOn();
+        body.querySelector('#setBgmPct').textContent = bgmVol.value + '%';
+      }
     };
+    const bgmBtn = body.querySelector('#setBgm'), bgmVol = body.querySelector('#setBgmVol');
+    if (bgmBtn) {
+      bgmVol.value = themeBgmVol();
+      bgmBtn.addEventListener('click', () => { lsSet(THEME_BGM_KEY, themeBgmOn() ? '0' : '1'); themeBgm(); show(); });
+      bgmVol.addEventListener('input', () => { lsSet(THEME_BGM_VOL_KEY, bgmVol.value); if (tbgm.master) tbgm.master.gain.value = themeBgmLevel(); show(); });
+    }
     mute.addEventListener('click', () => {
       lsSet(muteKey, muted() ? '0' : '1');
       if (muted() && audioCtx) { audioCtx.close(); audioCtx = master = null; }
@@ -521,6 +548,7 @@ function vipNext() {
     vip.audio.loop = !!vip.loopSong;
     vip.audio.addEventListener('ended', vipNext);   // straight on to another one
     for (const ev of ['timeupdate', 'play', 'pause', 'loadedmetadata']) vip.audio.addEventListener(ev, vipDraw);
+    for (const ev of ['play', 'pause', 'ended']) vip.audio.addEventListener(ev, () => { if (tbgm.master) tbgm.master.gain.value = themeBgmLevel(); });
   }
   let v = 50;
   try { v = Number(localStorage.getItem('mapleWordle:bgmVolume') ?? 50); } catch {}
@@ -576,17 +604,32 @@ function showTimer(label, s) {
 // that map as a background for every page. Kept in this browser for good. Default is free for everyone, so the
 // Theme button (above the credit box) only shows once you've unlocked another one.
 const THEMES = { default: 'Default', deepsea: 'Unglamoured Ruins', limbo: "Limbo's Subconscious Background (Light)", limboDark: "Limbo's Subconscious Background (Dark)",
+  limboP1: 'Limbo Background',
   vonbon: "Von Bon's Realm", bellona: 'Solatum',
   lucid: 'Garden of Eternal Dream', lucidBloom: 'Lucid in Bloom', lucidNight: "Lucid's Starry Night", halloween: 'Haunted Mansion' };
-const THEME_IMG = { deepsea: 'images/deepsea.webp', limbo: 'images/limbo.webp', limboDark: 'images/limbo-dark.webp', vonbon: 'images/vonbon.webp', bellona: 'images/bellona.webp',
+const THEME_IMG = { deepsea: 'images/deepsea.webp', limbo: 'images/limbo.webp', limboDark: 'images/limbo-dark.webp', limboP1: 'images/limbo-p1.webp', vonbon: 'images/vonbon.webp', bellona: 'images/bellona.webp',
   lucid: 'images/lucid-dream.jpg?v=2', lucidBloom: 'images/lucid-bloom.webp', lucidNight: 'images/lucid-night.webp',
   halloween: 'images/holiday/halloween.webp' };
 // Moving backgrounds: a looping video over the still picture (which shows until the video starts).
-const THEME_VIDEO = { lucid: ['video/lucid-dream.webm?v=2', 'video/lucid-dream.mp4?v=2'] };
+const THEME_VIDEO = { lucid: ['video/lucid-dream.webm?v=2', 'video/lucid-dream.mp4?v=2'],
+  limbo: ['video/limbo-bg/light.webm', 'video/limbo-bg/light.mp4'], limboDark: ['video/limbo-bg/dark.webm', 'video/limbo-bg/dark.mp4'],   // Limbo: 48 s loops recorded in MapRender
+  limboP1: ['video/limbo-bg/phase1.webm', 'video/limbo-bg/phase1.mp4'] };   // Phase 1's map: a 25.3 s loop (the boss's cycle)
+// Backgrounds with their own music (Settings > Background BGM, once you own one): it loops while that background is on.
+// Limbo's light and dark sides are Phase 3's White and Black tracks; Limbo Background is Phase 1's (Specter A).
+const THEME_BGM = { limbo: 'audio/bgm/c743160da5.mp3', limboDark: 'audio/bgm/d8872d703d.mp3', limboP1: 'audio/bgm/460fc75990.mp3' };
+// A pair of sides (Limbo mode swaps between them): both videos and both tracks run together, only one shown / heard,
+// so a swap changes picture and music at the same moment, each carrying on from where it is.
+const THEME_PAIR = { limbo: 'limboDark', limboDark: 'limbo' };
+// A screen effect over a side's map (under the game box): the dark side's purple scanline tint (BossLimbo's screen loop),
+// fading in 2 s after that side comes up, like the game. The game's cycle: the loop file's 4 frames, then the pre's frames 4-15
+// (its first 4 are the loop's, fading in), 60 ms each. Limbo Background: Phase 1's purple mist, 16 frames of 120 ms, on
+// from the start. .webm (see-through), .webp for Safari.
+const THEME_SCREEN = { limboDark: 'video/limbo-bg/dark-screen', limboP1: 'video/limbo-bg/phase1-screen' };
 function bgVideo(t) {
   const v = document.createElement('video');
   Object.assign(v, { autoplay: true, muted: true, loop: true, playsInline: true, poster: THEME_IMG[t] });
   v.setAttribute('aria-hidden', 'true');
+  v.dataset.theme = t;
   for (const src of THEME_VIDEO[t]) v.appendChild(Object.assign(document.createElement('source'), { src, type: src.includes('.webm') ? 'video/webm' : 'video/mp4' }));
   v.play?.().catch(() => {});
   return v;
@@ -616,14 +659,30 @@ function applyTheme(fade = false) {
   const pick = lsGet(THEME_KEY);
   const t = limboAllOn() ? (limboDarkSide ? 'limboDark' : 'limbo') : holidayToday() ?? (ownedThemes().includes(pick) ? pick : 'default');
   const old = [...document.querySelectorAll('.themebg')];
-  if ((old.at(-1)?.dataset.theme ?? 'default') === t) return t;
+  const top = old.at(-1)?.dataset.theme ?? 'default';
+  if (top === t) {   // already showing (Limbo mode may have just come on: add the other side)
+    if (THEME_PAIR[t]) pairVideos(old.at(-1), t);
+    themeBgm(t);
+    return t;
+  }
+  if (THEME_PAIR[t] === top) {   // the other side of a pair: switch in place, on the same frame
+    const el = old.at(-1);
+    el.dataset.theme = t;
+    el.style.backgroundImage = `url("${THEME_IMG[t]}")`;
+    pairVideos(el, t);
+    themeBgm(t);
+    return t;
+  }
   const gone = () => old.forEach((el) => el.remove());
+  themeBgm(t);
   if (t !== 'default') {
     const el = document.createElement('div');
     el.className = 'themebg';
     el.dataset.theme = t;
     el.style.backgroundImage = `url("${THEME_IMG[t]}")`;
-    if (THEME_VIDEO[t]) el.appendChild(bgVideo(t));
+    if (THEME_PAIR[t]) pairVideos(el, t);
+    else if (THEME_VIDEO[t]) el.appendChild(bgVideo(t));
+    if (!THEME_PAIR[t] && THEME_SCREEN[t]) el.appendChild(themeScreen(THEME_SCREEN[t])).classList.add('on');   // (on from the start: no fade)
     if (secs) {
       el.style.transition = `opacity ${secs}s ease`;
       el.style.opacity = 0;
@@ -637,6 +696,98 @@ function applyTheme(fade = false) {
     setTimeout(gone, secs * 1000 + 100);
   } else gone();
   return t;
+}
+// Both sides' videos in one background (the other side's only in Limbo mode, where they swap); the hidden one stays
+// at opacity 0 rather than display: none, so it keeps playing and shows straight away.
+function pairVideos(el, t) {
+  for (const side of [t, THEME_PAIR[t]]) {
+    if (side !== t && !limboAllOn()) continue;
+    if (!el.querySelector(`video[data-theme="${side}"]`)) el.appendChild(bgVideo(side));
+  }
+  for (const v of el.querySelectorAll('video[data-theme]')) v.classList.toggle('off', v.dataset.theme !== t);
+  const scr = THEME_SCREEN[t] ?? (limboAllOn() && THEME_SCREEN[THEME_PAIR[t]]);
+  if (scr && !el.querySelector('.themescreen')) el.appendChild(themeScreen(scr));
+  el.querySelector('.themescreen')?.classList.toggle('on', !!THEME_SCREEN[t]);
+}
+function themeScreen(src) {
+  const el = SAFARI ? Object.assign(document.createElement('img'), { src: src + '.webp', alt: '' })
+    : Object.assign(document.createElement('video'), { src: src + '.webm', muted: true, loop: true, autoplay: true, playsInline: true });
+  el.className = 'themescreen';
+  el.setAttribute('aria-hidden', 'true');
+  el.play?.().catch(() => {});
+  return el;
+}
+
+// Background BGM: on by default at 50% (its own On / Off and volume in Settings). Browsers only let it start after a
+// click or key press, so it comes in with your first one. Not on BGM Clip (it would get in the way of the guessing),
+// and it goes quiet while the VIP player plays.
+const THEME_BGM_KEY = 'mapleWordle:themeBgm', THEME_BGM_VOL_KEY = 'mapleWordle:themeBgmVol';
+const themeBgmOn = () => lsGet(THEME_BGM_KEY) !== '0';
+const themeBgmVol = () => { const v = Number(lsGet(THEME_BGM_VOL_KEY) ?? 50); return Number.isFinite(v) ? v : 50; };
+const ownsThemeBgm = () => ownedThemes().some((t) => THEME_BGM[t]);
+const BGM_PAGE = /\/bgm(\.html)?$/.test(location.pathname);
+const tbgm = { ctx: null, master: null, cur: null, tracks: {} };   // tracks: theme -> { gain, src, ready }
+// A sound that goes with a background's music (Limbo's transition): through the same volume and On / Off, so it's only
+// heard where the music is (not on BGM Clip).
+const tbgmSounds = {};
+function themeBgmSound(src, vol = 1) {
+  if (!tbgm.ctx || !tbgm.master || !Object.keys(tbgm.tracks).length) return;
+  const ctx = tbgm.ctx;
+  tbgmSounds[src] ??= fetch(src).then((r) => r.arrayBuffer()).then((b) => ctx.decodeAudioData(b)).catch(() => null);
+  tbgmSounds[src].then((buf) => {
+    if (!buf || !tbgm.master) return;
+    const s = ctx.createBufferSource(), g = ctx.createGain();
+    s.buffer = buf;
+    g.gain.value = vol;
+    s.connect(g).connect(tbgm.master);
+    s.start();
+  });
+}
+function themeBgmLevel() { return themeBgmOn() && !(vip.audio && !vip.audio.paused) ? themeBgmVol() / 100 * 0.5 * (PHONE ? 2 : 1) : 0; }
+function themeBgm(t = tbgm.cur) {
+  tbgm.cur = t;
+  const want = THEME_BGM[t] && !BGM_PAGE && themeBgmOn() ? [t, ...(THEME_PAIR[t] && limboAllOn() ? [THEME_PAIR[t]] : [])] : [];
+  for (const k of Object.keys(tbgm.tracks)) if (!want.includes(k)) {   // a background without music now: stop it
+    try { tbgm.tracks[k].src?.stop(); } catch {}
+    delete tbgm.tracks[k];
+  }
+  if (!want.length) return;
+  try {
+    if (!tbgm.ctx) {
+      tbgm.ctx = new (window.AudioContext || window.webkitAudioContext)();
+      tbgm.master = tbgm.ctx.createGain();
+      tbgm.master.connect(tbgm.ctx.destination);
+      const wake = () => { if (tbgm.ctx.state === 'suspended') tbgm.ctx.resume(); };
+      for (const ev of ['pointerdown', 'keydown']) document.addEventListener(ev, wake, true);
+    }
+  } catch { return; }
+  const ctx = tbgm.ctx;
+  tbgm.master.gain.value = themeBgmLevel();
+  for (const k of want) {
+    if (tbgm.tracks[k]) continue;
+    const tr = tbgm.tracks[k] = { gain: ctx.createGain() };
+    tr.gain.connect(tbgm.master);
+    tr.gain.gain.value = 0;
+    tr.ready = fetch(THEME_BGM[k]).then((r) => r.arrayBuffer()).then((b) => ctx.decodeAudioData(b));
+  }
+  // Start together once both are decoded, so a pair stays in step (each loops on its own from there).
+  const fresh = want.filter((k) => !tbgm.tracks[k].src);
+  if (fresh.length) {
+    Promise.all(fresh.map((k) => tbgm.tracks[k].ready)).then((bufs) => {
+      const at = ctx.currentTime + 0.05;
+      fresh.forEach((k, i) => {
+        const tr = tbgm.tracks[k];
+        if (!tr || tr.src) return;
+        tr.src = ctx.createBufferSource();
+        tr.src.buffer = bufs[i];
+        tr.src.loop = true;
+        tr.src.connect(tr.gain);
+        tr.src.start(at);
+      });
+    }).catch(() => {});
+  }
+  for (const k of want) tbgm.tracks[k].gain.gain.setValueAtTime(k === t ? 1 : 0, ctx.currentTime);   // only this side heard (a swap switches straight over)
+  if (ctx.state === 'suspended') ctx.resume().catch(() => {});
 }
 // The Customize button (only once you have a theme besides Default, or a win effect from the shop) opens a window like
 // the Changelog with 3 tabs: Background (click a theme to use it), Win Effect (click to tick / untick; a random one of the
@@ -915,7 +1066,16 @@ function limboTransitions() {   // Limbo mode: a transition (and a swap of sides
     transTimer = setTimeout(limboTransition, wait);
   }
 }
-function limboSwap() {   // the light and dark side (background + border) trade places, with a quick glitch
+function limboSwap(white = false) {   // the light and dark side (background + border) trade places, with a quick glitch
+  if (white) {   // the transition: like the game, the background goes white for a moment (under the burst) and the sides swap there
+    const w = document.body.appendChild(Object.assign(document.createElement('div'), { className: 'limbowhite' }));
+    limboDarkSide = !limboDarkSide;
+    applyTheme(0);
+    drawCustomFx(false);
+    setTimeout(() => w.classList.add('out'), 85);
+    setTimeout(() => w.remove(), 250);
+    return;
+  }
   document.body.classList.add('limboswap');
   setTimeout(() => {
     limboDarkSide = !limboDarkSide;
@@ -926,8 +1086,9 @@ function limboSwap() {   // the light and dark side (background + border) trade 
 }
 // Limbo's transition (Limbo mode, between its sides): a dark pool spreads along the bottom of the screen, Limbo bursts
 // out of it in three places (left, middle, right), then a dome of light breaks and the sides swap under its flash.
-const TRANS_CLIPS = ['trans-pre', 'trans-left', 'trans-middle', 'trans-right', 'trans-end'];
-const TRANS_PRE = 1700, TRANS_BURST = 900, TRANS_END = 2340;   // bursts come up as the pool ends; the dome comes as they bite (frame 10)
+const TRANS_CLIPS = ['trans-pools', 'trans-sharks', 'trans-end'];   // two pools, two sharks out of them (each pair one clip, a half + its mirror, so they stay in step)
+const TRANS_PRE = 3150, TRANS_BURST = 420, TRANS_END = 2340;   // the pools churn for 3.15 s, then the sharks pop up on the sound's hit (small, then giant); the dome comes as they bite
+const TRANS_SWAP = 200;   // like the game: the dome, then as it bursts into lavender the background goes white and the sides swap
 let transBox = null;
 function limboTransitionStop() {   // losing: the fail screen takes over (Limbo mode's next transition 30-60 s later)
   if (transBox) { for (const el of transBox.children) URL.revokeObjectURL(el.src); transBox.remove(); transBox = null; }
@@ -945,17 +1106,18 @@ async function limboTransition() {
   const gone = () => { for (const el of box.children) URL.revokeObjectURL(el.src); box.remove(); if (transBox === box) transBox = null; };
   const wait = (ms) => new Promise((ok) => setTimeout(ok, ms));
   play(0);
+  themeBgmSound('sounds/limbo-transition.mp3', 0.5);   // the pools' rumble, then a hit as the sharks burst out (3.15 s); half as loud as the music
   await wait(TRANS_PRE);
   if (gen !== transGen) return gone();   // Limbo mode turned off (or a side picked) meanwhile
-  box.firstElementChild.classList.add('out');   // the pool fades as Limbo bursts out of it
-  play(1); play(2); play(3);
+  play(1);
   await wait(TRANS_BURST);
   if (gen !== transGen) return gone();
-  play(4);
-  await wait(180);
+  play(2);
+  box.firstElementChild.classList.add('out');   // the pools stay at full strength under the sharks, then go with the burst
+  await wait(TRANS_SWAP);
   if (gen !== transGen) return gone();
   if (!failPending) {   // (a lost game's fail screen is coming: it plays on, no swap, and the fail screen takes over)
-    limboSwap();
+    limboSwap(true);
     transAt = Date.now();   // (WARNING! stays those 0.12 s)
     setTimeout(limboTransitions, 120);   // the next one, from the moment the background flips
   }
@@ -1396,6 +1558,7 @@ const SHOP = {
               themes: ['limbo', 'limboDark'], img: 'images/fx/limbo-bundle.webp?v=2', zoom: 'images/fx/limbo-bundle-big.webp?v=2' },
   mimica: { name: 'Sol Hecate: Mimica', kind: 'Guess in 1 win effect (Bundle of 5)', price: 2000, always: true, effect: true, added: Date.UTC(2026, 9, 25),
             img: 'images/fx/hecate/mimica-bundle.webp', zoom: 'images/fx/hecate/mimica-bundle-big.webp' },
+  limboP1: { hidden: true, name: 'Limbo Background', kind: 'Moving background + BGM', price: 1000, limboClock: true },   // also from the Archive (full price)
   lucid: { hidden: true, name: 'Garden of Eternal Dream', kind: 'Moving background', price: 5000 },
   lucidBloom: { hidden: true, name: 'Lucid in Bloom', kind: 'Background', price: 2500 },
   lucidNight: { hidden: true, name: "Lucid's Starry Night", kind: 'Background', price: 2500 },
@@ -1497,7 +1660,7 @@ function openShop() {
         : `<button data-buy="${t}"${have < shopPrice(t) ? ' class="poor" title="Not enough mesos"' : ''}>Buy</button>`;
       return `<div class="shopitem">${shopFresh.has(t) && !owned ? '<span class="newtag">NEW</span>' : ''}<span class="themepic zoomable" data-zoom="${t}" title="Click to zoom in" style="background-image:url('${it.img ?? THEME_IMG[t]}')"></span>` +
         `<span class="shopinfo"><b>${it.name}</b><small>${bundleKind(t)}</small>${priceHtml(t)}` +
-        `${!shopDeal(t) ? '' : t === 'limboSub' ? '<span class="dealtag limbodeal">90% OFF <canvas class="limboclock"></canvas></span>'
+        `${!shopDeal(t) ? '' : t === 'limboSub' || SHOP[t].limboClock ? '<span class="dealtag limbodeal">90% OFF <canvas class="limboclock"></canvas></span>'
           : `<span class="dealtag">90% OFF · ${shopDealLeft()}</span>`}</span>${btn}</div>`;
     }).join('') + locked + '</div>' : '<p class="shopempty">Nothing here yet... 👀</p>') +
     '<p class="mesoshop">More cosmetics are coming to the shop later, so save up your mesos!</p>';

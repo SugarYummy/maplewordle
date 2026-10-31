@@ -538,6 +538,7 @@ function renderEnd() {
   if (!over) return;
   // Limbo's mashup answered (right or wrong) on the day itself: Limbo's set is in the shop (the Archive doesn't count)
   if (live && answer.bonus?.mashup?.egg === 'limbo' && bonus != null) shopUnlock('limboSub');
+  if (answer.bonus?.mashup?.egg === 'limbo' && bonus != null) shopUnlock('limboP1', live);   // Limbo Background: the Archive too, at full price
   renderTitle();
   const b = answer.bonus;
   const trackLine = titleShown() ? `The track is "${answer.t.title}".` : '';
@@ -659,6 +660,9 @@ async function limboEnter() {
   // under the cover: the map, the border and the glitch
   const bg = Object.assign(document.createElement('div'), { id: 'limbobg' });
   bg.innerHTML = '<div class="light"></div><div class="dark"></div>';
+  bg.querySelector('.light').appendChild(bgVideo('limbo'));   // the moving maps (fx.js), the same as the shop's backgrounds
+  bg.querySelector('.dark').appendChild(bgVideo('limboDark'));
+  bg.querySelector('.dark').appendChild(themeScreen(THEME_SCREEN.limboDark)).classList.add('on');
   document.body.prepend(bg);
   const border = Object.assign(document.createElement('div'), { id: 'limboborder' });
   document.body.appendChild(border);
