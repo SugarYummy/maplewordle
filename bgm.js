@@ -489,6 +489,7 @@ function guess(name) {
   // Game over: the whole track unlocks (a playing BGM keeps playing) and the bonus round opens.
   drawTicks();
   setTimeout(renderEnd, flipMs);
+  fxHold(flipMs);   // the win border and "+mesos" wait for the flip
   scheduleEnd();
   limboOver(won(), flipMs);   // Limbo's alert border: gone on a win, its fail screen on a loss
   if (won()) {

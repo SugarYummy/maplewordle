@@ -82,8 +82,21 @@ function confetti(firstTry = false) {
 
 // A puzzle won on the first guess keeps its game box glowing gold, also after a reload. Pages call this whenever
 // the shown puzzle changes or gets a new guess.
+// A fresh win holds the gold border and the "+mesos" back until the cards finish flipping (fxHold(flipMs) right after a
+// guess); loading a day that's already done shows them right away.
+let fxHoldTill = 0, glowTimer;
 function firstTryGlow(on) {
-  document.querySelector('.game')?.classList.toggle('glow', on);
+  const game = document.querySelector('.game');
+  if (!game) return;
+  clearTimeout(glowTimer);
+  if (!on) fxHoldTill = 0;
+  const wait = fxHoldTill - Date.now();
+  if (on && wait > 0) { game.classList.remove('glow'); glowTimer = setTimeout(() => game.classList.add('glow'), wait); }
+  else game.classList.toggle('glow', on);
+}
+function fxHold(ms) {
+  fxHoldTill = Date.now() + ms;
+  if (document.querySelector('.game')?.classList.contains('glow')) firstTryGlow(true);
 }
 
 // First-guess win: a Sol Hecate skill screen plays over the page first, and the meso show starts when it bursts.
@@ -1834,6 +1847,7 @@ function mesoGain(mode, day, show) {
   el.querySelector('span').textContent = `+${fmt(got)}`;
   el.classList.toggle('none', !got);
   if (!got) el.querySelector('span').textContent = `+0 (you already earned more on another mode ${isArchive(day) ? 'that day' : 'today'})`;
+  if (fxHoldTill > Date.now()) revealAfter(el, fxHoldTill - Date.now());
 }
 // Under the Mode buttons (Boss Wordle, BGM Clip): only your best mode each day pays.
 (() => {

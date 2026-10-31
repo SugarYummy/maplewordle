@@ -542,6 +542,7 @@ function guess(name) {
   // A Story win that took 7+ guesses gets no confetti and no win sound. Sounds are for today's puzzle only.
   const won = guesses.includes(answer.name);
   const quietWin = won && mode === 'story' && guesses.length >= 7;
+  if (over) fxHold(flipMs);   // the win border and "+mesos" wait for the flip
   if (over && won && !quietWin) setTimeout(() => confetti(guesses.length === 1), flipMs);
   if (over) limboOver(won, flipMs);   // Limbo's alert border: gone on a win, its fail screen on a loss
   if (over && live && !quietWin) resultSound(won, flipMs, won && guesses.length === 1 ? 'firstTry' : mode !== 'extreme' ? undefined : !won ? 'extremeLose' : 'extremeWin');
