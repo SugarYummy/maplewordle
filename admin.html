@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Maple Wordle Admin</title>
+<style>
+  /* Account admin (not linked from the site): find accounts and reset passwords by typing commands. Every command
+     goes to the account Worker with the admin key (asked once, kept in this browser only), so without it nothing works. */
+  :root { color-scheme: dark; }
+  body { margin: 0; background: #111; color: #eee; font: 15px/1.45 ui-monospace, Consolas, monospace; }
+  main { max-width: 980px; margin: 0 auto; padding: 16px; display: flex; flex-direction: column; min-height: 100vh; box-sizing: border-box; }
+  h1 { font-size: 18px; margin: 0 0 8px; }
+  #log { flex: 1; }
+  .cmd { color: #9cf; margin: 14px 0 4px; }
+  .err { color: #f77; }
+  .ok { color: #7d7; }
+  .help { color: #bbb; white-space: pre-wrap; }
+  table { border-collapse: collapse; margin: 4px 0; }
+  th, td { border: 1px solid #333; padding: 4px 10px; text-align: left; }
+  th { background: #222; }
+  td.n { text-align: right; }
+  form { position: sticky; bottom: 0; display: flex; gap: 8px; padding: 12px 0; background: #111; }
+  input { flex: 1; font: inherit; padding: 8px 10px; border-radius: 6px; border: 1px solid #555; background: #1c1c1c; color: #eee; }
+  button { font: inherit; padding: 8px 16px; border-radius: 6px; border: none; background: #2f6fe0; color: #fff; cursor: pointer; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Maple Wordle accounts</h1>
+  <div id="log"></div>
+  <form id="f"><input id="c" autocomplete="off" spellcheck="false" autofocus placeholder="/find user yuki"><button>Run</button></form>
+</main>
+<script>
+const API = 'https://maplewordle-account.hanayuki.workers.dev/admin/';
+const KEY = 'mwAdminKey';   // (not a mapleWordle: key, so it never goes into anyone's account)
+const HELP = `/find user yuki     accounts whose username has "yuki" in it
+/find uid 1         the account with UID 1
+/find meso+ 5000    accounts with at least 5,000 mesos
+/find meso- 100     accounts with at most 100 mesos
+/find all           every account
+/reset yuki temp123 give yuki a new password (logs them out everywhere)
+/key                enter the admin key again
+/clear              clear this screen
+Up / down: earlier commands. Times are your own time zone.`;
+const log = document.getElementById('log'), input = document.getElementById('c');
+const add = (cls, text) => { const el = Object.assign(document.createElement('div'), { className: cls, textContent: text }); log.appendChild(el); return el; };
+const key = () => { try { return localStorage.getItem(KEY); } catch { return null; } };
+function askKey() {
+  const k = prompt('Admin key (the ADMIN_KEY secret on the maplewordle-account Worker):');
+  if (k) try { localStorage.setItem(KEY, k.trim()); } catch {}
+  return k;
+}
+async function call(path, body) {
+  if (!key() && !askKey()) throw new Error('No admin key.');
+  const r = await fetch(API + path, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Admin-Key': key() }, body: JSON.stringify(body) });
+  const d = await r.json().catch(() => ({}));
+  if (r.status === 403) { try { localStorage.removeItem(KEY); } catch {} throw new Error('Wrong admin key. Run the command again to type it.'); }
+  if (!r.ok) throw new Error(d.error || 'Error ' + r.status);
+  return d;
+}
+const when = (s) => new Date(s * 1000).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
+function table(users) {
+  if (!users.length) return add('err', 'No accounts found.');
+  const t = document.createElement('table');
+  t.innerHTML = '<tr><th>UID</th><th>Username</th><th>Mesos</th><th>Created</th><th>Last save</th><th>Devices</th></tr>';
+  for (const u of users) {
+    const tr = t.insertRow();
+    for (const [v, n] of [[u.id, 1], [u.name], [u.mesos.toLocaleString(), 1], [when(u.made)], [when(u.saved)], [u.devices, 1]]) {
+      Object.assign(tr.insertCell(), { textContent: v, className: n ? 'n' : '' });
+    }
+  }
+  log.appendChild(t);
+  add('help', `${users.length} account${users.length === 1 ? '' : 's'}${users.length === 200 ? ' (the first 200)' : ''}`);
+}
+async function run(line) {
+  const [cmd, a, b, ...rest] = line.trim().split(/\s+/);
+  if (cmd === '/help' || cmd === '/?') return add('help', HELP);
+  if (cmd === '/clear') { log.innerHTML = ''; return; }
+  if (cmd === '/key') { askKey(); return add('ok', 'Key saved.'); }
+  if (cmd === '/find') {
+    if (!['user', 'uid', 'meso+', 'meso-', 'all'].includes(a) || (a !== 'all' && !b)) return add('err', 'Try: /find user yuki, /find uid 1, /find meso+ 5000, /find meso- 100 or /find all');
+    return table((await call('find', { by: a, value: b?.replace(/,/g, '') })).users);
+  }
+  if (cmd === '/reset') {
+    if (!a || !b || rest.length) return add('err', 'Try: /reset username newpassword (no spaces in either)');
+    if (!/^[A-Za-z0-9]{1,10}$/.test(a)) return add('err', 'Usernames are 1-10 letters or numbers.');
+    if (b.length > 16) return add('err', 'Passwords are 1-16 characters.');
+    await call('reset', { name: a, pass: b });
+    return add('ok', `Done: ${a}'s password is now "${b}". They're logged out everywhere; tell them to log in with it, then change it in Account Settings.`);
+  }
+  add('err', 'Unknown command. Type /help');
+}
+const past = [];
+let at = 0;
+document.getElementById('f').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const line = input.value.trim();
+  if (!line) return;
+  past.push(line); at = past.length;
+  input.value = '';
+  add('cmd', '> ' + line);
+  try { await run(line); } catch (err) { add('err', err.message || "Can't reach the server."); }
+  scrollTo(0, document.body.scrollHeight);
+});
+input.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowUp' && at > 0) { input.value = past[--at]; e.preventDefault(); }
+  if (e.key === 'ArrowDown') { at = Math.min(past.length, at + 1); input.value = past[at] ?? ''; e.preventDefault(); }
+});
+add('help', 'Type /help for the commands.');
+</script>
+</body>
+</html>

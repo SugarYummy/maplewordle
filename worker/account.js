@@ -16,6 +16,9 @@
 //     it answers 409 with the account's save: that device takes it as it is (so a wrong guess can't be undone elsewhere).
 //   POST /admin/reset {name, pass}       header X-Admin-Key: the ADMIN_KEY secret. Sets a new password and logs the
 //                                        account out everywhere (for people who forgot theirs and ask on Discord).
+//   POST /admin/find {by, value}         header X-Admin-Key. Accounts by "user" (part of the name), "uid", "meso+" (at
+//                                        least), "meso-" (at most) or "all" -> {users: [{id, name, mesos, made, saved, devices}]}
+//                                        (admin.html on the site types these as /find commands)
 // Signed in = header "Authorization: Bearer <token>". Only a hash of each token is stored.
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -125,6 +128,22 @@ export default {
         db.prepare('DELETE FROM sessions WHERE user_id = ?').bind(user.id),
       ]);
       return json({ ok: true });
+    }
+
+    if (path === '/admin/find' && request.method === 'POST') {
+      const key = request.headers.get('X-Admin-Key') || '';
+      if (!env.ADMIN_KEY || !same(key, env.ADMIN_KEY)) return json({ error: 'no' }, 403);
+      const { by, value } = body;
+      const where = { user: "name_key LIKE '%' || ? || '%'", uid: 'id = ?', 'meso+': 'mesos >= ?', 'meso-': 'mesos <= ?', all: '1' }[by];
+      if (!where) return json({ error: 'bad search' }, 400);
+      const arg = by === 'user' ? String(value ?? '').toLowerCase() : Number(value);
+      if (by !== 'all' && by !== 'user' && !Number.isFinite(arg)) return json({ error: 'bad number' }, 400);
+      // mesos: the meso history's total, like the site's (the mapleWordle:mesoLog key in the save)
+      const { results } = await db.prepare('SELECT * FROM (SELECT u.id, u.name, u.name_key, ' +
+        `(SELECT COALESCE(SUM(json_extract(e.value, '$.amount')), 0) FROM json_each(COALESCE(json_extract(u.data, '$."mapleWordle:mesoLog"'), '[]')) e) AS mesos, ` +
+        'u.created AS made, u.updated AS saved, (SELECT COUNT(*) FROM sessions s WHERE s.user_id = u.id) AS devices FROM users u) ' +
+        `WHERE ${where} ORDER BY id LIMIT 200`).bind(...(by === 'all' ? [] : [arg])).all();
+      return json({ users: results.map(({ name_key, ...r }) => r) });
     }
 
     // Everything below needs a signed-in device.
