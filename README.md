@@ -25,6 +25,26 @@ Each browser sends its result once per mode per day. Until `STATS_URL` in `scrip
 3. Worker **Settings → Bindings → Add → D1 database**: variable name `DB`, database `maplewordle`. Deploy again.
 4. Put the Worker's URL (e.g. `https://maplewordle-stats.<you>.workers.dev/`) into `STATS_URL` in `script.js`.
 
+## Accounts (Cloudflare Worker)
+
+Settings → Account: a username (1-10 letters or numbers) and password (1-16 characters), no email. The account keeps
+everything the site saves in the browser (the `mapleWordle:*` keys, except sound volume), so it can be played on
+other devices. Browser side: `account.js`; server: `worker/account.js`, in the same D1 database as the stats.
+
+1. D1 → `maplewordle` → **Console**: run `worker/account-schema.sql` (it's one line per statement, so it pastes as one line).
+2. **Workers & Pages → Create → Create Worker** named `maplewordle-account` → Deploy → **Edit code**, paste `worker/account.js`, Deploy.
+3. Worker **Settings → Bindings → Add → D1 database**: variable name `DB`, database `maplewordle`.
+4. Worker **Settings → Variables and Secrets → Add**: type Secret, name `ADMIN_KEY`, any long random text. Deploy.
+5. `ACCOUNT_URL` in `account.js` is the Worker's URL.
+
+Forgot a password (asked on Discord): set a new one, which also logs that account out everywhere:
+
+    curl -X POST https://maplewordle-account.hanayuki.workers.dev/admin/reset -H "X-Admin-Key: YOUR_KEY" -H "Content-Type: application/json" -d "{\"name\":\"theirname\",\"pass\":\"newpass\"}"
+
+Everyone's accounts and their numbers (UID), in the D1 Console:
+
+    SELECT id, name, datetime(created, 'unixepoch') AS made FROM users ORDER BY id;
+
 ## Adding a boss later
 
 Add it to the list in `tools/build_bosses.py` with `since="YYYY-MM-DD"` (the first day it can be an answer), e.g.

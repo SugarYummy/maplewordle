@@ -215,6 +215,8 @@ function record(g) {
 }
 const nextHint = () => live ? 'Come back tomorrow for a new class.' : 'Pick another day from the Archive.';
 
+// Signed in: the account is checked first, so a device that's behind can't guess (account.js).
+if (window.acctGate) guess = acctGate(guess);
 function guess(name) {
   if (over) return;
   const g = byName(name);

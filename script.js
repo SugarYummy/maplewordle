@@ -517,6 +517,8 @@ function fallbackCopy(text, done) {
   done();
 }
 
+// Signed in: the account is checked first, so a device that's behind can't guess (account.js).
+if (window.acctGate) guess = acctGate(guess);
 function guess(name) {
   if (over) return;
   name = (name ?? $('guess').value).trim().toLowerCase();

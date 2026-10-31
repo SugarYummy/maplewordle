@@ -765,3 +765,44 @@ input[type="search"]::-webkit-search-cancel-button, input[type="search"]::-webki
 #bundletipbox p { margin: 4px 0 0; color: #b07800; }
 /* Limbo Transition (a wide win effect) fills the whole screen like the others (.hecatefx: cover): the sides run off a
    normal screen, the top and bottom off a very wide one */
+/* Account (account.js): the row at the top of Settings, and its small windows (Create an Account, Log in, Account Settings). */
+.acctbtn { font-family: inherit; font-size: 14px; padding: 4px 12px; border-radius: 8px; cursor: pointer; border: 1px solid rgba(0, 0, 0, 0.2); background: rgba(255, 255, 255, 0.7); }
+.acctbtn:hover { background: rgba(255, 255, 255, 0.95); }
+.acctbtn.acctmain { font-weight: 700; background: #2fa84f; color: #fff; }
+.acctbtn.acctmain:hover { background: #2fa84f; filter: brightness(1.08); }
+.acctwelcome { font-size: 15px; }
+.acctform { display: flex; flex-direction: column; gap: 6px; }
+.acctwin .panel { width: 320px; align-items: stretch; }
+.acctwin h2 { text-align: center; }
+.acctfield { display: flex; flex-direction: column; gap: 3px; font-size: 13px; font-weight: 700; }
+.acctfield input { font-family: inherit; font-size: 15px; padding: 6px 9px; border: 1px solid #999; border-radius: 6px; background: rgba(255, 255, 255, 0.9); }
+.acctfield input:focus { outline: 2px solid #2fa84f; outline-offset: -1px; }
+.accthint { margin: 0; font-size: 12px; opacity: 0.7; }
+.acctwarn { margin: 4px 0 0; padding: 6px 9px; border-radius: 6px; font-size: 12.5px; line-height: 1.35; color: #6b3a00; background: rgba(255, 214, 120, 0.55); border: 1px solid rgba(176, 120, 0, 0.4); }
+.acctwarn a { color: inherit; font-weight: 700; }
+.accterr { margin: 0; min-height: 1.2em; font-size: 13px; color: #c22; }
+.acctform .buybtns { justify-content: center; margin-top: 0; }
+.acctform .buybtns button:disabled { opacity: 0.6; cursor: default; }
+.accttext { margin: 0; text-align: center; line-height: 1.4; }
+.acctfield { text-align: left; }
+.pwbox { position: relative; display: flex; }
+.pwbox input { flex: 1; min-width: 0; padding-right: 38px; }
+.pweye { position: absolute; right: 3px; top: 50%; transform: translateY(-50%); width: 32px; height: 28px; padding: 0; border: none; border-radius: 5px;
+         background: transparent; font-size: 16px; line-height: 1; cursor: pointer; opacity: 0.55; }
+.pweye:hover, .pweye.on { opacity: 1; background: rgba(0, 0, 0, 0.06); }
+.acctchoices { display: flex; flex-direction: column; gap: 8px; margin: 4px 0; }
+.acctchoices .acctbtn { font-size: 15px; padding: 8px 14px; }
+.acctwin .panel > .buybtns { justify-content: center; }
+/* "Oops! Data out of sync!": another device played since, so this one reloads with the account's progress. */
+.acctoops { position: fixed; left: 50%; top: 40%; transform: translate(-50%, -50%); z-index: 9; padding: 16px 28px; border-radius: 12px;
+            background: rgba(30, 30, 30, 0.92); color: #fff; font-size: 20px; font-weight: 700; box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+            animation: acctoops 0.25s ease-out; }
+@keyframes acctoops { from { opacity: 0; transform: translate(-50%, -40%); } }
+.acctinfo { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+.acctbtns { display: flex; gap: 8px; }
+.acctbtn.acctout { background: #d9443b; color: #fff; font-weight: 700; }
+.acctbtn.acctout:hover { background: #d9443b; filter: brightness(1.08); }
+.fielderr { font-size: 12px; font-weight: 400; color: #c22; line-height: 1.3; }
+.fielderr:empty { display: none; }
+#acctRow:has(.acctinfo) { align-items: baseline; }   /* "Account" on the same line as "Welcome back, ...!" */
+.acctuid { display: block; margin-top: 2px; font-size: 12px; font-weight: 400; color: #777; }   /* the account's number, under Account */

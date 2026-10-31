@@ -461,6 +461,8 @@ function record(name) {
   firstTryGlow(over && guesses.length === 1 && won());
 }
 
+// Signed in: the account is checked first, so a device that's behind can't guess (account.js).
+if (window.acctGate) guess = acctGate(guess);
 function guess(name) {
   if (over) return;
   if (name) {
@@ -809,6 +811,7 @@ $('titlePick').addEventListener('keydown', (e) => {
   }
 });
 $('titleGo').addEventListener('click', () => titleGuess());
+if (window.acctGate) titleGuess = acctGate(titleGuess);
 function titleGuess() {
   const typed = $('titlePick').value.trim().toLowerCase();
   const pick = allTitles().find((t) => t.toLowerCase() === typed);   // has to be one of the titles
@@ -863,7 +866,7 @@ $('bossPick').addEventListener('keydown', (e) => {
     if (pick && (exact || bossActive >= 0 || m.length === 1)) { $('bossPick').value = pick.name; $('bossList').hidden = true; }
   }
 });
-$('bonusGo').addEventListener('click', () => {
+$('bonusGo').addEventListener('click', (window.acctGate ?? ((f) => f))(() => {
   const mash = answer.bonus?.kind === 'mashup';
   const typed = $('bossPick').value.trim().toLowerCase();
   const pick = mash ? bosses.find((e) => e.name.toLowerCase() === typed)?.name : $('bonusPick').value;   // has to be one of the bosses
@@ -886,7 +889,7 @@ $('bonusGo').addEventListener('click', () => {
   if (limbo.on) limboExit();
   sendBonus(ok);
   if (ok && live) answer.t.unlock?.bonus?.forEach((t) => shopUnlock(t));   // shows up in the meso shop (fx.js)
-});
+}));   // (checked first, like a guess)
 
 // ---- Boss picker (every boss, A-Z) ----
 

@@ -405,7 +405,8 @@ applyBox();
     const body = popup('settings', 'Settings');
     // The (i) after each name explains it: hover on a computer, tap on a phone.
     const tip = (text) => `<button class="infotip" type="button" aria-label="What is this?" data-tip="${text}">i</button>`;
-    body.innerHTML = `<div class="setrow"><span class="setlabel">Sound ${tip('The sound effects when a game ends (the win / lose music). The slider sets how loud they are. BGM Clip has its own volume next to Play.')}</span>` +
+    body.innerHTML = (typeof acctRow === 'function' ? acctRow(tip) : '') +   // Account (account.js)
+      `<div class="setrow"><span class="setlabel">Sound ${tip('The sound effects when a game ends (the win / lose music). The slider sets how loud they are. BGM Clip has its own volume next to Play.')}</span>` +
       '<button id="setMute"></button><input id="setVol" type="range" min="0" max="100"><span id="setVolPct"></span></div>' +
       (ownsThemeBgm() ? `<div class="setrow"><span class="setlabel">Background BGM ${tip("Music for backgrounds that come with their own (Limbo's Subconscious: Phase 3's White and Black tracks; Limbo Background: Phase 1's). It plays while that background is on, from your first click. Not on BGM Clip, so it doesn't get in the way of guessing.")}</span>` +
         '<button id="setBgm"></button><input id="setBgmVol" type="range" min="0" max="100"><span id="setBgmPct"></span></div>' : '') +
@@ -420,6 +421,7 @@ applyBox();
       '<button id="vipSkip">⏭ Skip</button><button id="vipLoop" title="Loop this song">🔁 Loop</button></div><p id="vipNow"></p>' +
       '<div id="vipTrack"><span id="vipText">0.0 / 0.0</span><span id="vipArrow">▼</span><div id="vipBar"><div id="vipFill"></div></div></div></div>';
     vipSetup(body);
+    if (typeof acctRowSetup === 'function') acctRowSetup(body);
     // Each (i) gets a dark box that fades in over the rows below it (it doesn't push anything down): shown while
     // hovered (computer) or after a tap (phone).
     const closeTips = () => { for (const x of body.querySelectorAll('.infotip.open')) { x.classList.remove('open'); x.tipBox.classList.remove('show'); } };
