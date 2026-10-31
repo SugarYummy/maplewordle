@@ -6,6 +6,8 @@
 ### 🔧 Changes
 - **[Customize]** Displays error texts instead of leaving the user hanging.
 - **[Customize]** [Custom Effects] now show a clear indication of what's being toggled.
+### 🐛 Bug Fixes
+- **[BGM Clip]** Visual bug displaying 5x mesos to only [BGM Clip] when 5x actually applies to all gamemodes.
 ### 🥚 Easter Egg
 - **[Easter Egg]** Added more easter eggs! 👀
 
