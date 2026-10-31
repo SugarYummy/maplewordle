@@ -39,7 +39,7 @@ other devices. Browser side: `account.js`; server: `worker/account.js`, in the s
 
 Admin page: `admin.html` (not linked anywhere). Type `/find user yuki`, `/find uid 1`, `/find meso+ 5000`,
 `/find meso- 100` or `/find all` to look accounts up, and `/reset yuki temp123` to give someone a new password
-(it logs them out everywhere). It asks for the `ADMIN_KEY` once and keeps it in that browser.
+(it logs them out everywhere). `/delete yuki` deletes an account for good (it asks you to type the name first). It asks for the `ADMIN_KEY` once and keeps it in that browser.
 
 Or without the page: forgot a password (asked on Discord)? Set a new one, which also logs that account out everywhere:
 

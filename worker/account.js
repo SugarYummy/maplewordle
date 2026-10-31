@@ -19,6 +19,7 @@
 //   POST /admin/find {by, value}         header X-Admin-Key. Accounts by "user" (part of the name), "uid", "meso+" (at
 //                                        least), "meso-" (at most) or "all" -> {users: [{id, name, mesos, made, saved, devices}]}
 //                                        (admin.html on the site types these as /find commands)
+//   POST /admin/delete {name}            header X-Admin-Key. Deletes the account and signs out its devices (no undo).
 // Signed in = header "Authorization: Bearer <token>". Only a hash of each token is stored.
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -81,7 +82,7 @@ export default {
       const m = (request.headers.get('Authorization') || '').match(/^Bearer ([0-9a-f]{64})$/);
       if (!m) return null;
       const th = await sha256(m[1]);
-      const user = await db.prepare('SELECT u.id, u.name, u.rev FROM sessions s JOIN users u ON u.id = s.user_id WHERE s.token_hash = ?').bind(th).first();
+      const user = await db.prepare('SELECT u.id, u.name, u.rev, s.seen FROM sessions s JOIN users u ON u.id = s.user_id WHERE s.token_hash = ?').bind(th).first();
       if (user) user.th = th;
       return user;
     };
@@ -130,6 +131,20 @@ export default {
       return json({ ok: true });
     }
 
+    if (path === '/admin/delete' && request.method === 'POST') {
+      const key = request.headers.get('X-Admin-Key') || '';
+      if (!env.ADMIN_KEY || !same(key, env.ADMIN_KEY)) return json({ error: 'no' }, 403);
+      const { name } = body;
+      if (!goodName(name)) return json({ error: 'bad name' }, 400);
+      const user = await db.prepare('SELECT id, name FROM users WHERE name_key = ?').bind(name.toLowerCase()).first();
+      if (!user) return json({ error: 'no such user' }, 404);
+      await db.batch([
+        db.prepare('DELETE FROM sessions WHERE user_id = ?').bind(user.id),
+        db.prepare('DELETE FROM users WHERE id = ?').bind(user.id),
+      ]);
+      return json({ ok: true, id: user.id, name: user.name });
+    }
+
     if (path === '/admin/find' && request.method === 'POST') {
       const key = request.headers.get('X-Admin-Key') || '';
       if (!env.ADMIN_KEY || !same(key, env.ADMIN_KEY)) return json({ error: 'no' }, 403);
@@ -175,7 +190,8 @@ export default {
     }
 
     if (path === '/sync' && request.method === 'GET') {
-      await db.prepare('UPDATE sessions SET seen = ? WHERE token_hash = ?').bind(now(), user.th).run();
+      // "Last seen" moves at most once a day, so a visit is a read, not a write.
+      if (user.seen < now() - 86400) await db.prepare('UPDATE sessions SET seen = ? WHERE token_hash = ?').bind(now(), user.th).run();
       if (Number(url.searchParams.get('rev')) === user.rev) return json({ id: user.id, name: user.name, rev: user.rev });
       const row = await db.prepare('SELECT data FROM users WHERE id = ?').bind(user.id).first();
       return json({ id: user.id, name: user.name, rev: user.rev, data: JSON.parse(row.data) });

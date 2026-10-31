@@ -41,6 +41,7 @@ const HELP = `/find user yuki     accounts whose username has "yuki" in it
 /find meso- 100     accounts with at most 100 mesos
 /find all           every account
 /reset yuki temp123 give yuki a new password (logs them out everywhere)
+/delete yuki        delete yuki's account for good (asks first)
 /key                enter the admin key again
 /clear              clear this screen
 Up / down: earlier commands. Times are your own time zone.`;
@@ -89,6 +90,15 @@ async function run(line) {
     if (b.length > 16) return add('err', 'Passwords are 1-16 characters.');
     await call('reset', { name: a, pass: b });
     return add('ok', `Done: ${a}'s password is now "${b}". They're logged out everywhere; tell them to log in with it, then change it in Account Settings.`);
+  }
+  if (cmd === '/delete') {
+    if (!a || b) return add('err', 'Try: /delete username');
+    if (!/^[A-Za-z0-9]{1,10}$/.test(a)) return add('err', 'Usernames are 1-10 letters or numbers.');
+    const found = (await call('find', { by: 'user', value: a })).users.find((u) => u.name.toLowerCase() === a.toLowerCase());
+    if (!found) return add('err', 'No account with that username.');
+    if (prompt(`Delete ${found.name} (UID ${found.id}, ${found.mesos.toLocaleString()} mesos) for good? Their progress can't be brought back.\nType the username to confirm:`)?.trim().toLowerCase() !== found.name.toLowerCase()) return add('help', 'Not deleted.');
+    const d = await call('delete', { name: found.name });
+    return add('ok', `Deleted ${d.name} (UID ${d.id}). Their devices are signed out; the name is free again.`);
   }
   add('err', 'Unknown command. Type /help');
 }
