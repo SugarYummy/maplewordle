@@ -140,25 +140,21 @@ td.cardcell { background: #b9bdc6; }
 td.flip { animation: flip 0.5s ease both; }
 @keyframes flip { from { transform: rotateX(90deg); } to { transform: rotateX(0); } }
 /* Win confetti (fx.js). */
-.confetti { position: fixed; inset: 0; pointer-events: none; z-index: 10; overflow: hidden; }
+.confetti { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; }   /* one canvas */
 /* First-guess win: a Sol Hecate skill screen over the whole page (fx.js playHecate), under the mesos */
 .hecatefx { position: fixed; inset: 0; width: 100vw; height: 100vh; object-fit: cover; z-index: 9; pointer-events: none; }
-.confetti b { position: absolute; left: 0; top: 0; will-change: transform; }
-.confetti b.fall { top: -40px; animation: confetti-fall linear both; }
-.confetti i { display: block; background: center / contain no-repeat; image-rendering: pixelated; }
-.confetti i.coin { animation: coin-flip linear infinite; }   /* coins spin like real coins; bundles and bags don't */
-@keyframes confetti-fall { to { transform: translate(var(--drift), 105vh); } }
-@keyframes coin-flip { to { transform: rotateY(360deg); } }
 /* First-guess win: the game box shakes once; a puzzle won on the first guess glows gold for good. */
 .game.shake { animation: shake 0.5s cubic-bezier(.36, .07, .19, .97) both; }
-.game.glow { animation: glow 0.8s ease-in-out infinite alternate; }
-.game.shake.glow { animation: shake 0.5s cubic-bezier(.36, .07, .19, .97) both, glow 0.8s ease-in-out infinite alternate; }
+/* The glow is a shadow drawn once on a layer behind the box that only fades in and out: animating the box's own
+   shadow repainted the blurred box every frame, for as long as the page stayed open. */
+.game.glow:not(.rainbow)::after { content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: -1;
+  box-shadow: 0 0 22px 8px rgba(255, 200, 40, .95), 0 0 60px 20px rgba(255, 170, 0, .55); animation: glow 0.8s ease-in-out infinite alternate; }
 @keyframes shake {
   10%, 90% { transform: translate(-2px, 1px); } 20%, 80% { transform: translate(4px, -2px); }
   30%, 50%, 70% { transform: translate(-8px, 3px); } 40%, 60% { transform: translate(8px, -3px); } }
-@keyframes glow { to { box-shadow: 0 0 22px 8px rgba(255, 200, 40, .95), 0 0 60px 20px rgba(255, 170, 0, .55); } }
+@keyframes glow { from { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { td.flip { animation: none; } .confetti { display: none; }
-  .game.glow { animation: none; box-shadow: 0 0 22px 8px rgba(255, 200, 40, .95), 0 0 60px 20px rgba(255, 170, 0, .55); } }
+  .game.glow:not(.rainbow)::after { animation: none; } }
 .later { animation: appear 0.3s ease both; }
 @keyframes appear { from { opacity: 0; } to { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .later { animation: none; } }
@@ -285,12 +281,9 @@ td.flip { animation: flip 0.5s ease both; }
 /* BGM Clip 💎 (first guess + bonus right): blue instead of gold, on the game box and its Archive day. */
 #archiveList button.diamond { border-color: rgba(30, 140, 255, 0.9); background: rgba(170, 215, 255, 0.55); animation: rowglowblue 0.8s ease-in-out infinite alternate; }
 @keyframes rowglowblue { from { box-shadow: 0 0 2px 1px rgba(60, 170, 255, .5); } to { box-shadow: 0 0 10px 4px rgba(60, 170, 255, 1); } }
-.game.glow.diamond { animation: glowblue 0.8s ease-in-out infinite alternate; }
-.game.shake.glow.diamond { animation: shake 0.5s cubic-bezier(.36, .07, .19, .97) both, glowblue 0.8s ease-in-out infinite alternate; }
-@keyframes glowblue { to { box-shadow: 0 0 22px 8px rgba(80, 190, 255, .95), 0 0 60px 20px rgba(30, 130, 255, .55); } }
+.game.glow.diamond:not(.rainbow)::after { box-shadow: 0 0 22px 8px rgba(80, 190, 255, .95), 0 0 60px 20px rgba(30, 130, 255, .55); }
 @media (prefers-reduced-motion: reduce) {
-  #archiveList button.diamond { animation: none; box-shadow: 0 0 8px 3px rgba(60, 170, 255, .95); }
-  .game.glow.diamond { animation: none; box-shadow: 0 0 22px 8px rgba(80, 190, 255, .95), 0 0 60px 20px rgba(30, 130, 255, .55); } }
+  #archiveList button.diamond { animation: none; box-shadow: 0 0 8px 3px rgba(60, 170, 255, .95); }}
 
 /* Tiny "NEW" tag in the top left corner of a new game tab (fx.js). */
 #games button, #subgames button { position: relative; }
@@ -362,8 +355,6 @@ body.glitch::after { content: ''; position: fixed; inset: 0; z-index: 9; pointer
                      background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.18) 0 2px, transparent 2px 4px);
                      animation: glitchflash 1.7s steps(1) infinite; }
 body.glitch .game { animation: glitchslice 2.3s steps(1) infinite; }
-body.glitch .game.glow { animation: glitchslice 2.3s steps(1) infinite, glow 0.8s ease-in-out infinite alternate; }   /* keep the win glow */
-body.glitch .game.glow.diamond { animation: glitchslice 2.3s steps(1) infinite, glowblue 0.8s ease-in-out infinite alternate; }
 @keyframes glitchslice {
   0%, 100% { clip-path: none; transform: none; filter: none; }
   12% { transform: translate(-4px, 1px); filter: drop-shadow(3px 0 0 rgba(255, 0, 80, 0.7)) drop-shadow(-3px 0 0 rgba(0, 220, 255, 0.7)); }

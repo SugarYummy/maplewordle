@@ -62,43 +62,65 @@ const PIECES = [
   ['meso-bundle', 31, 30], ['meso-bundle', 31, 30],
   ['meso-bag', 32, 31],
 ];
-for (const [file] of PIECES) new Image().src = `images/fx/${file}.png`;   // preload, so they're ready on a win
+const SPRITES = {};
+for (const [file] of PIECES) SPRITES[file] ??= Object.assign(new Image(), { src: `images/fx/${file}.png` });   // preload, so they're ready on a win
 const rand = (a, b) => a + Math.random() * (b - a);
 
-// One meso: an outer box that moves, holding the sprite (which flips if it's a coin).
-function meso(box) {
-  const [file, w, h, coin] = PIECES[Math.floor(Math.random() * PIECES.length)];
-  const outer = document.createElement('b');
-  const img = document.createElement('i');
-  img.style.width = w + 'px';
-  img.style.height = h + 'px';
-  img.style.backgroundImage = `url("images/fx/${file}.png")`;
-  if (coin) {
-    img.className = 'coin';
-    img.style.animationDuration = rand(0.4, 0.9) + 's';
-  }
-  outer.appendChild(img);
-  box.appendChild(outer);
-  return outer;
-}
-
-// A meso falling from the top of the screen, starting `delay` seconds from now.
-function fall(box, delay = 0) {
-  const el = meso(box);
-  el.className = 'fall';
-  el.style.left = Math.random() * 100 + 'vw';
-  el.style.animationDelay = delay + 's';
-  el.style.animationDuration = rand(2.2, 3.6) + 's';
-  el.style.setProperty('--drift', rand(-10, 10) + 'vw');
-  setTimeout(() => el.remove(), (delay + 3.7) * 1000);
-}
-
+// All the mesos of one show are drawn on a single canvas, in one loop: thousands of page elements (one per meso)
+// made phones lag and use a lot of memory. A layer: { parts, jobs }. jobs run every frame (they throw new mesos)
+// until they say they're done; parts are the mesos in the air. The canvas goes once both are empty, or after `ms`.
 function fxLayer(ms) {
-  const box = document.createElement('div');
-  box.className = 'confetti';
-  document.body.appendChild(box);
-  setTimeout(() => box.remove(), ms);
-  return box;
+  const cv = document.createElement('canvas');
+  cv.className = 'confetti';
+  document.body.appendChild(cv);
+  const ctx = cv.getContext('2d');
+  const L = { parts: [], jobs: [] };
+  const end = performance.now() + ms;
+  let last = performance.now();
+  const frame = (now) => {
+    if (now > end || (!L.jobs.length && !L.parts.length)) { cv.remove(); return; }
+    const dt = Math.min(0.05, (now - last) / 1000);
+    last = now;
+    const W = innerWidth, H = innerHeight, dpr = devicePixelRatio || 1;
+    if (cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.imageSmoothingEnabled = false;   // pixel-sharp sprites
+    ctx.clearRect(0, 0, W, H);
+    L.jobs = L.jobs.filter((job) => job(now) !== false);
+    let n = 0;
+    for (const m of L.parts) {
+      if (!m.move(m, now, dt, W, H)) continue;   // landed / off screen
+      L.parts[n++] = m;
+      const img = SPRITES[m.file];
+      if (!img.complete || !img.naturalWidth) continue;
+      const sx = m.spin ? Math.cos((now - m.born) / m.spin * 2 * Math.PI) : 1;   // a coin flipping (turning on its upright axis)
+      ctx.setTransform(dpr * sx, 0, 0, dpr, (m.x + m.w / 2) * dpr, (m.y + m.h / 2) * dpr);
+      ctx.drawImage(img, -m.w / 2, -m.h / 2, m.w, m.h);
+    }
+    L.parts.length = n;
+    requestAnimationFrame(frame);
+  };
+  requestAnimationFrame(frame);
+  return L;
+}
+
+// One meso: a random piece (coins flip once every 0.4-0.9 s; bundles and bags don't turn at all).
+function meso(L, x, y, move) {
+  const [file, w, h, coin] = PIECES[Math.floor(Math.random() * PIECES.length)];
+  const m = { file, w, h, x, y, move, born: performance.now(), spin: coin ? rand(400, 900) : 0 };
+  L.parts.push(m);
+  return m;
+}
+
+// A meso falling from just above the screen to just below it in 2.2-3.6 s, drifting a little sideways.
+function fall(L) {
+  const W = innerWidth, x0 = Math.random() * W, drift = rand(-0.1, 0.1) * W, ms = rand(2200, 3600);
+  meso(L, x0, -40, (m, now, dt, W2, H) => {
+    const t = (now - m.born) / ms;
+    m.x = x0 + drift * t;
+    m.y = -40 + 1.05 * H * t;
+    return t < 1;
+  });
 }
 
 // Meso confetti falling from the top of the screen: a steady 120 a second for 3 s (360 in all).
@@ -251,45 +273,42 @@ function mesoShow() {
 }
 
 // `perSecond` mesos a second falling nonstop, from `at` seconds for `seconds` seconds.
-function rain(box, at, seconds, perSecond) {
+function rain(L, at, seconds, perSecond) {
   let begin, made = 0, last = 0;
-  const frame = (now) => {
+  const start = performance.now() + at * 1000;
+  L.jobs.push((now) => {
+    if (now < start) return;
     begin ??= now;
     const due = Math.floor((Math.min(now - begin, seconds * 1000)) / 1000 * perSecond);   // how many should have started by now
     if (now - last > 250) made = Math.max(made, due - 10);   // tab was in the background: don't dump them all at once
     last = now;
-    for (; made < due; made++) fall(box);
-    if (now - begin < seconds * 1000) requestAnimationFrame(frame);
-  };
-  setTimeout(() => requestAnimationFrame(frame), at * 1000);
+    for (; made < due; made++) fall(L);
+    return now - begin < seconds * 1000;
+  });
 }
 
 // Mesos thrown up from both bottom corners for `seconds`, arcing over and falling back down (simple physics).
-function fountain(box, seconds) {
-  const flying = [];
-  const end = performance.now() + seconds * 1000;
-  let last = performance.now();
+// 480 a second from each corner, however fast the screen refreshes.
+function fountain(L, seconds) {
+  const PER_SECOND = 480;
+  let begin, made = 0;
+  const fly = (m, now, dt, W, H) => {
+    m.vy += 1400 * dt;
+    m.x += m.vx * dt;
+    m.y += m.vy * dt;
+    return m.y <= H + 60;
+  };
   const throwOne = (x, dir) => {
-    const el = meso(box);
-    el.className = 'fly';
-    flying.push({ el, x, y: innerHeight, vx: dir * (rand(250, 650) * innerWidth / 1000 + 120),
-                  vy: -rand(1000, 1500) * Math.sqrt(innerHeight / 800) });
+    const m = meso(L, x, innerHeight, fly);
+    m.vx = dir * (rand(250, 650) * innerWidth / 1000 + 120);
+    m.vy = -rand(1000, 1500) * Math.sqrt(innerHeight / 800);
   };
-  const frame = (now) => {
-    const dt = Math.min(0.05, (now - last) / 1000);
-    last = now;
-    if (now < end) for (let k = 0; k < 8; k++) { throwOne(-10, 1); throwOne(innerWidth - 20, -1); }
-    for (let i = flying.length - 1; i >= 0; i--) {
-      const p = flying[i];
-      p.vy += 1400 * dt;
-      p.x += p.vx * dt;
-      p.y += p.vy * dt;
-      p.el.style.transform = `translate(${p.x}px, ${p.y}px)`;
-      if (p.y > innerHeight + 60) { p.el.remove(); flying.splice(i, 1); }
-    }
-    if (now < end || flying.length) requestAnimationFrame(frame);
-  };
-  requestAnimationFrame(frame);
+  L.jobs.push((now) => {
+    begin ??= now;
+    const due = Math.min(Math.floor((now - begin) / 1000 * PER_SECOND), made + 16);   // at most 16 a frame (after a stall)
+    for (; made < due; made++) { throwOne(-10, 1); throwOne(innerWidth - 20, -1); }
+    return now - begin < seconds * 1000;
+  });
 }
 
 // ---- Result sounds (today's puzzle only): Star Force Success on a win, Star Force Destroy on a loss ----
