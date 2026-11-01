@@ -71,9 +71,12 @@ html:has(#archive:not([hidden]), #changelog:not([hidden]), #info:not([hidden]), 
 #archiveList button { display: block; width: 100%; margin: 4px 0; padding: 6px; text-align: left;
                       background: rgba(255, 255, 255, 0.4); border: 1px solid rgba(0, 0, 0, 0.15); border-radius: 6px; cursor: pointer; }
 #archiveList button:hover { background: rgba(255, 255, 255, 0.65); }
-#archiveList button.firsttry { border-color: rgba(230, 160, 0, 0.9); background: rgba(255, 236, 160, 0.55); animation: rowglow 0.8s ease-in-out infinite alternate; }
-@keyframes rowglow { from { box-shadow: 0 0 2px 1px rgba(255, 200, 40, .5); } to { box-shadow: 0 0 10px 4px rgba(255, 200, 40, 1); } }
-@media (prefers-reduced-motion: reduce) { #archiveList button.firsttry { animation: none; box-shadow: 0 0 8px 3px rgba(255, 200, 40, .95); } }
+#archiveList button.firsttry { border-color: rgba(230, 160, 0, 0.9); background: rgba(255, 236, 160, 0.55); }
+/* the row's glow only fades in and out (a pre-drawn shadow), so it costs nothing to keep going */
+#archiveList button.firsttry, #archiveList button.diamond { position: relative; box-shadow: 0 0 2px 1px rgba(255, 200, 40, .5); }
+#archiveList button.firsttry::after, #archiveList button.diamond::after { content: ''; position: absolute; inset: -1px; border-radius: inherit; pointer-events: none;
+  box-shadow: 0 0 10px 4px rgba(255, 200, 40, 1); animation: glow 0.8s ease-in-out infinite alternate; }
+@media (prefers-reduced-motion: reduce) { #archiveList button.firsttry::after, #archiveList button.diamond::after { animation: none; opacity: .9; } }
 th { background: rgba(255, 255, 255, 0.6); }
 td, th { border: 1px solid #999; padding: 4px 8px; }
 table { border-collapse: collapse; margin: 8px auto; }
@@ -279,11 +282,9 @@ td.flip { animation: flip 0.5s ease both; }
 #bonusResult.wrong, #titleResult.wrong { color: #8a1c1c; font-weight: bold; }
 
 /* BGM Clip 💎 (first guess + bonus right): blue instead of gold, on the game box and its Archive day. */
-#archiveList button.diamond { border-color: rgba(30, 140, 255, 0.9); background: rgba(170, 215, 255, 0.55); animation: rowglowblue 0.8s ease-in-out infinite alternate; }
-@keyframes rowglowblue { from { box-shadow: 0 0 2px 1px rgba(60, 170, 255, .5); } to { box-shadow: 0 0 10px 4px rgba(60, 170, 255, 1); } }
+#archiveList button.diamond { border-color: rgba(30, 140, 255, 0.9); background: rgba(170, 215, 255, 0.55); box-shadow: 0 0 2px 1px rgba(60, 170, 255, .5); }
+#archiveList button.diamond::after { box-shadow: 0 0 10px 4px rgba(60, 170, 255, 1); }
 .game.glow.diamond:not(.rainbow)::after { box-shadow: 0 0 22px 8px rgba(80, 190, 255, .95), 0 0 60px 20px rgba(30, 130, 255, .55); }
-@media (prefers-reduced-motion: reduce) {
-  #archiveList button.diamond { animation: none; box-shadow: 0 0 8px 3px rgba(60, 170, 255, .95); }}
 
 /* Tiny "NEW" tag in the top left corner of a new game tab (fx.js). */
 #games button, #subgames button { position: relative; }
@@ -613,27 +614,30 @@ body.glitch .game { animation: glitchslice 2.3s steps(1) infinite; }
 .setrow:has(.vipfield) { margin-bottom: 24px; }   /* room for "Wrong passcode" under the box */
 /* 🌈 (BGM Clip: first guess + both bonuses right): a rainbow that spins clockwise around the game box's border (with a
    soft glow outside it and a faint tint in the see-through panel), and around the Archive row's border. */
-@property --rb { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
-@keyframes rbspin { to { --rb: 360deg; } }
 .game.rainbow { background: linear-gradient(rgba(255, 255, 255, var(--boxRA, .42)), rgba(255, 255, 255, var(--boxRA, .42))),   /* static light pastel rainbow panel */
   linear-gradient(90deg, rgba(255, 60, 60, var(--boxT, .38)), rgba(255, 160, 30, var(--boxT, .38)), rgba(255, 230, 40, var(--boxT, .38)), rgba(60, 210, 90, var(--boxT, .38)), rgba(50, 140, 255, var(--boxT, .38)), rgba(170, 80, 255, var(--boxT, .38))), #fff0; }
-/* the border: a 3 px spinning rainbow ring just around the box */
-.game.rainbow::after { content: ''; position: absolute; inset: -3px; padding: 3px; border-radius: 15px; pointer-events: none;
-  background: conic-gradient(from var(--rb), #ff3c3c, #ffa01e, #ffe628, #3cd25a, #328cff, #aa50ff, #ff3c3c);
+/* the border: a 3 px spinning rainbow ring just around the box, and the glow: the same rainbow, blurred, only outside
+   the box (bgm.js adds both). The rainbow is drawn (and blurred) once and only turns: animating its angle redrew and
+   re-blurred it every frame, which kept the computer busy for as long as the page was open. */
+.rbring, .rbglow { display: none; position: absolute; pointer-events: none; overflow: hidden; container-type: size;
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
-  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); animation: rbspin 4s linear infinite; }
-.game.glow.rainbow { animation: none; box-shadow: none; }   /* the spinning ::before glow replaces the gold one */
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); }
+.game.rainbow > .rbring, .game.rainbow > .rbglow { display: block; }
+.rbring { inset: -3px; padding: 3px; border-radius: 15px; }
+.rbglow { inset: -18px; z-index: -1; padding: 18px; border-radius: 30px; opacity: 0.8; }
+.rbring i, .rbglow i, #archiveList button.rainbow::before { position: absolute; left: 50%; top: 50%; width: 150cqmax; height: 150cqmax;
+  background: conic-gradient(#ff3c3c, #ffa01e, #ffe628, #3cd25a, #328cff, #aa50ff, #ff3c3c); animation: rbturn 4s linear infinite; }
+.rbglow i { filter: blur(14px); }
+@keyframes rbturn { from { transform: translate(-50%, -50%) rotate(0); } to { transform: translate(-50%, -50%) rotate(360deg); } }
+.game.glow.rainbow { animation: none; box-shadow: none; }   /* the rainbow glow replaces the gold one */
 .game.shake.glow.rainbow { animation: shake 0.5s cubic-bezier(.36, .07, .19, .97) both; }
 body.glitch .game.glow.rainbow { animation: glitchslice 2.3s steps(1) infinite; }
-/* the glow: the same spinning rainbow, blurred, only outside the box */
-.game.rainbow::before { content: ''; position: absolute; inset: -18px; z-index: -1; padding: 18px; border-radius: 30px; pointer-events: none;
-  background: conic-gradient(from var(--rb), #ff3c3c, #ffa01e, #ffe628, #3cd25a, #328cff, #aa50ff, #ff3c3c); filter: blur(14px); opacity: 0.8;
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
-  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); animation: rbspin 4s linear infinite; }
-#archiveList button.rainbow { border: 2px solid transparent; animation: rbspin 4s linear infinite;
-  background: linear-gradient(rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.75)) padding-box,
-              conic-gradient(from var(--rb), #ff3c3c, #ffa01e, #ffe628, #3cd25a, #328cff, #aa50ff, #ff3c3c) border-box; }
-@media (prefers-reduced-motion: reduce) { .game.rainbow, .game.glow.rainbow, .game.rainbow::before, .game.rainbow::after, #archiveList button.rainbow { animation: none; } }
+#archiveList button.rainbow { position: relative; isolation: isolate; overflow: hidden; border: 0; padding: 8px; background: none; }   /* the 2 px ring is the rainbow showing around ::after */
+#archiveList button.rainbow::before { content: ''; width: 150%; height: auto; aspect-ratio: 1; z-index: -1; }
+#archiveList button.rainbow::after { content: ''; position: absolute; inset: 2px; border-radius: 4px; z-index: -1; background: rgba(255, 255, 255, 0.75); }
+#archiveList button.rainbow:hover::after { background: rgba(255, 255, 255, 0.85); }
+@media (prefers-reduced-motion: reduce) { .game.rainbow, .game.glow.rainbow { animation: none; }
+  .rbring i, .rbglow i, #archiveList button.rainbow::before { animation: none; transform: translate(-50%, -50%); } }
 #titleAsk { display: flex; gap: 6px; justify-content: center; margin: 6px 0; }
 #titleField { position: relative; flex: 1; max-width: 320px; }
 #titlePick { width: 100%; box-sizing: border-box; font-family: inherit; font-size: 15px; padding: 6px 8px; border: 1px solid #999; border-radius: 4px; }

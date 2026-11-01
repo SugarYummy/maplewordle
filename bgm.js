@@ -565,7 +565,10 @@ function renderEnd() {
   drawTicks();
   drawBar();
   document.querySelector('.game').classList.toggle('diamond', badge() === '💎');
-  document.querySelector('.game').classList.toggle('rainbow', badge() === '🌈');
+  const game = document.querySelector('.game');
+  if (game.classList.toggle('rainbow', badge() === '🌈') && !game.querySelector('.rbring')) {   // its spinning ring + glow (style.css)
+    game.insertAdjacentHTML('beforeend', '<div class="rbglow"><i></i></div><div class="rbring"><i></i></div>');
+  }
   const box = $('bonus');
   box.hidden = !over;
   // A bonus still waiting: a call-out under the result (click jumps to it) and a glow on the box, until it's answered.
@@ -1259,7 +1262,8 @@ function openInfo() {
     ] : [
       'Each wrong guess or Skip plays more:<ul><li>0.5s</li><li>1s</li><li>2s</li><li>5s</li><li>10s</li><li>Then 30s</li></ul>',
     ]),
-    'It can be from any part of the fight.',
+    'It can be from any part of the boss fight, including Waiting Room and Loot Room.',
+    ...(newRules() ? [] : ['The clip can start at the beginning of the track or anywhere up to near its end.']),
     ...(yellowOn() ? ['🟨 Yellow:<ul><li>Right track</li><li>Wrong boss (still a miss)</li></ul>'] : []),
     '<b>Bonus:</b> guess which part of the fight it plays in (after the game).',
     ...(titleOn() ? ["<b>Bonus 2:</b> guess the track's title."] : []),
