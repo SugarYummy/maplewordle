@@ -2,7 +2,7 @@
 
 ## alpha v5 - 1 November 2026
 ### ✨ New [Character Avatar] Added!
-- **[Account]** Add your MapleStory [Character Avatar] to your account.
+- **[Account]** Added an option to display your MapleStory [Character Avatar] to your account.
 ### 🔧 Changes
 - **[General]** Completely Overhauled the website for smoother, better gameplay.
   - **[Yuki Note]** You might not realize anything changed at all, but future development will be much smoother.
