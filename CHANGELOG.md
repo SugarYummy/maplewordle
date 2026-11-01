@@ -1,5 +1,9 @@
 # Maple Wordle changelog
 
+## alpha v5.0.1 - 2 November 2026
+### 🐛 Bug Fixes
+- **[General]** Patch didn't apply properly, should be fixed now.
+
 ## alpha v5 - 1 November 2026
 ### ✨ New [Character Avatar] Added!
 - **[Account]** Added an option to display your MapleStory [Character Avatar] to your account.
