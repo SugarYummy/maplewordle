@@ -1,5 +1,14 @@
 # Maple Wordle changelog
 
+## alpha v5 - 1 November 2026
+### ✨ New [Character Avatar] Added!
+- **[Account]** Add your MapleStory [Character Avatar] to your account.
+### 🔧 Changes
+- **[General]** Completely Overhauled the website for smoother, better gameplay.
+  - **[Yuki Note]** You might not realize anything changed at all, but future development will be much smoother.
+- **[General]** Simpler helper text.
+- **[General]** Shows a more clear "Best so far" range.
+
 ## alpha v4.5 - 31 October 2026
 ### ✨ New [Account] System Added!
 - **[Account]** Create an account in ⚙️ [Settings] to save your progress.
