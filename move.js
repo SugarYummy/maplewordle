@@ -18,6 +18,18 @@
     location.replace('https://ima.moe/maplewordle' + (path || '/') + location.search + hash);
     return;
   }
+  try { if (window.parent !== window && window.parent.document.documentElement.hasAttribute('data-shell')) document.documentElement.classList.add('inshell'); } catch {}
+  // A game page opened on its own (ima.moe/maplewordle/class, an old link): open it in the main page instead, which
+  // keeps the music going between games (shell.js).
+  if (window.top === window && !document.documentElement.hasAttribute('data-shell')) {
+    const page = location.pathname.split('/').pop().replace(/\.html$/, '');
+    if (['boss', 'class', 'bgm', 'animation'].includes(page)) {
+      const q = new URLSearchParams(location.search);
+      q.set('r', page);
+      location.replace(location.pathname.replace(/[^/]*$/, '') + '?' + q + location.hash);
+      return;
+    }
+  }
   const m = location.hash.match(/^#import=(.+)$/);
   if (!m) return;
   history.replaceState(null, '', location.pathname + location.search);   // tidy the address bar

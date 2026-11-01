@@ -275,7 +275,8 @@ function record(g) {
 }
 
 // "Best so far" row pinned above the guesses: every category already found (green, from a guess or a hint),
-// otherwise the best clue so far (Region: a yellow overlap; numbers: the closest guess with its arrow).
+// otherwise the best clue so far (Region: a yellow overlap; numbers: the range between guesses on both sides, or the
+// closest guess with its arrow).
 // Removed once the game is over.
 function renderBest() {
   $('rows').querySelector('.bestrow')?.remove();
@@ -299,7 +300,17 @@ function renderBest() {
       if (v[key] == null || answer[key] == null) return;
       if (best < 0 || dist[key](v[key], answer[key]) < dist[key](vals[best][key], answer[key])) best = j;
     });
-    cells.push(best < 0 ? ['', 'grey'] : gs[best][i]);
+    // Guesses on both sides of the answer: the range it's in (highest guess below – lowest guess above), yellow if
+    // either end is close. Otherwise the closest guess with its arrow.
+    const text = (v) => (key === 'hp' ? formatHp(v) : key === 'level' ? levelText(v) : v[key]);
+    let lo = -1, hi = -1;
+    vals.forEach((v, j) => {
+      if (v[key] == null || answer[key] == null) return;
+      if (v[key] < answer[key] && (lo < 0 || v[key] > vals[lo][key])) lo = j;
+      if (v[key] > answer[key] && (hi < 0 || v[key] < vals[hi][key])) hi = j;
+    });
+    if (lo >= 0 && hi >= 0) cells.push([`${text(vals[lo])} – ${text(vals[hi])}`, gs[lo][i][1] === 'yellow' || gs[hi][i][1] === 'yellow' ? 'yellow' : 'red']);
+    else cells.push(best < 0 ? ['', 'grey'] : gs[best][i]);
   }
   if (mode === 'extreme') {
     const tierDist = (j) => Math.abs(DIFF_TIER[vals[j].difficulty] - DIFF_TIER[answer.difficulty]) || (DIFF_TIER[vals[j].difficulty] === DIFF_TIER[answer.difficulty] ? 0 : Infinity);
@@ -424,6 +435,7 @@ function renderStats(counts, mine) {
   $('statsAvg').textContent = !total ? '' : `Average: ${(sum / total).toFixed(1)} guesses` +
     (story ? '' : ` (fails count as ${failAs})\n${Math.round(solved * 100 / total)}% solved`);
   $('stats').hidden = false;
+  revealStats($('stats'));   // (fx.js: after your result, when the game just ended)
 }
 
 // Win streak, one per mode, saved in the browser. Only today's puzzle counts (not archive days).
@@ -495,7 +507,7 @@ function shareText() {
     columnOrder(guessCells(pool.find((e) => e.name === name))).filter((_, i) => i !== skip).map(([, c]) => EMOJI[c]).join(''));
   const hintNote = mode === 'story' ? ` (${hints.length} hint${hints.length === 1 ? '' : 's'})` : '';
   const lines = won && guesses.length === 1 ? ['⭐'] : grid;   // first-guess win: just a star
-  return [`${isHalloween(day) ? '🎃 ' : ''}Maple Wordle #${day - FIRST_DAY + 1} (${MODE_NAME[mode]}) ${score}${hintNote}`, ...lines, 'https://ima.moe/maplewordle/'].join('\n');
+  return [`${isHalloween(day) ? '🎃 ' : ''}Maple Wordle #${day - FIRST_DAY + 1} (${MODE_NAME[mode]}) ${score}${hintNote}`, ...lines, 'https://ima.moe/maplewordle/boss/' + mode].join('\n');
 }
 
 function share() {
@@ -538,11 +550,15 @@ function guess(name) {
   const newRow = $('rows').querySelector('tr:not(.bestrow):not(.hintrow):not(.answer)');
   let flipMs = flipRow(newRow);
   limboGuess(newRow, g.name !== answer.name, flipMs);   // Limbo's wrong guess effect, if it's on
-  flipMs = flipRow($('rows').querySelector('tr.answer'), flipMs);   // out of guesses: the answer turns over next
+  flipMs = flipAnswer($('rows').querySelector('tr.answer'), flipMs);   // out of guesses: the answer comes in and turns over next (fx.js)
   // A Story win that took 7+ guesses gets no confetti and no win sound. Sounds are for today's puzzle only.
   const won = guesses.includes(answer.name);
   const quietWin = won && mode === 'story' && guesses.length >= 7;
   if (over) fxHold(flipMs);   // the win border and "+mesos" wait for the flip
+  if (over) {   // the search box stays until the flip is done (guessing in it does nothing now), then goes
+    $('picker').hidden = false;
+    setTimeout(() => { if (over) { $('picker').hidden = true; closeList(); } }, flipMs);
+  }
   if (over && won && !quietWin) setTimeout(() => confetti(guesses.length === 1), flipMs);
   if (over) limboOver(won, flipMs);   // Limbo's alert border: gone on a win, its fail screen on a loss
   if (over && live && !quietWin) resultSound(won, flipMs, won && guesses.length === 1 ? 'firstTry' : mode !== 'extreme' ? undefined : !won ? 'extremeLose' : 'extremeWin');
@@ -633,27 +649,23 @@ const DISCORD = 'https://discord.gg/f22H4UJ';
 function infoHtml(m) {
   const guesses = { story: '<b>unlimited</b> guesses', normal: '<b>6</b> guesses', hard: '<b>5</b> guesses', extreme: '<b>5</b> guesses' }[m];
   const rules = [
-    `Guess today's boss in ${guesses}. New boss every day at 00:00 UTC (same as Maple reset).`,
-    'Each guess shows how close you are:<ul><li>🟩 right · 🟨 close · 🟥 wrong</li><li>↑ / ↓ = the answer is higher / lower</li></ul>',
-    'Close = Phases ±1, HP within 3×, Entry Lv ±10, Region partly overlaps.',
-    'HP is all phases added together. Entry Lv = level needed to enter.',
-    'Unknown = red with no arrow (no data for it yet).',
-    'Seasonal and KMS-only bosses can appear.',
-    ...(m === 'extreme' ? ['You also guess the difficulty. Hard = Chaos and Extreme = Hell count as the same.',
-                           'Every day has a twist: either one fewer guess (4), or one column is hidden.',
-                           'Unreleased, removed and special bosses can appear.'] : []),
-    ...(m === 'story' ? ['A hint unlocks every 3 guesses.'] : []),
-    'The <b>Best so far</b> row shows your best clue for each column.',
-    m === 'story' ? 'Win streak resets if you miss a day.' : 'Win streak resets when you lose.',
+    `Guess today's boss in ${guesses}. New boss daily at 00:00 UTC.`,
+    'Colors:<ul><li>🟩 Right</li><li>🟨 Close<ul><li>Phases ±1</li><li>HP within 3×</li><li>Entry Lv ±10</li><li>Region partly overlaps</li></ul></li><li>🟥 Wrong</li><li>↑↓ Higher / Lower</li></ul>',
+    'HP = all phases added up.',
+    ...(m === 'extreme' ? ['Also guess the difficulty:<ul><li>Hard = Chaos</li><li>Extreme = Hell</li></ul>',
+                           'Daily twist:<ul><li>4 guesses</li><li>A hidden column</li></ul>',
+                           'These bosses can appear:<ul><li>Unreleased</li><li>Removed</li><li>Special</li></ul>'] : []),
+    ...(m === 'story' ? ['A hint every 3 guesses.'] : []),
+    m === 'story' ? 'Streak resets if you miss a day.' : 'Streak resets when you lose.',
   ];
   const phases = [
-    'Kalos P2 segments count as 1 phase, and so do Kaling P3 segments and P1 perils.',
-    'Kai and Mayrin have 1 HP bar but count as 2 phases.',
-    'Malefic Star and Jupiter count as 1 phase, even with 3 sub-phases.',
+    'Kalos P2, Kaling P3 and P1 perils: 1 phase each.',
+    'Kai and Mayrin: 2 phases.',
+    'Malefic Star and Jupiter: 1 phase.',
   ];
   const ul = (items) => '<ul>' + items.map((x) => `<li>${x}</li>`).join('') + '</ul>';
   return `<h3>${MODE_NAME[m]}</h3>${ul(rules)}<h3>Phases</h3>${ul(phases)}` +
-    `<p class="warn">⚠️ Some info may not be accurate. If you spot a mistake, please report it on the <a href="${DISCORD}" target="_blank" rel="noopener">Discord</a>.</p>`;
+    `<p class="warn">⚠️ Spot a mistake? Report it on <a href="${DISCORD}" target="_blank" rel="noopener">Discord</a>.</p>`;
 }
 function openInfo() {
   $('infoBody').innerHTML = infoHtml(document.querySelector('#modes .on').dataset.mode);

@@ -149,8 +149,17 @@ function renderBest() {
     if (v.year == null || answer.year == null) return;
     if (best < 0 || Math.abs(v.year - answer.year) < Math.abs(vals[best].year - answer.year)) best = j;
   });
+  // Years on both sides of the answer: the range it's in (latest year before – earliest year after), yellow if either is close.
+  let lo = -1, hi = -1;
+  vals.forEach((v, j) => {
+    if (v.year == null || answer.year == null) return;
+    if (v.year < answer.year && (lo < 0 || v.year > vals[lo].year)) lo = j;
+    if (v.year > answer.year && (hi < 0 || v.year < vals[hi].year)) hi = j;
+  });
   const green = gs.find((c) => c[4][1] === 'green');
-  cells.splice(4, 0, green ? green[4] : best < 0 ? ['', 'grey'] : gs[best][4]);
+  cells.splice(4, 0, green ? green[4] : lo >= 0 && hi >= 0
+    ? [`${yearText(vals[lo])} – ${yearText(vals[hi])}`, gs[lo][4][1] === 'yellow' || gs[hi][4][1] === 'yellow' ? 'yellow' : 'red']
+    : best < 0 ? ['', 'grey'] : gs[best][4]);
   addRow(cells, 'bestrow');
 }
 
@@ -235,8 +244,12 @@ function guess(name) {
   const newRow = $('rows').querySelector('tr:not(.bestrow):not(.hintrow):not(.answer)');
   let flipMs = flipRow(newRow);
   limboGuess(newRow, g.name !== answer.name, flipMs);   // Limbo's wrong guess effect, if it's on
-  flipMs = flipRow($('rows').querySelector('tr.answer'), flipMs);   // out of guesses: the answer turns over next
+  flipMs = flipAnswer($('rows').querySelector('tr.answer'), flipMs);   // out of guesses: the answer comes in and turns over next (fx.js)
   if (over) fxHold(flipMs);   // the win border and "+mesos" wait for the flip
+  if (over) {   // the search box stays until the flip is done (guessing in it does nothing now), then goes
+    $('picker').hidden = false;
+    setTimeout(() => { if (over) { $('picker').hidden = true; closeList(); } }, flipMs);
+  }
   if (over && guesses.includes(answer.name)) setTimeout(() => confetti(guesses.length === 1), flipMs);
   if (over) limboOver(guesses.includes(answer.name), flipMs);   // Limbo's alert border: gone on a win, its fail screen on a loss
   if (over && live) resultSound(guesses.includes(answer.name), flipMs, !guesses.includes(answer.name) ? 'classLose' : guesses.length === 1 ? 'firstTry' : 'classWin');   // today's puzzle only
@@ -343,6 +356,7 @@ function renderStats(counts, mine) {
   $('statsAvg').textContent = !total ? '' :
     `Average: ${(sum / total).toFixed(1)} guesses (fails count as ${failAs})\n${Math.round(solved * 100 / total)}% solved`;
   $('stats').hidden = false;
+  revealStats($('stats'));   // (fx.js: after your result, when the game just ended)
 }
 
 // ---- Win streak (today's puzzle only): +1 per win, back to 0 on a loss ----
@@ -388,7 +402,7 @@ function shareText() {
   const score = (guesses.includes(answer.name) ? guesses.length : 'X') + '/' + maxGuesses;
   const grid = guesses.map((n) => guessCells(byName(n)).map(([, c]) => EMOJI[c]).join(''));
   const lines = guesses.length === 1 && guesses[0] === answer.name ? ['⭐'] : grid;   // first-guess win: just a star
-  return [`${isHalloween(day) ? '🎃 ' : ''}Maple Wordle - Guess the Class #${day - FIRST_DAY + 1} ${score}`, ...lines, 'https://ima.moe/maplewordle/class'].join('\n');
+  return [`${isHalloween(day) ? '🎃 ' : ''}Maple Wordle - Guess the Class #${day - FIRST_DAY + 1} ${score}`, ...lines, 'https://ima.moe/maplewordle/class/'].join('\n');
 }
 function share() {
   const text = shareText();
@@ -434,18 +448,14 @@ $('credit').addEventListener('click', () => {
 const DISCORD = 'https://discord.gg/f22H4UJ';
 function openInfo() {
   const rules = [
-    "Guess today's class in <b>5</b> guesses. New class every day at 00:00 UTC (same as Maple reset).",
-    'Each guess shows how close you are:<ul><li>🟩 right · 🟨 close · 🟥 wrong</li><li>↑ / ↓ = the answer is newer / older</li></ul>',
-    '🟨 Job Branch, Main Stat, Region: partly matches (e.g. Xenon is Thief / Pirate).',
-    '🟨 Release Year: within 4 years.',
-    'Release Year is when the class came to GMS. Not in GMS = red with no arrow.',
-    'Classes that match in every column share one card (e.g. Hero / Paladin / Dark Knight). Type any of their names.',
-    'Removed, event and upcoming classes can appear.',
-    'The <b>Best so far</b> row shows your best clue for each column.',
-    'Win streak resets when you lose.',
+    "Guess today's class in <b>5</b> guesses. New class daily at 00:00 UTC.",
+    'Colors:<ul><li>🟩 Right</li><li>🟨 Close<ul><li>Partly matches</li><li>Release Year within 4 years</li></ul></li><li>🟥 Wrong</li><li>↑↓ Newer / Older</li></ul>',
+    'Release Year = GMS release.',
+    'Identical classes share a card (e.g. Hero / Paladin / Dark Knight).',
+    'Streak resets when you lose.',
   ];
   $('infoBody').innerHTML = '<ul>' + rules.map((x) => `<li>${x}</li>`).join('') + '</ul>' +
-    `<p class="warn">⚠️ Some info may not be accurate. If you spot a mistake, please report it on the <a href="${DISCORD}" target="_blank" rel="noopener">Discord</a>.</p>`;
+    `<p class="warn">⚠️ Spot a mistake? Report it on <a href="${DISCORD}" target="_blank" rel="noopener">Discord</a>.</p>`;
   $('info').hidden = false;
 }
 $('infoBtn').addEventListener('click', openInfo);

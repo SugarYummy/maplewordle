@@ -1,97 +1,19 @@
 <!doctype html>
-<html>
+<html data-shell>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Maple Wordle</title>
-<script src="move.js?v=1"></script>
-<script src="account.js?v=1"></script>
-<link rel="stylesheet" href="style.css?v=139">
+<script src="move.js?v=3"></script>
+<link rel="stylesheet" href="style.css?v=155">
+<style>
+  /* The background (style.css's picture, or your theme from fx.js) is drawn here, under the game's frame. */
+  html, body { height: 100%; min-height: 0; overflow: hidden; }
+  #game { position: fixed; inset: 0; width: 100%; height: 100%; border: 0; display: block; background: transparent; }
+</style>
 </head>
 <body>
-<button id="archiveBtn" class="panel">Archive</button>
-<div id="archive" hidden>
-  <div class="panel">
-    <h2>Archive</h2>
-    <div id="archiveTabs"></div>
-    <div id="archiveList"></div>
-    <p class="closebar"><button id="archiveClose">Close</button></p>
-  </div>
-</div>
-<div class="panel game">
-<h1>Maple Wordle</h1>
-<div id="games">
-  <button class="on">Guess the Boss</button>
-  <button onclick="location.href='class'">Guess the Class</button>
-  <button disabled>Guess the Map<small>Coming soon</small></button>
-</div>
-<div id="subgames">
-  <button class="on">Wordle</button>
-  <button onclick="location.href='bgm'" data-new="bgmClip" data-meso="bgm">BGM Clip</button>
-  <button disabled>Sound Clip<small>Coming soon</small></button>
-</div>
-<p><button id="today" hidden>Back to today</button></p>
-<div id="modes">Mode:
-  <button data-mode="story">Story</button>
-  <button data-mode="normal" class="on">Normal</button>
-  <button data-mode="hard">Hard</button>
-  <button data-mode="extreme">Extreme</button>
-</div>
-<div class="infostrip" id="infostrip">
-  <div><span class="k" id="puzzleLabel">Puzzle</span><span class="v" id="puzzle"></span></div>
-  <div><span class="k" id="timerLabel">Next in</span><span class="v" id="timer"></span></div>
-  <div><span class="k">Streak</span><span class="v" id="streak"></span></div>
-</div>
-<p id="status"></p>
-<p><button id="share" hidden>Share</button></p>
-<div class="pickrow">
-<div id="picker">
-  <input id="guess" type="search" placeholder="Type a boss name" autocomplete="off" spellcheck="false" data-1p-ignore data-lpignore="true" data-form-type="other">
-  <div id="list" hidden></div>
-</div>
-<button id="infoBtn" title="How to play">?</button>
-</div>
-<button id="hint" hidden>Hint</button>
-<p id="twist" hidden></p>
-<div class="table-wrap">
-<table id="board">
-  <thead><tr><th>Boss</th><th id="diffHead" hidden>Difficulty</th><th>World</th><th>Gender</th><th>Region</th><th>Phases</th><th>HP</th><th>Entry Lv</th></tr></thead>
-  <tbody id="rows"></tbody>
-</table>
-</div>
-<div id="stats" hidden>
-  <h3 id="statsTitle"></h3>
-  <div id="statsBars"></div>
-  <p id="statsAvg"></p>
-</div>
-</div>
-<footer class="panel">
-  Want to give any suggestions or feedback?<br>
-  <a href="https://discord.gg/f22H4UJ" target="_blank" rel="noopener">Join the Discord!</a>
-</footer>
-<div id="creditWrap">
-  <div id="clip-left" class="peekclip"><img src="images/peek/sato.png" alt=""></div>
-  <div id="clip-mid" class="peekclip"><img src="images/peek/elysia.png" alt=""></div>
-  <div id="clip-right" class="peekclip"><img src="images/peek/moeko.png" alt=""></div>
-  <div id="credit" class="panel">Made by Yuki with Love &lt;3</div>
-</div>
-<button id="version" class="panel">alpha v4.3.2</button>
-<div id="info" hidden>
-  <div class="panel">
-    <h2>How to play</h2>
-    <div id="infoBody"></div>
-    <p class="closebar"><button id="infoClose">Close</button></p>
-  </div>
-</div>
-<div id="changelog" hidden>
-  <div class="panel">
-    <h2>Changelog</h2>
-    <div id="changelogBody"></div>
-    <p class="closebar"><button id="changelogClose">Close</button></p>
-  </div>
-</div>
-<script src="fx.js?v=123"></script>
-<script src="archive.js?v=6"></script>
-<script src="script.js?v=72"></script>
+<iframe id="game" title="Maple Wordle" allow="autoplay; fullscreen; clipboard-write"></iframe>
+<script src="shell.js?v=2"></script>
 </body>
 </html>

@@ -91,6 +91,7 @@ function showClip(n, open) {
   fig.querySelector('video, .locked')?.remove();
   if (open && has) {
     const v = document.createElement('video');
+    v.disablePictureInPicture = true;   // no picture-in-picture button on hover
     v.muted = v.autoplay = v.loop = v.playsInline = true;
     v.setAttribute('playsinline', '');
     v.poster = clipSrc(answer, n) + '.jpg';
@@ -228,7 +229,7 @@ function guess(name) {
   save();
   $('rows').firstElementChild.classList.add('flip');   // the new bar flips in
   limboGuess($('rows').firstElementChild, g.name !== answer.name);   // Limbo's wrong guess effect, if it's on
-  const flipMs = FLIP_TIME;
+  const flipMs = flipUntil(FLIP_TIME);
   if (over) fxHold(flipMs);   // the win border and "+mesos" wait for the flip
   renderCongrats();
   for (const el of [$('status'), $('share'), $('congrats')]) revealAfter(el, flipMs);
@@ -332,6 +333,7 @@ function renderStats(counts, mine) {
   for (const [k, c] of Object.entries(counts)) sum += Number(k) * c;
   $('statsAvg').textContent = total ? `Average: ${(sum / total).toFixed(1)} guesses` : '';
   $('stats').hidden = false;
+  revealStats($('stats'));   // (fx.js: after your result, when the game just ended)
 }
 
 // ---- Win streak (today's puzzle only). You can't lose, so it resets if you miss a day. ----
@@ -377,7 +379,7 @@ const closeArchive = () => { $('archive').hidden = true; };
 function shareText() {
   const grid = guesses.length === 1 && guesses[0] === answer.name ? '⭐' : guesses.map((n) => n === answer.name ? '🟩' : '🟥').join('');   // first-guess win: just a star
   return [`${isHalloween(day) ? '🎃 ' : ''}Maple Wordle - Attack Animation #${day - FIRST_DAY + 1} ${guesses.length} guess${guesses.length === 1 ? '' : 'es'}`,
-    grid, 'https://ima.moe/maplewordle/animation'].join('\n');
+    grid, 'https://ima.moe/maplewordle/class/animation'].join('\n');
 }
 function share() {
   const text = shareText();
@@ -420,17 +422,13 @@ $('credit').addEventListener('click', () => {
 const DISCORD = 'https://discord.gg/f22H4UJ';
 function openInfo() {
   const rules = [
-    "Watch the skill clip and guess today's class. <b>Unlimited</b> guesses. New class every day at 00:00 UTC (same as Maple reset).",
-    'A wrong guess only tells you it\'s wrong, but each one unlocks the next hint:<ul>' +
-      '<li>a second clip (some classes)</li><li>the name of each clip\'s skill</li><li>then one category per guess (Faction, Job Branch, Main Stat, Release Year, Region), in a random order</li>' +
-      "<li>last: the class's first letter</li></ul>",
-    `Win within ${CELEBRATE_UP_TO} guesses for confetti and the win sound.`,
-    'Every class is on its own here (Hero, Paladin and Dark Knight are separate answers).',
-    'Removed, event and upcoming classes can appear.',
-    'Win streak resets if you miss a day.',
+    "Watch the skill clip and guess today's class. <b>Unlimited</b> guesses. New class daily at 00:00 UTC.",
+    'Each wrong guess unlocks a hint:<ul><li>Another clip</li><li>Skill names</li><li>A category</li><li>Then the first letter</li></ul>',
+    'Hero / Paladin / Dark Knight are separate answers.',
+    'Streak resets if you miss a day.',
   ];
   $('infoBody').innerHTML = '<ul>' + rules.map((x) => `<li>${x}</li>`).join('') + '</ul>' +
-    `<p class="warn">⚠️ Some info may not be accurate. If you spot a mistake, please report it on the <a href="${DISCORD}" target="_blank" rel="noopener">Discord</a>.</p>`;
+    `<p class="warn">⚠️ Spot a mistake? Report it on <a href="${DISCORD}" target="_blank" rel="noopener">Discord</a>.</p>`;
   $('info').hidden = false;
 }
 // Click a clip or the win-screen picture to see it as big as the window allows (closes like the Changelog).
@@ -440,6 +438,7 @@ function openZoom(el) {
   let big;
   if (el.tagName === 'VIDEO') {
     big = document.createElement('video');
+    big.disablePictureInPicture = true;   // no picture-in-picture button on hover
     big.muted = big.autoplay = big.loop = big.playsInline = true;
     big.setAttribute('playsinline', '');
     for (const src of el.querySelectorAll('source')) big.appendChild(src.cloneNode());

@@ -8,10 +8,10 @@
   const D = (y, m, d) => Date.UTC(y, m - 1, d) / DAY_MS;
   const TABS = [
     // row: which line of tabs it sits on (Boss Wordle modes / Boss clips / Class)
-    { mode: 'story', label: 'Boss - Story', page: './', first: D(2026, 10, 10), row: 0 },
-    { mode: 'normal', label: 'Boss - Normal', page: './', first: D(2026, 10, 10), row: 0 },
-    { mode: 'hard', label: 'Boss - Hard', page: './', first: D(2026, 10, 10), row: 0 },
-    { mode: 'extreme', label: 'Boss - Extreme', page: './', first: D(2026, 10, 10), row: 0 },
+    { mode: 'story', label: 'Boss - Story', page: 'boss', first: D(2026, 10, 10), row: 0 },
+    { mode: 'normal', label: 'Boss - Normal', page: 'boss', first: D(2026, 10, 10), row: 0 },
+    { mode: 'hard', label: 'Boss - Hard', page: 'boss', first: D(2026, 10, 10), row: 0 },
+    { mode: 'extreme', label: 'Boss - Extreme', page: 'boss', first: D(2026, 10, 10), row: 0 },
     { mode: 'bgmnormal', label: 'BGM Clip - Normal', page: 'bgm', first: D(2026, 10, 21), row: 1 },
     { mode: 'bgm', label: 'BGM Clip - Extreme', page: 'bgm', first: D(2026, 10, 20), row: 1 },
     { mode: 'sound', label: 'Boss - Sound Clip', soon: true, row: 1 },   // coming soon: shown, can't be opened
@@ -71,10 +71,11 @@
   btn.addEventListener('click', () => open(window.archiveHere?.current?.() ?? TABS[0].mode));
   window.openGlobalArchive = open;
 })();
-// Read ?mode=&day= (from the archive on another page), then tidy the address bar.
+// Read ?mode=&day= (from the archive on another page) or just ?mode= (a link like /boss/extreme: today's, in that mode),
+// then tidy the address bar.
 window.archiveRequest = (() => {
   const q = new URLSearchParams(location.search);
-  if (!q.has('day')) return null;
+  if (!q.has('day') && !q.has('mode')) return null;
   history.replaceState(null, '', location.pathname);
-  return { mode: q.get('mode'), day: Number(q.get('day')) };
+  return { mode: q.get('mode'), day: q.has('day') ? Number(q.get('day')) : undefined };
 })();

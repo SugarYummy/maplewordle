@@ -1,0 +1,20 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex">
+<title>Maple Wordle</title>
+<script>
+// Links like ima.moe/maplewordle/boss/extreme or /class/animation: not real files, so GitHub sends this page.
+// It hands the rest of the address to the main page (shell.js), which opens that game.
+(() => {
+  const m = location.pathname.match(/^(.*?\/maplewordle(?:dev)?\/(?:b\/[\w.]+\/)?)(.*)$/);
+  if (!m) return;
+  const q = new URLSearchParams(location.search);
+  q.set('r', m[2]);
+  location.replace(m[1] + '?' + q + location.hash);
+})();
+</script>
+</head>
+<body style="background:#3b8fe0"></body>
+</html>

@@ -160,11 +160,10 @@ const acctEsc = (s) => String(s).replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)
 // The row at the top of Settings (fx.js puts it there with its (i) maker, then calls acctRowSetup on it).
 function acctRow(tip) {
   const a = acct();
-  return `<div class="setrow" id="acctRow"><span class="setlabel">Account ${tip("Play on any device: your progress (mesos, items, guesses, settings) is saved to your account after every guess, " +
-    'so you can pick up on your phone or another computer. Just a username and password, no email. Sound volume stays separate on each device.')}` +
+  return `<div class="setrow" id="acctRow"><span class="setlabel">Account ${tip('Save your progress and play on any device. No email needed.')}` +
     `${a?.uid ? `<small class="acctuid">UID: ${a.uid}</small>` : ''}</span>` + (a
-    ? `<span class="acctinfo"><span class="acctwelcome">Welcome back, <b>${acctEsc(a.name)}</b>!</span><span class="acctbtns">` +
-      '<button class="acctbtn" data-acct="settings">Account Settings</button><button class="acctbtn acctout" data-acct="logout">Log out</button></span></span>'
+    ? `<span class="acctside">${acctMapleImg()}<span class="acctinfo"><span class="acctwelcome">Welcome back, <b>${acctEsc(a.name)}</b>!</span><span class="acctbtns">` +
+      `<button class="acctbtn" data-acct="settings">Account Settings${acctAvatarsNew().length ? acctNewTag : ''}</button>` + '<button class="acctbtn acctout" data-acct="logout">Log out</button></span></span></span>'
     : '<button class="acctbtn acctmain" data-acct="signup">Create an Account</button><button class="acctbtn" data-acct="login">Log in</button>') +
     '</div>';
 }
@@ -187,7 +186,7 @@ function acctWin(html, { closable = true, form = false, onClose } = {}) {
 }
 // A question: resolves true for the first button, false for the second (null: closed). No second one: just OK.
 const acctAsk = (title, text, [okText, okClass], [noText, noClass] = [], closable = true) => new Promise((done) => {
-  const { panel, close } = acctWin(`<h2>${title}</h2><p class="accttext">${text}</p>` +
+  const { panel, close } = acctWin(`<h2>${title}</h2>${text ? `<div class="accttext">${text}</div>` : ''}` +
     `<p class="buybtns"><button class="${okClass}">${okText}</button>${noText ? `<button class="${noClass}">${noText}</button>` : ''}</p>`, { closable, onClose: done });
   const [ok, no] = panel.querySelectorAll('.buybtns button');
   ok.addEventListener('click', () => close(true));
@@ -201,15 +200,20 @@ const acctNameField = (label, name, auto) => `<label class="acctfield"><span>${l
   `<input name="${name}" maxlength="10" autocomplete="${auto}" autocapitalize="off" spellcheck="false"><span class="fielderr"></span></label>`;
 const ACCT_WARN = `<p class="acctwarn"><b>Warning:</b> Do not use a real password! If you forget your password, just ask for help on the <a href="${ACCT_DISCORD}" target="_blank" rel="noopener">Discord</a>!</p>`;
 const ACCT_ERRORS = { name: 'Usernames are 1-10 letters or numbers (no spaces or symbols).', pass: `Passwords are 1-${ACCT_PASS_MAX} characters.`,
+  ign: 'Character names are letters or numbers.', nexon: "Can't reach MapleStory's rankings right now. Try again in a bit.",
+  noign: "Couldn't find your character.\nTry checking your name and region again.",
   taken: 'That username is taken.', nouser: 'This username does NOT exist, double check what you typed.',
   wrong: "The username and password does NOT match, double check to make sure it's correct.", 'slow down': 'Too many tries. Wait a few minutes and try again.',
   match: "They don't match. Type the same thing twice.", same: "That's already your username.", offline: "Can't reach the server. Check your connection and try again." };
 // Errors shown under a field (by its input's name) instead of above the buttons.
-const ACCT_FIELD_ERR = { nouser: 'user', wrong: 'pass' };
+const ACCT_FIELD_ERR = { nouser: 'user', wrong: 'pass', ign: 'ign', noign: 'ign' };
 // A form window: fields, an error line, then its button and Cancel. submit(form) resolves an error key, or nothing when done.
-function acctFormWin(title, fields, button, submit) {
+// done: called after it closes on success; cancel: the second button's text; onCancel: closed without finishing.
+function acctFormWin(title, fields, button, submit, done, { cancel = 'Cancel', onCancel } = {}) {
+  let finished = false;
   const { panel: form, close } = acctWin(`<h2>${title}</h2>${fields}<p class="accterr" aria-live="polite"></p>` +
-    `<p class="buybtns"><button type="submit" class="yes">${button}</button><button type="button" class="plain" data-close>Cancel</button></p>`, { form: true });
+    `<p class="buybtns"><button type="submit" class="yes">${button}</button><button type="button" class="plain" data-close>${cancel}</button></p>`,
+  { form: true, onClose: () => { if (!finished) onCancel?.(); } });
   const err = form.querySelector('.accterr'), go = form.querySelector('[type="submit"]');
   form.querySelector('[data-close]').addEventListener('click', () => close());
   for (const eye of form.querySelectorAll('.pweye')) {
@@ -236,7 +240,9 @@ function acctFormWin(title, fields, button, submit) {
       go.disabled = false;
       return;
     }
+    finished = true;
     close();
+    done?.();
   });
   return close;
 }
@@ -271,11 +277,166 @@ function acctSettings() {
   const a = acct();
   if (!a) return;
   const { panel, close } = acctWin(`<h2>Account Settings</h2><p class="accttext">Logged in as <b>${acctEsc(a.name)}</b></p>` +
-    '<p class="acctchoices"><button class="acctbtn" data-do="name">Change Username</button><button class="acctbtn" data-do="pass">Change Password</button></p>' +
+    '<p class="acctchoices"><button class="acctbtn" data-do="name">Change Username</button><button class="acctbtn" data-do="pass">Change Password</button>' +
+    `<button class="acctbtn" data-do="maple">MapleStory Character${acctAvatarsNew().length ? acctNewTag : ''}</button></p>` +
     '<p class="buybtns"><button class="plain" data-close>Close</button></p>');
   panel.querySelector('[data-close]').addEventListener('click', () => close());
   panel.querySelector('[data-do="name"]').addEventListener('click', () => { close(); acctChange('name'); });
   panel.querySelector('[data-do="pass"]').addEventListener('click', () => { close(); acctChange('pass'); });
+  panel.querySelector('[data-do="maple"]').addEventListener('click', () => { close(); acctMapleWin(); });
+  acctMapleRefresh();
+}
+
+// MapleStory Character: find your character in Nexon's rankings (North America or Europe) and show its avatar on your
+// account. Saved in the account like progress; its look is refreshed at most once a day (when Account Settings opens).
+// Every character you've found is kept in a list to switch between (and delete), along with avatars from the shop.
+const ACCT_MAPLE = 'mapleWordle:maple';   // the one shown: { region, name, level, job, world, img, at }, or { avatar } (a shop avatar)
+const ACCT_MAPLE_SAVED = 'mapleWordle:mapleSaved';   // every character found before (same shape)
+const ACCT_REGIONS = { na: 'North America', eu: 'Europe' };
+// Shop avatars: animated sprites (.webm, .webp on Safari), yours while you own what they came with; they can't be deleted.
+const ACCT_AVATARS = {
+  lucid: { name: 'Lucid', from: "Lucid's Eternal Dream", src: 'images/avatars/lucid', owned: () => { try { return ownedThemes().includes('lucid'); } catch { return false; } } },
+};
+// A shop avatar you haven't looked at yet (new in the MapleStory Character list): the Settings cog glows with NEW, and
+// Account Settings, MapleStory Character and the avatar itself say NEW, until that list is opened.
+const ACCT_AVATAR_SEEN = 'mapleWordle:avatarSeen';
+function acctAvatarsNew() {
+  if (!acct()) return [];
+  let seen = [];
+  try { seen = JSON.parse(localStorage.getItem(ACCT_AVATAR_SEEN)) || []; } catch {}
+  return Object.keys(ACCT_AVATARS).filter((id) => ACCT_AVATARS[id].owned() && !seen.includes(id));
+}
+const acctNewTag = '<span class="newtag">NEW</span>';
+function acctAvatarCall() {   // the cog (fx.js calls this when it's made and after a purchase)
+  const btn = document.getElementById('settingsBtn');
+  if (!btn) return;
+  const on = acctAvatarsNew().length > 0;
+  btn.classList.toggle('shopcall', on);
+  btn.querySelector('.newtag')?.remove();
+  if (on) btn.insertAdjacentHTML('beforeend', acctNewTag);
+}
+function acctMaple() { try { return JSON.parse(localStorage.getItem(ACCT_MAPLE)); } catch { return null; } }
+const acctMapleKey = (m) => (m.avatar ? 'avatar:' + m.avatar : `${m.region}:${String(m.name).toLowerCase()}`);
+function acctMapleSaved() {
+  let list = [];
+  try { list = JSON.parse(localStorage.getItem(ACCT_MAPLE_SAVED)) || []; } catch {}
+  const cur = acctMaple();   // (one picked before the list existed)
+  if (cur && !cur.avatar && !list.some((x) => acctMapleKey(x) === acctMapleKey(cur))) {
+    list.push(cur);
+    localStorage.setItem(ACCT_MAPLE_SAVED, JSON.stringify(list));
+  }
+  return list;
+}
+function acctMapleKeep(m) {   // add (or update) a found character in the list
+  const list = acctMapleSaved().filter((x) => acctMapleKey(x) !== acctMapleKey(m));
+  localStorage.setItem(ACCT_MAPLE_SAVED, JSON.stringify([...list, m]));
+}
+const acctSprite = (av, cls) => (typeof SAFARI !== 'undefined' && SAFARI
+  ? `<img class="${cls} acctsprite" src="${av.src}.webp" alt="" title="${acctEsc(av.name)}">`
+  : `<video class="${cls} acctsprite" src="${av.src}.webm" autoplay muted loop playsinline disablepictureinpicture aria-hidden="true" title="${acctEsc(av.name)}"></video>`);
+const acctMapleImg = (cls = 'acctava') => {
+  const m = acct() && acctMaple();
+  if (m?.avatar) { const av = ACCT_AVATARS[m.avatar]; return av?.owned() ? acctSprite(av, cls) : ''; }
+  return m?.img ? `<img class="${cls}" src="${acctEsc(m.img)}" alt="" title="${acctEsc(m.name)}">` : '';
+};
+const acctMapleCard = (m) => (m.avatar
+  ? `<div class="acctmaple">${acctSprite(ACCT_AVATARS[m.avatar], 'acctmapleimg')}<div><b>${acctEsc(ACCT_AVATARS[m.avatar].name)}</b>` +
+    `<span>Avatar from ${acctEsc(ACCT_AVATARS[m.avatar].from)}</span></div></div>`
+  : `<div class="acctmaple"><img src="${acctEsc(m.img)}" alt=""><div><b>${acctEsc(m.name)}</b>` +
+    `<span>Lv. ${m.level} ${acctEsc(m.job)}</span><span>${acctEsc(m.world ? m.world + ' · ' : '')}${ACCT_REGIONS[m.region]}</span></div></div>`);
+async function acctMapleFind(region, name) {
+  const r = await acctApi(`maple?region=${region}&name=${encodeURIComponent(name)}`, null, acct().token);
+  if (r.status === 401) { acctGone(); return { bad: 'offline' }; }
+  if (r.status === 404) return { bad: 'noign' };
+  if (!r.ok) return { bad: r.d.error || 'nexon' };
+  return { m: { region, ...r.d, at: Date.now() } };
+}
+// The list: your characters (✕ deletes one) and your shop avatars (can't be deleted). Click one to show it on your account.
+function acctMapleWin() {
+  const saved = acctMapleSaved();
+  const avatars = Object.keys(ACCT_AVATARS).filter((id) => ACCT_AVATARS[id].owned()).map((id) => ({ avatar: id }));
+  if (!saved.length && !avatars.length) return acctMapleSearch();
+  const items = [...saved, ...avatars], cur = acctMaple(), curKey = cur && acctMapleKey(cur), fresh = acctAvatarsNew();
+  if (fresh.length) {   // seen now: NEW stays on them in this list, and goes away everywhere else
+    localStorage.setItem(ACCT_AVATAR_SEEN, JSON.stringify([...new Set([...(JSON.parse(localStorage.getItem(ACCT_AVATAR_SEEN) || '[]')), ...fresh])]));
+    acctAvatarCall();
+    for (const b of document.querySelectorAll('[data-acct="settings"] .newtag')) b.remove();
+  }
+  const { panel, close } = acctWin('<h2>MapleStory Character</h2><p class="accttext">Pick which one shows on your account</p><div class="acctpick">' +
+    items.map((m, i) => `<div class="acctpickrow${acctMapleKey(m) === curKey ? ' on' : ''}" data-i="${i}" role="button" tabindex="0">${fresh.includes(m.avatar) ? acctNewTag : ''}${acctMapleCard(m)}` +
+      (m.avatar ? '<span class="accttag">Shop</span>' : `<button class="acctdel" data-del="${i}" title="Delete" aria-label="Delete ${acctEsc(m.name)}">✕</button>`) + '</div>').join('') +
+    '</div><p class="acctchoices"><button class="acctbtn" data-do="add">Add Character</button>' +
+    (cur ? '<button class="acctbtn acctout" data-do="none">Show None</button>' : '') + '</p>' +
+    '<p class="buybtns"><button class="plain" data-close>Close</button></p>');
+  const again = () => { close(); acctMapleWin(); };
+  panel.querySelector('[data-close]').addEventListener('click', () => close());
+  panel.querySelector('[data-do="add"]').addEventListener('click', () => { close(); acctMapleSearch(); });
+  panel.querySelector('[data-do="none"]')?.addEventListener('click', () => { localStorage.removeItem(ACCT_MAPLE); acctRefresh(); again(); });
+  for (const row of panel.querySelectorAll('.acctpickrow')) {
+    const pick = (e) => {
+      if (e.target.closest('.acctdel')) return;
+      const m = items[row.dataset.i];
+      localStorage.setItem(ACCT_MAPLE, JSON.stringify(m.avatar ? { avatar: m.avatar } : m));
+      for (const r of panel.querySelectorAll('.acctpickrow')) r.classList.toggle('on', r === row);
+      if (!panel.querySelector('[data-do="none"]')) again();   // (now there's one to hide)
+      acctRefresh();
+    };
+    row.addEventListener('click', pick);
+    row.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(e); } });
+  }
+  for (const b of panel.querySelectorAll('.acctdel')) b.addEventListener('click', async () => {
+    const m = items[b.dataset.del];
+    close();
+    if (await acctAsk(`Delete ${acctEsc(m.name)}?`, '', ['Delete', 'no'], ['Cancel', 'plain'])) {
+      localStorage.setItem(ACCT_MAPLE_SAVED, JSON.stringify(acctMapleSaved().filter((x) => acctMapleKey(x) !== acctMapleKey(m))));
+      const now = acctMaple();   // (what's shown now: maybe picked since this list opened)
+      if (now && acctMapleKey(now) === acctMapleKey(m)) localStorage.removeItem(ACCT_MAPLE);
+      acctRefresh();
+    }
+    acctMapleWin();
+  });
+}
+// first: right after Create an Account (optional: Skip instead of Cancel), end(saved) when it's over.
+function acctMapleSearch(region = acctMaple()?.region || 'na', name = '', first = null) {
+  let found;
+  acctFormWin(first ? 'MapleStory Character <small>(optional)</small>' : 'MapleStory Character',
+    '<p class="accttext">Display your Maple Character in the account settings</p>' +
+    `<div class="acctregion" role="radiogroup">${Object.entries(ACCT_REGIONS).map(([k, v]) =>
+      `<label><input type="radio" name="region" value="${k}" ${k === region ? 'checked' : ''}><span>${v}</span></label>`).join('')}</div>` +
+    `<label class="acctfield"><span>Character name (IGN)</span><input name="ign" maxlength="13" value="${acctEsc(name)}" autocomplete="off" autocapitalize="off" spellcheck="false"><span class="fielderr"></span></label>` +
+    '<p class="accthint">Your character must be on the rankings to show up</p>',
+    'Search',
+    async (form) => {
+      const ign = form.ign.value.trim();
+      if (!/^[A-Za-z0-9]{2,13}$/.test(ign)) return 'ign';
+      const r = await acctMapleFind(form.region.value, ign);
+      if (r.bad) return r.bad;
+      found = r.m;
+    },
+    // Found: Is this you?
+    () => acctAsk('Is this you?', acctMapleCard(found), ['Yes, that\'s me!', 'yes'], ['Search again', 'plain']).then((yes) => {
+      if (yes) {
+        localStorage.setItem(ACCT_MAPLE, JSON.stringify(found));
+        acctMapleKeep(found);
+        acctRefresh();
+        acctAsk('Character saved!', acctMapleCard(found), ['OK', 'yes']).then(() => first?.(true));
+      } else if (yes === false) acctMapleSearch(found.region, found.name, first);
+      else first?.(false);
+    }), first ? { cancel: 'Skip', onCancel: () => first(false) } : {});
+  document.querySelector('.acctwin:last-child input[name="ign"]')?.focus();
+}
+// The character's look (outfit, level) changes in game: look it up again at most once a day.
+async function acctMapleRefresh() {
+  const m = acctMaple();
+  if (!m || m.avatar || Date.now() - (m.at || 0) < 86400000) return;
+  try {
+    const r = await acctMapleFind(m.region, m.name);
+    if (r.m && acctMaple()?.name === m.name) {
+      localStorage.setItem(ACCT_MAPLE, JSON.stringify(r.m));
+      acctMapleKeep(r.m);
+      for (const img of document.querySelectorAll('.acctava')) img.src = r.m.img;
+    }
+  } catch {}
 }
 function acctChange(what) {
   const name = what === 'name';
@@ -315,6 +476,8 @@ async function acctAskKeep() {
     if (!r.ok) throw 0;
     if (!keep) acctReplace({});
     acctSave({ ...a, ask: undefined, rev: r.d.rev, at: Date.now() });
+    // Then (optional) pick a MapleStory character to show on the account; it's saved before the page reloads.
+    if (await new Promise((end) => acctMapleSearch('na', '', end))) { clearTimeout(acctTimer); await acctPush(); }
     location.reload();
   } catch {
     await acctAsk("Couldn't save", "Can't reach the server right now. We'll ask again next time.", ['OK', 'yes']);

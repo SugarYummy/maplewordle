@@ -80,7 +80,9 @@ function entryFor(d) {
 // isn't quiet. "The beginning" skips a track's silent lead-in (data/bgm.json "lead", seconds), so the first guess
 // isn't spent on silence.
 function answerFor(d) {
-  const e = entryFor(d);
+  let e = entryFor(d);
+  // Test build only (tools/dev/dev.js console: /egg lucid): today's Extreme clip is Lucid's Garden of Eternal Dream.
+  if (window.devEgg === 'lucid' && MODE === 'bgm' && d === Math.floor(Date.now() / DAY_MS)) e = pool.find((x) => data.tracks[x.track]?.egg === 'lucid') ?? e;
   const boss = e.boss, track = e.track;
   const t = data.tracks[track];
   const h = hash(`${MODE}|${d}|start`);
@@ -103,6 +105,11 @@ function limboEggDay() {
 // A boss with one BGM usually has none, but each mashup in data/bgm.json "mashups" shows up on one of those days per
 // cycle (a cycle is as many days as there are entries): guess whose mashup it is, one guess.
 function bonusFor(ans, d) {
+  // Test build only (tools/dev/dev.js console: /egg limbo): Limbo's mashup takes over today's Extreme bonus.
+  if (window.devEgg === 'limbo' && MODE === 'bgm' && d === Math.floor(Date.now() / DAY_MS)) {
+    const m = data.mashups?.find((x) => x.egg === 'limbo');
+    if (m) return { kind: 'mashup', mashup: m, right: [m.boss] };
+  }
   if (hasBonus(ans.boss)) {
     return { kind: 'area', right: ans.boss.areas.filter((a) => a.track === ans.track).map((a) => a.label) };
   }
@@ -140,6 +147,9 @@ const audio = { ctx: null, gain: null, raw: null, buffer: null, src: null, playi
 // What you may listen to right now, in seconds of the track: from the clip's start up to your unlock, or all of it.
 const winStart = () => over ? 0 : answer.start;
 const winEnd = () => over ? answer.t.len : answer.start + limitAt(Math.min(guesses.length, maxGuesses() - 1));
+// The background's music (fx.js) goes quiet while the clip or a mashup plays.
+// Once you've played today's clip it stays quiet until the game is over (fx.js then waits for the result sound + 2 s).
+window.themeBgmHold = () => audio.playing || (audio.heard && !over) || !!(mashupAudio && !mashupAudio.paused);
 const nowPos = () => audio.playing ? audio.p0 + (audio.ctx.currentTime - audio.t0) : audio.pos;
 
 function loadTrack() {
@@ -200,7 +210,7 @@ async function play() {
   src.buffer = buf;
   src.connect(audio.gain);
   src.start(0, audio.pos);
-  Object.assign(audio, { src, playing: true, t0: audio.ctx.currentTime, p0: audio.pos });
+  Object.assign(audio, { src, playing: true, heard: true, t0: audio.ctx.currentTime, p0: audio.pos });
   src.onended = () => { if (audio.src === src) { audio.src = null; audio.playing = false; audio.pos = winEnd(); audio.ended = true; drawBar(); } };
   scheduleEnd();
   drawBar();
@@ -377,6 +387,7 @@ const titleShown = () => !titleOn() || title != null;
 const titleRight = () => title != null && title === answer.t.title;
 
 function start(d) {
+  audio.heard = false;
   live = d == null || d === today();
   day = live ? today() : d;
   for (const b of document.querySelectorAll('#modes button')) b.classList.toggle('on', b.dataset.mode === MODE);
@@ -399,11 +410,36 @@ function start(d) {
   title = saved.title;
   for (const name of saved.g) if (!over) record(name);
   loadTrack();
+  themeBgmNow();   // another mode or day: the background's music comes straight back (if this one doesn't keep it quiet)
   renderEnd();
   if (!over) updateStatus();
   else loadStats();
   renderStreak();
   noteResult();
+  limboAutoStart();
+}
+// Back on Limbo's mashup day with its bonus still unanswered (another game or mode, then back here): the mashup and
+// Limbo's scene start by themselves. A browser only lets sound start on its own once you've clicked on the site; if it
+// says no, they start on your first click or key press instead (not one on Play itself).
+let limboWait = null;
+function limboAutoStart() {
+  if (limboWait) { removeEventListener('pointerdown', limboWait, true); removeEventListener('keydown', limboWait, true); limboWait = null; }
+  const ready = () => isLimboEgg() && over && bonus == null && !limbo.on && !(mashupAudio && !mashupAudio.paused);
+  if (!ready()) return;
+  const go = () => { if (ready()) $('mashupPlay').click(); };
+  const probe = new Audio(`audio/bgm/${answer.bonus.mashup.file}.mp3?v=2`);
+  probe.volume = 0;
+  probe.play().then(() => { probe.pause(); go(); }, () => {
+    limboWait = (e) => {
+      if (e.type === 'keydown' && e.target.closest?.('input, textarea')) return;
+      removeEventListener('pointerdown', limboWait, true);
+      removeEventListener('keydown', limboWait, true);
+      limboWait = null;
+      if (!e.target.closest?.('#mashupPlay, #play')) setTimeout(go);
+    };
+    addEventListener('pointerdown', limboWait, true);
+    addEventListener('keydown', limboWait, true);
+  });
 }
 // Before launch day the page is empty apart from this note.
 function notOpenYet() {
@@ -476,7 +512,8 @@ function guess(name) {
   save();
   $('rows').firstElementChild.classList.add('flip');   // the new bar flips in
   limboGuess($('rows').firstElementChild, !name || !isRight(name));   // Limbo's wrong guess effect, if it's on (skips too)
-  const flipMs = FLIP_TIME;
+  const flipMs = flipUntil(FLIP_TIME);
+  if (over) fxHold(flipMs);   // the win border and "+mesos" wait for the flip
   for (const el of [$('status'), $('share')]) revealAfter(el, flipMs);
   if (!over) {
     // Stopped at the end of what was unlocked: Play now carries on from there into the new part (not from the start).
@@ -489,7 +526,6 @@ function guess(name) {
   // Game over: the whole track unlocks (a playing BGM keeps playing) and the bonus round opens.
   drawTicks();
   setTimeout(renderEnd, flipMs);
-  fxHold(flipMs);   // the win border and "+mesos" wait for the flip
   scheduleEnd();
   limboOver(won(), flipMs);   // Limbo's alert border: gone on a win, its fail screen on a loss
   if (won()) {
@@ -546,7 +582,8 @@ function renderEnd() {
   const b = answer.bonus;
   const trackLine = titleShown() ? `The track is "${answer.t.title}".` : '';
   $('mashupRow').hidden = b?.kind !== 'mashup';
-  if (isLimboEgg()) { limboLoad(); limboCutLoad(); }   // ready before Play is pressed (and Limbo's cutscene for a right answer)
+  $('limboTip').hidden = !isLimboEgg() || bonus != null;   // Limbo's mashup only, until it's answered
+  if (isLimboEgg()) { limboLoad(); limboCutLoad(); limboFailLoad(); TRANS_CLIPS.forEach(cfxClip); }   // ready before Play is pressed (Limbo's cutscene for a right answer, its fail screen for a wrong one, its transition for a long pause)
   $('bonusAsk').hidden = !b || bonus != null;
   if (!b) {
     $('bonusTitle').textContent = 'The whole track is unlocked';
@@ -575,57 +612,68 @@ function renderEnd() {
   } else {
     const ok = b.right.includes(bonus);
     $('bonusResult').textContent = (ok ? 'Correct! ' : `Wrong! You picked ${bonus}.\n`) + (mash
-      ? `It's ${b.mashup.boss}'s BGM.` + (titleShown() ? `\nToday's track was "${answer.t.title}".` : '')
+      ? `It's ${b.mashup.boss}'s BGM.`
       : `It plays in: ${b.right.join(', ')}.` + (titleOn() ? '' : `\n${trackLine}`));   // with Bonus 2, the title shows there
     markResult($('bonusResult'), ok ? 'right' : 'wrong');
   }
+  // Limbo's mashup answered: its shop items are in the shop now (shown until the shop is opened).
+  $('limboShop').hidden = !(isLimboEgg() && bonus != null && shopNew().some((t) => t.startsWith('limbo')));
 }
 // The mashup plays on its own little player in the bonus box (Play on the main bar stops it, and the other way round).
 // A mashup with an "egg" also changes the page while it plays: the background fades to that boss's map (and stays for
 // the day) and the screen glitches until the mashup stops.
-// The main bar follows the mashup meanwhile, and every 0.5-2 s it glitches: it jumps to a random point of the mashup
-// for a moment, then snaps back (only the bar: the sound keeps playing).
+// The mashup has its own bar under its Play button (click it to jump around); the main bar stays on today's track.
+// On an egg mashup that bar glitches every 0.5-2 s: it jumps to a random point of the mashup for a moment, then snaps
+// back (only the bar: the sound keeps playing).
 let mashupAudio = null, mashupKey = null, mashupHeard = null;   // heard: the mashup played at least once (its id)
 const mashupId = () => `${MODE}|${day}|${answer.bonus?.mashup?.file}`;   // key: mode | day | file of the mashup loaded
 const eggBar = { on: false, raf: 0, timer: 0, fake: null };
 function glitch(on) {
   document.body.classList.toggle('glitch', on);
-  cancelAnimationFrame(eggBar.raf);
   clearTimeout(eggBar.timer);
   eggBar.fake = null;
-  $('track').classList.remove('barglitch');
-  if (!on) { if (eggBar.on) { eggBar.on = false; drawBar(); } return; }
-  eggBar.on = true;
-  const tick = () => { drawEggBar(); eggBar.raf = requestAnimationFrame(tick); };
+  $('mashupTrack').classList.remove('barglitch');
+  eggBar.on = on;
+  if (!on) return drawMashupBar();
   const jump = () => {
     eggBar.timer = setTimeout(() => {
       eggBar.fake = Math.random();
-      $('track').classList.add('barglitch');
-      eggBar.timer = setTimeout(() => { eggBar.fake = null; $('track').classList.remove('barglitch'); jump(); }, 120 + Math.random() * 180);
+      $('mashupTrack').classList.add('barglitch');
+      eggBar.timer = setTimeout(() => { eggBar.fake = null; $('mashupTrack').classList.remove('barglitch'); jump(); }, 120 + Math.random() * 180);
     }, 500 + Math.random() * 1500);
   };
-  tick();
   jump();
 }
-function drawEggBar() {
+// The mashup's own bar: drawn every frame while it plays (and once when it stops).
+function drawMashupBar() {
+  const len = mashupAudio?.duration, cur = mashupAudio?.currentTime ?? 0;
+  const at = len ? (eggBar.fake ?? cur / len) * 100 : 0;
+  $('mashupFill').style.width = at + '%';
+  $('mashupTime').textContent = len ? `${clock(at / 100 * len)} / ${clock(len)}` : clock(0);
+}
+function mashupTick() {
+  cancelAnimationFrame(eggBar.raf);
+  drawMashupBar();
+  if (mashupAudio && !mashupAudio.paused) eggBar.raf = requestAnimationFrame(mashupTick);
+}
+$('mashupBar').addEventListener('click', (e) => {   // jump around in the mashup
   const len = mashupAudio?.duration;
   if (!len) return;
-  const at = (eggBar.fake ?? mashupAudio.currentTime / len) * 100;
-  $('fill').style.width = at + '%';
-  $('open').style.width = '100%';
-  $('markerText').textContent = `${clock(at / 100 * len)} / ${clock(len)}`;
-  placeMarker(at);
-}
+  const r = $('mashupBar').getBoundingClientRect();
+  mashupAudio.currentTime = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * len;
+  drawMashupBar();
+});
 // Limbo's Easter egg (the glitched Abyss of Truth mashup, today only): Play brings in Limbo's Subconscious. A full-screen
 // fade-in covers the page, and under it the alert border, the glitch and the map come in; every few seconds a glitch
 // swaps the map between its light and dark side (white border on the light side, black on the dark). Until the bonus is
-// answered, pausing keeps all of it. Answering it plays it out: the border fades, the glitch stops, a full-screen
+// answered, pausing stops the glitch and the swapping (the map stays), and every 5 s paused Limbo's shark transition jumps
+// to the other side (limboPause). Answering it plays it out: the border fades, the glitch stops, a full-screen
 // fade-out covers the page, the music stops and the normal background is back. After that, Play brings it in again and
 // Pause plays it out. Clips in video/limbo/: <name>.webm (see-through), .webp for Safari (fx.js SAFARI).
 const LIMBO_CLIPS = { 'screen-in': 1740, 'screen-out': 900, 'border-white-in': 840, 'border-white-loop': 0, 'border-white-out': 300,
   'border-black-in': 840, 'border-black-loop': 0, 'border-black-out': 300 };   // ms (0: loops)
 const LIMBO_COVERED = 780;   // ms into the fade-in while the page is still fully covered
-const limbo = { on: false, leaving: false, dark: false, swap: 0, blobs: null };
+const limbo = { on: false, leaving: false, jumping: false, dark: false, swap: 0, wait: 0, blobs: null };   // wait: paused, until the next transition
 const isLimboEgg = () => answer?.bonus?.mashup?.egg === 'limbo';   // the Archive gets Limbo's scene too (only the shop unlock is today-only)
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 function limboLoad() {   // fetched once (on a Limbo mashup day, when the bonus shows up)
@@ -638,6 +686,7 @@ async function limboClip(name, parent, cls) {   // plays one clip (from its firs
   if (!blob) return null;
   const url = URL.createObjectURL(blob);
   const el = document.createElement(SAFARI ? 'img' : 'video');
+  el.disablePictureInPicture = true;   // no picture-in-picture button on hover
   el.className = cls;
   if (!SAFARI) Object.assign(el, { muted: true, playsInline: true, autoplay: true, loop: !LIMBO_CLIPS[name] });
   el.src = url;
@@ -679,22 +728,55 @@ async function limboEnter() {
   glitch(true);
   setTimeout(() => { limboGone(enter); if (limbo.on && !limbo.leaving) limboSide(limbo.dark); }, LIMBO_CLIPS['border-white-in']);
   setTimeout(() => limboGone(screen), LIMBO_CLIPS['screen-in'] - LIMBO_COVERED + 50);
-  const swap = () => {
-    limbo.swap = setTimeout(() => {
-      if (!limbo.on || limbo.leaving) return;
-      document.body.classList.add('limboswap');
-      setTimeout(() => limboSide(!limbo.dark), 120);   // swap in the middle of the flash
-      setTimeout(() => document.body.classList.remove('limboswap'), 320);
-      swap();
-    }, 5000 + Math.random() * 3000);
-  };
-  swap();
+  if (mashupAudio?.paused) limboPause();   // paused while it was coming in
+  else limboSwaps();
 }
-async function limboExit() {
+function limboSwaps() {   // every 5-8 s the map swaps sides (a flash), while the mashup plays
+  clearTimeout(limbo.swap);
+  limbo.swap = setTimeout(() => {
+    if (!limbo.on || limbo.leaving) return;
+    bgSwapClass(true);
+    setTimeout(() => limboSide(!limbo.dark), 120);   // swap in the middle of the flash
+    setTimeout(() => bgSwapClass(false), 320);
+    limboSwaps();
+  }, 5000 + Math.random() * 3000);
+}
+// Paused (bonus not answered yet): the glitch and the swapping stop, the map stays. Every 5 s it stays paused, Limbo's
+// shark transition (fx.js limboSharks) jumps to the other side (Play can't be clicked while it plays). Play: it carries on.
+function limboPause() {
+  clearTimeout(limbo.swap);
+  clearTimeout(limbo.wait);
+  glitch(false);
+  limbo.wait = setTimeout(limboJump, 5000);
+}
+async function limboJump() {
+  if (!limbo.on || limbo.leaving || limbo.jumping || (mashupAudio && !mashupAudio.paused)) return;
+  limbo.jumping = true;
+  Object.assign($('mashupPlay'), { disabled: true, title: 'Wait for the transition to finish' });
+  await limboSharks(() => {   // the sides swap under a white flash, like Limbo mode's
+    if (!limbo.on || limbo.leaving) return;
+    const w = document.body.appendChild(Object.assign(document.createElement('div'), { className: 'limbowhite' }));
+    limboSide(!limbo.dark);
+    setTimeout(() => w.classList.add('out'), 85);
+    setTimeout(() => w.remove(), 250);
+  }, Math.min(1, bgmVolume() / 50) * 0.5);
+  limbo.jumping = false;
+  Object.assign($('mashupPlay'), { disabled: false, title: '' });
+  if (limbo.on && !limbo.leaving && mashupAudio?.paused) limbo.wait = setTimeout(limboJump, 5000);
+}
+function limboResume() {
+  clearTimeout(limbo.wait);
+  glitch(true);
+  limboSwaps();
+}
+// fail (a wrong answer): the border's exit, then Limbo's fail screen in that side's colour instead of the fade.
+async function limboExit(fail = false) {
   if (!limbo.on || limbo.leaving) return;
   limbo.leaving = true;
   clearTimeout(limbo.swap);
-  document.body.classList.remove('limboswap');
+  clearTimeout(limbo.wait);
+  Object.assign($('mashupPlay'), { disabled: true, title: 'Wait for the transition to finish' });
+  bgSwapClass(false);
   glitch(false);
   const border = $('limboborder');
   for (const el of border?.querySelectorAll('.loop') ?? []) el.hidden = true;
@@ -703,6 +785,17 @@ async function limboExit() {
   limboGone(out);
   for (const el of border?.querySelectorAll('video, img') ?? []) limboGone(el);
   border?.remove();
+  if (fail) {
+    limboTransitionStop();
+    limboFail(limbo.dark ? 'black' : 'white');
+    await sleep(600);   // the fail screen covers the page by now: Limbo's scene goes underneath it
+    if (mashupAudio && !mashupAudio.paused) mashupAudio.pause();
+    $('mashupPlay').textContent = '▶\uFE0E Play the mashup';
+    $('limbobg')?.remove();
+    limbo.on = limbo.leaving = false;
+    Object.assign($('mashupPlay'), { disabled: false, title: '' });
+    return;
+  }
   const screen = await limboClip('screen-out', document.body, 'limboscreen');
   await sleep(LIMBO_CLIPS['screen-out']);   // the page is covered now
   if (mashupAudio && !mashupAudio.paused) mashupAudio.pause();
@@ -712,10 +805,13 @@ async function limboExit() {
   await sleep(450);
   limboGone(screen);
   limbo.on = limbo.leaving = false;
+  Object.assign($('mashupPlay'), { disabled: false, title: '' });
 }
 function limboKill() {   // right away (another day or mode)
   clearTimeout(limbo.swap);
-  document.body.classList.remove('limboswap');
+  clearTimeout(limbo.wait);
+  Object.assign($('mashupPlay'), { disabled: false, title: '' });
+  bgSwapClass(false);
   for (const el of document.querySelectorAll('#limboborder video, #limboborder img, .limboscreen')) limboGone(el);
   $('limboborder')?.remove();
   $('limbobg')?.remove();
@@ -724,11 +820,12 @@ function limboKill() {   // right away (another day or mode)
 // The mashup stopped (paused, ended, or the main Play took over): a glitch egg's screen glitch stops, except Limbo's
 // before the bonus is answered.
 function mashupStopped() {
-  if (limbo.on) { if (bonus != null) limboExit(); }
+  if (limbo.on) { if (bonus != null) limboExit(); else if (!limbo.leaving) limboPause(); }
   else glitch(false);
 }
 function stopMashup() {
   if (mashupAudio) { mashupAudio.pause(); mashupAudio = null; }
+  cancelAnimationFrame(eggBar.raf);
   mashupKey = null;
   $('mashupPlay').textContent = '▶\uFE0E Play the mashup';
   glitch(false);
@@ -738,7 +835,7 @@ function stopMashup() {
 }
 $('mashupPlay').addEventListener('click', () => {
   if (mashupAudio && !mashupAudio.paused) { mashupAudio.pause(); $('mashupPlay').textContent = '▶\uFE0E Play the mashup'; mashupStopped(); return; }
-  if (limbo.leaving) return;   // let Limbo's fade-out finish first
+  if (limbo.leaving || limbo.jumping) return;   // let Limbo's fade-out / transition finish first
   pause();
   stopResultSounds();
   const m = answer.bonus.mashup;
@@ -749,12 +846,14 @@ $('mashupPlay').addEventListener('click', () => {
   }
   mashupAudio.volume = Math.min(1, bgmVolume() / 50);
   mashupAudio.play().catch(() => {});
+  mashupAudio.addEventListener('playing', mashupTick, { once: true });
   mashupHeard = mashupKey;
   if (bonus == null && $('bonusResult').textContent === 'Play the mashup first!') { $('bonusResult').textContent = ''; markResult($('bonusResult'), ''); }
   $('mashupPlay').textContent = '❚❚ Pause the mashup';
-  if (isLimboEgg()) limboEnter();
+  if (isLimboEgg()) { if (limbo.on) limboResume(); else limboEnter(); }
   else if (m.egg && live) { document.body.classList.add(`egg-${m.egg}`); glitch(true); }   // the Easter egg is for today only, not the Archive
 });
+$('limboShop').querySelector('button').addEventListener('click', openShop);
 // A bonus answer line's colour (right / wrong / none); only that class changes, so Limbo's dragon (fx.js) keeps its own.
 function markResult(el, cls) {
   el.classList.remove('right', 'wrong');
@@ -885,11 +984,20 @@ $('bonusGo').addEventListener('click', (window.acctGate ?? ((f) => f))(() => {
   const ok = answer.bonus.right.includes(pick);
   // Limbo's wrong guess effect (if it's on) eats a wrong answer; on Limbo's mashup everyone gets to see it.
   limboGuess($('bonusResult'), !ok, undefined, isLimboEgg());
-  if (ok && isLimboEgg()) limboWin();   // right: Limbo's cutscene, then the meso show
+  if (ok && isLimboEgg()) limboWin(guesses.length === 1 && won());   // right: Limbo's cutscene, then the meso show (not again after a guess in 1)
   noteResult();
-  if (limbo.on) limboExit();
+  if (!ok && isLimboEgg()) {
+    // Wrong: the dragon swallows the answer and stays a moment, then the border's exit and Limbo's fail screen in
+    // the side showing then (dark: black, light: white; limboExit). Without Limbo's scene on: just the fail screen.
+    const failAt = 500 + GFX_RUSH + 200, here = MODE + day;   // (+ the border's 0.3 s exit: the fail screen 0.5 s sooner than before)
+    setTimeout(() => {
+      if (MODE + day !== here) return;   // (gone to another mode or day meanwhile)
+      if (limbo.on) limboExit(true);
+      else { limboTransitionStop(); limboFail(limbo.dark ? 'black' : 'white'); }
+    }, failAt);
+  } else if (limbo.on) limboExit();
   sendBonus(ok);
-  if (ok && live) answer.t.unlock?.bonus?.forEach((t) => shopUnlock(t));   // shows up in the meso shop (fx.js)
+  if (live) answer.t.unlock?.bonus?.forEach((t) => shopUnlock(t));   // any bonus guess on the day (right or wrong): shows up in the meso shop (fx.js)
 }));   // (checked first, like a guess)
 
 // ---- Boss picker (every boss, A-Z) ----
@@ -1031,6 +1139,7 @@ function renderStats(counts, mine, bonusCounts, titleCounts) {
   }
   $('statsAvg').textContent = total ? `${Math.round(solved * 100 / total)}% solved${bonusLine}` : '';
   $('stats').hidden = false;
+  revealStats($('stats'));   // (fx.js: after your result, when the game just ended)
 }
 
 // ---- Win streak (today's puzzle only): +1 per win, back to 0 on a loss ----
@@ -1075,11 +1184,14 @@ const noteResult = () => {
     if (titleRight()) earnBonus(MODE, day, false, 'title');
   }
   mesoGain(MODE, day, over);   // the spinning "+mesos" under the result (game + bonus)
-  // Shop items this track's day finds by winning: "win" on the day itself, "winAny" from the Archive too (fx.js).
+  // Shop items this track's day finds: "win" by winning on the day itself, "winAny" by winning (the Archive too), "play" by
+  // finishing it, won or lost (the Archive too), "guess" by guessing at all on the day itself. From the Archive: unlocked, but full price (fx.js).
   if (over && won()) {
     if (live) answer.t.unlock?.win?.forEach((t) => shopUnlock(t));
-    answer.t.unlock?.winAny?.forEach((t) => shopUnlock(t, live));   // from the Archive: unlocked, but full price
+    answer.t.unlock?.winAny?.forEach((t) => shopUnlock(t, live));
   }
+  if (over) answer.t.unlock?.play?.forEach((t) => shopUnlock(t, live));
+  if (live && guesses.length) answer.t.unlock?.guess?.forEach((t) => shopUnlock(t));   // "guess": any guess on the day itself
 };
 const closeArchive = () => { $('archive').hidden = true; };
 
@@ -1097,7 +1209,7 @@ function shareText() {
     : grid === '💎' || grid === '🌈' ? ''
     : (bonus == null ? '' : `\nBonus ${ok ? '✅' : '❌'}`) + (title == null ? '' : `\nTitle ${titleRight() ? '✅' : '❌'}`);
   return [`${isHalloween(day) ? '🎃 ' : ''}Maple Wordle - BGM Clip (${MODES[MODE].name}) #${day - firstDay() + 1} ${won() ? guesses.length : 'X'}/${maxGuesses()}`,
-    grid + extra, 'https://ima.moe/maplewordle/bgm'].join('\n');
+    grid + extra, 'https://ima.moe/maplewordle/bgm/' + (MODE === 'bgmnormal' ? 'normal' : 'extreme')].join('\n');
 }
 function share() {
   const text = shareText();
@@ -1140,29 +1252,22 @@ $('credit').addEventListener('click', () => {
 const DISCORD = 'https://discord.gg/f22H4UJ';
 function openInfo() {
   const rules = [
-    `Listen to today's BGM clip and guess which boss fight it's from. You get <b>${maxGuesses()}</b> guesses. Normal and Extreme each have their own BGM every day at 00:00 UTC (same as Maple reset).`,
+    `Guess which boss fight today's BGM is from in <b>${maxGuesses()}</b> guesses. New clip daily at 00:00 UTC.`,
     ...(newRules() ? [
-      'Your first guess gets <b>1 second</b> of the clip. Each wrong guess or Skip unlocks more: 5s, 10s, 30s, 60s, then the <b>whole track</b>. Miss all 7 and you lose.',
-      'Hints: after your <b>3rd</b> guess, and after every wrong guess after that, one more of the boss\'s World, Gender, Region, Phases, HP or Entry Lv opens (like Boss Wordle\'s columns). Your <b>6th</b> guess always gets its Entry Lv.',
-      'Play starts and pauses the clip. It stops at what you\'ve unlocked; a wrong guess or Skip lets it carry on from there, and once it\'s all played, Play starts it over. Click or drag the bar to jump around what you\'ve unlocked (not ahead).',
-      'The clip always starts at the very beginning of the track.',
+      'Each wrong guess or Skip plays more:<ul><li>1s</li><li>5s</li><li>10s</li><li>30s</li><li>60s</li><li>Then all</li></ul>',
+      'Each miss from your 3rd guess on reveals a boss clue.',
     ] : [
-      'Your first guess gets <b>0.5 seconds</b> of the clip. Each wrong guess or Skip unlocks more: 1s, 2s, 5s, 10s, then 30s. Miss all 6 and you lose.',
-      'A wrong guess only tells you it\'s wrong. Nothing else is revealed.',
-      'Play starts and pauses the clip. It stops at what you\'ve unlocked; a wrong guess or Skip lets it carry on from there, and once it\'s all played, Play starts it over. Click or drag the bar to jump around what you\'ve unlocked (not ahead).',
-      'The clip starts either at the very beginning of the track or somewhere in the middle (50/50).',
+      'Each wrong guess or Skip plays more:<ul><li>0.5s</li><li>1s</li><li>2s</li><li>5s</li><li>10s</li><li>Then 30s</li></ul>',
     ]),
-    'The BGM can be from any part of the fight: the waiting room, any phase, the loot room and more.',
-    ...(yellowOn() ? ['A few tracks play in two boss fights (Horntail and Balrog, Ursus and Inferno Wolf). Picking the other boss shows <b>yellow</b>: right track, wrong boss. It still counts as a miss.'] : []),
-    ...(titleOn() ? ["<b>Bonus 2:</b> type the track's <b>title</b> (it suggests every BGM title as you type). One guess, and it pays <b>+70 mesos</b>. The title stays hidden until you answer."] : []),
-    '<b>Bonus:</b> when the game is over the whole track unlocks (click the bar to jump around). Guess which part of the fight it plays in. It\'s just for fun and won\'t change your result. ' +
-      (newRules() ? 'Bosses with only one BGM have no bonus.' : 'Bosses with only one BGM have no bonus, except on the rare day a <b>mashup</b> shows up instead: guess whose BGM mashup it is, with one guess.'),
-    'Win on your first guess for a ⭐ in the Archive. Get the bonus right too for a 💎.',
-    'The volume bar next to Play is only for this game\'s BGM (separate from the sound button).',
-    'Win streak resets when you lose.',
+    'It can be from any part of the fight.',
+    ...(yellowOn() ? ['🟨 Yellow:<ul><li>Right track</li><li>Wrong boss (still a miss)</li></ul>'] : []),
+    '<b>Bonus:</b> guess which part of the fight it plays in (after the game).',
+    ...(titleOn() ? ["<b>Bonus 2:</b> guess the track's title."] : []),
+    ...(titleOn() ? ['Win in 1 guess for:<ul><li>⭐ The win</li><li>💎 Plus a bonus</li><li>🌈 Plus both bonuses</li></ul>'] : ['Win in 1 guess for a ⭐. Get the bonus too for a 💎.']),
+    'Streak resets when you lose.',
   ];
   $('infoBody').innerHTML = '<ul>' + rules.map((x) => `<li>${x}</li>`).join('') + '</ul>' +
-    `<p class="warn">⚠️ Some info may not be accurate. If you spot a mistake, please report it on the <a href="${DISCORD}" target="_blank" rel="noopener">Discord</a>.</p>`;
+    `<p class="warn">⚠️ Spot a mistake? Report it on <a href="${DISCORD}" target="_blank" rel="noopener">Discord</a>.</p>`;
   $('info').hidden = false;
 }
 $('infoBtn').addEventListener('click', openInfo);

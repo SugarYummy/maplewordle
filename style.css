@@ -9,6 +9,7 @@ button, input, select, textarea { font-family: inherit; }
 h1 { font-weight: 900; }
 body { text-align: center; margin: 0; min-height: 100vh; display: flex; flex-direction: column; align-items: center;
        background: #3b8fe0 url("images/background.webp") center bottom / cover no-repeat fixed; }
+html.inshell body { background: transparent; }   /* inside the main page (shell.js), which draws the background */
 .panel { background: rgba(255, 255, 255, 0.55); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
          border-radius: 12px; padding: 8px 16px 16px; margin: 16px; max-width: calc(100% - 64px); }
 .table-wrap { overflow-x: auto; }
@@ -182,7 +183,7 @@ td.flip { animation: flip 0.5s ease both; }
 /* Animation Attack: the two skill clips side by side (stacked on narrow screens). */
 #clips { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin: 12px 0; }
 #clips[hidden] { display: none; }
-#clips figure { margin: 0; width: min(360px, 100%); }
+#clips figure { margin: 0; width: 360px; max-width: 100%; }   /* (a plain width: the box around them sizes to 360, not to the video's own size) */
 #clips figcaption { font-size: 15px; margin-top: 2px; }
 #clips video, #clips .locked { display: block; width: 100%; aspect-ratio: 16 / 9; border-radius: 8px; background: #222; object-fit: contain; }
 #clips .locked { display: flex; align-items: center; justify-content: center; color: #ddd; background: rgba(0, 0, 0, 0.45); font-size: 14px; }
@@ -252,11 +253,6 @@ td.flip { animation: flip 0.5s ease both; }
 #tickLabels span.end { transform: translateX(-100%); }
 #tickLabels span.open { opacity: 1; font-weight: bold; }
 #track.seek #bar { cursor: pointer; }
-/* Easter egg mashup: the bar's moment of jumping to a random point */
-#track.barglitch #bar { transform: translateX(3px) skewX(-6deg);
-                        filter: drop-shadow(3px 0 0 rgba(255, 0, 80, 0.8)) drop-shadow(-3px 0 0 rgba(0, 220, 255, 0.8)); }
-#track.barglitch #fill { background: #c6f; }
-#track.barglitch #markerText { transform: translateX(-46%); text-shadow: 2px 0 rgba(255, 0, 80, 0.8), -2px 0 rgba(0, 220, 255, 0.8); }
 #controls { display: flex; justify-content: center; align-items: center; gap: 12px; margin-top: 6px; }
 #play { width: 44px; height: 40px; border-radius: 4px; border: 1px solid rgba(0, 0, 0, 0.35); background: #fff;
         font-size: 18px; font-family: inherit; cursor: pointer; }
@@ -304,8 +300,22 @@ td.flip { animation: flip 0.5s ease both; }
 /* BGM Clip: the bonus row under Everyone's results (% who got the bonus right), set a little apart. */
 .statrow.bonusrow { margin-top: 10px; }
 .statrow.bonusrow .label { width: 52px; margin-left: -8px; }
+#mashupRow { display: flex; flex-direction: column; align-items: center; gap: 8px; margin: 6px 0; }
 #mashupRow[hidden] { display: none; }
+#limboTip { margin: 0; font-size: 13px; font-style: italic; color: #7a3fc4; }   /* Limbo's mashup: try pausing (bgm.js limboPause) */
+#limboTip[hidden] { display: none; }
+/* The mashup's own bar (under its Play button): green fill like the main bar, click to jump around */
+#mashupTrack { display: flex; align-items: center; gap: 8px; width: min(320px, 100%); }
+#mashupBar { position: relative; flex: 1; height: 12px; border-radius: 4px; overflow: hidden; border: 1px solid rgba(0, 0, 0, 0.4);
+             background: #d6d6d6; cursor: pointer; }
+#mashupFill { position: absolute; top: 0; bottom: 0; left: 0; width: 0; background: #6c6; }
+#mashupTime { font-size: 12px; min-width: 76px; text-align: right; font-variant-numeric: tabular-nums; }
+#mashupTrack.barglitch #mashupBar { transform: translateX(3px) skewX(-6deg);
+                                    filter: drop-shadow(3px 0 0 rgba(255, 0, 80, 0.8)) drop-shadow(-3px 0 0 rgba(0, 220, 255, 0.8)); }
+#mashupTrack.barglitch #mashupFill { background: #c6f; }
+#mashupTrack.barglitch #mashupTime { text-shadow: 2px 0 rgba(255, 0, 80, 0.8), -2px 0 rgba(0, 220, 255, 0.8); }
 #mashupPlay { font-family: inherit; font-size: 15px; padding: 6px 14px; border-radius: 4px; border: 1px solid rgba(0, 0, 0, 0.35); background: #fff; cursor: pointer; }
+#mashupPlay:disabled { cursor: not-allowed; opacity: 0.55; }   /* Limbo's fade-out playing (bgm.js limboExit) */
 /* BGM Clip Easter eggs: a glitched mashup fades the background to the boss's map and glitches the screen while it plays
    (Malefic Star: Unglamoured Ruins; Limbo: Limbo's Subconscious (Light); Von Bon: Von Bon's Realm <Chaos>; Bellona: her fight map in Solatum). */
 body::before { content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: 0; transition: opacity 3s ease;
@@ -530,8 +540,8 @@ body.glitch .game.glow.diamond { animation: glitchslice 2.3s steps(1) infinite, 
                    border: 1px solid #b07800; background: #ffd34d; color: #5a3d00; }
 .shopitem .owned { font-weight: 700; color: #2a7a2a; padding: 0 8px; }
 .shopitem button.poor { background: #d8d8d8; border-color: #aaa; color: #888; }
-.shopinfo .price span { transition: opacity 0.15s ease; }
-.shopinfo .price.swap span { opacity: 0; }
+.shopinfo .price > * { transition: opacity 0.15s ease; }
+.shopinfo .price.swap > * { opacity: 0; }
 .shopinfo .price { transition: color 0.3s ease; }
 .shopinfo .price.short { color: #d22; }
 /* Buy pops up on hover (only when you can afford it), with a soft gold glow. */
@@ -581,7 +591,7 @@ body.glitch .game.glow.diamond { animation: glitchslice 2.3s steps(1) infinite, 
 .infotip:hover { background: rgba(255, 255, 255, 0.95); }
 .infotip.open { background: #222; color: #fff; }
 .setrow { position: relative; }
-.tiptext { position: absolute; left: 0; right: 0; top: calc(100% + 2px); z-index: 5; margin: 0; padding: 6px 10px; border-radius: 6px;
+.tiptext { position: absolute; left: 0; width: max-content; max-width: 100%; box-sizing: border-box; top: calc(100% + 2px); z-index: 5; margin: 0; padding: 6px 10px; border-radius: 6px;
            background: #222; color: #fff; font-size: 12px; line-height: 1.35; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; }
 .tiptext.show { opacity: 1; }
 /* BGM Clip: "Bonus below!" call-out under the result, and a soft gold glow on the bonus box until it's answered. */
@@ -700,7 +710,8 @@ body[class*="egg-"] #hwfx, body:has(.eggscene) #hwfx, body:has(#limbobg) #hwfx {
 .limboguess > .dragon { left: -7%; width: 114%; }   /* head further right, tail further left (past the row's ends) */
 @keyframes gfxin { from { opacity: 0; } }
 .limboeaten > td, #rows .gbar.limboeaten { position: relative; z-index: 4; background: transparent !important; border-color: transparent;
-  color: #fff !important; text-shadow: 0 0 3px #000, 0 0 6px #000, 0 1px 2px #000; }
+  color: #fff !important; text-shadow: 0 0 3px #000, 0 0 6px #000, 0 1px 2px #000;
+  -webkit-text-stroke: 3px #000; paint-order: stroke fill; font-weight: 700; }   /* a black outline (outside the letters and arrows) so they read over the dragon */
 /* the tile colour lives on in the text, so the clues still show under the dragon */
 .limboeaten > .green, #rows .gbar.limboeaten.green { color: #8f8 !important; }
 .limboeaten > .yellow, #rows .gbar.limboeaten.yellow { color: #ffe066 !important; }
@@ -730,7 +741,7 @@ input[type="search"]::-webkit-search-cancel-button, input[type="search"]::-webki
 #vipCode { -webkit-text-security: disc; text-security: disc; }
 /* A wrong bonus answer eaten by Limbo's dragon: its text on top, light red */
 #bonusResult.limboeaten, #titleResult.limboeaten { position: relative; z-index: 4; color: #ff8a8a !important;
-  text-shadow: 0 0 3px #000, 0 0 6px #000, 0 1px 2px #000; }
+  text-shadow: 0 0 3px #000, 0 0 6px #000, 0 1px 2px #000; -webkit-text-stroke: 3px #000; paint-order: stroke fill; }
 /* "Play the mashup first!": the Play button gives a little shake */
 #mashupPlay.nudge { animation: nudge 0.45s ease; }
 @keyframes nudge { 20%, 60% { transform: translateX(-5px); } 40%, 80% { transform: translateX(5px); } }
@@ -802,10 +813,15 @@ input[type="search"]::-webkit-search-cancel-button, input[type="search"]::-webki
 .acctbtns { display: flex; gap: 8px; }
 .acctbtn.acctout { background: #d9443b; color: #fff; font-weight: 700; }
 .acctbtn.acctout:hover { background: #d9443b; filter: brightness(1.08); }
-.fielderr { font-size: 12px; font-weight: 400; color: #c22; line-height: 1.3; }
+.fielderr { font-size: 12px; font-weight: 400; color: #c22; line-height: 1.3; white-space: pre-line; }
 .fielderr:empty { display: none; }
 #acctRow:has(.acctinfo) { align-items: baseline; }   /* "Account" on the same line as "Welcome back, ...!" */
 .acctuid { display: block; margin-top: 2px; font-size: 12px; font-weight: 400; color: #777; }   /* the account's number, under Account */
+/* Customize > Background: a background's own music on / off (its card's right end) */
+.thememute { margin-left: auto; flex: none; padding: 4px 8px; border-radius: 8px; font-size: 20px; line-height: 1; cursor: pointer; }
+.thememute:hover { background: rgba(0, 0, 0, 0.08); }
+.thememute.off { opacity: 0.6; }
+.themecard.fxcard.on { outline-color: #1f8a3a; }   /* an on / off card that's on: green border */
 .themename.fxon { color: #1f8a3a; }   /* Customize > Custom Effects: an on / off effect, on */
 .themename.fxoff { color: #c0392b; }
 /* Customize: the ✓ / ✕ before an on / off effect, and the message that fades in over the window when something's clicked */
@@ -819,3 +835,46 @@ input[type="search"]::-webkit-search-cancel-button, input[type="search"]::-webki
 .fxtoast.no { background: rgba(170, 45, 35, 0.95); }
 .themecard.locked { cursor: not-allowed; }   /* Customize on a holiday: its background / effect can't be changed that day */
 .accttext:empty { display: none; }
+/* MapleStory Character (account.js): the avatar from Nexon's rankings, next to "Welcome back" and in its windows */
+.acctside { display: flex; align-items: center; gap: 6px; }
+#acctRow:has(.acctava) { align-items: center; flex-wrap: nowrap; }
+#acctRow:has(.acctava) .setlabel { min-width: 96px; }   /* the avatar sits in the label column's spare room, so the row stays one line */
+.acctava { width: 64px; height: 64px; flex: none; margin: -8px -2px -8px -10px; }   /* left of Welcome back + the buttons */
+.acctmaple { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 2px auto 8px; text-align: left; }
+.acctmaple img { width: 96px; height: 96px; image-rendering: pixelated; }
+.acctmaple div { display: flex; flex-direction: column; gap: 2px; font-size: 14px; }
+.acctmaple b { font-size: 17px; }
+.acctsprite { object-fit: contain; image-rendering: auto; }   /* a shop avatar (animated) */
+.acctmaple .acctsprite { width: 96px; height: 96px; image-rendering: auto; }
+/* MapleStory Character: your characters and shop avatars, the one shown with a green border */
+.acctpick { display: flex; flex-direction: column; gap: 6px; max-height: 50vh; overflow-y: auto; margin: 2px -4px 0; padding: 8px 8px 6px; }
+.acctpickrow { position: relative; display: flex; align-items: center; padding: 4px 40px 4px 8px; border-radius: 10px; cursor: pointer;
+  background: rgba(255, 255, 255, 0.55); outline: 2px solid transparent; }
+.acctpickrow:hover { background: rgba(255, 255, 255, 0.85); }
+.acctpickrow.on { outline-color: #1f8a3a; background: rgba(255, 255, 255, 0.9); }
+.acctpickrow .acctmaple { margin: 0; justify-content: flex-start; }
+.acctpickrow .acctmaple img, .acctpickrow .acctmaple .acctsprite { width: 72px; height: 72px; }
+.acctdel { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); width: 28px; height: 28px; padding: 0; border: none; border-radius: 50%;
+  background: transparent; color: #c0392b; font-size: 16px; cursor: pointer; }
+.acctdel:hover { background: rgba(192, 57, 43, 0.12); }
+.accttag { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); font-size: 11px; font-weight: 700; color: #7a4bc4; }
+.acctregion { display: flex; gap: 6px; }
+.acctregion label { flex: 1; cursor: pointer; }
+.acctregion input { position: absolute; opacity: 0; pointer-events: none; }
+.acctregion span { display: block; padding: 6px 8px; border-radius: 8px; text-align: center; font-size: 14px; border: 1px solid rgba(0, 0, 0, 0.2); background: rgba(255, 255, 255, 0.7); }
+.acctregion input:checked + span { background: #2fa84f; color: #fff; font-weight: 700; border-color: #2fa84f; }
+.acctregion input:focus-visible + span { outline: 2px solid #2fa84f; outline-offset: 2px; }
+.acctwin h2 small { font-size: 0.6em; font-weight: 400; opacity: 0.7; }
+/* Found a hidden item: the Shop button glows gold until it's opened (fx.js shopNewTag), and BGM Clip's Limbo bonus says so */
+#shopBtn.shopcall, #settingsBtn.shopcall { animation: shopcall 1.1s ease-in-out infinite alternate; }
+@keyframes shopcall { from { box-shadow: 0 0 0 0 rgba(255, 190, 0, 0.9); } to { box-shadow: 0 0 10px 4px rgba(255, 190, 0, 0.95); transform: scale(1.06); } }
+@media (prefers-reduced-motion: reduce) { #shopBtn.shopcall, #settingsBtn.shopcall { animation: none; box-shadow: 0 0 8px 3px rgba(255, 190, 0, 0.95); } }
+#limboShop { margin: 6px 0 0; font-weight: 700; color: #7a3fc4; }
+#limboShop[hidden] { display: none; }
+#limboShop { white-space: nowrap; }   /* the message on one line, its button under it */
+#limboShop button { display: block; margin: 6px auto 0; font-family: inherit; font-size: 13px; font-weight: 700; padding: 3px 10px; border-radius: 8px; cursor: pointer;
+                    border: 1px solid #b07800; background: #ffd34d; color: #5a3d00; }
+
+/* NEW on Account Settings / MapleStory Character (a new shop avatar) and on the avatar's row */
+.acctbtn:has(> .newtag), .acctpickrow { position: relative; }
+.acctbtn > .newtag, .acctpickrow > .newtag { top: -6px; left: -6px; font-size: 9px; line-height: 13px; padding: 0 4px; z-index: 1; }

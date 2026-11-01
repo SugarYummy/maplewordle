@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Maple Wordle - BGM Clip</title>
-<script src="move.js?v=1"></script>
-<script src="account.js?v=1"></script>
-<link rel="stylesheet" href="style.css?v=139">
+<script src="move.js?v=3"></script>
+<script src="account.js?v=7"></script>
+<link rel="stylesheet" href="style.css?v=155">
 </head>
 <body>
 <button id="archiveBtn" class="panel">Archive</button>
@@ -20,12 +20,12 @@
 <div class="panel game">
 <h1>Maple Wordle</h1>
 <div id="games">
-  <button class="on" onclick="location.href='./'">Guess the Boss</button>
+  <button class="on" onclick="location.href='boss'">Guess the Boss</button>
   <button onclick="location.href='class'">Guess the Class</button>
   <button disabled>Guess the Map<small>Coming soon</small></button>
 </div>
 <div id="subgames">
-  <button onclick="location.href='./'">Wordle</button>
+  <button onclick="location.href='boss'">Wordle</button>
   <button class="on" data-new="bgmClip" data-meso="bgm">BGM Clip</button>
   <button disabled>Sound Clip<small>Coming soon</small></button>
 </div>
@@ -75,9 +75,10 @@
 <div id="bonus" hidden>
   <h3 id="bonusTitle">Bonus: Where does this BGM play?</h3>
   <p id="bonusHelp">The whole track is unlocked now. Click the bar to jump around.</p>
-  <p id="mashupRow" hidden><button id="mashupPlay">▶&#xFE0E; Play the mashup</button></p>
+  <div id="mashupRow" hidden><button id="mashupPlay">▶&#xFE0E; Play the mashup</button><div id="mashupTrack"><div id="mashupBar"><div id="mashupFill"></div></div><span id="mashupTime">0:00</span></div><p id="limboTip" hidden>Pause before you guess for a cool effect</p></div>
   <div id="bonusAsk"><select id="bonusPick"></select><div id="bossField" hidden><input id="bossPick" type="search" placeholder="Search for a boss" autocomplete="off" spellcheck="false" data-1p-ignore data-lpignore="true" data-form-type="other"><div id="bossList" hidden></div></div> <button id="bonusGo">Guess</button></div>
   <p id="bonusResult"></p>
+  <p id="limboShop" class="shopnote" hidden>✨ You have now unlocked the Easter egg in the shop! <button type="button">Open the Shop</button></p>
   <div id="titleBox" hidden>
     <h3 id="titleHead">Bonus 2: What's this BGM called?</h3>
     <div id="titleAsk"><div id="titleField"><input id="titlePick" type="search" placeholder="Type a BGM title" autocomplete="off" spellcheck="false" data-1p-ignore data-lpignore="true" data-form-type="other"><div id="titleList" hidden></div></div> <button id="titleGo">Guess</button></div>
@@ -116,8 +117,8 @@
     <p class="closebar"><button id="changelogClose">Close</button></p>
   </div>
 </div>
-<script src="fx.js?v=123"></script>
-<script src="archive.js?v=6"></script>
-<script src="bgm.js?v=69"></script>
+<script src="fx.js?v=154"></script>
+<script src="archive.js?v=7"></script>
+<script src="bgm.js?v=95"></script>
 </body>
 </html>

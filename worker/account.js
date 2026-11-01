@@ -20,6 +20,8 @@
 //                                        least), "meso-" (at most) or "all" -> {users: [{id, name, mesos, made, saved, devices}]}
 //                                        (admin.html on the site types these as /find commands)
 //   POST /admin/delete {name}            header X-Admin-Key. Deletes the account and signs out its devices (no undo).
+//   GET  /maple?region=na|eu&name=IGN    a MapleStory character from Nexon's rankings -> {name, level, job, world,
+//                                        img} (404 "nouser" if it isn't ranked). Nexon doesn't let browsers ask it directly.
 // Signed in = header "Authorization: Bearer <token>". Only a hash of each token is stored.
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -32,6 +34,8 @@ const json = (body, status = 200) =>
 const NAME = /^[A-Za-z0-9]{1,10}$/;   // usernames: 1-10 letters or numbers, unique ignoring case
 const PASS_MIN = 1, PASS_MAX = 16;
 const MAX_DATA = 1000000;              // a save's size limit (characters)
+const IGN = /^[A-Za-z0-9]{2,13}$/;     // MapleStory character names
+const WORLDS = { 1: 'Bera', 19: 'Scania', 45: 'Kronos', 70: 'Hyperion', 30: 'Luna', 46: 'Solis' };   // Nexon's world IDs
 const ITER = 10000;                    // PBKDF2 rounds (kept low for the free plan's CPU limit; stored per account)
 const LIMITS = { login: [10, 10 * 60], signup: [5, 60 * 60] };   // tries per IP: [how many, in seconds] (failed logins / signups)
 
@@ -159,6 +163,19 @@ export default {
         'u.created AS made, u.updated AS saved, (SELECT COUNT(*) FROM sessions s WHERE s.user_id = u.id) AS devices FROM users u) ' +
         `WHERE ${where} ORDER BY id LIMIT 200`).bind(...(by === 'all' ? [] : [arg])).all();
       return json({ users: results.map(({ name_key, ...r }) => r) });
+    }
+
+    // (No sign-in needed: it only reads Nexon's public rankings, and the test build's pretend accounts use it too.)
+    if (path === '/maple' && request.method === 'GET') {
+      const region = url.searchParams.get('region'), name = url.searchParams.get('name') || '';
+      if (!['na', 'eu'].includes(region) || !IGN.test(name)) return json({ error: 'ign' }, 400);
+      const api = `https://www.nexon.com/api/maplestory/no-auth/ranking/v2/${region}?type=overall&id=legendary&reboot_index=0&page_index=1&character_name=${name}`;
+      let r;
+      try { r = await fetch(api, { headers: { 'User-Agent': 'Mozilla/5.0 (maplewordle)' }, cf: { cacheTtl: 600 } }); } catch { r = null; }
+      if (!r?.ok) return json({ error: 'nexon' }, 502);
+      const c = (await r.json().catch(() => ({}))).ranks?.find((x) => x.characterName?.toLowerCase() === name.toLowerCase());
+      if (!c) return json({ error: 'nouser' }, 404);
+      return json({ name: c.characterName, level: c.level, job: c.jobName, world: WORLDS[c.worldID] ?? '', img: c.characterImgURL });
     }
 
     // Everything below needs a signed-in device.
