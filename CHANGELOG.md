@@ -2,7 +2,7 @@
 
 ## alpha v5.0.1 - 2 November 2026
 ### ✨ New [BGM Clip] Extreme Clips Added!
-- **[BGM Clip]** Added Champion Raid: Draco Isle into [BGM Clip] Extreme mode.
+- **[BGM Clip]** Added [Champion Raid: Draco Isle] into [BGM Clip] Extreme mode.
 ### 🐛 Bug Fixes
 - **[General]** Patch didn't apply properly, should be fixed now.
 
