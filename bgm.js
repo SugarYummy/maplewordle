@@ -51,12 +51,23 @@ function hash(str) {
 // From Oct 22 Normal also leaves out bosses that are too obscure for it (new, region-only or event ones).
 const NORMAL_SKIP = ['Cross', 'Malicia', 'Gerand Darmoor', 'Bellona', 'Julieta', 'Inferno Wolf', 'Yakuza Boss', 'Frenzied Gigatoad', 'Balrog', 'Champion Raid: Draco Isle'];
 const NORMAL_SKIP_FROM = Date.UTC(2026, 9, 22) / DAY_MS;
+// From Nov 3 Normal also leaves out single BGMs that are too hard for it (boss|track; the boss's other BGMs stay).
+const NORMAL_SKIP_TRACKS = [
+  'Limbo|7913784723',                                   // Phase 2 - Transition
+  'Damien|b60616b256',                                  // Phase 1 / Phase 2 - Cutscene (one track)
+  'Lotus|8d6b87e354', 'Lotus|27b2053221', 'Lotus|ec0205bf65',   // Phase 1 / 2 / 3 (Old)
+  'Extreme Bigfoot|f715b12dd8',                         // Battle
+  'Gollux|afc24cc92c',                                  // Outside Entrance
+  'Von Bon|9f6a2758cb', 'Von Bon|a5144e481c',           // Waiting Room, Battle (Eerie)
+];
+const NORMAL_SKIP_TRACKS_FROM = Date.UTC(2026, 10, 3) / DAY_MS;
 // Added later (data/bgm.json boss "since": "YYYY-MM-DD"): its BGMs join the shuffle from that day on, so every day before
 // it (the whole Archive) keeps its answer. The "base" schedule is the one without them: it still decides where an egg
 // track (Lucid's) lands, and the mashup days, so adding new ones never moves those either.
 const sinceDay = (b) => (b.since ? Date.parse(b.since) / DAY_MS : null);
 const modePool = (d, base) => (MODE === 'bgm' ? pool
-  : pool.filter((e) => !data.tracks[e.track].egg && !(d >= NORMAL_SKIP_FROM && NORMAL_SKIP.includes(e.boss.name))))
+  : pool.filter((e) => !data.tracks[e.track].egg && !(d >= NORMAL_SKIP_FROM && NORMAL_SKIP.includes(e.boss.name))
+    && !(d >= NORMAL_SKIP_TRACKS_FROM && NORMAL_SKIP_TRACKS.includes(e.key))))
   .filter((e) => (base ? !e.boss.since : !(sinceDay(e.boss) > d)));
 const basePool = () => (basePool.list ??= pool.filter((e) => !e.boss.since));
 const JOIN_DAY = () => (JOIN_DAY.d ??= Math.min(Infinity, ...bosses.map(sinceDay).filter((x) => x != null)));
