@@ -69,6 +69,71 @@ const rand = (a, b) => a + Math.random() * (b - a);
 // All the mesos of one show are drawn on a single canvas, in one loop: thousands of page elements (one per meso)
 // made phones lag and use a lot of memory. A layer: { parts, jobs }. jobs run every frame (they throw new mesos)
 // until they say they're done; parts are the mesos in the air. The canvas goes once both are empty, or after `ms`.
+// Settings: dark mode and 30 FPS (30 is the default, 60 if chosen; each page's <head> sets html.dark / html.fps30 before it draws, from these keys).
+const DARK_KEY = 'mapleWordle:dark', FPS_KEY = 'mapleWordle:fps';
+const darkOn = () => document.documentElement.classList.contains('dark');
+const fps30 = () => document.documentElement.classList.contains('fps30');
+// 30 FPS: every animation on the page (glows, spinning rings, leaves, glitches...) is moved along by hand 30 times a
+// second instead of the browser drawing it at the screen's full refresh rate. Each one is paused and set to where it
+// should be by now; one that reaches its end is finished, so whatever waits for it still happens.
+const fpsHeld = new WeakMap();   // animation -> the timeline time its start lines up with
+let fpsLast = 0;
+function fpsTick(t) {
+  if (!fps30()) {   // back to normal: let them run on their own again
+    for (const a of document.getAnimations()) if (fpsHeld.has(a)) { fpsHeld.delete(a); if (a.playState === 'paused') a.play(); }
+    return;
+  }
+  requestAnimationFrame(fpsTick);
+  if (t - fpsLast < 32) return;
+  fpsLast = t;
+  const now = document.timeline.currentTime;
+  for (const a of document.getAnimations()) {
+    if (!fpsHeld.has(a)) {
+      if (a.playState !== 'running') continue;   // paused by the page itself, or done
+      fpsHeld.set(a, now - (a.currentTime ?? 0) / (a.playbackRate || 1));
+      a.pause();
+    }
+    const at = (now - fpsHeld.get(a)) * (a.playbackRate || 1);
+    const end = a.effect?.getComputedTiming().endTime;
+    if (end != null && end !== Infinity && at >= end) { fpsHeld.delete(a); a.finish(); continue; }
+    a.currentTime = at;
+  }
+}
+if (fps30()) requestAnimationFrame(fpsTick);
+// On Limbo's mashup day (every game, every mode) the "Mapledle" title glitches for half a second now and then (every
+// 25-90 s at random), rare enough to barely notice. Only a hash of that day is kept here (the BGM page works the day
+// out from its schedule; the other pages can't), so the day itself isn't written anywhere. The BGM page also counts
+// that day's mashup opened from the Archive; the test build's /egg limbo counts too.
+const LIMBO_DAY_HASH = '70c79fa9c8384640b353ed924d86de2684741fe9ec37ff1012d3230dc59eb43e';
+let limboDayToday = null;
+async function isLimboDay() {
+  if (window.devEgg === 'limbo' || (typeof isLimboEgg === 'function' && isLimboEgg())) return true;
+  const d = Math.floor(Date.now() / 86400000);
+  if (limboDayToday?.d !== d) {
+    let yes = false;
+    try {
+      const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('mapledle|limbo-day|' + d));
+      yes = [...new Uint8Array(buf)].map((x) => x.toString(16).padStart(2, '0')).join('') === LIMBO_DAY_HASH;
+    } catch {}
+    limboDayToday = { d, yes };
+  }
+  return limboDayToday.yes;
+}
+(function titleGlitch() {
+  setTimeout(async () => {
+    const h = document.querySelector('h1');
+    if (h && !document.hidden && !matchMedia('(prefers-reduced-motion: reduce)').matches && await isLimboDay()) {
+      if (!h.querySelector('.gtext')) {
+        const g = Object.assign(document.createElement('span'), { className: 'gtext', textContent: h.textContent });
+        g.dataset.text = h.textContent;
+        h.replaceChildren(g);
+      }
+      h.classList.remove('tglitch'); void h.offsetWidth; h.classList.add('tglitch');
+      setTimeout(() => h.classList.remove('tglitch'), 500);
+    }
+    titleGlitch();
+  }, 25000 + Math.random() * 65000);
+})();
 function fxLayer(ms) {
   const cv = document.createElement('canvas');
   cv.className = 'confetti';
@@ -77,11 +142,14 @@ function fxLayer(ms) {
   const L = { parts: [], jobs: [] };
   const end = performance.now() + ms;
   let last = performance.now();
+  // Drawn at 1 canvas pixel per CSS pixel (the sprites are pixel art: style.css scales it up pixel-sharp) and at most
+  // ~60 times a second (30 with the 30 FPS setting): a full-screen canvas at a sharp screen's full resolution and refresh rate kept the GPU busy.
   const frame = (now) => {
     if (now > end || (!L.jobs.length && !L.parts.length)) { cv.remove(); return; }
+    if (now - last < (fps30() ? 32 : 15)) { requestAnimationFrame(frame); return; }
     const dt = Math.min(0.05, (now - last) / 1000);
     last = now;
-    const W = innerWidth, H = innerHeight, dpr = devicePixelRatio || 1;
+    const W = innerWidth, H = innerHeight, dpr = 1;
     if (cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.imageSmoothingEnabled = false;   // pixel-sharp sprites
@@ -236,22 +304,21 @@ function bigWin() {
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   setTimeout(mesoShow, playHecate());
 }
-// Limbo's glitch mashup answered right (BGM Clip): Limbo's cutscene for everyone, then the meso show.
+// Limbo's glitch mashup answered right (BGM Clip): Limbo's cutscene for everyone (only that: no meso show or glow).
 let limboCutBlob = null;
 function limboCutLoad() {
   soundFile(SOUNDS.limboCut).catch(() => {});
   limboCutBlob ??= fetch(`video/hecate/limboCut.${SAFARI ? 'webp' : 'webm'}?v=2`).then((r) => (r.ok ? r.blob() : null)).catch(() => null);
   return limboCutBlob;
 }
-async function limboWin(noShow = false) {   // noShow: the meso show already played (a guess-in-1 win): just the cutscene
+async function limboWin() {
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   const blob = await limboCutLoad();
-  if (!blob) return noShow || mesoShow();
+  if (!blob) return;
   const keep = hecate;
   hecate = { id: 'limboCut', skin: HECATE.limboCut, blob };
   const was = hecateLast;
-  const ms = playHecate(true);
-  if (!noShow) setTimeout(mesoShow, ms);
+  playHecate(true);
   hecate = keep;
   hecateLast = was;
 }
@@ -465,7 +532,6 @@ function applyBox() {
   st.setProperty('--boxA', lerp(0.55).toFixed(3));     // plain box: white
   st.setProperty('--boxRA', lerp(0.42).toFixed(3));    // 🌈 box: white layer
   st.setProperty('--boxT', (0.38 * Math.min(1, k)).toFixed(3));   // 🌈 box: pastel rainbow tint
-  st.setProperty('--boxBlur', v ? '10px' : '0px');
 }
 applyBox();
 (() => {
@@ -487,6 +553,10 @@ applyBox();
       '<input id="setBox" type="range" min="0" max="100" step="5"><span id="setBoxPct"></span></div>' +
       `<div class="setrow"><span class="setlabel">Background effect ${tip('Maple leaves on 2x weekends, effects on holidays.')}</span>` +
       '<span class="seg"><button data-fx="on">On</button><button data-fx="off">Off</button></span></div>' +
+      `<div class="setrow"><span class="setlabel">Theme ${tip('Light or dark boxes.')}</span>` +
+      '<span class="seg"><button data-dark="0">Light</button><button data-dark="1">Dark</button></span></div>' +
+      `<div class="setrow"><span class="setlabel">Effects ${tip('60 is smoother, 30 is lighter.')}</span>` +
+      '<span class="seg"><button data-fps="30">30 FPS</button><button data-fps="60">60 FPS</button></span></div>' +
       `<div class="setrow"><span class="setlabel">Secret passcode ${tip('VIP access for helpers of the site!')}</span>` +
       (vip.on ? '<span class="vipon">✨ VIP unlocked</span>'
         : '<span class="vipfield"><input id="vipCode" type="text" placeholder="Passcode" autocomplete="off" spellcheck="false" autocapitalize="off" data-1p-ignore data-lpignore="true" data-form-type="other"><span id="vipMsg"></span></span><button id="vipGo">Enter</button>') + '</div>' +
@@ -521,6 +591,8 @@ applyBox();
       vol.disabled = muted();
       pct.textContent = vol.value + '%';
       for (const b of body.querySelectorAll('[data-fx]')) b.classList.toggle('on', (b.dataset.fx === 'on') === bgEffectOn());
+      for (const b of body.querySelectorAll('[data-dark]')) b.classList.toggle('on', (b.dataset.dark === '1') === darkOn());
+      for (const b of body.querySelectorAll('[data-fps]')) b.classList.toggle('on', (b.dataset.fps === '30') === fps30());
       body.querySelector('#setBoxPct').textContent = boxOpacity() + '%';
       if (bgmBtn) {
         bgmBtn.textContent = themeBgmOn() ? '🎵 On' : '🔇 Off';
@@ -542,6 +614,21 @@ applyBox();
     });
     vol.addEventListener('input', () => { saveSliderVolume(vol.value); show(); });
     for (const b of body.querySelectorAll('[data-fx]')) b.addEventListener('click', () => { lsSet(FX_KEY, b.dataset.fx); show(); leaves(); halloweenFx(); });
+    for (const b of body.querySelectorAll('[data-dark]')) b.addEventListener('click', () => {
+      lsSet(DARK_KEY, b.dataset.dark);
+      document.documentElement.classList.toggle('dark', b.dataset.dark === '1');
+      // The game runs inside index.html's frame: the browser paints a frame whose light / dark differs from the page
+      // around it with a solid background, so the outer page switches too (it reads the setting itself on load).
+      try { if (parent !== window) parent.document.documentElement.classList.toggle('dark', b.dataset.dark === '1'); } catch {}
+      show();
+    });
+    for (const b of body.querySelectorAll('[data-fps]')) b.addEventListener('click', () => {
+      const was = fps30();
+      lsSet(FPS_KEY, b.dataset.fps);
+      document.documentElement.classList.toggle('fps30', b.dataset.fps === '30');
+      if (!was && fps30()) requestAnimationFrame(fpsTick);
+      show();
+    });
     const boxIn = body.querySelector('#setBox');
     boxIn.value = boxOpacity();
     boxIn.addEventListener('input', () => { lsSet(BOX_KEY, boxIn.value); applyBox(); show(); });
@@ -1095,11 +1182,15 @@ function drawThemeButton() {
         sum.append(pic, name);
         if (pack === 'limboSub' && limboAllOn()) {   // Special toggle on: a slow spinning Limbo-coloured ring + glow around the box (style.css)
           sum.classList.add('special');
+          const label = name.firstChild;   // the name, glitching (style.css draws the split colour copies from data-text)
+          const g = Object.assign(document.createElement('span'), { className: 'gtext', textContent: label.textContent });
+          g.dataset.text = label.textContent;
+          label.replaceWith(g);
           sum.insertAdjacentHTML('afterbegin', '<span class="spglow"><i></i></span><span class="spring"><i></i></span>');
         }
         if (pack === 'limboSub') {   // one switch for everything in Limbo's set, on the box itself (no need to open it)
           const row = Object.assign(document.createElement('label'), { className: 'fxswitch onbox', title: 'Enable all Limbo effects, including hidden ones' });
-          row.innerHTML = '<input type="checkbox"><span class="knob"></span><span>Special toggle</span>';
+          row.innerHTML = '<input type="checkbox"><span class="knob"></span><span class="gtext" data-text="Special toggle">Special toggle</span>';
           row.querySelector('input').checked = limboAllOn();
           row.addEventListener('click', (e) => {   // (not the box's open / close)
             e.preventDefault();

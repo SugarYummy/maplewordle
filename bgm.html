@@ -3,10 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Maple Wordle - BGM Clip</title>
+<title>Mapledle - BGM Clip</title>
 <script src="move.js?v=3"></script>
 <script src="account.js?v=7"></script>
-<link rel="stylesheet" href="style.css?v=167">
+<script>{const c=document.documentElement.classList;c.add('fps30');try{c.toggle('dark',localStorage.getItem('mapleWordle:dark')==='1');c.toggle('fps30',localStorage.getItem('mapleWordle:fps')!=='60')}catch{}}</script>
+<link rel="stylesheet" href="style.css?v=190">
 </head>
 <body>
 <button id="archiveBtn" class="panel">Archive</button>
@@ -18,7 +19,7 @@
   </div>
 </div>
 <div class="panel game">
-<h1>Maple Wordle</h1>
+<h1>Mapledle</h1>
 <div id="games">
   <button class="on" onclick="location.href='boss'">Guess the Boss</button>
   <button onclick="location.href='class'">Guess the Class</button>
@@ -117,8 +118,8 @@
     <p class="closebar"><button id="changelogClose">Close</button></p>
   </div>
 </div>
-<script src="fx.js?v=162"></script>
-<script src="archive.js?v=7"></script>
-<script src="bgm.js?v=101"></script>
+<script src="fx.js?v=172"></script>
+<script src="archive.js?v=9"></script>
+<script src="bgm.js?v=108"></script>
 </body>
 </html>

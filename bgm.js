@@ -499,7 +499,7 @@ function notOpenYet() {
   eggScene(null);
   mesoGain(MODE, day, false);
   firstTryGlow(false);
-  document.querySelector('.game').classList.remove('diamond', 'rainbow');
+  document.querySelector('.game').classList.remove('diamond', 'rainbow', 'limborb');
   $('status').textContent = `${MODES[MODE].name} mode opens at the next reset!`;
 }
 
@@ -607,15 +607,20 @@ function badgeFor(d, ans, g, b, t) {
   return tests.length === 2 && right === 2 ? '🌈' : '💎';
 }
 const badge = () => over ? badgeFor(day, answer, guesses, bonus, title) : '';
+// Limbo's mashup day: a first-guess win with the mashup answered right gets Limbo's border (in place of 💎 / 🌈's),
+// on the game box and on the Archive row (style.css).
+const limboRingFor = (ans, g, b) => g.length === 1 && g[0] === ans.name && ans.bonus?.mashup?.egg === 'limbo' && b != null && ans.bonus.right.includes(b);
+const rowStyleFor = (m, d) => inMode(m, () => { const s = load(d); return limboRingFor(answerFor(d), s.g, s.bonus) ? 'limborb' : ''; });
 function renderEnd() {
   queueMicrotask(limboDragons);   // a wrong bonus answer from before gets its dragon back (fx.js)
   $('bonusResult').dataset.limbo = isLimboEgg() ? '1' : '';   // Limbo's mashup: its dragon shows for everyone
   renderHints();
   drawTicks();
   drawBar();
-  document.querySelector('.game').classList.toggle('diamond', badge() === '💎');
-  const game = document.querySelector('.game');
-  if (game.classList.toggle('rainbow', badge() === '🌈') && !game.querySelector('.rbring')) {   // its spinning ring + glow (style.css)
+  const game = document.querySelector('.game'), lb = over && limboRingFor(answer, guesses, bonus);
+  game.classList.toggle('diamond', !lb && badge() === '💎');
+  const ring = game.classList.toggle('rainbow', !lb && badge() === '🌈') | game.classList.toggle('limborb', lb);
+  if (ring && !game.querySelector('.rbring')) {   // its spinning ring + glow (style.css)
     game.insertAdjacentHTML('beforeend', '<div class="rbglow"><i></i></div><div class="rbring"><i></i></div>');
   }
   const box = $('bonus');
@@ -624,6 +629,7 @@ function renderEnd() {
   const waiting = over && ((!!answer.bonus && bonus == null) || (titleOn() && title == null));
   $('bonusCall').hidden = !waiting;
   box.classList.toggle('waiting', waiting);
+  box.classList.toggle('limbo', isLimboEgg());   // Limbo's mashup: the waiting glow in Limbo's colours (style.css)
   if (mashupKey !== `${MODE}|${day}|${answer.bonus?.mashup?.file}`) stopMashup();   // keeps playing through a redraw (e.g. answering the bonus)
   trackEgg();
   if (!over) return;
@@ -1042,7 +1048,7 @@ $('bonusGo').addEventListener('click', (window.acctGate ?? ((f) => f))(() => {
   const ok = answer.bonus.right.includes(pick);
   // Limbo's wrong guess effect (if it's on) eats a wrong answer; on Limbo's mashup everyone gets to see it.
   limboGuess($('bonusResult'), !ok, undefined, isLimboEgg());
-  if (ok && isLimboEgg()) limboWin(guesses.length === 1 && won());   // right: Limbo's cutscene, then the meso show (not again after a guess in 1)
+  if (ok && isLimboEgg()) limboWin();   // right: Limbo's cutscene (nothing else)
   noteResult();
   if (!ok && isLimboEgg()) {
     // Wrong: the dragon swallows the answer and stays a moment, then the border's exit and Limbo's fail screen in
@@ -1233,10 +1239,11 @@ function resultIn(d) {
   if (n >= maxGuesses()) return 'Lost';
   return n ? `In progress (${n}/${maxGuesses()})` : 'Not played';
 }
-window.archiveHere = { modes: Object.keys(MODES), current: () => MODE, result: resultFor, play: (m, d) => { MODE = m; start(d); } };
+window.archiveHere = { modes: Object.keys(MODES), current: () => MODE, result: resultFor, style: rowStyleFor, play: (m, d) => { MODE = m; start(d); } };
 const noteResult = () => {
   if (over) {
     try { localStorage.setItem(`mapleWordle:result:${MODE}:${day}`, resultFor(MODE, day)); } catch {}
+    try { if (rowStyleFor(MODE, day)) localStorage.setItem(`mapleWordle:style:${MODE}:${day}`, rowStyleFor(MODE, day)); } catch {}   // for the Archive on other pages
     earnGame(MODE, day, resultFor(MODE, day));   // mesos (fx.js): Archive days pay 10%
     if (bonus != null && answer.bonus?.right.includes(bonus)) earnBonus(MODE, day, !!answer.bonus.mashup?.egg);
     if (titleRight()) earnBonus(MODE, day, false, 'title');
@@ -1266,7 +1273,7 @@ function shareText() {
   const extra = special ? '\nSPECIAL 🔥🔥🔥' + (title == null || grid === '💎' || grid === '🌈' ? '' : `\nTitle ${titleRight() ? '✅' : '❌'}`)
     : grid === '💎' || grid === '🌈' ? ''
     : (bonus == null ? '' : `\nBonus ${ok ? '✅' : '❌'}`) + (title == null ? '' : `\nTitle ${titleRight() ? '✅' : '❌'}`);
-  return [`${isHalloween(day) ? '🎃 ' : ''}Maple Wordle - BGM Clip (${MODES[MODE].name}) #${day - firstDay() + 1} ${won() ? guesses.length : 'X'}/${maxGuesses()}`,
+  return [`${isHalloween(day) ? '🎃 ' : ''}Mapledle - BGM Clip (${MODES[MODE].name}) #${day - firstDay() + 1} ${won() ? guesses.length : 'X'}/${maxGuesses()}`,
     grid + extra, 'https://ima.moe/maplewordle/bgm/' + (MODE === 'bgmnormal' ? 'normal' : 'extreme')].join('\n');
 }
 function share() {
