@@ -504,7 +504,7 @@ function shareText() {
   const score = (won ? guesses.length : 'X') + '/' + (maxGuesses ?? '∞');
   const hide = twistFor(mode, day)?.hide, skip = hide ? TWIST_NTH[hide] - 1 : -1;   // leave a hidden column out of the grid too
   const grid = guesses.map((name) =>
-    columnOrder(guessCells(pool.find((e) => e.name === name))).filter((_, i) => i !== skip).map(([, c]) => EMOJI[c]).join(''));
+    columnOrder(guessCells(pool.find((e) => e.name === name))).filter((_, i) => i > 0 && i !== skip).map(([, c]) => EMOJI[c]).join(''));   // no boss column: it's red until the right guess anyway
   const hintNote = mode === 'story' ? ` (${hints.length} hint${hints.length === 1 ? '' : 's'})` : '';
   const lines = won && guesses.length === 1 ? ['⭐'] : grid;   // first-guess win: just a star
   return [`${isHalloween(day) ? '🎃 ' : ''}Maple Wordle #${day - FIRST_DAY + 1} (${MODE_NAME[mode]}) ${score}${hintNote}`, ...lines, 'https://ima.moe/maplewordle/boss/' + mode].join('\n');

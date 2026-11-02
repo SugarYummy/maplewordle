@@ -49,27 +49,61 @@ function hash(str) {
 // Normal leaves out the special tracks (an "egg" one, like Lucid's Garden of Eternal Dream), and never picks the
 // boss Extreme has that day, so the two modes are two different BGMs.
 // From Oct 22 Normal also leaves out bosses that are too obscure for it (new, region-only or event ones).
-const NORMAL_SKIP = ['Cross', 'Malicia', 'Gerand Darmoor', 'Bellona', 'Julieta', 'Inferno Wolf', 'Yakuza Boss', 'Frenzied Gigatoad', 'Balrog'];
+const NORMAL_SKIP = ['Cross', 'Malicia', 'Gerand Darmoor', 'Bellona', 'Julieta', 'Inferno Wolf', 'Yakuza Boss', 'Frenzied Gigatoad', 'Balrog', 'Champion Raid: Draco Isle'];
 const NORMAL_SKIP_FROM = Date.UTC(2026, 9, 22) / DAY_MS;
-const modePool = (d) => MODE === 'bgm' ? pool
-  : pool.filter((e) => !data.tracks[e.track].egg && !(d >= NORMAL_SKIP_FROM && NORMAL_SKIP.includes(e.boss.name)));
-const schedules = {};   // per mode
+// Added later (data/bgm.json boss "since": "YYYY-MM-DD"): its BGMs join the shuffle from that day on, so every day before
+// it (the whole Archive) keeps its answer. The "base" schedule is the one without them: it still decides where an egg
+// track (Lucid's) lands, and the mashup days, so adding new ones never moves those either.
+const sinceDay = (b) => (b.since ? Date.parse(b.since) / DAY_MS : null);
+const modePool = (d, base) => (MODE === 'bgm' ? pool
+  : pool.filter((e) => !data.tracks[e.track].egg && !(d >= NORMAL_SKIP_FROM && NORMAL_SKIP.includes(e.boss.name))))
+  .filter((e) => (base ? !e.boss.since : !(sinceDay(e.boss) > d)));
+const basePool = () => (basePool.list ??= pool.filter((e) => !e.boss.since));
+const JOIN_DAY = () => (JOIN_DAY.d ??= Math.min(Infinity, ...bosses.map(sinceDay).filter((x) => x != null)));
+// Extreme's egg tracks keep the day the base schedule gives them (worked out here, never written down anywhere), and
+// so does Limbo's mashup day.
+function eggPins() {
+  if (eggPins.list) return eggPins.list;
+  const list = [];
+  inMode('bgm', () => {
+    const from = firstDay(), eggs = basePool().filter((e) => data.tracks[e.track].egg);
+    for (let x = from; x < from + 3 * basePool().length && list.length < eggs.length; x++) {
+      const e = entryFor(x, true);
+      if (data.tracks[e.track].egg && !list.some((p) => p.entry === e)) list.push({ day: x, entry: e });
+    }
+  });
+  const limbo = limboEggDay();   // Limbo's mashup day: its one-BGM boss stays
+  if (limbo != null) list.push({ day: limbo, entry: inMode('bgm', () => entryFor(limbo, true)) });
+  return (eggPins.list = list.filter((p) => p.day >= JOIN_DAY()));   // one that already played before: nothing to keep
+}
+const schedules = {};   // per mode (and base)
 function inMode(m, f) { const was = MODE; MODE = m; try { return f(); } finally { MODE = was; } }
-function entryFor(d) {
-  const s = schedules[MODE] ??= { days: [], used: new Set() };
+function entryFor(d, base = false) {
+  const s = schedules[MODE + (base ? '|base' : '')] ??= { days: [], used: new Set() };
   const FIRST_DAY = firstDay();
   while (FIRST_DAY + s.days.length <= d) {
-    const day = FIRST_DAY + s.days.length, all = modePool(day);
+    const day = FIRST_DAY + s.days.length;
+    let all = modePool(day, base);
     const prev = s.days[s.days.length - 1];
-    const other = MODE === 'bgm' ? null : inMode('bgm', () => entryFor(day));   // Extreme's pick that day
-    let left = all.filter((e) => !s.used.has(e.key));
-    if (!left.length) { s.used.clear(); left = all; }                   // cycle done: everything is back in
-    const notSame = (list) => list.filter((e) => (!prev || e.boss !== prev.boss) && (!other || e.boss !== other.boss));
-    left = notSame(left).length ? notSame(left) : notSame(all);          // only that boss left: borrow from the next cycle
-    let pick = left[0], best = Infinity;
-    for (const e of left) {
-      const v = hash(`${MODE}|${day}|${e.key}`);
-      if (v < best) { best = v; pick = e; }
+    const other = MODE === 'bgm' ? null : inMode('bgm', () => entryFor(day, base));   // Extreme's pick that day
+    const pins = !base && MODE === 'bgm' && day >= JOIN_DAY() ? eggPins() : [];
+    const pinned = pins.find((p) => p.day === day);
+    let pick;
+    if (pinned) pick = pinned.entry;
+    else {
+      const waiting = pins.filter((p) => p.day > day);
+      all = all.filter((e) => !waiting.some((p) => p.entry === e));   // an egg waits for its own day
+      const nextBoss = pins.find((p) => p.day === day + 1)?.entry.boss;   // and its boss isn't on the day before
+      let left = all.filter((e) => !s.used.has(e.key));
+      if (!left.length) { s.used.clear(); left = all; }                   // cycle done: everything is back in
+      const notSame = (list) => list.filter((e) => (!prev || e.boss !== prev.boss) && (!other || e.boss !== other.boss) && e.boss !== nextBoss);
+      left = notSame(left).length ? notSame(left) : notSame(all);          // only that boss left: borrow from the next cycle
+      pick = left[0];
+      let best = Infinity;
+      for (const e of left) {
+        const v = hash(`${MODE}|${day}|${e.key}`);
+        if (v < best) { best = v; pick = e; }
+      }
     }
     s.used.add(pick.key);
     s.days.push(pick);
@@ -94,12 +128,15 @@ function answerFor(d) {
   return ans;
 }
 const GLITCH_PAUSE_FROM = Date.UTC(2026, 9, 26) / DAY_MS;
-const LIMBO_EGG_UNTIL = Date.UTC(2026, 10, 13) / DAY_MS;   // the last day Limbo's glitch mashup can be on
+// Limbo's glitch mashup comes back on one day picked at random among Nov 3 - 9's one-BGM days (moved on Nov 2, before
+// any of them was played; a surprise: nothing on the site says which). Picked from the base schedule, and that day
+// keeps its base pick (eggPins), so BGMs added later can't move it.
+const LIMBO_EGG_FROM = Date.UTC(2026, 10, 3) / DAY_MS, LIMBO_EGG_UNTIL = Date.UTC(2026, 10, 9) / DAY_MS;
 function limboEggDay() {
   if (limboEggDay.d !== undefined) return limboEggDay.d;
   const days = [];
-  for (let x = GLITCH_PAUSE_FROM; x <= LIMBO_EGG_UNTIL; x++) if (!hasBonus(entryFor(x).boss)) days.push(x);
-  return (limboEggDay.d = days.length ? days[hash('bgm|limbo-egg-day') % days.length] : null);
+  inMode('bgm', () => { for (let x = LIMBO_EGG_FROM; x <= LIMBO_EGG_UNTIL; x++) if (!hasBonus(entryFor(x, true).boss)) days.push(x); });
+  return (limboEggDay.d = days.length ? days[hash('bgm|limbo-egg-day|2') % days.length] : null);
 }
 // The bonus round. A boss with 2+ BGMs: which part of the fight does it play in (any part with that track is right).
 // A boss with one BGM usually has none, but each mashup in data/bgm.json "mashups" shows up on one of those days per
@@ -122,9 +159,10 @@ function bonusFor(ans, d) {
     mashups = mashups.filter((x) => !x.egg);
   }
   const FIRST_DAY = firstDay();
-  const cycle = Math.floor((d - FIRST_DAY) / pool.length), from = FIRST_DAY + cycle * pool.length;
+  const n = basePool().length;   // the base schedule's days, so BGMs added later don't move any mashup day
+  const cycle = Math.floor((d - FIRST_DAY) / n), from = FIRST_DAY + cycle * n;
   const quiet = [];   // this cycle's one-BGM days, in a shuffled order
-  for (let x = from; x < from + pool.length; x++) if (!hasBonus(entryFor(x).boss)) quiet.push(x);
+  for (let x = from; x < from + n; x++) if (!hasBonus(entryFor(x, true).boss)) quiet.push(x);
   quiet.sort((x, y) => hash(`${MODE}|mashup|${x}`) - hash(`${MODE}|mashup|${y}`));
   const i = quiet.indexOf(d);
   if (i < 0 || i >= mashups.length) return null;
@@ -774,7 +812,10 @@ function limboResume() {
 }
 // fail (a wrong answer): the border's exit, then Limbo's fail screen in that side's colour instead of the fade.
 async function limboExit(fail = false) {
-  if (!limbo.on || limbo.leaving) return;
+  if (!limbo.on || limbo.leaving) {   // already gone / on its way out (the mashup stopped first): the fail screen still shows
+    if (fail) { limboTransitionStop(); limboFail(limbo.dark ? 'black' : 'white'); }
+    return;
+  }
   limbo.leaving = true;
   clearTimeout(limbo.swap);
   clearTimeout(limbo.wait);
@@ -823,7 +864,10 @@ function limboKill() {   // right away (another day or mode)
 // The mashup stopped (paused, ended, or the main Play took over): a glitch egg's screen glitch stops, except Limbo's
 // before the bonus is answered.
 function mashupStopped() {
-  if (limbo.on) { if (bonus != null) limboExit(); else if (!limbo.leaving) limboPause(); }
+  if (limbo.on) {
+    if (bonus != null) { if (!(isLimboEgg() && !answer.bonus.right.includes(bonus))) limboExit(); }   // a wrong answer's own exit (with the fail screen) is on its way
+    else if (!limbo.leaving) limboPause();
+  }
   else glitch(false);
 }
 function stopMashup() {

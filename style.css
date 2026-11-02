@@ -13,15 +13,15 @@ html.inshell body { background: transparent; }   /* inside the main page (shell.
 .panel { background: rgba(255, 255, 255, 0.55); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
          border-radius: 12px; padding: 8px 16px 16px; margin: 16px; max-width: calc(100% - 64px); }
 .table-wrap { overflow-x: auto; }
-footer.panel { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); z-index: 1; margin: 0;
+footer.panel { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); z-index: 3; margin: 0;
                padding: 6px 16px; border-radius: 12px 12px 0 0; font-size: 14px; white-space: nowrap; }
-.game { position: relative; z-index: 2; margin-bottom: 80px; }
-#version { position: fixed; bottom: 8px; left: 10px; z-index: 3; margin: 0; padding: 4px 10px; font-size: 12px;
+.game { position: relative; z-index: 4; margin-bottom: 80px; }
+#version { position: fixed; bottom: 8px; left: 10px; z-index: 5; margin: 0; padding: 4px 10px; font-size: 12px;
            border: none; cursor: pointer; font-family: inherit; }
-#archiveBtn { position: fixed; top: 12px; left: 12px; z-index: 3; margin: 0; padding: 6px 12px; font-size: 14px;
+#archiveBtn { position: fixed; top: 12px; left: 12px; z-index: 5; margin: 0; padding: 6px 12px; font-size: 14px;
               border: none; cursor: pointer; font-family: inherit; }
 /* Credit box with characters peeking out from behind it. */
-#creditWrap { position: fixed; bottom: 8px; right: 10px; z-index: 3; }
+#creditWrap { position: fixed; bottom: 8px; right: 10px; z-index: 5; }
 #credit { position: relative; z-index: 5; margin: 0; padding: 4px 10px; font-size: 12px; cursor: pointer;
           white-space: nowrap; max-width: none; user-select: none; -webkit-user-select: none;
           background: #d7e9f9; }  /* solid, so peeking characters stay fully hidden behind it */
@@ -43,7 +43,7 @@ footer.panel { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%
 #clip-left img { right: 0; bottom: 18px; transform-origin: bottom right; opacity: 0;
                  transform: translateX(35%) rotate(0deg); transition: transform 0.35s ease, opacity 0.25s ease; }
 #clip-left.up img { opacity: 1; transform: translateX(-8%) rotate(-20deg); }
-#archive, #changelog, #info { position: fixed; inset: 0; z-index: 4; background: rgba(0, 0, 0, 0.4); display: flex;
+#archive, #changelog, #info { position: fixed; inset: 0; z-index: 6; background: rgba(0, 0, 0, 0.4); display: flex;
            align-items: flex-start; justify-content: center; }
 #archive[hidden], #changelog[hidden], #info[hidden] { display: none; }
 #changelogBody, #infoBody { text-align: left; max-width: 420px; }
@@ -143,9 +143,9 @@ td.cardcell { background: #b9bdc6; }
 td.flip { animation: flip 0.5s ease both; }
 @keyframes flip { from { transform: rotateX(90deg); } to { transform: rotateX(0); } }
 /* Win confetti (fx.js). */
-.confetti { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; }   /* one canvas */
+.confetti { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 21; }   /* one canvas */
 /* First-guess win: a Sol Hecate skill screen over the whole page (fx.js playHecate), under the mesos */
-.hecatefx { position: fixed; inset: 0; width: 100vw; height: 100vh; object-fit: cover; z-index: 9; pointer-events: none; }
+.hecatefx { position: fixed; inset: 0; width: 100vw; height: 100vh; object-fit: cover; z-index: 20; pointer-events: none; }
 /* First-guess win: the game box shakes once; a puzzle won on the first guess glows gold for good. */
 .game.shake { animation: shake 0.5s cubic-bezier(.36, .07, .19, .97) both; }
 /* The glow is a shadow drawn once on a layer behind the box that only fades in and out: animating the box's own
@@ -161,7 +161,7 @@ td.flip { animation: flip 0.5s ease both; }
 .later { animation: appear 0.3s ease both; }
 @keyframes appear { from { opacity: 0; } to { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .later { animation: none; } }
-#soundBox { position: fixed; top: 12px; right: 12px; z-index: 3; margin: 0; padding: 2px 4px;
+#soundBox { position: fixed; top: 12px; right: 12px; z-index: 5; margin: 0; padding: 2px 4px;
             display: flex; align-items: center; max-width: none; }
 #soundBtn { margin: 0; padding: 2px 6px; font-size: 16px; border: none; background: none; cursor: pointer; font-family: inherit; }
 /* The volume slider stays tucked away until you hover the sound button (computers) or tap it (phones). */
@@ -204,7 +204,7 @@ td.flip { animation: flip 0.5s ease both; }
 @media (prefers-reduced-motion: reduce) { #rows .gbar.flip { animation: none; } }
 /* Animation Attack: click a clip / the win picture to see it big (works like the Changelog window). */
 #clips video, #congrats img { cursor: zoom-in; }
-#zoom { position: fixed; inset: 0; z-index: 7; background: rgba(0, 0, 0, 0.6); display: flex; align-items: center; justify-content: center; }
+#zoom { position: fixed; inset: 0; z-index: 9; background: rgba(0, 0, 0, 0.6); display: flex; align-items: center; justify-content: center; }
 #zoom[hidden] { display: none; }
 #zoom .panel { position: relative; margin: 0; padding: 12px; max-width: calc(100vw - 32px); }
 #zoomClose { position: absolute; top: 18px; right: 18px; z-index: 1; width: 40px; height: 40px; padding: 0; border-radius: 6px;
@@ -325,13 +325,13 @@ body.egg-limbo::before { opacity: 1; background-color: #3a3348; background-image
 #limbobg .light { background-color: #3a3348; background-image: url("images/limbo.webp"); }
 #limbobg .dark { background-color: #101826; background-image: url("images/limbo-dark.webp"); opacity: 0; }
 #limbobg.dark .dark { opacity: 1; }
-#limboborder, #cfx, .cfxout { position: fixed; inset: 0; z-index: 8; pointer-events: none; }
+#limboborder, #cfx, .cfxout { position: fixed; inset: 0; z-index: 2; pointer-events: none; }
 #limboborder video, #limboborder img, #cfx video, #cfx img, .cfxout video, .cfxout img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: fill; }
-#cfx, .cfxout { z-index: 3; }   /* under the windows (Customize, Shop, ...), over the page */
+#cfx, .cfxout { z-index: 2; }   /* right under the game box, buttons and windows; over the shark transition */
 #cfx [hidden] { display: none; }
 body:has(#limboborder) #cfx { display: none; }   /* Limbo's Easter egg brings its own border */
 #limboborder [hidden] { display: none; }
-.limboscreen { position: fixed; inset: 0; width: 100vw; height: 100vh; object-fit: cover; z-index: 12; pointer-events: none; }
+.limboscreen { position: fixed; inset: 0; width: 100vw; height: 100vh; object-fit: cover; z-index: 22; pointer-events: none; }
 body.limboswap #limbobg, body.limboswap #limboborder, body.limboswap #cfx, body.limboswap .themebg { animation: limboswap 0.32s steps(4) both; }
 @keyframes limboswap {
   0% { transform: translate(-8px, 2px); filter: hue-rotate(90deg) saturate(2) contrast(1.3); }
@@ -352,7 +352,7 @@ body.limboswap #limbobg, body.limboswap #limboborder, body.limboswap #cfx, body.
 .fxswitch input:focus-visible + .knob { outline: 2px solid #333; outline-offset: 2px; }
 body.egg-vonbon::before { opacity: 1; background-color: #2c4544; background-image: url("images/vonbon.webp"); }
 body.egg-bellona::before { opacity: 1; background-color: #23292a; background-image: url("images/bellona.webp"); }
-body.glitch::after { content: ''; position: fixed; inset: 0; z-index: 9; pointer-events: none; mix-blend-mode: overlay;
+body.glitch::after { content: ''; position: fixed; inset: 0; z-index: 10; pointer-events: none; mix-blend-mode: overlay;
                      background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.18) 0 2px, transparent 2px 4px);
                      animation: glitchflash 1.7s steps(1) infinite; }
 body.glitch .game { animation: glitchslice 2.3s steps(1) infinite; }
@@ -382,11 +382,11 @@ body.glitch .game { animation: glitchslice 2.3s steps(1) infinite; }
 }
 @media (prefers-reduced-motion: reduce) { body.glitch .game, body.glitch::after { animation: none; } }
 /* Theme button: just above the credit box, only once you have a theme besides Default. It opens a window like the Changelog. */
-#themeBtn { position: fixed; bottom: 40px; right: 10px; z-index: 3; margin: 0; max-width: none; width: 34px; height: 34px; padding: 0;
+#themeBtn { position: fixed; bottom: 40px; right: 10px; z-index: 5; margin: 0; max-width: none; width: 34px; height: 34px; padding: 0;
             display: flex; align-items: center; justify-content: center; font-size: 18px; line-height: 1; border: none; border-radius: 8px; cursor: pointer; }
 #themeBtn:hover { background: rgba(255, 255, 255, 0.8); }
 #themeBtn img { width: 24px; height: 24px; object-fit: contain; }
-#themes { position: fixed; inset: 0; z-index: 4; background: rgba(0, 0, 0, 0.4); display: flex; align-items: flex-start; justify-content: center; }
+#themes { position: fixed; inset: 0; z-index: 6; background: rgba(0, 0, 0, 0.4); display: flex; align-items: flex-start; justify-content: center; }
 #themes[hidden] { display: none; }
 #themes .panel { margin-top: 48px; max-height: calc(100vh - 96px); overflow-y: auto; min-width: 280px; scrollbar-width: none; }
 #themes .panel::-webkit-scrollbar { display: none; }
@@ -428,12 +428,12 @@ body.glitch .game { animation: glitchslice 2.3s steps(1) infinite; }
 .mesoplus { position: absolute; right: 6px; top: 100%; font-size: 14px; pointer-events: none; animation: mesoplus 2.2s ease-out forwards; }
 @keyframes mesoplus { 0% { opacity: 0; transform: translateY(-6px); } 15% { opacity: 1; } 100% { opacity: 0; transform: translateY(14px); } }
 /* Windows opened from fx.js (Mesos, Shop): like the Changelog. */
-.popup { position: fixed; inset: 0; z-index: 4; background: rgba(0, 0, 0, 0.4); display: flex; align-items: flex-start; justify-content: center; }
+.popup { position: fixed; inset: 0; z-index: 6; background: rgba(0, 0, 0, 0.4); display: flex; align-items: flex-start; justify-content: center; }
 .popup[hidden] { display: none; }
 .popup .panel { margin-top: 48px; max-height: calc(100vh - 96px); overflow-y: auto; min-width: 280px; scrollbar-width: none; }
 .popup .panel::-webkit-scrollbar { display: none; }
 /* Shop: "Are you sure you want to purchase?" (fx.js askBuy), over the shop window */
-.popup.buyask { z-index: 5; align-items: center; }
+.popup.buyask { z-index: 7; align-items: center; }
 .buyask .panel { margin-top: 0; display: flex; flex-direction: column; align-items: center; gap: 8px; max-width: 340px; }
 .buyask h2 { font-size: 20px; margin: 0 0 4px; }
 .buyask .themepic { width: 224px; height: 126px; border: 1px solid rgba(0, 0, 0, 0.2); }
@@ -449,7 +449,7 @@ body.glitch .game { animation: glitchslice 2.3s steps(1) infinite; }
 /* Shop: click an item's picture to see it big (fx.js zoomItem) */
 .shopitem .zoomable { cursor: zoom-in; transition: transform 0.15s ease; }
 .shopitem .zoomable:hover { transform: scale(1.04); }
-.zoomview { position: fixed; inset: 0; z-index: 6; background: rgba(0, 0, 0, 0.75); display: flex; flex-direction: column;
+.zoomview { position: fixed; inset: 0; z-index: 8; background: rgba(0, 0, 0, 0.75); display: flex; flex-direction: column;
             align-items: center; justify-content: center; gap: 10px; cursor: zoom-out; animation: zoomin 0.18s ease; }
 .zoomview img { max-width: 92vw; max-height: 80vh; border-radius: 10px; box-shadow: 0 6px 30px rgba(0, 0, 0, 0.5); }
 .zoomview b { color: #fff; font-size: 20px; text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6); }
@@ -558,7 +558,7 @@ body.glitch .game { animation: glitchslice 2.3s steps(1) infinite; }
 .eggnote[hidden] { display: none; }
 .mesonote { display: flex; width: fit-content; max-width: 100%; box-sizing: border-box; }
 /* Settings (fx.js): the ⚙️ in the top-right corner and its window. */
-#settingsBtn { position: fixed; top: 12px; right: 12px; z-index: 3; margin: 0; width: 34px; height: 34px; padding: 0; border: none; border-radius: 10px;
+#settingsBtn { position: fixed; top: 12px; right: 12px; z-index: 5; margin: 0; width: 34px; height: 34px; padding: 0; border: none; border-radius: 10px;
                font-size: 18px; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; max-width: none; }
 #settingsBtn:hover { background: rgba(255, 255, 255, 0.8); }
 .setrow { display: flex; align-items: center; gap: 10px; margin: 10px 0; flex-wrap: wrap; }
@@ -712,7 +712,7 @@ body[class*="egg-"] #hwfx, body:has(.eggscene) #hwfx, body:has(#limbobg) #hwfx {
 .limboeaten > .yellow, #rows .gbar.limboeaten.yellow { color: #ffe066 !important; }
 .limboeaten > .red, #rows .gbar.limboeaten.red { color: #ff8a8a !important; }
 /* Limbo's transition between its light and dark side (Limbo mode): pool along the bottom, three bursts, then the dome */
-.limbotrans { position: fixed; inset: 0; z-index: 9; pointer-events: none; overflow: hidden; }
+.limbotrans { position: fixed; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; }   /* the shark: under the alert border and the boxes */
 .limbowhite { position: fixed; inset: 0; z-index: -1; pointer-events: none; background: #fff; transition: opacity 0.12s linear; }   /* over the background, under the page */
 .limbowhite.out { opacity: 0; }
 .limbotrans > * { position: absolute; height: auto; }
@@ -761,7 +761,7 @@ input[type="search"]::-webkit-search-cancel-button, input[type="search"]::-webki
 .dealtag.limbodeal { display: inline-flex; align-items: center; gap: 2px; background: #2a0f3d; padding: 0 4px 0 8px; }
 .limboclock { width: auto; height: 34px; margin: -6px -14px; image-rendering: pixelated; }
 /* A bundle box's own switch (Limbo's "All effects"), on the box itself: knob over a small label, before the arrow */
-.fxswitch.onbox { flex-direction: column; gap: 2px; margin-left: auto; padding: 0 4px; font-size: 10px; font-weight: 700; color: #444; }
+.fxswitch.onbox { flex-direction: column; align-items: center; text-align: center; gap: 6px; margin-left: auto; padding: 0 4px; font-size: 10px; font-weight: 700; color: #444; }
 .fxbundle > summary:has(.onbox)::after { margin-left: 6px; }
 /* "(Bundle of N)" in the shop: dotted underline; hover / tap shows what's in it */
 .bundletip { text-decoration: underline dotted; text-underline-offset: 2px; cursor: help; }
@@ -800,7 +800,7 @@ input[type="search"]::-webkit-search-cancel-button, input[type="search"]::-webki
 .acctchoices .acctbtn { font-size: 15px; padding: 8px 14px; }
 .acctwin .panel > .buybtns { justify-content: center; }
 /* "Oops! Data out of sync!": another device played since, so this one reloads with the account's progress. */
-.acctoops { position: fixed; left: 50%; top: 40%; transform: translate(-50%, -50%); z-index: 9; padding: 16px 28px; border-radius: 12px;
+.acctoops { position: fixed; left: 50%; top: 40%; transform: translate(-50%, -50%); z-index: 12; padding: 16px 28px; border-radius: 12px;
             background: rgba(30, 30, 30, 0.92); color: #fff; font-size: 20px; font-weight: 700; box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
             animation: acctoops 0.25s ease-out; }
 @keyframes acctoops { from { opacity: 0; transform: translate(-50%, -40%); } }
@@ -873,3 +873,38 @@ input[type="search"]::-webkit-search-cancel-button, input[type="search"]::-webki
 /* NEW on Account Settings / MapleStory Character (a new shop avatar) and on the avatar's row */
 .acctbtn:has(> .newtag), .acctpickrow { position: relative; }
 .acctbtn > .newtag, .acctpickrow > .newtag { top: -6px; left: -6px; font-size: 9px; line-height: 13px; padding: 0 4px; z-index: 1; }
+/* Customize, Limbo mode on: a note over the Background / Win Effect tabs (fx.js) */
+.fxvoid { margin: 0 0 10px; padding: 10px 14px; border: 2px solid #2e9a4a; border-radius: 10px; background: rgba(120, 220, 140, 0.25);
+  color: #1d6b2e; font-size: 14px; line-height: 1.5; text-align: center; }
+/* Limbo's "Special toggle" (Customize > Custom Effects): Limbo's colours, a ✦ on the knob, gradient text, and when on a
+   soft pulsing glow (opacity only, so it costs nothing). */
+.fxswitch.onbox > span:last-child { background: linear-gradient(90deg, #7b2ff7, #d6249f, #7b2ff7); -webkit-background-clip: text; background-clip: text;
+  color: transparent; letter-spacing: 0.3px; }
+.fxswitch.onbox .knob { background: linear-gradient(135deg, #3a3150, #5b4d73); box-shadow: inset 0 0 0 1px rgba(160, 120, 255, 0.5); }
+.fxswitch.onbox .knob::after { content: '✦'; display: flex; align-items: center; justify-content: center; font-size: 11px; line-height: 1; color: #9a7bd0;
+  background: #f4efff; }
+.fxswitch.onbox .knob::before { content: ''; position: absolute; inset: -3px; border-radius: 14px; pointer-events: none; opacity: 0;
+  box-shadow: 0 0 8px 2px rgba(214, 36, 159, 0.8), 0 0 14px 4px rgba(123, 47, 247, 0.55); }
+.fxswitch.onbox input:checked + .knob { background: linear-gradient(135deg, #7b2ff7, #d6249f); box-shadow: none; }
+.fxswitch.onbox input:checked + .knob::after { color: #d6249f; background: #fff; }
+.fxswitch.onbox input:checked + .knob::before { animation: specialglow 1.2s ease-in-out infinite alternate; }
+@keyframes specialglow { from { opacity: 0.35; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .fxswitch.onbox input:checked + .knob::before { animation: none; opacity: 0.8; } }
+/* On: the knob and the "Special toggle" text glow too (a steady glow; only the ring around the switch pulses). */
+.fxswitch.onbox:has(input:checked) > span:last-child { filter: drop-shadow(0 0 3px rgba(214, 36, 159, 0.85)) drop-shadow(0 0 6px rgba(123, 47, 247, 0.6)); }
+.fxswitch.onbox input:checked + .knob::after { box-shadow: 0 0 6px 2px rgba(255, 120, 220, 0.95), 0 0 12px 4px rgba(214, 36, 159, 0.6); text-shadow: 0 0 4px rgba(214, 36, 159, 0.9); }
+/* Customize: Limbo's Subconscious box with the Special toggle on: a ring in Limbo's colours turning slowly clockwise
+   around it, with a soft glow (like the 🌈 box: drawn once, only turned, so it costs nothing). */
+.themecard.special { outline: none; }
+.spring, .spglow { position: absolute; pointer-events: none; overflow: hidden; container-type: size;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); }
+.spring { inset: -2px; padding: 2px; border-radius: 10px; }
+.spglow { inset: -9px; padding: 9px; border-radius: 17px; z-index: -1; opacity: 0.5; filter: blur(4px); }
+.spring i, .spglow i { position: absolute; left: 50%; top: 50%; width: 150cqmax; height: 150cqmax;
+  background: conic-gradient(#7b2ff7, #d6249f, #ff6ad5, #4a1a8c, #29d3ff, #7b2ff7); animation: rbturn 10s linear infinite; }
+.spglow i { filter: blur(6px); }
+@media (prefers-reduced-motion: reduce) { .spring i, .spglow i { animation: none; transform: translate(-50%, -50%); } }
+.themecard.special, .themecard.special:hover { background: linear-gradient(rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.72)), linear-gradient(135deg, rgba(123, 47, 247, 0.35), rgba(214, 36, 159, 0.3)); }
+.themecard.special .themename { color: #4b1a8f; text-shadow: 0 0 6px rgba(160, 90, 255, 0.75), 0 0 2px rgba(123, 47, 247, 0.5); }
+.fxbundle > summary.special::after { color: #7b2ff7; opacity: 1; text-shadow: 0 0 6px rgba(160, 90, 255, 0.9); }

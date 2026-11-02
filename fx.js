@@ -1004,23 +1004,28 @@ function drawThemeButton() {
     list.innerHTML = '';
     for (const b of win.querySelectorAll('.themetabs button')) b.classList.toggle('on', b.dataset.tab === customTab);
     tags();
+    if (limboAllOn() && customTab !== 'fx') {   // Limbo mode overrides the other tabs
+      list.appendChild(Object.assign(document.createElement('div'), { className: 'fxvoid',
+        innerHTML: 'Special Effects are turned on:<br><b>Limbo\'s Subconscious Toggle</b><br>All other customization are voided.' }));
+    }
     if (customTab === 'win') {
       help.textContent = 'Plays when you win in 1 guess. Tick one or more: each win plays a random one of them.';
       if (limboAllOn()) help.textContent = 'Limbo mode is on, so a win in 1 plays Limbo Transition. Ticking one turns Limbo mode off.';
+      const all = limboAllOn();   // Limbo mode: none of these shows as on (its own transition plays instead)
       const picked = pickedSkins();
       const toggle = (id) => {
-        const on = picked.includes(id);
+        const on = !all && picked.includes(id);   // as the card shows it (Limbo mode: all off; a click turns that one on, and Limbo mode off)
         if (on && picked.length === 1) return toast('Keep at least one win effect on.', 'no');
-        setPickedSkins(on ? picked.filter((x) => x !== id) : [...picked, id]);
+        setPickedSkins(on ? picked.filter((x) => x !== id) : [...new Set([...picked, id])]);
         if (limboAllOn()) { limboAllOff(); drawCustomFx(); }
         fill();
         toast(`${HECATE[id].name}: ${on ? 'Off' : 'On'}`, on ? 'no' : 'yes');
       };
-      const skinCard = (into, id) => onOff(card(into, `images/fx/hecate/${id}.webp`, HECATE[id].name, false, () => toggle(id)), picked.includes(id));
+      const skinCard = (into, id) => onOff(card(into, `images/fx/hecate/${id}.webp`, HECATE[id].name, false, () => toggle(id)), !all && picked.includes(id));
       for (const id of ownedSkins().filter((x) => !HECATE[x].pack || HECATE[x].solo)) skinCard(list, id);
       for (const pack of ownedEffects().filter((x) => Object.values(HECATE).some((h) => h.pack === x && !h.solo))) {
         const ids = ownedSkins().filter((x) => HECATE[x].pack === pack && !HECATE[x].solo);
-        const n = ids.filter((x) => picked.includes(x)).length;
+        const n = all ? 0 : ids.filter((x) => picked.includes(x)).length;
         const box = document.createElement('details');
         box.className = 'fxbundle';
         box.open = bundleOpen.has(pack);
@@ -1040,7 +1045,8 @@ function drawThemeButton() {
       }
     } else if (customTab === 'fx') {
       help.textContent = 'Effects on every page. Toggle effects replaces your customization.';
-      const cur = customFx();
+      const all = limboAllOn();   // Limbo mode: every card shows off (only its switch is on); a click turns that one on, and Limbo mode off
+      const cur = all ? null : customFx();
       // Click one to use it; click the one in use to turn it off again.
       const fxCard = (into, id) => onOff(card(into, CUSTOM_FX[id].img, CUSTOM_FX[id].name, false, () => {
         const off = id === cur;
@@ -1060,7 +1066,7 @@ function drawThemeButton() {
       for (const id of ownedCustomFx().filter((x) => !CUSTOM_FX[x].pack && x !== 'none')) fxCard(list, id);
       if (hwFxOwned()) {   // Halloween's bats, ghosts and fog: on / off, on top of anything else (its name green when on, red when off)
         // On Halloween itself they're on for everyone (like its background), so the switch waits until it's over.
-        const holiday = holidayToday() === 'halloween', on = holiday || hwFxOn();
+        const holiday = holidayToday() === 'halloween', on = !limboAllOn() && (holiday || hwFxOn());   // (off in Limbo mode)
         // On / off: green ✓ or red ✕ before its name (a shape too, not only a colour), and a message when it's switched.
         onOff(card(list, 'images/fx/halloween-fx.webp', 'Halloween Night (bats, ghosts, fog)', false, () => {
           if (holiday) return toast('You cannot change effects on special occasional days.', 'no');
@@ -1083,13 +1089,17 @@ function drawThemeButton() {
         pic.style.backgroundImage = `url("${SHOP[pack].img}")`;
         const name = Object.assign(document.createElement('span'), { className: 'themename' });
         name.append(SHOP[pack].name, Object.assign(document.createElement('small'), {
-          textContent: pack !== 'limboSub' ? (using ? 'On' : 'Off') : limboAllOn() ? 'All Limbo effects on'
-            : [using ? CUSTOM_FX[using].name.replace(/^.*\((\w+)\)$/, '$1 border on') : 'Border off',
-              pack === 'limboSub' && limboGuessOn() && 'wrong guess on'].filter(Boolean).join(' · ') }));
+          // Limbo's set: how many of its 3 parts are on (a border, the wrong guess effect, the life count); blank with the Special toggle on
+          textContent: pack !== 'limboSub' ? (using ? 'On' : 'Off') : limboAllOn() ? ''
+            : `${[using, limboGuessOn(), hudOwnOn()].filter(Boolean).length} of 3 on` }));
         sum.append(pic, name);
+        if (pack === 'limboSub' && limboAllOn()) {   // Special toggle on: a slow spinning Limbo-coloured ring + glow around the box (style.css)
+          sum.classList.add('special');
+          sum.insertAdjacentHTML('afterbegin', '<span class="spglow"><i></i></span><span class="spring"><i></i></span>');
+        }
         if (pack === 'limboSub') {   // one switch for everything in Limbo's set, on the box itself (no need to open it)
           const row = Object.assign(document.createElement('label'), { className: 'fxswitch onbox', title: 'Enable all Limbo effects, including hidden ones' });
-          row.innerHTML = '<input type="checkbox"><span class="knob"></span><span>All effects</span>';
+          row.innerHTML = '<input type="checkbox"><span class="knob"></span><span>Special toggle</span>';
           row.querySelector('input').checked = limboAllOn();
           row.addEventListener('click', (e) => {   // (not the box's open / close)
             e.preventDefault();
@@ -1103,11 +1113,11 @@ function drawThemeButton() {
         const inner = Object.assign(document.createElement('div'), { className: 'fxbundlelist' });
         for (const id of ids) fxCard(inner, id);
         if (pack === 'limboSub') {   // the wrong guess effect: on / off, works with any border
-          const on = limboGuessOn();
+          const on = !all && limboGuessOn();
           onOff(card(inner, 'images/fx/limbo-guess.webp', 'Limbo Wrong Guess Effect', false, () => {
             setLimboGuess(!on); fill(); toast(`Limbo Wrong Guess Effect: ${on ? 'Off' : 'On'}`, on ? 'no' : 'yes');
           }), on);
-          const hud = hudOwnOn();   // the Erosion life count (and in Limbo mode, the map change timer)
+          const hud = !all && hudOwnOn();   // the Erosion life count (and in Limbo mode, the map change timer)
           onOff(card(inner, 'images/fx/limbo-hud.webp?v=2', 'Limbo Life Count / Timer', false, () => {
             setLimboHud(!hud); fill(); toast(`Limbo Life Count / Timer: ${hud ? 'Off' : 'On'}`, hud ? 'no' : 'yes');
           }), hud);
@@ -1122,7 +1132,7 @@ function drawThemeButton() {
       // A holiday's background is on all of its day (see HOLIDAYS), so picking one does nothing until it's over.
       const locked = !!holidayToday() && !limboAllOn();
       for (const t of own) {
-        const c = card(list, THEME_IMG[t], THEMES[t], t === cur, () => {
+        const c = card(list, THEME_IMG[t], THEMES[t], t === cur && !limboAllOn(), () => {   // Limbo mode: none picked here
           if (locked) return toast('You cannot change theme on special occasional days.', 'no');
           lsSet(THEME_KEY, t);
           if (limboAllOn()) { limboAllOff(); drawCustomFx(); }
@@ -1215,7 +1225,7 @@ function limboAlertCheck() {   // each game says how many guesses are left (wind
 }
 function limboOver(won, delay = 0) {   // game over (called by the games, with when the result shows)
   const fx = CUSTOM_FX[customFx()];
-  if (!fx.color || !cfxShown()) return;
+  if (!fx.color || (won && !cfxShown())) return;   // a loss always gets the fail screen (guessing fast, the border may not be up yet)
   cfxHold = true;
   const release = (ms) => setTimeout(() => { cfxHold = false; drawCustomFx(); }, ms);
   if (won) return release(delay);
@@ -1230,7 +1240,7 @@ function limboOver(won, delay = 0) {   // game over (called by the games, with w
   release(delay + 600);   // by then the fail screen covers everything
 }
 const cfxClips = {};
-const CFX_V = { 'fail-black': 3, 'fail-white': 2 };   // a clip that was replaced (so browsers fetch the new one)
+const CFX_V = { 'fail-black': 5, 'fail-white': 4 };   // a clip that was replaced (so browsers fetch the new one)
 function cfxClip(name) {
   cfxClips[name] ??= fetch(`video/limbo/${name}.${SAFARI ? 'webp' : 'webm'}${CFX_V[name] ? '?v=' + CFX_V[name] : ''}`).then((r) => (r.ok ? r.blob() : null)).catch(() => null);
   return cfxClips[name];
@@ -1480,10 +1490,11 @@ function setLimboAll(on) {
 }
 function limboAllOff() { if (limboAllOn()) { lsSet(LIMBO_ALL_KEY, '0'); applyTheme(true); drawCustomFx(); halloweenFx(); limboTransitions(); limboDragons(); hecate = null; loadHecate(); } }   // you picked something yourself
 // Losing with the alert border on plays Limbo's fail screen full screen, in the border's colour (white or black).
-const LIMBO_FAIL_MS = 3600;   // (the longer of the two clips)
+const LIMBO_FAIL_MS = 2820;   // (the longer of the two clips)
 // The end sound comes in as the pre sound trails off (overlapping it a little), with the screen's end part (Limbo's mouth,
-// then its face): black 1.32 s, white 1.56 s (each clip had a bit taken out before the mouth so the two line up).
-const FAIL_END_AT = { black: 1320, white: 1560 };
+// then its face): black 0.66 s, white 0.78 s. The glitch before it plays at its normal speed and the end part cuts in
+// halfway through it (the rest of the glitch was taken out of each clip).
+const FAIL_END_AT = { black: 660, white: 780 };
 const failSounds = (color) => (color === 'black' ? ['failBlackPre', 'failBlackEnd'] : ['failWhitePre', 'failWhiteEnd']);
 function limboFailLoad() { cfxClip('fail-white'); cfxClip('fail-black'); for (const c of ['white', 'black']) for (const k of failSounds(c)) soundFile(SOUNDS[k]).catch(() => {}); if (limboAllOn()) TRANS_CLIPS.forEach(cfxClip); }   // ready when needed
 async function limboFail(color, delay = 0) {
