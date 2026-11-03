@@ -1221,6 +1221,7 @@ html.dark .achvstats div { border-color: rgba(255, 255, 255, 0.12); }
   :is(#meso, #shop) .popupbody { width: min(780px, 70vw); }
   #shop .shoplist { display: grid; grid-template-columns: 1fr 1fr; }
   #themeList { display: grid; grid-template-columns: 1fr 1fr; width: min(720px, 64vw); }
+  #themeList > .fxvoid { grid-column: 1 / -1; }   /* Limbo mode's note: a row of its own, across both columns */
   /* How to play (two columns of text), the Archive (three columns of days) and Settings: the same */
   :is(#info, #archive, #settings) { align-items: center; }
   :is(#info, #archive, #settings) > .panel { margin: 0; box-sizing: border-box; max-height: calc(100vh - 48px); }
