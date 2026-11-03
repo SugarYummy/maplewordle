@@ -361,7 +361,7 @@
           '<b class="achvtitle"></b><small class="achvhow"></small>' +
           `<div class="achvgauge"><i style="width:${on ? 100 : Math.min(1, have / need) * 100}%"></i></div>` +
           (need > 1 && !on ? `<small class="achvnum">${fmt(have)} / ${fmt(need)}</small>` : '') +
-          (on ? `<img class="achvseal" src="images/achv/ui/completeSeal.png" alt=""><span class="achvdate">${rowDate(got[a.id])}</span>` : '') +
+          (on ? `<img class="achvseal" src="images/achv/ui/completeSeal.png" alt=""><span class="achvdate"><span>${rowDate(got[a.id])}</span></span>` : '') +
           (rw ? `<div class="achvrwicon"><img src="${a.mesos ? 'images/fx/meso-bag.png' : a.fx ? `images/fx/hecate/${a.fx}.webp?v=6` : 'images/fx/seething-balance.webp?v=2'}" alt=""></div>` +
             '<small class="achvreward"></small>' + (claimed ? '<img class="achvclaimed" src="images/achv/ui/claim-disabled.png" alt="Claimed">' : '<button class="achvclaim" aria-label="Claim Reward"></button>') : '');
         row.title = `${TIERS[a.tier][0]} · ${TIERS[a.tier][1]} AP`;

@@ -1082,8 +1082,11 @@ h1.tglitch .gtext::after { animation: glitchb 1.6s steps(1) -1.088s 1; }
 .achvgauge { left: calc(16 * var(--p)); top: calc(82 * var(--p)); width: calc(513 * var(--p)); height: calc(4 * var(--p)); }
 .achvgauge i { display: block; height: 100%; background: url(images/achv/ui/gauge.png) 0 0 / calc(513 * var(--p)) 100% no-repeat; }
 .achvnum { right: calc(16 * var(--p)); top: calc(62 * var(--p)); color: #cfcfcf; font-variant-numeric: tabular-nums; }
-.achvdate { right: calc(6 * var(--p)); top: calc(36 * var(--p)); height: calc(19 * var(--p));
-  font: 400 calc(12 * var(--p)) / calc(19 * var(--p)) Arial, 'Liberation Sans', sans-serif; color: #e6dcc6; letter-spacing: 0.02em; white-space: nowrap; }
+/* The date: a box the size of the art's dark pill, centred in it (so it never runs past it), in MapleStory's date colour */
+.achvdate { left: calc(468 * var(--p)); width: calc(65 * var(--p)); top: calc(35 * var(--p)); height: calc(20 * var(--p)); display: flex; align-items: center; justify-content: center;
+  font: 400 calc(11 * var(--p)) / 1 Arial, 'Liberation Sans', sans-serif; color: #c7b396; letter-spacing: 0; white-space: nowrap; }
+.achvdate > span { display: block; text-box: trim-both cap alphabetic; }   /* centred by the digits themselves (top of the numbers to their baseline), not the font's spacing, so every font sits in the middle */
+.achv.rw .achvdate { top: calc(35.45 * var(--p)); }   /* the reward row's art: its pill is a row taller (35 to 55), so its middle is a little lower */
 .achvseal { z-index: 1; left: calc(497 * var(--p)); top: calc(53 * var(--p)); width: calc(44 * var(--p)); height: calc(41 * var(--p)); }
 .achvrwicon { left: calc(15 * var(--p)); top: calc(100 * var(--p)); width: calc(38 * var(--p)); height: calc(38 * var(--p)); display: flex; align-items: center; justify-content: center; }
 .achvrwicon img { max-width: calc(34 * var(--p)); max-height: calc(34 * var(--p)); }
