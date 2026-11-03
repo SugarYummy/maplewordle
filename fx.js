@@ -2049,12 +2049,19 @@ function openShop() {
   shopNewTag();
   for (const el of document.querySelectorAll('.shopnote')) el.hidden = true;   // "unlocked in the shop": seen it now
   // A "hidden" item not found yet: a locked card with just its price (no picture or name), so people can save up for it.
-  const locked = Object.keys(SHOP).filter((t) => SHOP[t].hidden && !found.includes(t) && !shopOwned(t)).map((t) =>
+  // In order, each alphabetical: what you can buy, then the hidden ones, then everything you own (a holiday item you
+  // bought shows here after its day too).
+  const byName = (a, b) => SHOP[a].name.localeCompare(SHOP[b].name);
+  const buyable = found.filter((t) => !shopOwned(t)).sort(byName);
+  const mine = Object.keys(SHOP).filter((t) => shopOwned(t)).sort(byName);
+  const locked = Object.keys(SHOP).filter((t) => SHOP[t].hidden && !found.includes(t) && !shopOwned(t)).sort((a, b) => SHOP[b].price - SHOP[a].price || byName(a, b)).map((t) =>
     `<div class="shopitem lockeditem"><span class="themepic hiddenpic">?</span>` +
     `<span class="shopinfo"><b>Hidden</b><small>A secret ${/Bundle/.test(SHOP[t].kind) ? 'bundle' : 'item'}. Keep playing, it shows up here on a special day 👀</small>` +
     `<span class="price"><img src="images/fx/meso-gold.png" alt=""> <span>${fmt(SHOP[t].price)}</span></span></span><span class="locked">🔒 Locked</span></div>`).join('');
   body.innerHTML = `<p class="mesototal"><img src="images/fx/meso-gold.png" alt=""> ${fmt(have)}</p>` +
-    (found.length ? '<div class="shoplist">' + found.map((t) => {
+    (buyable.length || locked || mine.length ? '<div class="shoplist">' + buyable.map(card).join('') + locked + mine.map(card).join('') + '</div>' : '<p class="shopempty">Nothing here yet... 👀</p>') +
+    '<p class="mesoshop">More cosmetics are coming to the shop later, so save up your mesos!</p>';
+  function card(t) {
       const it = SHOP[t], owned = shopOwned(t);
       // Not enough mesos: a greyed-out Buy; clicking it fades the price out to "Missing <how many more>" (red, 2 s), then back.
       const btn = owned ? '<span class="owned">Owned ✓</span>'
@@ -2063,8 +2070,7 @@ function openShop() {
         `<span class="shopinfo"><b>${it.name}</b><small>${bundleKind(t)}</small>${priceHtml(t)}` +
         `${!shopDeal(t) ? '' : t === 'limboSub' || SHOP[t].limboClock ? '<span class="dealtag limbodeal">90% OFF <canvas class="limboclock"></canvas></span>'
           : `<span class="dealtag">90% OFF · ${shopDealLeft()}</span>`}</span>${btn}</div>`;
-    }).join('') + locked + '</div>' : '<p class="shopempty">Nothing here yet... 👀</p>') +
-    '<p class="mesoshop">More cosmetics are coming to the shop later, so save up your mesos!</p>';
+  }
   uiSound();   // opened by a click: get the hover sound ready
   for (const b of body.querySelectorAll('[data-buy]')) { b.addEventListener('click', () => buy(b.dataset.buy, b)); hoverSound(b); }
   for (const pic of body.querySelectorAll('[data-zoom]')) pic.addEventListener('click', () => zoomItem(pic.dataset.zoom));

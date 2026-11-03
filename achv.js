@@ -75,6 +75,10 @@
     // Shop buys: every shop item you own (fx.js)
     try { s.buys = Object.keys(SHOP).filter(shopOwned).length; } catch {}
     s.mesos = json('mapleWordle:mesoLog', []).reduce((t, e) => t + Math.max(0, e.amount || 0), 0);
+    // Memories: a game finished ON Halloween 2026 (Oct 31, UTC). Its meso entry says so: that day's own puzzles paid 5x
+    // (times: 5); the Archive never does.
+    const HALLOWEEN_2026 = Date.UTC(2026, 9, 31) / DAY_MS;
+    s.halloween2026 = json('mapleWordle:mesoLog', []).some((e) => e.day === HALLOWEEN_2026 && e.times === 5 && e.amount > 0);
     return s;
   }
   const count = (set, list) => list ? list.filter((x) => set.has(x)).length : set.size;
@@ -144,6 +148,12 @@
       A('limbo', 'Subconscious', 'Something stirred in the abyss.', (s) => [s.limboMash ? 1 : 0, 1], 'images/fx/limbo-bundle.webp',
         { full: "Limbo's Subconscious", mesos: 1000, reward: '1,000 mesos' }),
     ], true],
+    // Memories: for having been there on a special day (only on the day itself). The whole section stays out of sight
+    // until you have one, and only counts up (no "/ N").
+    ['Memories', [
+      A('mem:halloween2026', 'Haunted House', 'For those who have completed a game on Halloween: Haunted House', (s) => [s.halloween2026 ? 1 : 0, 1],
+        'images/fx/halloween-bundle.webp', { ap: 30, memory: true, on: Date.UTC(2026, 9, 31) / DAY_MS }),
+    ], true, true],
   ];
   const ALL = SECTIONS.flatMap(([, list]) => list);
   // Tiers, like MapleStory's achievements: each gives its achievement points (AP) when done. (Ranking up by AP: later.)
@@ -198,7 +208,7 @@
     const s = stats(L), got = json(ACHV_KEY, {}), unlocked = [];
     for (const a of ALL) {
       const [have, need] = a.prog(s, L);
-      if (have >= need && got[a.id] == null) { got[a.id] = today(); unlocked.push(a); }
+      if (have >= need && got[a.id] == null) { got[a.id] = a.on ?? today(); unlocked.push(a); }   // (a Memory: dated its day)
     }
     const changed = unlocked.length || s.streak > (got._bestWinStreak || 0);
     got._bestWinStreak = Math.max(s.streak, got._bestWinStreak || 0);
@@ -321,10 +331,10 @@
     body.innerHTML = '<p class="achvcount">Loading…</p>';
     await check(false);
     const L = await loadLists(), s = stats(L), got = json(ACHV_KEY, {});
-    const done = ALL.filter((a) => got[a.id] != null).length;
+    const done = ALL.filter((a) => got[a.id] != null).length, total = ALL.filter((a) => !a.memory || got[a.id] != null).length;   // (Memories count only once you have them)
     const tiles = [['Days played', s.days.size], ['Games played', s.played], ['Wins', s.wins],
       ['Win rate', s.played ? Math.round((s.wins / s.played) * 100) + '%' : '-'], ['First-guess wins', s.firstTry],
-      ['Best win streak', s.streak], ['Mesos earned', fmt(s.mesos)], ['Achievements', `${done} / ${ALL.length}`]];
+      ['Best win streak', s.streak], ['Mesos earned', fmt(s.mesos)], ['Achievements', `${done} / ${total}`]];
     await loadTop(apOf(got));
     const ap = apOf(got), rk = rankOf(ap), next = RANKS[RANKS.indexOf(rk) + 1];
     // Like the game's achievement window: your rank's emblem with your points under it
@@ -334,15 +344,17 @@
     // Rows like the game's achievement window (images/achv/ui, MapleStory's own form pieces): the tier's cup with its AP
     // (hidden ones keep their own picture), name, description, the gauge, the seal and date when done. Unlocked hidden
     // ones get the reward strip with the Claim Reward button.
-    for (const [title, list, hidden] of SECTIONS) {
+    for (const [title, list, hidden, memories] of SECTIONS) {
       const n = list.filter((a) => got[a.id] != null).length;
-      main.insertAdjacentHTML('beforeend', `<h3 class="achvhead">${title} <small>${n} / ${list.length}</small></h3>`);
+      if (memories && !n) continue;   // Memories: not even its heading until you have one
+      main.insertAdjacentHTML('beforeend', `<h3 class="achvhead">${title} <small>${memories ? n : `${n} / ${list.length}`}</small></h3>`);
       const box = main.appendChild(Object.assign(document.createElement('div'), { className: 'achvlist' }));
       for (const a of list) {
+        if (a.memory && got[a.id] == null) continue;   // (only the ones you have)
         const [have, need] = a.prog(s, L), on = got[a.id] != null, hide = hidden && !on, rw = on && hidden && a.reward;
         const claimed = rw && got._claimed?.[a.id];
         const row = box.appendChild(Object.assign(document.createElement('div'), {
-          className: 'achv' + (on ? ' on' : '') + (hidden ? ' secret' : '') + (rw ? ' rw' : '') }));
+          className: 'achv' + (on ? ' on' : '') + (hidden ? ' secret' : '') + (a.memory ? ' memory' : '') + (rw ? ' rw' : '') }));
         const cup = a.tier === 'common' ? 'normal' : a.tier;
         row.innerHTML = `<div class="achvicon">` + (hidden ? `<img src="${hide ? 'images/achv/4031348.png' : a.icon}" alt="">`
             : `<img class="cup c-${cup}" src="images/achv/ui/cup-${cup}.png" alt="${TIERS[a.tier][0]}"><i aria-label="${TIERS[a.tier][1]} AP">${digits(TIERS[a.tier][1], 'scoreSmall')}</i>`) + '</div>' +

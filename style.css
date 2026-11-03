@@ -1063,6 +1063,7 @@ h1.tglitch .gtext::after { animation: glitchb 1.6s steps(1) -1.088s 1; }
 .achvicon i { display: flex; margin-top: calc(2 * var(--p)); }
 .achvicon i img { width: calc(11 * var(--p)); height: calc(16 * var(--p)); max-width: none; max-height: none; image-rendering: auto; }
 .achv.secret .achvicon img { filter: none; }
+.achv.memory .achvicon img { width: calc(56 * var(--p)); height: calc(56 * var(--p)); max-width: none; max-height: none; object-fit: cover; border-radius: calc(4 * var(--p)); image-rendering: auto; }   /* (its picture fills the box) */
 .achvtitle { left: calc(83 * var(--p)); top: calc(13 * var(--p)); right: calc(20 * var(--p)); font-size: calc(16.2 * var(--p)); font-weight: 400; letter-spacing: 0.015em; -webkit-text-stroke: calc(0.35 * var(--p)) currentColor;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #f2f2f2; }
 .achvhow { left: calc(83 * var(--p)); top: calc(40 * var(--p)); right: calc(120 * var(--p)); color: #a9a9a9; font-size: calc(11.5 * var(--p)); line-height: 1.3; letter-spacing: 0.04em; }

@@ -141,7 +141,7 @@
   } catch {}
   window.mwDevHolidays = !!ss.getItem('mwdev:holidays');   // /unlock all found the holiday items too (fx.js shopFound)
   window.devEgg = ss.getItem('mwdev:egg');   // read by bgm.js (bonusFor)
-  const DEV_HELP = '/meso 5000 — add mesos (minus works too)\n/egg limbo — Limbo\'s mashup as today\'s BGM Clip Extreme bonus\n/egg lucid — today\'s BGM Clip Extreme clip is Lucid\'s Garden of Eternal Dream\n/egg off — back to the real one\n/unlock all — own every shop item, boss finishing effect and appearance effect\n/unlock achievement — unlock the next achievement (or one by name: /unlock achievement siren)\n/unlock allachievement — unlock every achievement at once\n/master — count as one of the site\'s top 10 (Master rank at 1,000+ AP; again to stop)\n/reset — wipe this tab\'s test saves (like opening a new tab) and reload\n/help — this list';
+  const DEV_HELP = '/meso 5000 — add mesos (minus works too)\n/egg limbo — Limbo\'s mashup as today\'s BGM Clip Extreme bonus\n/egg lucid — today\'s BGM Clip Extreme clip is Lucid\'s Garden of Eternal Dream\n/egg off — back to the real one\n/unlock all — own every shop item, boss finishing effect, appearance effect and Memory\n/unlock achievement — unlock the next achievement (or one by name: /unlock achievement siren)\n/unlock allachievement — unlock every achievement at once\n/master — count as one of the site\'s top 10 (Master rank at 1,000+ AP; again to stop)\n/reset — wipe this tab\'s test saves (like opening a new tab) and reload\n/help — this list';
   function devRun(line) {
     const [cmd, a] = line.trim().split(/\s+/);
     if (cmd === '/help') return DEV_HELP;
@@ -190,7 +190,7 @@
         ...items.flatMap((t) => (SHOP[t].effect ? SHOP[t].themes ?? [] : SHOP[t].themes ?? [t])).filter((x) => x in THEMES)])]));
       const achv = JSON.parse(lsGet('mapleWordle:achv') || '{}'), day = Math.floor(Date.now() / 86400000);
       achv._claimed ??= {};
-      for (const id of [...Object.values(HECATE).map((h) => h.achv).filter(Boolean), 'kill:Jupiter']) { achv[id] ??= day; achv._claimed[id] ??= day; }   // (+ Seething Balance, the appearance effect)
+      for (const id of [...Object.values(HECATE).map((h) => h.achv).filter(Boolean), 'kill:Jupiter', 'mem:halloween2026']) { achv[id] ??= day; achv._claimed[id] ??= day; }   // (+ Seething Balance, the appearance effect, and the Memories)
       lsSet('mapleWordle:achv', JSON.stringify(achv));
       drawThemeButton();
       drawCustomFx();
