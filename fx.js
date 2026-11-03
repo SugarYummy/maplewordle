@@ -1932,7 +1932,7 @@ function openMeso(page = 1) {
     const cells = t.map((v, i) => `<td>${i + 1}${i === t.length - 1 ? '+' : ''}</td>`).join('');
     const vals = t.map((v) => `<td>${fmt(v)}</td>`).join('');
     const bonus = (MESO_BONUS[mode] ? `<p class="mesobonus">Bonus right: +${MESO_BONUS[mode]}` : '') +
-      (MESO_TITLE[mode] ? ` · Title right (Bonus 2): +${MESO_TITLE[mode]}` : '') + (MESO_BONUS[mode] ? '</p>' : '');
+      (MESO_TITLE[mode] ? `<br>Title right (Bonus 2): +${MESO_TITLE[mode]}` : '') + (MESO_BONUS[mode] ? '</p>' : '');
     return `<h3>${MESO_NAMES[mode]}${MESO_SOON.has(mode) ? ' <small>(coming soon)</small>' : ''}</h3>` +
       `<table class="mesotable"><tr><th>Guesses</th>${cells}</tr><tr><th>Mesos</th>${vals}</tr></table>${bonus}`;
   };
