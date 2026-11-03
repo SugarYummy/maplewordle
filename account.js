@@ -170,6 +170,7 @@ function acctRow(tip) {
 function acctRowSetup(body) {
   const go = { signup: () => acctForm('signup'), login: () => acctForm('login'), settings: acctSettings, logout: acctLogout };
   for (const b of body.querySelectorAll('[data-acct]')) b.addEventListener('click', go[b.dataset.acct]);
+  acctAppearPlay(body.querySelector('#acctRow .acctside'));
 }
 const acctRefresh = () => { if (!document.getElementById('settings')?.hidden) document.getElementById('settingsBtn')?.click(); };   // redraw Settings
 // A small window over everything (like the shop's "Are you sure?"). Returns its panel and a close function.
@@ -297,6 +298,53 @@ const ACCT_REGIONS = { na: 'North America', eu: 'Europe' };
 const ACCT_AVATARS = {
   lucid: { name: 'Lucid', from: "Lucid's Eternal Dream", src: 'images/avatars/lucid', owned: () => { try { return ownedThemes().includes('lucid'); } catch { return false; } } },
 };
+// Appearance effects (from achievements): one picked plays once over your avatar, with its sound, each time Settings
+// opens. Yours once its achievement's reward is claimed. Picked one: mapleWordle:appearFx (synced like progress).
+const ACCT_APPEAR = 'mapleWordle:appearFx';
+const acctClaimed = (id) => { try { return JSON.parse(localStorage.getItem('mapleWordle:achv'))?._claimed?.[id] != null; } catch { return false; } };
+const ACCT_EFFECTS = {
+  seethingBalance: { name: 'Seething Balance', from: 'Seething Balance (achievement)', src: 'images/avatars/seething-balance',
+    pic: 'images/achv/seething-balance.png?v=2', owned: () => acctClaimed('kill:Jupiter') },
+};
+const acctAppearOn = () => { const id = acct() && localStorage.getItem(ACCT_APPEAR); return id && ACCT_EFFECTS[id]?.owned() ? id : null; };
+function acctAppearPlay(into) {   // once, then gone (Settings, when it opens)
+  const id = acctAppearOn(), fx = ACCT_EFFECTS[id];
+  if (!fx || !into || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  for (const x of document.querySelectorAll('.acctappear, .acctappeartop')) x.remove();
+  const safari = typeof SAFARI !== 'undefined' && SAFARI;
+  const el = Object.assign(document.createElement(safari ? 'img' : 'video'), { className: 'acctappear', src: `${fx.src}.${safari ? 'webp' : 'webm'}?v=1`, alt: '' });
+  if (!safari) Object.assign(el, { muted: true, autoplay: true, playsInline: true });
+  el.setAttribute('aria-hidden', 'true');
+  let sounded = false, soundAt = 0;
+  const sound = () => { if (!sounded && el.isConnected) { sounded = true; soundAt = Date.now(); if (typeof resultSound === 'function') resultSound(true, 0, 'appear'); } };
+  if (!safari) el.addEventListener('playing', sound, { once: true });
+  // Over everything (not clipped by the Settings box), big, centred on your character (or the gap left of Welcome back)
+  const ava = into.querySelector('.acctava'), r = (ava || into).getBoundingClientRect();
+  el.style.left = (ava ? r.left + r.width / 2 : r.left - 46) + 'px';
+  el.style.top = r.top + r.height / 2 + 'px';
+  document.body.appendChild(el);
+  if (safari) sound();
+  // Behind your character: a copy of your character sits on top of it, right over the real one, while it plays
+  let top = null;
+  if (ava) {
+    top = ava.cloneNode(true);
+    top.classList.add('acctappeartop');
+    Object.assign(top.style, { left: r.left + 'px', top: r.top + 'px', width: r.width + 'px', height: r.height + 'px' });
+    document.body.appendChild(top);
+    if (top.tagName === 'VIDEO') { top.currentTime = ava.currentTime; top.play?.().catch(() => {}); }
+  }
+  const gone = () => { el.remove(); top?.remove(); watch?.disconnect(); };
+  // Leaving Settings (Close, Esc, clicking outside): the effect, the copy of your character and its sound all stop
+  const set = document.getElementById('settings');
+  const watch = set && new MutationObserver(() => {
+    if (!set.hidden || !el.isConnected) return;
+    gone();
+    if (Date.now() - soundAt < 4500 && typeof stopResultSounds === 'function') stopResultSounds();
+  });
+  watch?.observe(set, { attributes: true, attributeFilter: ['hidden'] });
+  el.addEventListener('ended', gone); el.addEventListener('error', gone);
+  if (safari) setTimeout(gone, 3700);
+}
 // A shop avatar you haven't looked at yet (new in the MapleStory Character list): the Settings cog glows with NEW, and
 // Account Settings, MapleStory Character and the avatar itself say NEW, until that list is opened.
 const ACCT_AVATAR_SEEN = 'mapleWordle:avatarSeen';
@@ -304,7 +352,8 @@ function acctAvatarsNew() {
   if (!acct()) return [];
   let seen = [];
   try { seen = JSON.parse(localStorage.getItem(ACCT_AVATAR_SEEN)) || []; } catch {}
-  return Object.keys(ACCT_AVATARS).filter((id) => ACCT_AVATARS[id].owned() && !seen.includes(id));
+  return [...Object.keys(ACCT_AVATARS).filter((id) => ACCT_AVATARS[id].owned() && !seen.includes(id)),
+    ...Object.keys(ACCT_EFFECTS).filter((id) => ACCT_EFFECTS[id].owned() && !seen.includes('fx:' + id)).map((id) => 'fx:' + id)];
 }
 const acctNewTag = '<span class="newtag">NEW</span>';
 function acctAvatarCall() {   // the cog (fx.js calls this when it's made and after a purchase)
@@ -355,7 +404,8 @@ async function acctMapleFind(region, name) {
 function acctMapleWin() {
   const saved = acctMapleSaved();
   const avatars = Object.keys(ACCT_AVATARS).filter((id) => ACCT_AVATARS[id].owned()).map((id) => ({ avatar: id }));
-  if (!saved.length && !avatars.length) return acctMapleSearch();
+  const effects = Object.keys(ACCT_EFFECTS).filter((id) => ACCT_EFFECTS[id].owned());
+  if (!saved.length && !avatars.length && !effects.length) return acctMapleSearch();
   const items = [...saved, ...avatars], cur = acctMaple(), curKey = cur && acctMapleKey(cur), fresh = acctAvatarsNew();
   if (fresh.length) {   // seen now: NEW stays on them in this list, and goes away everywhere else
     localStorage.setItem(ACCT_AVATAR_SEEN, JSON.stringify([...new Set([...(JSON.parse(localStorage.getItem(ACCT_AVATAR_SEEN) || '[]')), ...fresh])]));
@@ -365,19 +415,32 @@ function acctMapleWin() {
   const { panel, close } = acctWin('<h2>MapleStory Character</h2><p class="accttext">Pick which one shows on your account</p><div class="acctpick">' +
     items.map((m, i) => `<div class="acctpickrow${acctMapleKey(m) === curKey ? ' on' : ''}" data-i="${i}" role="button" tabindex="0">${fresh.includes(m.avatar) ? acctNewTag : ''}${acctMapleCard(m)}` +
       (m.avatar ? '<span class="accttag">Shop</span>' : `<button class="acctdel" data-del="${i}" title="Delete" aria-label="Delete ${acctEsc(m.name)}">✕</button>`) + '</div>').join('') +
-    '</div><p class="acctchoices"><button class="acctbtn" data-do="add">Add Character</button>' +
+    '</div>' + (effects.length ? '<h3 class="acctpickhead">Appearance Effect</h3><div class="acctpick">' +
+      effects.map((id) => `<div class="acctpickrow acctfxrow${acctAppearOn() === id ? ' on' : ''}" data-fx="${id}" role="button" tabindex="0">${fresh.includes('fx:' + id) ? acctNewTag : ''}` +
+        `<div class="acctmaple"><img class="acctfxpic" src="${ACCT_EFFECTS[id].pic}" alt=""><div><b>${acctEsc(ACCT_EFFECTS[id].name)}</b><span>Plays when your character appears</span></div></div>` +
+        '<span class="accttag">Achievement</span></div>').join('') + '</div>' : '') +
+    '<p class="acctchoices"><button class="acctbtn" data-do="add">Add Character</button>' +
     (cur ? '<button class="acctbtn acctout" data-do="none">Show None</button>' : '') + '</p>' +
     '<p class="buybtns"><button class="plain" data-close>Close</button></p>');
   const again = () => { close(); acctMapleWin(); };
   panel.querySelector('[data-close]').addEventListener('click', () => close());
   panel.querySelector('[data-do="add"]').addEventListener('click', () => { close(); acctMapleSearch(); });
   panel.querySelector('[data-do="none"]')?.addEventListener('click', () => { localStorage.removeItem(ACCT_MAPLE); acctRefresh(); again(); });
-  for (const row of panel.querySelectorAll('.acctpickrow')) {
+  for (const row of panel.querySelectorAll('.acctfxrow')) {   // on / off (click again to turn it off)
+    const pick = () => {
+      const on = acctAppearOn() !== row.dataset.fx;
+      on ? localStorage.setItem(ACCT_APPEAR, row.dataset.fx) : localStorage.removeItem(ACCT_APPEAR);
+      row.classList.toggle('on', on);
+    };
+    row.addEventListener('click', pick);
+    row.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(); } });
+  }
+  for (const row of panel.querySelectorAll('.acctpickrow:not(.acctfxrow)')) {
     const pick = (e) => {
       if (e.target.closest('.acctdel')) return;
       const m = items[row.dataset.i];
       localStorage.setItem(ACCT_MAPLE, JSON.stringify(m.avatar ? { avatar: m.avatar } : m));
-      for (const r of panel.querySelectorAll('.acctpickrow')) r.classList.toggle('on', r === row);
+      for (const r of panel.querySelectorAll('.acctpickrow:not(.acctfxrow)')) r.classList.toggle('on', r === row);
       if (!panel.querySelector('[data-do="none"]')) again();   // (now there's one to hide)
       acctRefresh();
     };

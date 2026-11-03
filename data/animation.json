@@ -397,6 +397,152 @@
     "Ballistic Hurricane",
     "Shotgun Punch"
    ]
+  },
+  {
+   "id": 27,
+   "class": "Arch Mage (I/L)",
+   "videos": [
+    49,
+    50
+   ],
+   "credit": "Pigoo",
+   "creditImage": "videos/anim/credit27.jpg",
+   "since": "2026-11-04",
+   "skills": [
+    "Frozen Orb",
+    "Chain Lightning"
+   ]
+  },
+  {
+   "id": 28,
+   "class": "Bishop",
+   "videos": [
+    51,
+    52
+   ],
+   "credit": "Pigoo",
+   "creditImage": "videos/anim/credit28.jpg",
+   "since": "2026-11-04",
+   "skills": [
+    "Big Bang",
+    "Angel Ray"
+   ]
+  },
+  {
+   "id": 29,
+   "class": "Night Lord",
+   "videos": [
+    53
+   ],
+   "credit": "Pigoo",
+   "creditImage": "videos/anim/credit29.jpg",
+   "since": "2026-11-04",
+   "skills": [
+    "Showdown"
+   ]
+  },
+  {
+   "id": 30,
+   "class": "Shadower",
+   "videos": [
+    54,
+    55
+   ],
+   "credit": "Pigoo",
+   "creditImage": "videos/anim/credit30.jpg",
+   "since": "2026-11-04",
+   "skills": [
+    "Shadow Veil",
+    "Cruel Stab"
+   ]
+  },
+  {
+   "id": 31,
+   "class": "Cannoneer",
+   "videos": [
+    56,
+    57
+   ],
+   "credit": "Pigoo",
+   "creditImage": "videos/anim/credit31.jpg",
+   "since": "2026-11-04",
+   "skills": [
+    "Barrel Bomb",
+    "Cannon Bazooka"
+   ]
+  },
+  {
+   "id": 32,
+   "class": "Blaze Wizard",
+   "videos": [
+    58
+   ],
+   "credit": "Pigoo",
+   "creditImage": "videos/anim/credit32.jpg",
+   "since": "2026-11-04",
+   "skills": [
+    "Orbital Flame"
+   ]
+  },
+  {
+   "id": 33,
+   "class": "Wind Archer",
+   "videos": [
+    59,
+    60
+   ],
+   "credit": "Pigoo",
+   "creditImage": "videos/anim/credit33.jpg",
+   "since": "2026-11-04",
+   "skills": [
+    "Emerald Flower",
+    "Song of Heaven"
+   ]
+  },
+  {
+   "id": 34,
+   "class": "Battle Mage",
+   "videos": [
+    61,
+    62
+   ],
+   "credit": "Pigoo",
+   "creditImage": "videos/anim/credit34.jpg",
+   "since": "2026-11-04",
+   "skills": [
+    "Sweeping Staff",
+    "Finishing Blow"
+   ]
+  },
+  {
+   "id": 35,
+   "class": "Xenon",
+   "videos": [
+    63,
+    64
+   ],
+   "credit": "Pigoo",
+   "creditImage": "videos/anim/credit35.jpg",
+   "since": "2026-11-04",
+   "skills": [
+    "Orbital Cataclysm",
+    "Beam Blade"
+   ]
+  },
+  {
+   "id": 36,
+   "class": "Kain",
+   "videos": [
+    65,
+    66
+   ],
+   "credit": "Pigoo",
+   "creditImage": "videos/anim/credit36.jpg",
+   "since": "2026-11-04",
+   "skills": [
+    "Chain Sickle",
+    "Strike Arrow"
+   ]
   }
  ],
  "days": [

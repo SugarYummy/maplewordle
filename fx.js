@@ -240,12 +240,19 @@ const HECATE = {   // ms: clip length, burst: ms into the clip when it bursts (f
   // Limbo's set: its cutscene (a wide banner, shown whole). Also what a win in 1 plays in Limbo mode, and what getting
   // Limbo's glitch mashup right plays for everyone. The mesos come as it fades out (frame 54 of 65).
   limboCut: { name: 'Limbo Transition', ms: 4200, burst: 3480, pack: 'limboSub', wide: true, solo: true, v: 2 },   // solo: its own card, no box
+  // Boss finishing effects (60 ms frames; Siren's Song's End starts 1 s before its Pre ends, Bellona's three parts play at once):
+  // yours once you claim that boss's Hidden achievement (achv.js)
+  sirenSong: { name: "Siren's Song", ms: 4500, burst: 2220, v: 2, achv: 'kill:Malefic Star' },
+  iaidoAlpha: { name: 'Kai-ryu Sword: Iaido Alpha', ms: 2640, burst: 1920, achv: 'kill:Kai' },
+  mayrinKill: { name: 'Guide of Destiny', ms: 3600, burst: 1800, v: 2, achv: 'kill:Mayrin' },
+  bellonaKill: { name: "Fanatic's Execution", ms: 2820, burst: 1740, v: 2, achv: 'kill:Bellona' },
 };
+const achvGot = (id) => { try { return JSON.parse(lsGet('mapleWordle:achv') || '{}')._claimed?.[id] != null; } catch { return false; } };   // claimed (achv.js)
 const EFFECTS_KEY = 'mapleWordle:effects', WINFX_KEY = 'mapleWordle:winFx';   // packs bought; win effects picked
 function ownedEffects() {
   try { return JSON.parse(lsGet(EFFECTS_KEY) || '[]'); } catch { return []; }
 }
-const ownedSkins = () => Object.keys(HECATE).filter((id) => !HECATE[id].pack || ownedEffects().includes(HECATE[id].pack));
+const ownedSkins = () => Object.keys(HECATE).filter((id) => (HECATE[id].achv ? achvGot(HECATE[id].achv) : !HECATE[id].pack || ownedEffects().includes(HECATE[id].pack)));
 function pickedSkins() {
   let got = [];
   try { got = JSON.parse(lsGet(WINFX_KEY) || '[]'); } catch {}
@@ -266,7 +273,7 @@ function loadHecate() {
   const pool = picked.length > 1 ? picked.filter((id) => id !== hecateLast) : picked;
   const id = pool[Math.floor(Math.random() * pool.length)];
   hecateLoading = true;
-  if (id === 'limboCut') soundFile(SOUNDS.limboCut).catch(() => {});   // its sound ready too
+  if (SOUNDS[id]) soundFile(SOUNDS[id]).catch(() => {});   // its sound ready too (Limbo Transition, the boss finishing effects)
   fetch(`video/hecate/${id}.${SAFARI ? 'webp' : 'webm'}${HECATE[id].v ? '?v=' + HECATE[id].v : ''}`).then((r) => (r.ok ? r.blob() : null))
     .then((blob) => { if (blob) hecate = { id, skin: HECATE[id], blob }; }).catch(() => {}).finally(() => { hecateLoading = false; });
 }
@@ -294,9 +301,10 @@ function playHecate(special = false) {   // special: Limbo's mashup win (plays w
   el.src = url;
   document.body.appendChild(el);
   el.play?.().catch(done);
-  if (id === 'limboCut') {   // Limbo's skill sound, in step with the cutscene (from when its video really starts)
-    if (SAFARI) resultSound(true, 150, 'limboCut');
-    else el.addEventListener('playing', () => resultSound(true, 150, 'limboCut'), { once: true });
+  if (SOUNDS[id]) {   // its skill sound, in step with the clip (from when its video really starts)
+    const lag = id === 'limboCut' ? 150 : 0;
+    if (SAFARI) resultSound(true, lag, id);
+    else el.addEventListener('playing', () => resultSound(true, lag, id), { once: true });
   }
   return skin.burst;
 }
@@ -391,15 +399,19 @@ const SOUNDS = { win: 'sounds/star-force-success.mp3', lose: 'sounds/star-force-
   classLose: 'sounds/the-breeze-that-carried-sorrow.mp3',   // Malitia's The Breeze That Carried Sorrow 0:00-0:18 (1 s fade-in), Class Wordle loss
   firstTry: 'sounds/the-unblessed-cathedral-descend.mp3',   // Mayrin's The Unblessed Cathedral -Descend- 1:07-1:42 (1 s fade-in), any first-guess win
   classWin: 'sounds/succession-bloom.mp3',   // First Adversary's Succession Bloom 1:03-1:27 (1 s fade-in), Class Wordle win on guess 2-5
-  purchase: 'sounds/purchase.mp3',   // the Cash Shop's buy sound (0.8 s), when you buy something in the shop
+  purchase: 'sounds/purchase.mp3',
+  achvComplete: 'sounds/achievement-complete.mp3',   // an achievement unlocked (each one, with its note)
+  gradeUp: 'sounds/grade-up.mp3',   // ranking up (Bronze, Silver, ...) by achievement points
+  appear: 'sounds/appear.mp3',   // an appearance effect (Seething Balance), when it plays in Settings   // the Cash Shop's buy sound (0.8 s), when you buy something in the shop
   limboCut: 'sounds/limbo-cut.mp3',
+  sirenSong: 'sounds/siren-song.mp3', iaidoAlpha: 'sounds/iaido-alpha.mp3', mayrinKill: 'sounds/mayrin-kill.mp3',   // boss finishing effects' sounds
   // Limbo's fail screen (limboFail), each colour its own: the pre with the screen coming in, the end with Limbo's face (1.92 s)
   failBlackPre: 'sounds/limbo-fail-black-pre.mp3', failBlackEnd: 'sounds/limbo-fail-black-end.mp3',
   failWhitePre: 'sounds/limbo-fail-white-pre.mp3', failWhiteEnd: 'sounds/limbo-fail-white-end.mp3' };   // Limbo's skill sound (5.4 s) with Limbo's cutscene, 0.15 s in: its big hit lands on the burst
 // Tracks that play longer than SOUND_SECONDS: seconds before the fade-out starts (fade-out is SOUND_FADE).
-const SOUND_LENGTH = { animWin: 19, classLose: 16, firstTry: 33, classWin: 22, failBlackPre: 3, failBlackEnd: 4, failWhitePre: 3, failWhiteEnd: 4 };
+const SOUND_LENGTH = { achvComplete: 3, gradeUp: 3, appear: 4, animWin: 19, classLose: 16, firstTry: 33, classWin: 22, failBlackPre: 3, failBlackEnd: 4, failWhitePre: 3, failWhiteEnd: 4 };
 // Tracks louder than SOUND_VOLUME.
-const SOUND_LOUDER = { firstTry: 0.30, purchase: 0.6, limboCut: 0.5, failBlackPre: 0.5, failBlackEnd: 0.5, failWhitePre: 0.5, failWhiteEnd: 0.5 };   // limboCut: as loud as the first-guess music it plays with
+const SOUND_LOUDER = { firstTry: 0.30, purchase: 0.6, achvComplete: 0.3, gradeUp: 0.25, appear: 0.3, limboCut: 0.5, sirenSong: 0.45, iaidoAlpha: 0.73, mayrinKill: 0.63, failBlackPre: 0.5, failBlackEnd: 0.5, failWhitePre: 0.5, failWhiteEnd: 0.5 };   // limboCut and the boss finishing effects: as loud as the first-guess music they play with (a touch louder; set by loudness)
 // Phone and tablet speakers are much quieter, so they play everything twice as loud (12%, and 60% for a first-guess win).
 const PHONE = matchMedia('(hover: none) and (pointer: coarse)').matches;
 const muteKey = 'mapleWordle:muted';
@@ -1018,7 +1030,7 @@ function themeBgm(t = tbgm.cur) {
 // Something you just got (bought or unlocked) is "NEW" on the button, on its tab and on itself until the page reloads.
 let customTab = 'bg';
 const customFresh = new Set();   // shop item / theme ids got since this page loaded
-const customTabOf = (id) => (CUSTOM_FX_PACKS.includes(id) || id === 'halloween' ? 'fx' : SHOP[id]?.effect ? 'win' : 'bg');
+const customTabOf = (id) => (CUSTOM_FX_PACKS.includes(id) || id === 'halloween' ? 'fx' : SHOP[id]?.effect || HECATE[id] ? 'win' : 'bg');
 function markCustomNew(id) {
   customFresh.add(id);
   customTab = customTabOf(id);   // the window opens on its tab
@@ -1029,7 +1041,7 @@ function drawThemeButton() {
   document.getElementById('themeBtn')?.remove();
   document.getElementById('themes')?.remove();
   const own = ownedThemes();
-  if (own.length < 2 && !ownedEffects().length) return;
+  if (own.length < 2 && !ownedEffects().length && !ownedSkins().some((x) => HECATE[x].achv)) return;
   const btn = document.createElement('button');
   btn.id = 'themeBtn';
   btn.className = 'panel';
@@ -1108,7 +1120,7 @@ function drawThemeButton() {
         fill();
         toast(`${HECATE[id].name}: ${on ? 'Off' : 'On'}`, on ? 'no' : 'yes');
       };
-      const skinCard = (into, id) => onOff(card(into, `images/fx/hecate/${id}.webp`, HECATE[id].name, false, () => toggle(id)), !all && picked.includes(id));
+      const skinCard = (into, id) => onOff(card(into, `images/fx/hecate/${id}.webp${HECATE[id].achv ? '?v=6' : ''}`, HECATE[id].name, false, () => toggle(id), customFresh.has(id)), !all && picked.includes(id));
       for (const id of ownedSkins().filter((x) => !HECATE[x].pack || HECATE[x].solo)) skinCard(list, id);
       for (const pack of ownedEffects().filter((x) => Object.values(HECATE).some((h) => h.pack === x && !h.solo))) {
         const ids = ownedSkins().filter((x) => HECATE[x].pack === pack && !HECATE[x].solo);
@@ -1765,7 +1777,7 @@ const MESO_BONUS = { bgmnormal: 20, bgm: 20, sound: 20, map: 50 };   // bonus qu
 const MESO_SPECIAL = 100;                               // ...unless it's one of the hidden glitch days
 const MESO_NAMES = { shop: 'Shop', story: 'Boss Wordle - Story', normal: 'Boss Wordle - Normal', hard: 'Boss Wordle - Hard',
   extreme: 'Boss Wordle - Extreme', bgmnormal: 'BGM Clip - Normal', bgm: 'BGM Clip - Extreme', sound: 'Boss - Sound Clip', class: 'Class - Wordle',
-  anim: 'Class - Attack Animation', map: 'Guess the Map' };
+  anim: 'Class - Attack Animation', map: 'Guess the Map', achv: 'Achievement' };
 const MESO_SOON = new Set(['sound', 'map']);
 const MESO_DAY = (y, m, d) => Date.UTC(y, m - 1, d) / 86400000;
 // BGM Clip launch week: everything it pays (bonus too) is x3, Oct 20 to Oct 26.
@@ -2103,7 +2115,7 @@ function tooPoor(btn, t) {
 // A small window over the shop about one item: its picture and name (and price), then two buttons. Resolves true for
 // the first button; the second, Esc or a click outside resolve false (and only close this, the shop stays open).
 function itemPopup(t, title, withPrice, [okText, okClass], [noText, noClass]) {
-  const it = SHOP[t];
+  const it = typeof t === 'object' ? t : SHOP[t];   // or { name, img }: an achievement's reward (achv.js)
   return new Promise((done) => {
     const win = document.createElement('div');
     win.className = 'popup buyask';
@@ -2112,7 +2124,8 @@ function itemPopup(t, title, withPrice, [okText, okClass], [noText, noClass]) {
       (withPrice ? priceHtml(t) : '') +
       `<p class="buybtns"><button class="${okClass}">${okText}</button><button class="${noClass}">${noText}</button></p></div>`;
     const [ok, no] = win.querySelectorAll('.buybtns button');
-    win.querySelector('.themepic').addEventListener('click', () => zoomItem(t));   // like the shop's pictures
+    if (typeof t !== 'object') win.querySelector('.themepic').addEventListener('click', () => zoomItem(t));   // like the shop's pictures
+    else win.querySelector('.themepic').classList.remove('zoomable');
     const close = (yes) => { win.remove(); removeEventListener('keydown', esc, true); done(yes); };
     const esc = (e) => { if (e.key === 'Escape' && !document.querySelector('.zoomview')) { e.stopImmediatePropagation(); close(false); } };
     ok.addEventListener('click', () => close(true));
@@ -2195,6 +2208,33 @@ function mesoGain(mode, day, show) {
   el.classList.toggle('none', !got);
   if (!got) el.querySelector('span').textContent = `+0 (you already earned more on another mode ${isArchive(day) ? 'that day' : 'today'})`;
   if (fxHoldTill > Date.now()) revealAfter(el, fxHoldTill - Date.now());
+}
+// A few mesos burst out of the meso count's icon (e.g. an achievement's meso reward claimed).
+// Mesos fly into the meso counter (top of the page) from `from` (e.g. an achievement's Claim button): they burst out a
+// little, then each one swoops to the counter, which bumps as they land. Returns false if nothing flew.
+function mesoFly(n = 12, from) {
+  const icon = document.querySelector('#mesoBtn img');
+  if (!icon || !from || matchMedia('(prefers-reduced-motion: reduce)').matches) return false;
+  const s = from.getBoundingClientRect(), e = icon.getBoundingClientRect();
+  const sx = s.left + s.width / 2 - 15, sy = s.top + s.height / 2 - 15, dx = e.left + e.width / 2 - 15 - sx, dy = e.top + e.height / 2 - 15 - sy;
+  let left = n;
+  for (let i = 0; i < n; i++) {
+    const m = Object.assign(document.createElement('img'), { src: 'images/fx/meso-gold.png', className: 'mesofly', alt: '' });
+    m.style.left = sx + 'px';
+    m.style.top = sy + 'px';
+    document.body.appendChild(m);
+    const a = Math.random() * Math.PI * 2, d = 18 + Math.random() * 26, bx = Math.cos(a) * d, by = Math.sin(a) * d;
+    const side = 60 + Math.random() * 60;   // swoop out to the right on the way up (the curve in the picture)
+    m.animate([{ transform: 'translate(0, 0) scale(0.5)', opacity: 0 },
+      { transform: `translate(${bx}px, ${by}px) scale(1)`, opacity: 1, offset: 0.2 },
+      { transform: `translate(${bx + dx * 0.45 + side}px, ${by + dy * 0.55}px) scale(1) rotate(${Math.random() * 360}deg)`, opacity: 1, offset: 0.6 },
+      { transform: `translate(${dx}px, ${dy}px) scale(0.6) rotate(${Math.random() * 540}deg)`, opacity: 1 }],
+      { duration: 750 + Math.random() * 200, delay: i * 35, easing: 'ease-in-out', fill: 'both' }).onfinish = () => {
+      m.remove();
+      if (--left === 0) { const b = document.getElementById('mesoBtn'); b?.classList.remove('bump'); void b?.offsetWidth; b?.classList.add('bump'); }
+    };
+  }
+  return true;
 }
 // Under the Mode buttons (Boss Wordle, BGM Clip): only your best mode each day pays.
 (() => {

@@ -141,7 +141,7 @@
   } catch {}
   window.mwDevHolidays = !!ss.getItem('mwdev:holidays');   // /unlock all found the holiday items too (fx.js shopFound)
   window.devEgg = ss.getItem('mwdev:egg');   // read by bgm.js (bonusFor)
-  const DEV_HELP = '/meso 5000 — add mesos (minus works too)\n/egg limbo — Limbo\'s mashup as today\'s BGM Clip Extreme bonus\n/egg lucid — today\'s BGM Clip Extreme clip is Lucid\'s Garden of Eternal Dream\n/egg off — back to the real one\n/unlock all — unlock every hidden shop item (to buy at full price)\n/reset — wipe this tab\'s test saves (like opening a new tab) and reload\n/help — this list';
+  const DEV_HELP = '/meso 5000 — add mesos (minus works too)\n/egg limbo — Limbo\'s mashup as today\'s BGM Clip Extreme bonus\n/egg lucid — today\'s BGM Clip Extreme clip is Lucid\'s Garden of Eternal Dream\n/egg off — back to the real one\n/unlock all — own every shop item, boss finishing effect and appearance effect\n/unlock achievement — unlock the next achievement (or one by name: /unlock achievement siren)\n/unlock allachievement — unlock every achievement at once\n/reset — wipe this tab\'s test saves (like opening a new tab) and reload\n/help — this list';
   function devRun(line) {
     const [cmd, a] = line.trim().split(/\s+/);
     if (cmd === '/help') return DEV_HELP;
@@ -164,12 +164,33 @@
       return what ? `${what}${page ? ' Reloading…' : ' Open BGM Clip (Extreme).'}` : `Back to the real BGM Clip.${page ? ' Reloading…' : ''}`;
     }
     if (cmd === '/unlock') {
-      if (a !== 'all') return 'Try: /unlock all';
+      if (a === 'allachievement' || a === 'allachievements') {
+        if (typeof achvDev !== 'function') return 'Achievements aren\'t loaded here.';
+        const n = achvDev('*');
+        return n ? `Unlocked ${n} achievement${n === 1 ? '' : 's'} (the reward ones are ready to claim).` : 'Every achievement was already unlocked.';
+      }
+      if (a === 'achievement') {   // the unlock note: the next locked achievement (or one by name: /unlock achievement siren)
+        if (typeof achvDev !== 'function') return 'Achievements aren\'t loaded here.';
+        const name = achvDev(line.trim().split(/\s+/).slice(2).join(' ').toLowerCase());
+        return name ? `Unlocked: ${name}` : 'No achievement by that name.';
+      }
+      if (a !== 'all') return 'Try: /unlock all, /unlock achievement or /unlock allachievement';
       ss.setItem('mwdev:holidays', '1');   // holiday items too (outside their day; fx.js keeps them found while this is set)
       window.mwDevHolidays = true;
       const got = Object.keys(SHOP).filter((t) => SHOP[t].hidden && !shopFound().includes(t) && !shopOwned(t));
       for (const t of got) shopUnlock(t, false);
-      return got.length ? `Unlocked in the shop: ${got.map((t) => SHOP[t].name).join(', ')}.` : 'Every hidden shop item is already unlocked.';
+      // ...and own all of it (free), plus the boss finishing effects (their Hidden achievements)
+      const items = Object.keys(SHOP);
+      lsSet(EFFECTS_KEY, JSON.stringify([...new Set([...ownedEffects(), ...items.filter((t) => SHOP[t].effect)])]));
+      lsSet(THEMES_KEY, JSON.stringify([...new Set([...ownedThemes().filter((x) => x !== 'default'),
+        ...items.flatMap((t) => (SHOP[t].effect ? SHOP[t].themes ?? [] : SHOP[t].themes ?? [t])).filter((x) => x in THEMES)])]));
+      const achv = JSON.parse(lsGet('mapleWordle:achv') || '{}'), day = Math.floor(Date.now() / 86400000);
+      achv._claimed ??= {};
+      for (const id of [...Object.values(HECATE).map((h) => h.achv).filter(Boolean), 'kill:Jupiter']) { achv[id] ??= day; achv._claimed[id] ??= day; }   // (+ Seething Balance, the appearance effect)
+      lsSet('mapleWordle:achv', JSON.stringify(achv));
+      drawThemeButton();
+      drawCustomFx();
+      return 'You now own every shop item and every boss finishing effect (Customize).';
     }
     if (cmd === '/reset') {   // the test site keeps saves in this tab only, so this is what a new tab starts with
       ss.clear();

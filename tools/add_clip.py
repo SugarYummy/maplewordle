@@ -1,4 +1,7 @@
 # Only use skills unique to one class (check MapleWiki); never a skill shared by two classes.
+# How every clip is made (always): crop in on the credited player's character and everything its skill does, effects below
+# the name tag included (no UI, no other players); cover the name tag and medal with one plain black box, nothing else
+# edited. The credit image is an original frame of the character with its name tag showing (medal left out).
 # Adds an Attack Animation clip: compresses a video into a small WebM (VP9) + MP4 (H.264, for older iPhones) and a
 # still poster image, saved as the next free number (videos/anim/video<N>.*), and records it in data/animation.json.
 #

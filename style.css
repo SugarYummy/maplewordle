@@ -396,8 +396,8 @@ body.glitch :is(button, input, select) { text-shadow: inherit; }   /* the browse
   66% { opacity: 0.6; background-color: transparent; }
 }
 @media (prefers-reduced-motion: reduce) { body.glitch, body.glitch .game, body.glitch::after { animation: none; } }
-/* Theme button: just above the credit box, only once you have a theme besides Default. It opens a window like the Changelog. */
-#themeBtn { position: fixed; bottom: 40px; right: 10px; z-index: 5; margin: 0; max-width: none; width: 34px; height: 34px; padding: 0;
+/* Customize button: under Achievements (under Settings), only once you have something to customize. It opens a window like the Changelog. */
+#themeBtn { position: fixed; top: 96px; right: 12px; z-index: 5; margin: 0; max-width: none; width: 34px; height: 34px; padding: 0;
             display: flex; align-items: center; justify-content: center; font-size: 18px; line-height: 1; border: none; border-radius: 8px; cursor: pointer; }
 #themeBtn:hover { background: rgba(var(--wb), 0.8); }
 #themeBtn img { width: 24px; height: 24px; object-fit: contain; }
@@ -429,7 +429,6 @@ body.glitch :is(button, input, select) { text-shadow: inherit; }   /* the browse
 .themecard.on { font-weight: bold; outline: 2px solid var(--ol); background: rgba(var(--wb), 0.85); }
 .themepic { flex: none; width: 112px; height: 63px; border-radius: 5px; background: center / cover no-repeat; }
 .themepic.default { background-image: url("images/background.webp"); }
-@media (max-width: 700px) { #themeBtn { bottom: 96px; } }
 /* Mesos (fx.js): the count in the game box's top-right corner, and its window (like the Changelog). */
 #mesoCorner { position: absolute; top: 14px; right: 14px; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
 #mesoBtn { position: relative; display: flex; align-items: center; gap: 6px; padding: 5px 10px 5px 7px;
@@ -1025,3 +1024,175 @@ html.dark #play:hover { background: #474d5a; }
 h1.tglitch .gtext { animation: glitchjit 1.6s steps(1) -1.088s 1; }
 h1.tglitch .gtext::before { animation: glitcha 1.6s steps(1) -1.088s 1; }
 h1.tglitch .gtext::after { animation: glitchb 1.6s steps(1) -1.088s 1; }
+/* Flying mesos (fx.js mesoFly) */
+.mesofly { position: fixed; z-index: 30; width: 30px; height: 30px; pointer-events: none; image-rendering: pixelated; }
+/* Achievements (achv.js): the trophy button next to Archive, its window, and the "unlocked" note */
+#achvBtn { position: fixed; top: 54px; right: 12px; z-index: 5; margin: 0; width: 34px; height: 34px; padding: 0; border: none; border-radius: 10px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center; max-width: none; }
+#achvBtn, #achvBtn:hover { background: none; box-shadow: none; }   /* the icon is its own tile */
+#achvBtn:hover img { filter: brightness(1.15); }
+#achvBtn .newtag { top: -5px; left: -8px; font-size: 9px; line-height: 13px; padding: 0 4px; }
+@media (max-width: 700px) { #achvBtn { top: 12px; right: 54px; } #themeBtn { top: 12px; right: 96px; } }   /* phones: in a row beside Settings (a column would cover the game box) */
+#achvBtn img { width: 30px; height: 30px; }
+.achvlocked { margin: 18px 8px; font-weight: 600; line-height: 1.5; text-align: center; }
+.achvcount { margin: 0 0 6px; font-weight: 700; }
+.achvhead { margin: 14px 0 6px; text-align: left; }
+/* Rows: MapleStory's own achievement form (images/achv/ui), 545 x 100 (155 with the reward strip). --p is one of its
+   pixels at the list's width, so everything sits where the game puts it. */
+.achvlist { display: flex; flex-direction: column; gap: 4px; width: min(545px, 100%); min-width: min(420px, 78vw); margin: 0 auto; container-type: inline-size; }
+.achv { --p: calc(100cqw / 545); isolation: isolate; font-family: Arial, 'Liberation Sans', Helvetica, sans-serif; position: relative; width: 100%; height: calc(100 * var(--p)); flex: none; text-align: left; color: #fff;
+  background: url(images/achv/ui/incomplete-base.png) 0 0 / 100% 100% no-repeat; font-size: calc(12 * var(--p)); }
+.achv.on { background-image: url(images/achv/ui/complete-base.png); }
+.achv.rw { height: calc(155 * var(--p)); background-image: url(images/achv/ui/reward-complete-max.png); }
+.achv::after { content: ''; position: absolute; left: calc(1 * var(--p)); top: 0; width: calc(543 * var(--p)); height: calc(101 * var(--p));
+  background: url(images/achv/ui/selected-base.png) 0 0 / 100% 100%; opacity: 0; pointer-events: none; }
+.achv.rw::after { top: calc(1 * var(--p)); height: calc(153 * var(--p)); background-image: url(images/achv/ui/reward-selected-max.png); }
+.achv:hover::after { opacity: 1; }
+.achv > * { position: absolute; }
+.achvicon { left: calc(13.5 * var(--p)); top: calc(11.5 * var(--p)); width: calc(58 * var(--p)); height: calc(58 * var(--p));   /* the box's inside (x 14-71, y 12-69) */
+  display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.achvicon img { max-width: calc(44 * var(--p)); max-height: calc(44 * var(--p)); image-rendering: pixelated; }
+.achvicon img.cup { width: calc(41 * var(--p)); height: calc(32 * var(--p)); max-height: none; max-width: none; }
+.achvicon img.c-normal { width: calc(29 * var(--p)); height: calc(29 * var(--p)); }
+.achvicon i { display: flex; margin-top: calc(2 * var(--p)); }
+.achvicon i img { width: calc(11 * var(--p)); height: calc(16 * var(--p)); max-width: none; max-height: none; image-rendering: auto; }
+.achv.secret .achvicon img { filter: none; }
+.achvtitle { left: calc(83 * var(--p)); top: calc(13 * var(--p)); right: calc(20 * var(--p)); font-size: calc(16.2 * var(--p)); font-weight: 400; letter-spacing: 0.015em; -webkit-text-stroke: calc(0.35 * var(--p)) currentColor;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #f2f2f2; }
+.achvhow { left: calc(83 * var(--p)); top: calc(40 * var(--p)); right: calc(120 * var(--p)); color: #a9a9a9; font-size: calc(11.5 * var(--p)); line-height: 1.3; letter-spacing: 0.04em; }
+.achv.secret .achvtitle { color: #c9a2ff; }
+.achvq { opacity: 0.45; letter-spacing: 0.15em; }
+.achvgauge { left: calc(16 * var(--p)); top: calc(82 * var(--p)); width: calc(513 * var(--p)); height: calc(4 * var(--p)); }
+.achvgauge i { display: block; height: 100%; background: url(images/achv/ui/gauge.png) 0 0 / calc(513 * var(--p)) 100% no-repeat; }
+.achvnum { right: calc(16 * var(--p)); top: calc(62 * var(--p)); color: #cfcfcf; font-variant-numeric: tabular-nums; }
+.achvdate { right: calc(6 * var(--p)); top: calc(36 * var(--p)); height: calc(19 * var(--p));
+  font: 400 calc(12 * var(--p)) / calc(19 * var(--p)) Arial, 'Liberation Sans', sans-serif; color: #e6dcc6; letter-spacing: 0.02em; white-space: nowrap; }
+.achvseal { z-index: 1; left: calc(497 * var(--p)); top: calc(53 * var(--p)); width: calc(44 * var(--p)); height: calc(41 * var(--p)); }
+.achvrwicon { left: calc(15 * var(--p)); top: calc(100 * var(--p)); width: calc(38 * var(--p)); height: calc(38 * var(--p)); display: flex; align-items: center; justify-content: center; }
+.achvrwicon img { max-width: calc(34 * var(--p)); max-height: calc(34 * var(--p)); }
+.achvreward { left: calc(112 * var(--p)); top: calc(113 * var(--p)); right: calc(110 * var(--p)); line-height: calc(16 * var(--p));
+  font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.achvreward .rwfx { color: #c9a2ff; font-weight: 700; }
+.achvreward .rwmeso { color: #ffd23f; -webkit-text-stroke: 0.6px #6b3f00; paint-order: stroke fill; }
+/* The game's Claim Reward button over the strip's greyed one (claimed: the greyed one stays) */
+.achvclaim { left: calc(443 * var(--p)); top: calc(107 * var(--p)); width: calc(89 * var(--p)); height: calc(31 * var(--p)); padding: 0; border: 0; cursor: pointer;
+  background: url(images/achv/ui/claim-normal.png) 0 0 / 100% 100% no-repeat; }
+.achvclaim:hover { background-image: url(images/achv/ui/claim-mouseOver.png); }
+.achvclaim:active { background-image: url(images/achv/ui/claim-pressed.png); }
+.achvclaimed { left: calc(443 * var(--p)); top: calc(107 * var(--p)); width: calc(89 * var(--p)); height: calc(31 * var(--p)); }
+.achvtoast { position: fixed; top: 14px; left: 50%; transform: translateX(-50%); z-index: 23; display: flex; align-items: center; gap: 10px;
+  padding: 8px 18px; border-radius: 6px; color: #fff; box-shadow: 0 0 0 1px #1a1a1a, 0 6px 20px rgba(0, 0, 0, 0.45);
+  background: linear-gradient(#3b3b3b, #262626); border: 1px solid #b08a4a; font-size: 14px; animation: achvin 0.35s ease both; transition: opacity 0.4s ease, transform 0.4s ease; }
+.achvtoast div { display: flex; flex-direction: column; }
+.achvtoast img { image-rendering: pixelated; }
+.achvtoast b { color: #ffd23f; font-size: 12px; letter-spacing: 0.04em; }
+.achvtoast.out { opacity: 0; transform: translate(-50%, -10px); }
+@keyframes achvin { from { opacity: 0; transform: translate(-50%, -14px); } }
+.achvstats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 0 0 6px; }
+.achvstats div { display: flex; flex-direction: column; gap: 2px; padding: 6px 4px; border-radius: 8px; background: rgba(var(--wb), 0.55); border: 1px solid rgba(0, 0, 0, 0.1); }
+.achvstats small { font-size: 10.5px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; opacity: 0.75; }
+.achvstats b { font-size: 17px; font-variant-numeric: tabular-nums; }
+@media (max-width: 520px) { .achvstats { grid-template-columns: repeat(2, 1fr); } }
+.achvhead small { font-size: 12px; font-weight: 600; opacity: 0.6; margin-left: 4px; }
+
+html.dark .achvstats div { border-color: rgba(255, 255, 255, 0.12); }
+
+/* An appearance effect (Seething Balance): plays once over the account's avatar when Settings opens */
+.acctside { position: relative; }
+/* 312 x 260 (the effect's 1322 x 1100 at 0.236): its middle (the eye, at 636, 534 in the effect) lands on your character's middle */
+.acctappear { position: fixed; width: 312px; height: 260px; transform: translate(calc(-50% + 5.9px), calc(-50% + 3.8px)); pointer-events: none; z-index: 20; object-fit: contain; }
+.acctpickhead { margin: 12px 0 4px; font-size: 15px; text-align: left; }
+.acctpickrow .acctfxpic { width: 72px; height: 72px; object-fit: contain; }
+.acctpickrow.acctfxrow { padding-right: 104px; }
+.acctpick:empty { display: none; }
+.acctappeartop { position: fixed; margin: 0; z-index: 21; pointer-events: none; }   /* your character, over its appearance effect */
+/* Achievement tiers: MapleStory's grade colours */
+/* Achievement complete banner (MapleStory's, 1366 x 231; the front is 693 x 194 at 336, 31 over it): scaled to fit */
+.achvbanner { position: fixed; top: calc(6px + 75px * var(--s)); left: 50%; z-index: 23; width: 1366px; height: 231px; pointer-events: none;
+              --s: min(0.75, calc((100vw - 8px) / 640px)); transform: translateX(-50%) scale(var(--s)); transform-origin: top center; transition: opacity 0.45s; }
+.achvbanner.out { opacity: 0; }
+.achvbannerin { position: absolute; inset: 0; }
+.achvbanner .back { position: absolute; left: 0; top: 0; width: 1366px; height: 231px; }
+.achvbanner .front { position: absolute; z-index: 2; }   /* placed per tier (achv.js BANNER_ART) */
+/* the points: MapleStory's own digits (achievementCompleteEffect.normal.num, 8 x 13 each), at their size, in the box under the trophy */
+.achvbanner .achvap { position: absolute; left: 665px; top: 136px; width: 36px; height: 13px; z-index: 1; display: flex; justify-content: center; animation: achvtext 0.3s 0.15s both; }
+.achvbanner .achvap img { width: 8px; height: 13px; image-rendering: pixelated; }
+.achvbanner .achvname { position: absolute; left: 393px; top: 163px; width: 580px; height: 36px; z-index: 1; text-align: center; font: 700 22px/36px system-ui, sans-serif;
+                        white-space: nowrap; overflow: hidden; text-overflow: ellipsis; animation: achvtext 0.3s 0.15s both;
+                        /* like the game: Arial-style bold, flat colour per tier, a soft dark shadow */
+                        color: #c8d4d6; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6); letter-spacing: 0.2px; }
+.achvbanner .achvname { font-family: Arial, 'Liberation Sans', Helvetica, sans-serif; }
+.achvbanner.t-rare .achvname { color: #86dde6; }
+.achvbanner.t-epic .achvname { color: #d9b8ff; }
+.achvbanner.t-unique .achvname { color: #f3ee9e; }
+.achvbanner.t-legendary .achvname { color: #e6ef95; }
+@keyframes achvtext { from { opacity: 0; } to { opacity: 1; } }
+.achvrank { display: flex; flex-direction: column; align-items: center; margin: 0 0 12px; }
+.achvrank > img { width: 96px; height: auto; margin-bottom: -10px; }
+.achvrank b { display: flex; justify-content: center; line-height: 1; }
+.achvrank b img { width: 21px; height: 29px; margin: 0 -1px; }
+.achvtoast.achvrankup img { width: 48px; height: auto; image-rendering: auto; }
+.achvtoast.achvrankup b { font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: #ffe9a6; text-shadow: 0 1px 0 #6b4a12; }
+.achvtoast.achvrankup span { font-size: 17px; font-weight: 800; color: #f2f2f2; }
+
+/* morris9 (MD모리스9): the font the game's achievement search box uses (Latin letters only, fonts/morris9.woff2) */
+@font-face { font-family: 'Morris9'; src: url(fonts/morris9.woff2) format('woff2'); font-display: swap; }
+/* The Achievements window, like MapleStory's: dark frame, its yellow title top left, an X top right (no Close bar) */
+#achv.maplewin > .panel { position: relative; padding: 0 14px 14px; border-radius: 6px; color: #ddd; background: linear-gradient(#3c3c3c, #2a2a2a 120px, #262626);
+  border: 1px solid #141414; box-shadow: inset 0 0 0 1px #5a5a5a, 0 10px 34px rgba(0, 0, 0, 0.55); }
+#achv.maplewin h2 { position: sticky; top: 0; z-index: 3; margin: 0 -14px 10px; padding: 10px 50px 8px 16px; text-align: left; background: linear-gradient(#3c3c3c, #333);
+  border-bottom: 1px solid #1c1c1c; box-shadow: 0 1px 0 #4a4a4a; font: 800 21px/1.2 Arial, 'Liberation Sans', sans-serif; text-transform: uppercase; letter-spacing: 0.01em;
+  color: #e4f53c; text-shadow: 0 1px 0 #4d5410, 0 0 6px rgba(228, 245, 60, 0.25); }
+#achv.maplewin .closebar { display: none; }
+.achvx { position: absolute; top: 12px; right: 12px; width: 21px; height: 21px; padding: 0; margin: 0; border: 0; cursor: pointer;
+  background: url(images/achv/ui/close-normal.png) 0 0 / 100% 100%; }   /* the game's own X */
+.achvx:hover { background-image: url(images/achv/ui/close-mouseOver.png); }
+.achvx:active { background-image: url(images/achv/ui/close-pressed.png); }
+#achv.maplewin .popupbody { padding: 12px; border-radius: 6px; background: #232323; border: 1px solid #111; box-shadow: inset 0 0 0 1px #3e3e3e; }
+#achv.maplewin .achvhead { color: #e3c48c; }
+#achv.maplewin .achvhead small { color: #aaa; opacity: 1; }
+#achv.maplewin .achvstats div { background: #2e2e2e; border: 1px solid #141414; box-shadow: inset 0 0 0 1px #444; }
+#achv.maplewin .achvstats small { color: #a9a9a9; opacity: 1; }
+#achv.maplewin .achvstats b { color: #f2f2f2; }
+#achv.maplewin .achvlocked, #achv.maplewin .achvcount { color: #ddd; }
+
+/* Screens that fit it (Achievements at 60%+): the game's window itself, its title and the emblem's box baked in. The emblem and
+   your stats down the left, the achievements scrolling on the right. */
+@media (min-width: 470px) and (min-height: 460px) {
+  #achv.maplewin { align-items: center; }
+  #achv.maplewin > .panel { flex: none; width: 754px; height: 741px; max-width: none; max-height: none; margin: 0; padding: 0; overflow: visible;
+    border: 0; border-radius: 0; box-shadow: none; background: url(images/achv/ui/window.png) 0 0 / 100% 100% no-repeat; transform: scale(var(--ws, 1)); }
+  #achv.maplewin h2 { position: absolute; inset: 0 0 auto 0; height: 44px; margin: 0; padding: 0; background: none; border: 0; box-shadow: none;
+    font-size: 0; color: transparent; text-shadow: none; }   /* (the title is in the window art) */
+  #achv.maplewin .achvx { top: 11px; right: 13px; }
+  #achv.maplewin .popupbody { position: absolute; inset: 0; width: auto; padding: 0; border: 0; border-radius: 0; background: none; box-shadow: none; }
+  #achv.maplewin .achvside { position: absolute; left: 18px; top: 62px; width: 136px; }
+  /* As big as the game shows it: the emblem a bit over its own size (Master 170 px, the others 153 px), rising out of the top of
+     its box, the points big along the box's bottom */
+  #achv.maplewin .achvrank { position: relative; height: 135px; margin: 0 0 12px; }
+  #achv.maplewin .achvrank > img { position: absolute; left: 50%; top: -22px; width: 153px; margin: 0; transform: translateX(-50%); }
+  #achv.maplewin .achvrank > img.r-master { width: 170px; top: -30px; }
+  #achv.maplewin .achvrank b { position: absolute; left: -10px; right: -10px; top: 99px; }
+  #achv.maplewin .achvstats { grid-template-columns: 1fr; gap: 4px; margin: 0; }
+  #achv.maplewin .achvstats div { padding: 4px 8px; flex-direction: row; justify-content: space-between; align-items: baseline; height: 52px; box-sizing: border-box;
+    flex-direction: column; justify-content: center; align-items: flex-start; border-radius: 5px; }
+  #achv.maplewin .achvmain { position: absolute; left: 170px; right: 12px; top: 48px; bottom: 14px; overflow-y: auto; padding: 0 6px 0 4px;
+    scrollbar-width: thin; scrollbar-color: #6a6a6a transparent; }
+  #achv.maplewin .achvmain .achvhead:first-child { margin-top: 4px; }
+  #achv.maplewin .achvlist { width: 545px; min-width: 0; margin: 0; }
+  #achv.maplewin .achvlocked, #achv.maplewin .achvcount { position: absolute; left: 170px; right: 12px; top: 300px; }
+}
+.achv[hidden], .achvlist[hidden], .achvhead[hidden] { display: none; }
+.achvfind { display: flex; gap: 4px; align-items: center; margin: 10px 0 0; }
+.achvgo { flex: none; width: 45px; height: 22px; padding: 0; margin: 0; border: 0; cursor: pointer; background: url(images/achv/ui/search-normal.png) 0 0 / 100% 100%; }
+.achvgo:hover { background-image: url(images/achv/ui/search-mouseOver.png); }
+.achvgo:active { background-image: url(images/achv/ui/search-pressed.png); }
+.achvsearch { display: block; flex: 1; min-width: 0; width: 100%; margin: 0; box-sizing: border-box; font: 12px 'Morris9', Arial, 'Liberation Sans', sans-serif; padding: 3px 6px;
+  border: 1px solid #111; border-radius: 3px; background: #fff; color: #111; }
+.achvnone { margin: 120px 0; text-align: center; font: 700 18px Arial, 'Liberation Sans', sans-serif; color: #eee; }
+@media (min-width: 470px) and (min-height: 460px) {
+  #achv.maplewin .achvfind { margin: 0; }
+  #achv.maplewin .achvgo { position: absolute; left: 94px; top: 635px; }   /* the game's spots (UIAchievement.img): the button at 112, 697, the text at 19, 702 */
+  #achv.maplewin .achvsearch { position: absolute; left: 0; top: 637px; width: 89px; height: 16px; margin: 0; padding: 0 0 0 1px; border: 0; border-radius: 2px; background: transparent;
+    font: 12px/16px 'Morris9', Arial, sans-serif; color: #555; outline: none; -webkit-font-smoothing: none; }
+}
