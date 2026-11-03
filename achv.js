@@ -217,7 +217,7 @@
       if (safari) setTimeout(() => front.remove(), 340); else front.addEventListener('ended', () => front.remove());
       // Like the game: the name bar about half the screen wide, a little above the middle (its middle at 44% down; in the
       // art it's at y 181). Phones: big enough to read, its sides cut off.
-      const sc = Math.max(Math.min(innerWidth / 1240, innerHeight / 780), Math.min(0.75, (innerWidth - 8) / 640));
+      const sc = Math.max(Math.min(1.5, innerWidth / 1240, innerHeight / 780), Math.min(0.75, (innerWidth - 8) / 640));   // (at most 1.5x: sharp)
       el.style.setProperty('--s', sc);
       el.style.top = `${Math.max(6, innerHeight * 0.44 - 181 * sc)}px`;
       document.body.appendChild(el);
@@ -225,15 +225,6 @@
       setTimeout(() => el.classList.add('out'), BANNER_MS - 500);
       setTimeout(() => el.remove(), BANNER_MS);
     }, at - Date.now());
-  }
-  function toast(name, head = 'Achievement unlocked') {
-    const t = Object.assign(document.createElement('div'), { className: 'achvtoast' });
-    t.innerHTML = '<img src="images/achv/4000038.png" alt=""><div><b></b><span></span></div>';
-    t.querySelector('b').textContent = head;
-    t.querySelector('span').textContent = name;
-    document.body.appendChild(t);
-    setTimeout(() => t.classList.add('out'), 2200);
-    setTimeout(() => t.remove(), 2700);
   }
   // A game result saved (a game just ended) or mesos earned: look again.
   const setItem = Storage.prototype.setItem;
@@ -280,7 +271,6 @@
     btn?.replaceWith(Object.assign(document.createElement('img'), { className: 'achvclaimed', src: 'images/achv/ui/claim-disabled.png', alt: 'Claimed' }));   // the game's greyed "Claimed" button
     fresh.delete(a.id);
     newTag();
-    if (a.mesos) toast(a.full || a.name, `+${fmt(a.mesos)} mesos`);
     if (a.appear) {   // an appearance effect: Settings > Account Settings > MapleStory Character
       if (typeof acctAvatarCall === 'function') acctAvatarCall();
       itemPopup({ name: a.full || a.name, img: 'images/fx/seething-balance.webp?v=2' }, 'Successfully Claimed!', false, ['Settings', 'yes'], ['Close', 'plain'])
@@ -303,7 +293,7 @@
       x.addEventListener('click', () => { win.hidden = true; });
       win.querySelector('h2').appendChild(x);
       // Big enough screens get the game's own window (images/achv/ui/window.png, 754 x 741), scaled to fill the screen
-      const fit = () => win.style.setProperty('--ws', Math.min((innerWidth - 16) / 754, (innerHeight - 16) / 741));   // as big as the screen allows
+      const fit = () => win.style.setProperty('--ws', Math.min(1.5, (innerWidth - 16) / 754, (innerHeight - 16) / 741));   // as big as the screen allows (at most 1.5x, so the art stays sharp)
       fit(); addEventListener('resize', fit);
     }
     if (!loggedIn()) {
