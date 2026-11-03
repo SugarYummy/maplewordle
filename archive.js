@@ -60,7 +60,8 @@
       if (here && here.modes.includes(t.mode)) { try { look = here.style?.(t.mode, d) || ''; } catch {} }
       else look = read(`mapleWordle:style:${t.mode}:${d}`) || '';
       if (look) btn.className = look;
-      btn.textContent = `#${d - t.first + 1} - ${dateLabel(d)}${d === today() ? ' (today)' : ''} - ${look === 'limborb' ? '' : r + star}`;
+      btn.textContent = `#${d - t.first + 1} - ${dateLabel(d)} - ${look === 'limborb' ? '' : r + star}`;
+
       if (look === 'limborb') {   // Limbo's border day: just "Limbo", glowing and glitching like the Special toggle's text
         const s = Object.assign(document.createElement('span'), { className: 'gtext', textContent: 'Limbo' });
         s.dataset.text = 'Limbo';
@@ -71,7 +72,12 @@
         if (here && here.modes.includes(t.mode)) { $('archive').hidden = true; here.play(t.mode, d); }
         else location.href = `${t.page}?mode=${t.mode}&day=${d}`;
       });
-      list.appendChild(btn);
+      // Today: a green tag on its top-left corner, like the NEW one (on a wrapper: the rainbow / Limbo buttons clip what sticks out)
+      if (d === today()) {
+        const wrap = Object.assign(document.createElement('div'), { className: 'todaywrap' });
+        wrap.append(btn, Object.assign(document.createElement('span'), { className: 'todaytag', textContent: 'Today' }));
+        list.appendChild(wrap);
+      } else list.appendChild(btn);
     }
     $('archive').hidden = false;
   }

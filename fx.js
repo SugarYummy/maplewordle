@@ -586,8 +586,10 @@ applyBox();
       t.closest('.setrow').appendChild(box);
       t.addEventListener('mouseenter', () => { if (!PHONE) box.classList.add('show'); });
       t.addEventListener('mouseleave', () => { if (!PHONE && !t.classList.contains('open')) box.classList.remove('show'); });
+      if (!PHONE) { t.classList.add('hoveronly'); t.tabIndex = -1; }   // computers: hover shows it, a click does nothing
       t.addEventListener('click', (e) => {
         e.stopPropagation();
+        if (!PHONE) return;
         const open = !t.classList.contains('open');
         closeTips();
         t.classList.toggle('open', open);
@@ -1099,7 +1101,7 @@ function drawThemeButton() {
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 300); }, 2000);
   };
-  const fill = () => {
+  let fill = () => {
     list.innerHTML = '';
     for (const b of win.querySelectorAll('.themetabs button')) b.classList.toggle('on', b.dataset.tab === customTab);
     tags();
@@ -1262,6 +1264,17 @@ function drawThemeButton() {
         }
       }
     }
+  };
+  // Each tab: the default ones first (Default background, Sol Hecate, Remove all effects), then the rest A to Z (a bundle by its name).
+  const FIRST = ['Remove all effects', THEMES.default, HECATE.default.name];
+  const fillSorted = fill;
+  const labelOf = (el) => ([...(el.querySelector('.themename')?.childNodes || [])].find((n) => n.nodeType === 3)?.textContent || '').trim();   // its name (not the ✓ / ✕ or "1 of 5 on")
+  const rank = (el) => (el.classList.contains('fxvoid') ? -1 : FIRST.includes(labelOf(el)) ? FIRST.indexOf(labelOf(el)) : 9);
+  fill = () => {
+    fillSorted();
+    const kids = [...list.children];
+    kids.sort((a, b) => rank(a) - rank(b) || (rank(a) === 9 ? labelOf(a).localeCompare(labelOf(b)) : 0));
+    list.append(...kids);
   };
   for (const b of win.querySelectorAll('.themetabs button')) b.addEventListener('click', () => { customTab = b.dataset.tab; fill(); });
   btn.addEventListener('click', () => {
@@ -1889,7 +1902,7 @@ function popup(id, title) {
   return win.querySelector('.popupbody');
 }
 const mesoDate = (d) => new Date(d * 86400000).toLocaleDateString(undefined, { timeZone: 'UTC', month: 'short', day: 'numeric' });
-const MESO_PER_PAGE = 5;
+const MESO_PER_PAGE = 10;
 // Page buttons: < 1 … 4 5 6 … 10 >  (first and last page always there, so no separate << / >>).
 // Always the same number of slots (« ‹ 7 slots › »), so the arrows never move: 1 2 3 4 5 … 24 / 1 … 8 9 10 … 24 /
 // 1 … 20 21 22 23 24. « and » jump 10 pages.
@@ -1926,12 +1939,24 @@ function openMeso(page = 1) {
   body.innerHTML =
     `<p class="mesototal"><img src="images/fx/meso-gold.png" alt=""> ${fmt(mesoTotal())}</p>` + ev +
     '<p>Finish puzzles to earn mesos. The fewer guesses, the more you get! Archive days pay 10% (rounded up). Spend them in the 🛍️ Shop.</p>' +
-    (all.length ? '<h3>Recent</h3><ul class="mesorecent">' + recent.map((e) =>
-      `<li><span>${mesoDate(e.day)} · ${MESO_NAMES[e.mode] ?? e.mode} · ${e.what}${(e.times ?? 1) > 1 ? ` (${e.times}x)` : ''}</span><b>${e.amount < 0 ? '−' + fmt(-e.amount) : '+' + fmt(e.amount)}</b></li>`).join('') + '</ul>' + pager(page, last) : '') +
+    (all.length ? '<h3>Recent</h3><ul class="mesorecent">' + recent.map(mesoRow).join('') + '</ul>' + pager(page, last) : '') +
     '<h3 class="mesohow">How to earn</h3><p class="mesobonus">Boss Wordle and BGM Clip: only your best mode each day pays (do better on another mode and you get the difference), and the bonus pays once a day.</p>' +
     Object.keys(MESO_TABLE).map(rows).join('');
+  // The list is as tall as its tallest page (some rows take 2 lines), so the arrows under it never move and can be spammed.
+  const ul = body.querySelector('.mesorecent');
+  if (ul && last > 1) {
+    const probe = ul.cloneNode(false);
+    probe.style.cssText = `position:absolute;visibility:hidden;width:${ul.offsetWidth}px`;
+    ul.parentNode.appendChild(probe);
+    let tall = 0;
+    for (let i = 0; i < all.length; i += MESO_PER_PAGE) { probe.innerHTML = all.slice(i, i + MESO_PER_PAGE).map(mesoRow).join(''); tall = Math.max(tall, probe.offsetHeight); }
+    probe.remove();
+    ul.style.minHeight = tall + 'px';
+  }
   for (const b of body.querySelectorAll('[data-page]')) b.addEventListener('click', () => openMeso(+b.dataset.page));
 }
+const mesoRow = (e) => `<li><span>${mesoDate(e.day)} · ${MESO_NAMES[e.mode] ?? e.mode} · ${e.what}${(e.times ?? 1) > 1 ? ` (${e.times}x)` : ''}</span>` +
+  `<b>${e.amount < 0 ? '−' + fmt(-e.amount) : '+' + fmt(e.amount)}</b></li>`;
 
 // ---- Shop: most items only show up once you've found them (e.g. Lucid's Garden of Eternal Dream: hear it in BGM Clip on
 // its day and get the bonus right, not from the Archive); "always" ones are there from the start. Buying a background
@@ -2056,7 +2081,7 @@ function openShop() {
   const mine = Object.keys(SHOP).filter((t) => shopOwned(t)).sort(byName);
   const locked = Object.keys(SHOP).filter((t) => SHOP[t].hidden && !found.includes(t) && !shopOwned(t)).sort((a, b) => SHOP[b].price - SHOP[a].price || byName(a, b)).map((t) =>
     `<div class="shopitem lockeditem"><span class="themepic hiddenpic">?</span>` +
-    `<span class="shopinfo"><b>Hidden</b><small>A secret ${/Bundle/.test(SHOP[t].kind) ? 'bundle' : 'item'}. Keep playing, it shows up here on a special day 👀</small>` +
+    `<span class="shopinfo"><b>Hidden</b><small>???</small>` +
     `<span class="price"><img src="images/fx/meso-gold.png" alt=""> <span>${fmt(SHOP[t].price)}</span></span></span><span class="locked">🔒 Locked</span></div>`).join('');
   body.innerHTML = `<p class="mesototal"><img src="images/fx/meso-gold.png" alt=""> ${fmt(have)}</p>` +
     (buyable.length || locked || mine.length ? '<div class="shoplist">' + buyable.map(card).join('') + locked + mine.map(card).join('') + '</div>' : '<p class="shopempty">Nothing here yet... 👀</p>') +
