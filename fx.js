@@ -1891,16 +1891,16 @@ function popup(id, title) {
 const mesoDate = (d) => new Date(d * 86400000).toLocaleDateString(undefined, { timeZone: 'UTC', month: 'short', day: 'numeric' });
 const MESO_PER_PAGE = 5;
 // Page buttons: < 1 … 4 5 6 … 10 >  (first and last page always there, so no separate << / >>).
+// Always the same number of slots (« ‹ 7 slots › »), so the arrows never move: 1 2 3 4 5 … 24 / 1 … 8 9 10 … 24 /
+// 1 … 20 21 22 23 24. « and » jump 10 pages.
 function pager(cur, last) {
   if (last <= 1) return '';
-  const nums = [...new Set([1, cur - 1, cur, cur + 1, last])].filter((n) => n >= 1 && n <= last).sort((x, y) => x - y);
-  let html = `<button data-page="${cur - 1}" ${cur === 1 ? 'disabled' : ''} aria-label="Previous page">‹</button>`, prev = 0;
-  for (const n of nums) {
-    if (n - prev > 1) html += '<span class="gap">…</span>';
-    html += `<button data-page="${n}" class="${n === cur ? 'on' : ''}">${n}</button>`;
-    prev = n;
-  }
-  return `<div class="pager">${html}<button data-page="${cur + 1}" ${cur === last ? 'disabled' : ''} aria-label="Next page">›</button></div>`;
+  const lo = Math.min(Math.max(cur - 1, 3), last - 4), slots = last <= 7 ? Array.from({ length: last }, (_, i) => i + 1)
+    : cur <= 4 ? [1, 2, 3, 4, 5, 0, last] : cur >= last - 3 ? [1, 0, last - 4, last - 3, last - 2, last - 1, last] : [1, 0, lo, lo + 1, lo + 2, 0, last];
+  const arrow = (to, off, label, txt) => `<button data-page="${Math.min(Math.max(to, 1), last)}" ${off ? 'disabled' : ''} aria-label="${label}">${txt}</button>`;
+  return `<div class="pager" style="--n:${slots.length + 4}">` + arrow(cur - 10, cur === 1, 'Back 10 pages', '«') + arrow(cur - 1, cur === 1, 'Previous page', '‹') +
+    slots.map((n) => n ? `<button data-page="${n}" class="${n === cur ? 'on' : ''}">${n}</button>` : '<span class="gap">…</span>').join('') +
+    arrow(cur + 1, cur === last, 'Next page', '›') + arrow(cur + 10, cur === last, 'Forward 10 pages', '»') + '</div>';
 }
 function openMeso(page = 1) {
   const body = popup('meso', 'Mesos');

@@ -46,6 +46,9 @@ footer.panel { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%
 #archive, #changelog, #info { position: fixed; inset: 0; z-index: 6; background: rgba(0, 0, 0, 0.4); display: flex;
            align-items: flex-start; justify-content: center; }
 #archive[hidden], #changelog[hidden], #info[hidden] { display: none; }
+/* While a window is open the page behind it doesn't scroll (scrolling past a list's end used to move the page). */
+html:has(:is(#archive, #changelog, #info, #themes, .popup):not([hidden])), html:has(:is(#archive, #changelog, #info, #themes, .popup):not([hidden])) body { overflow: hidden; }
+:is(#archive, #changelog, #info, #themes, .popup), :is(#archive, #changelog, #info, #themes, .popup) * { overscroll-behavior: contain; }
 #changelogBody, #infoBody { text-align: left; max-width: 420px; }
 #changelogBody h3, #infoBody h3 { margin: 12px 0 4px; }
 /* Close button stays visible at the bottom while the window scrolls. */
@@ -482,12 +485,12 @@ body.glitch :is(button, input, select) { text-shadow: inherit; }   /* the browse
            border: 1px solid rgba(0, 0, 0, 0.2); background: rgba(var(--wb), 0.7); }
 #shopBtn:hover { background: rgba(var(--wb), 0.95); }
 .shopempty { text-align: center; opacity: 0.75; margin: 18px 0; }
-.pager { display: flex; justify-content: center; align-items: center; gap: 4px; margin: 8px 0 0; }
-.pager button { min-width: 30px; height: 30px; padding: 0 6px; font-family: inherit; font-size: 14px; border-radius: 6px; cursor: pointer;
+.pager { display: grid; grid-template-columns: repeat(var(--n), minmax(0, 34px)); justify-content: center; align-items: center; gap: 3px; margin: 8px 0 0; }
+.pager button { width: 100%; min-width: 0; height: 30px; padding: 0; font-family: inherit; font-size: 14px; border-radius: 6px; cursor: pointer;
                 border: 1px solid rgba(0, 0, 0, 0.2); background: rgba(var(--wb), 0.6); }
 .pager button.on { font-weight: 700; outline: 2px solid var(--ol); background: rgba(var(--wb), 0.95); }
 .pager button:disabled { opacity: 0.35; cursor: default; }
-.pager .gap { padding: 0 2px; opacity: 0.6; }
+.pager .gap { text-align: center; opacity: 0.6; }
 .mesototal { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 0 0 8px; font-size: 30px; font-weight: 900; color: #ffd23f;
               -webkit-text-stroke: 1.5px #6b3f00; paint-order: stroke fill; text-shadow: 0 2px 0 #6b3f00; letter-spacing: 0.5px; }
 .mesototal img { width: 32px; height: 32px; image-rendering: pixelated; }
