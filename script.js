@@ -562,7 +562,7 @@ function guess(name) {
   if (over && won && !quietWin) setTimeout(() => confetti(guesses.length === 1), flipMs);
   if (over) limboOver(won, flipMs);   // Limbo's alert border: gone on a win, its fail screen on a loss
   const kb = won && guesses.length === 1 ? firstTryBurst() : 0;   // a boss finishing attack: the music comes in at its burst
-  if (over && live && !quietWin) resultSound(won, flipMs + kb, won && guesses.length === 1 ? 'firstTry' : mode !== 'extreme' ? undefined : !won ? 'extremeLose' : 'extremeWin', kb ? 1 : 0);
+  if (over && live && !quietWin) resultSound(won, flipMs + kb, won && guesses.length === 1 ? 'firstTry' : mode !== 'extreme' ? undefined : !won ? 'extremeLose' : 'extremeWin');
   for (const el of [$('status'), $('share'), $('rows').querySelector('.bestrow')]) revealAfter(el, flipMs);
   if (over) { updateStreak(); loadStats(); noteResult(); }
 }

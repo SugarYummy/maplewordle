@@ -314,10 +314,10 @@ function playHecate(special = false) {   // special: Limbo's mashup win (plays w
   return skin.burst;
 }
 // A first-guess win with a boss finishing attack as the win effect: the first-guess music waits for its burst (with the
-// mesos) and starts at full volume, like on that boss's BGM Clip Extreme day. 0 for any other win effect.
+// mesos), starting 0.5 s early so its fade-in is up by then, like on that boss's BGM Clip Extreme day. 0 for any other win effect.
 function firstTryBurst() {
   if (matchMedia('(prefers-reduced-motion: reduce)').matches || limboAllOn() || typeof hecate === 'undefined' || !hecate) return 0;
-  return HECATE[hecate.id]?.achv ? HECATE[hecate.id].burst : 0;
+  return HECATE[hecate.id]?.achv ? Math.max(1, HECATE[hecate.id].burst - 500) : 0;   // 0.5 s early: the music's fade-in is up by the burst
 }
 function bigWin() {
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
@@ -498,8 +498,7 @@ function soundFile(src) {
   return soundBytes[src];
 }
 let loseAfterFail = 0;   // (limboOver: a loss with Limbo's fail screen coming: when it's over, in ms from now)
-// skip: seconds into the clip to start. The special win effects (finishing attacks, Jupiter, Limbo) pass 1 to start Descend and
-// Four Auspicious Beasts past the 1 s fade-in cut into those files, so the music is at full volume on the burst.
+// skip: seconds into the clip to start (0 = from the top).
 function resultSound(won, delay, file, skip = 0) {
   if (loseAfterFail && !won && !file?.startsWith('fail')) delay = Math.max(delay ?? 0, loseAfterFail);
   if (muted()) return;

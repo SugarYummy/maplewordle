@@ -239,7 +239,7 @@ function guess(name) {
   if (won && guesses.length <= CELEBRATE_UP_TO) {
     setTimeout(() => confetti(guesses.length === 1), flipMs);
     const kb = guesses.length === 1 ? firstTryBurst() : 0;   // a boss finishing attack: the music comes in at its burst
-    if (live) resultSound(true, flipMs + kb, guesses.length > 1 ? 'animWin' : 'firstTry', kb ? 1 : 0);
+    if (live) resultSound(true, flipMs + kb, guesses.length > 1 ? 'animWin' : 'firstTry');
   }
   if (over) { updateStreak(); loadStats(); noteResult(); }
 }

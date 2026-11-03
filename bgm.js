@@ -593,16 +593,16 @@ function guess(name) {
   const game = answer, n = guesses.length, ok = won();
   if (MODE === 'bgm' && answer.name === 'Jupiter' && typeof acctJupiterEntrance === 'function' && acct() && acctMapleImg()) {
     pause();
-    setTimeout(() => { const ms = acctJupiterEntrance(); setTimeout(() => bigWinAt(game, ok, n, true), ms); }, flipMs);
+    setTimeout(() => bigWinAt(game, ok, n, true, acctJupiterEntrance()), flipMs);
   } else if (kill) {
     pause();
-    setTimeout(async () => { const ms = await bossKill(kill); setTimeout(() => bigWinAt(game, ok, n, true), ms); }, flipMs);
+    setTimeout(async () => bigWinAt(game, ok, n, true, await bossKill(kill)), flipMs);
   } else if (ok && n === 1 && typeof hecate !== 'undefined' && (limboAllOn() || hecate?.id === 'limboCut' || HECATE[hecate?.id]?.achv)) {
     // A first-guess win whose win effect is Limbo Transition (Limbo mode, or ticked on its own in Customize) or a boss
     // finishing attack you unlocked and ticked (any day, either mode): the same, its meso fountain from the win effect itself.
     const fx = limboAllOn() ? 'limboCut' : hecate.id;
     pause();
-    setTimeout(() => { confetti(true); setTimeout(() => bigWinAt(game, ok, n, false), HECATE[fx].burst); }, flipMs);
+    setTimeout(() => { confetti(true); bigWinAt(game, ok, n, false, HECATE[fx].burst); }, flipMs);
   } else if (won()) {
     setTimeout(() => confetti(guesses.length === 1), flipMs);
     // First-guess win: Mayrin's Descend plays (the BGM pauses for it). Other wins: no music, the BGM is already playing.
@@ -617,13 +617,18 @@ function guess(name) {
   noteResult();
 }
 
-// At the burst of a boss's finishing attack, Limbo Transition or Jupiter's entrance (mesos: false when the win effect
-// brings its own meso fountain). Nothing if another game opened meanwhile.
-function bigWinAt(was, ok, n, mesos) {
+// At the burst (ms from now) of a boss's finishing attack, Limbo Transition or Jupiter's entrance (mesos: false when the
+// win effect brings its own meso fountain). Descend and Four Auspicious Beasts have a 1 s fade-in, so they start
+// MUSIC_LEAD ms early to be up by the burst; Burning City has none and starts on it. Nothing if another game opened meanwhile.
+const MUSIC_LEAD = 500;
+function bigWinAt(was, ok, n, mesos, ms) {
   if (answer !== was) return;
-  if (ok && n === 1) { if (mesos) mesoShow(); if (live) resultSound(true, 0, 'firstTry', 1); }   // Mayrin's Descend
-  else if (ok) { if (mesos) confetti(false); if (live) resultSound(true, 0, 'extremeWin', 1); }   // Kaling's Four Auspicious Beasts
-  else if (live) resultSound(false, 0, 'extremeLose');   // Seren's Burning City
+  const early = Math.max(0, ms - MUSIC_LEAD);
+  if (mesos) setTimeout(() => { if (answer === was) ok && n === 1 ? mesoShow() : ok && confetti(false); }, ms);
+  if (!live) return;
+  if (ok && n === 1) resultSound(true, early, 'firstTry');   // Mayrin's Descend
+  else if (ok) resultSound(true, early, 'extremeWin');   // Kaling's Four Auspicious Beasts
+  else resultSound(false, ms, 'extremeLose');   // Seren's Burning City
 }
 // ---- After the game: the whole track and the bonus guess ----
 
