@@ -20,6 +20,8 @@
 //                                        least), "meso-" (at most) or "all" -> {users: [{id, name, mesos, made, saved, devices}]}
 //                                        (admin.html on the site types these as /find commands)
 //   POST /admin/delete {name}            header X-Admin-Key. Deletes the account and signs out its devices (no undo).
+//   GET  /top                            the site's top 10 by achievement points with at least 1,000 (Master rank)
+//                                        -> {top: [{id, name, ap}]} (AP: the mapleWordle:ap key in each save; cached 5 min)
 //   GET  /maple?region=na|eu&name=IGN    a MapleStory character from Nexon's rankings -> {name, level, job, world,
 //                                        img} (404 "nouser" if it isn't ranked). Nexon doesn't let browsers ask it directly.
 // Signed in = header "Authorization: Bearer <token>". Only a hash of each token is stored.
@@ -163,6 +165,20 @@ export default {
         'u.created AS made, u.updated AS saved, (SELECT COUNT(*) FROM sessions s WHERE s.user_id = u.id) AS devices FROM users u) ' +
         `WHERE ${where} ORDER BY id LIMIT 200`).bind(...(by === 'all' ? [] : [arg])).all();
       return json({ users: results.map(({ name_key, ...r }) => r) });
+    }
+
+    // Achievements' Master rank: the 10 accounts with the most achievement points (1,000+). No sign-in needed (names
+    // and points only). Ties: the older account first. Kept at Cloudflare's edge for 5 minutes, so visits don't each read D1.
+    if (path === '/top' && request.method === 'GET') {
+      const cache = caches.default, key = new Request(url.origin + '/top');
+      const hit = await cache.match(key);
+      if (hit) return hit;
+      const { results } = await db.prepare(`SELECT id, name, CAST(COALESCE(json_extract(data, '$."mapleWordle:ap"'), '0') AS INTEGER) AS ap FROM users ` +
+        'WHERE ap >= 1000 ORDER BY ap DESC, id ASC LIMIT 10').all();
+      const res = json({ top: results });
+      res.headers.set('Cache-Control', 'public, max-age=300');
+      await cache.put(key, res.clone());
+      return res;
     }
 
     // (No sign-in needed: it only reads Nexon's public rankings, and the test build's pretend accounts use it too.)

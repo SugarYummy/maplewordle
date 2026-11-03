@@ -2298,7 +2298,7 @@ fetch('CHANGELOG.md', { cache: 'no-cache' }).then((r) => r.text()).then((md) => 
 // open), then never again. Seen: mapleWordle:seenV6 (goes to the account too).
 const SEEN_V6_KEY = 'mapleWordle:seenV6';
 addEventListener('load', () => {
-  if (Date.now() >= Date.UTC(2026, 10, 6) || lsGet(SEEN_V6_KEY)) return;
+  if (Date.now() >= Date.UTC(2026, 10, 6) || lsGet(SEEN_V6_KEY) || location.pathname.includes('/maplewordledev')) return;   // (not on the test site: no changelog there)
   setTimeout(() => {
     const btn = document.getElementById('version');
     if (!btn || lsGet(SEEN_V6_KEY) || document.querySelector('.popup:not([hidden])')) return;

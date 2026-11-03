@@ -141,7 +141,7 @@
   } catch {}
   window.mwDevHolidays = !!ss.getItem('mwdev:holidays');   // /unlock all found the holiday items too (fx.js shopFound)
   window.devEgg = ss.getItem('mwdev:egg');   // read by bgm.js (bonusFor)
-  const DEV_HELP = '/meso 5000 — add mesos (minus works too)\n/egg limbo — Limbo\'s mashup as today\'s BGM Clip Extreme bonus\n/egg lucid — today\'s BGM Clip Extreme clip is Lucid\'s Garden of Eternal Dream\n/egg off — back to the real one\n/unlock all — own every shop item, boss finishing effect and appearance effect\n/unlock achievement — unlock the next achievement (or one by name: /unlock achievement siren)\n/unlock allachievement — unlock every achievement at once\n/reset — wipe this tab\'s test saves (like opening a new tab) and reload\n/help — this list';
+  const DEV_HELP = '/meso 5000 — add mesos (minus works too)\n/egg limbo — Limbo\'s mashup as today\'s BGM Clip Extreme bonus\n/egg lucid — today\'s BGM Clip Extreme clip is Lucid\'s Garden of Eternal Dream\n/egg off — back to the real one\n/unlock all — own every shop item, boss finishing effect and appearance effect\n/unlock achievement — unlock the next achievement (or one by name: /unlock achievement siren)\n/unlock allachievement — unlock every achievement at once\n/master — count as one of the site\'s top 10 (Master rank at 1,000+ AP; again to stop)\n/reset — wipe this tab\'s test saves (like opening a new tab) and reload\n/help — this list';
   function devRun(line) {
     const [cmd, a] = line.trim().split(/\s+/);
     if (cmd === '/help') return DEV_HELP;
@@ -162,6 +162,10 @@
       if (page) setTimeout(() => location.reload(), 900);
       const what = { limbo: "Limbo's mashup is now today's BGM Clip Extreme bonus.", lucid: "Today's BGM Clip Extreme clip is now Lucid's Garden of Eternal Dream." }[a];
       return what ? `${what}${page ? ' Reloading…' : ' Open BGM Clip (Extreme).'}` : `Back to the real BGM Clip.${page ? ' Reloading…' : ''}`;
+    }
+    if (cmd === '/master') {   // pretend to be in the site's top 10 (achv.js: Master needs 1,000+ AP too)
+      window.achvMaster = !window.achvMaster;
+      return window.achvMaster ? 'You count as top 10 now: Master at 1,000+ AP (open Achievements). /master again to stop.' : 'Back to the real top 10.';
     }
     if (cmd === '/unlock') {
       if (a === 'allachievement' || a === 'allachievements') {

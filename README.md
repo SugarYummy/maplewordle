@@ -37,6 +37,10 @@ other devices. Browser side: `account.js`; server: `worker/account.js`, in the s
 4. Worker **Settings → Variables and Secrets → Add**: type Secret, name `ADMIN_KEY`, any long random text. Deploy.
 5. `ACCOUNT_URL` in `account.js` is the Worker's URL.
 
+Achievements' **Master** rank: `GET /top` on the same Worker returns the site's top 10 by achievement points (1,000+ AP),
+read from each account's `mapleWordle:ap` key (the site saves it with the achievements) and kept at Cloudflare's edge for 5
+minutes. Changing `worker/account.js`: **Edit code**, paste it again, Deploy (no database change needed).
+
 Admin page: `admin.html` (not linked anywhere). Type `/find user yuki`, `/find uid 1`, `/find meso+ 5000`,
 `/find meso- 100` or `/find all` to look accounts up, and `/reset yuki temp123` to give someone a new password
 (it logs them out everywhere). `/delete yuki` deletes an account for good (it asks you to type the name first). It asks for the `ADMIN_KEY` once and keeps it in that browser.

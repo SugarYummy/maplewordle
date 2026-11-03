@@ -154,10 +154,27 @@
   // Ranks by AP, with MapleStory's emblems (images/achv/rank). Master (1,000+ and the site's top 10) needs a site-wide
   // ranking, which isn't there yet.
   const RANKS = [['bronze', 'Bronze', 0], ['silver', 'Silver', 200], ['gold', 'Gold', 500], ['platinum', 'Platinum', 1000], ['diamond', 'Diamond', 2000]];
-  const rankOf = (ap) => RANKS.filter((r) => ap >= r[2]).pop();
+  const rankOf = (ap) => (ap >= MASTER[2] && isTop() ? MASTER : RANKS.filter((r) => ap >= r[2]).pop());
+  // Master: 1,000+ AP and one of the site's top 10 by AP (the account server's GET /top, from each account's
+  // mapleWordle:ap). Looked up only once you have 1,000+, kept 5 minutes. (Test site console: /master)
+  const MASTER = ['master', 'Master', 1000], AP_KEY = 'mapleWordle:ap';
+  let top = null, topAt = 0;
+  const myUid = () => { try { return acct()?.uid; } catch { return null; } };
+  const isTop = () => !!window.achvMaster || (top || []).some((t) => t.id === myUid());
+  const topPlace = () => (top || []).findIndex((t) => t.id === myUid()) + 1;
+  async function loadTop(ap) {
+    if (ap < MASTER[2] || (top && Date.now() - topAt < 300000) || typeof ACCOUNT_URL !== 'string') return;
+    try {
+      const r = await fetch(ACCOUNT_URL + 'top', { signal: AbortSignal.timeout(4000) });
+      if (r.ok) { top = (await r.json()).top || []; topAt = Date.now(); }
+    } catch {}
+  }
   // Ranked up (more AP than the rank saved last time): GradeUp plays, after the achievement banners. Saved in _rank.
   function rankCheck(got, announce) {
-    const r = rankOf(apOf(got)), i = RANKS.indexOf(r), was = got._rank == null ? -1 : RANKS.findIndex((x) => x[0] === got._rank);
+    const ap = apOf(got);
+    if (read(AP_KEY) !== String(ap)) try { localStorage.setItem(AP_KEY, String(ap)); } catch {}   // (for the top 10: goes to the account)
+    const ALLR = [...RANKS, MASTER];
+    const r = rankOf(ap), i = ALLR.indexOf(r), was = got._rank == null ? -1 : ALLR.findIndex((x) => x[0] === got._rank);
     if (i === was) return;
     got._rank = r[0];
     try { localStorage.setItem(ACHV_KEY, JSON.stringify(got)); } catch {}
@@ -187,6 +204,7 @@
     got._bestWinStreak = Math.max(s.streak, got._bestWinStreak || 0);
     if (changed || first) { try { localStorage.setItem(ACHV_KEY, JSON.stringify(got)); } catch {} }
     if (announce && !first) unlocked.forEach((a) => banner(a, 2500));
+    await loadTop(apOf(got));
     rankCheck(got, announce && !first);
     noteClaims();
   }
@@ -307,11 +325,12 @@
     const tiles = [['Days played', s.days.size], ['Games played', s.played], ['Wins', s.wins],
       ['Win rate', s.played ? Math.round((s.wins / s.played) * 100) + '%' : '-'], ['First-guess wins', s.firstTry],
       ['Best win streak', s.streak], ['Mesos earned', fmt(s.mesos)], ['Achievements', `${done} / ${ALL.length}`]];
+    await loadTop(apOf(got));
     const ap = apOf(got), rk = rankOf(ap), next = RANKS[RANKS.indexOf(rk) + 1];
     // Like the game's achievement window: your rank's emblem with your points under it
     body.innerHTML = '<div class="achvside"></div><div class="achvmain"></div>';
     const side = body.firstChild, main = body.lastChild;
-    side.innerHTML = `<div class="achvrank" title="${rk[1]}${next ? ` · ${fmt(next[2] - ap)} AP to ${next[1]}` : ''}"><img class="r-${rk[0]}" src="images/achv/rank/${rk[0]}.png" alt="${rk[1]}"><b aria-label="${ap} AP">${digits(ap, 'score')}</b></div>` + '<div class="achvstats">' + tiles.map(([k, v]) => `<div><small>${k}</small><b>${typeof v === 'number' ? fmt(v) : v}</b></div>`).join('') + '</div>';
+    side.innerHTML = `<div class="achvrank" title="${rk[1]}${rk === MASTER ? (topPlace() ? ` · #${topPlace()} on Mapledle` : '') : next ? ` · ${fmt(next[2] - ap)} AP to ${next[1]}` : ap >= MASTER[2] ? ' · top 10 on Mapledle for Master' : ''}"><img class="r-${rk[0]}" src="images/achv/rank/${rk[0]}.png" alt="${rk[1]}"><b aria-label="${ap} AP">${digits(ap, 'score')}</b></div>` + '<div class="achvstats">' + tiles.map(([k, v]) => `<div><small>${k}</small><b>${typeof v === 'number' ? fmt(v) : v}</b></div>`).join('') + '</div>';
     // Rows like the game's achievement window (images/achv/ui, MapleStory's own form pieces): the tier's cup with its AP
     // (hidden ones keep their own picture), name, description, the gauge, the seal and date when done. Unlocked hidden
     // ones get the reward strip with the Claim Reward button.
