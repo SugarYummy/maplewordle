@@ -2325,8 +2325,8 @@ fetch('CHANGELOG.md', { cache: 'no-cache' }).then((r) => r.text()).then((md) => 
   const btn = document.getElementById('version');
   if (m && btn) btn.textContent = m[1].trim().replace(/\bv\.(?=\d)/, 'v');   // "alpha v.4.3.2" shows as "alpha v4.3.2"
 }).catch(() => {});
-// The big v6 update (achievements): until Nov 6 (UTC), the Changelog opens by itself once for everyone (its newest version
-// open), then never again. Seen: mapleWordle:seenV6 (goes to the account too).
+// The big v6 update (achievements): until Nov 6 (UTC), the Changelog opens by itself once for everyone (with alpha v6.0
+// open, even once newer versions are above it), then never again. Seen: mapleWordle:seenV6 (goes to the account too).
 const SEEN_V6_KEY = 'mapleWordle:seenV6';
 addEventListener('load', () => {
   if (Date.now() >= Date.UTC(2026, 10, 6) || lsGet(SEEN_V6_KEY) || location.pathname.includes('/maplewordledev')) return;   // (not on the test site: no changelog there)
@@ -2334,7 +2334,9 @@ addEventListener('load', () => {
     const btn = document.getElementById('version');
     if (!btn || lsGet(SEEN_V6_KEY) || document.querySelector('.popup:not([hidden])')) return;
     lsSet(SEEN_V6_KEY, '1');
+    window.changelogOpenVer = 'alpha v6.0';   // it's about v6.0 (achievements), not whatever's newest
     btn.click();
+    setTimeout(() => { window.changelogOpenVer = null; }, 3000);
   }, 600);
 });
 // The Changelog window (every game) built from CHANGELOG.md. Each "## alpha v4.3 - date" is a box you can open and close,
@@ -2357,6 +2359,7 @@ function buildChangelog(body, md) {
       ver = group.appendChild(document.createElement('details'));
       ver.className = 'clver';
       ver.open = group.open && group.childElementCount === 2;   // the group's first version (after its summary)
+      if (window.changelogOpenVer) ver.open = label === window.changelogOpenVer;   // the v6 popup: just v6.0 open, even with newer ones above it
       const s = ver.appendChild(document.createElement('summary'));
       s.appendChild(document.createElement('b')).textContent = label;
       if (date) {
