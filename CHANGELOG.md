@@ -1,5 +1,25 @@
 # Maple Wordle changelog
 
+## alpha v6.0 - 3 November 2026
+### ✨ New [Achievements] System Added!
+- **[Achievements]** Added 🏆 [Achievements], found under ⚙️ [Settings]. Requires an account.
+  - **[Yuki Note]** Everything you've played before counts, including the [Archive]!
+- **[Achievements]** 70+ achievements to complete across 5 tiers: Common, Rare, Epic, Unique and Legendary.
+- **[Achievements]** Earn Achievement Points (AP) to rank up from Bronze to Diamond.
+- **[Achievements]** Search through achievements with the search bar.
+### ✨ New [Attack Animation] Clips Added!
+- **[Attack Animation]** Added 18 new clips across 10 classes.
+### ✨ New [Settings] Options Added!
+- **[Settings]** Added [Theme]: switch between Light and Dark mode.
+- **[Settings]** Added [Effects]: choose between 30 FPS (default) and 60 FPS.
+### 🔧 Changes
+- **[General]** Maple Wordle is now **Mapledle**!
+- **[General]** Smoother performance: removed background blur and lightened glow and meso effects.
+- **[General]** Rainbow border glow now fades outward with rounded corners.
+- **[BGM Clip]** Some of the hardest BGMs are now [Extreme Mode] only.
+### 🥚 Easter Egg
+- **[Easter Egg]** Some achievements are hidden... and come with special rewards. 👀
+
 ## alpha v5.0.1 - 2 November 2026
 ### ✨ New [BGM Clip] Extreme Clips Added!
 - **[BGM Clip]** Added [Champion Raid: Draco Isle] into [BGM Clip] Extreme mode.
