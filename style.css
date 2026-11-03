@@ -1087,10 +1087,12 @@ h1.tglitch .gtext::after { animation: glitchb 1.6s steps(1) -1.088s 1; }
 .achvseal { z-index: 1; left: calc(497 * var(--p)); top: calc(53 * var(--p)); width: calc(44 * var(--p)); height: calc(41 * var(--p)); }
 .achvrwicon { left: calc(15 * var(--p)); top: calc(100 * var(--p)); width: calc(38 * var(--p)); height: calc(38 * var(--p)); display: flex; align-items: center; justify-content: center; }
 .achvrwicon img { max-width: calc(34 * var(--p)); max-height: calc(34 * var(--p)); }
-.achvreward { left: calc(112 * var(--p)); top: calc(113 * var(--p)); right: calc(110 * var(--p)); line-height: calc(16 * var(--p));
-  font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.achvreward .rwfx { color: #c9a2ff; font-weight: 700; }
-.achvreward .rwmeso { color: #ffd23f; -webkit-text-stroke: 0.6px #6b3f00; paint-order: stroke fill; }
+/* Centred on the strip's "REWARD :" line (a box around it, not a top edge, so every font sits the same); calm like the label */
+.achvreward { left: calc(112 * var(--p)); top: calc(107.5 * var(--p)); height: calc(24 * var(--p)); right: calc(110 * var(--p)); display: flex; align-items: center;
+  font-size: calc(12 * var(--p)); line-height: 1; font-weight: 700; white-space: nowrap; overflow: hidden; }
+.achvreward > span { overflow: hidden; text-overflow: ellipsis; }
+.achvreward .rwfx { color: #c9a2ff; }
+.achvreward .rwmeso { color: #f2cf6b; }
 /* The game's Claim Reward button over the strip's greyed one (claimed: the greyed one stays) */
 .achvclaim { left: calc(443 * var(--p)); top: calc(107 * var(--p)); width: calc(89 * var(--p)); height: calc(31 * var(--p)); padding: 0; border: 0; cursor: pointer;
   background: url(images/achv/ui/claim-normal.png) 0 0 / 100% 100% no-repeat; }
