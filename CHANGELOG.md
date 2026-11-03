@@ -1,5 +1,17 @@
 # Maple Wordle changelog
 
+## alpha v6.1 - 3 November 2026
+### 🔧 Changes
+- **[General]** Windows are now wider on PC.
+- **[General]** Scrolling inside a window no longer scrolls the page behind it.
+- **[Mesos]** Shows more history per page, with easier page navigation.
+- **[Shop]** Items are now sorted, with owned items at the bottom.
+- **[Customize]** Items are now sorted alphabetically.
+- **[Settings]** Cleaner layout.
+- **[Archive]** Today's puzzle is easier to spot.
+### 🐛 Bug Fixes
+- **[Shop]** Owned holiday items no longer disappear from the [Shop].
+
 ## alpha v6.0 - 3 November 2026
 ### ✨ New [Achievements] System Added!
 - **[Achievements]** Added 🏆 [Achievements], found under ⚙️ [Settings]. Requires an account.
