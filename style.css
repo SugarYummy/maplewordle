@@ -1127,6 +1127,7 @@ html.dark .achvstats div { border-color: rgba(255, 255, 255, 0.12); }
 .acctpickrow .acctfxpic { width: 72px; height: 72px; object-fit: contain; }
 .acctpickrow.acctfxrow { padding-right: 104px; }
 .acctpick:empty { display: none; }
+#jupiterChar { display: flex; justify-content: center; margin: 4px 0 0; }   /* BGM Clip Extreme, Jupiter's BGM: your character under Share (account.js) */
 .acctappeartop { position: fixed; margin: 0; z-index: 21; pointer-events: none; }   /* your character, over its appearance effect */
 /* Achievement tiers: MapleStory's grade colours */
 /* Achievement complete banner (MapleStory's, 1366 x 231; the front is 693 x 194 at 336, 31 over it): scaled to fit */

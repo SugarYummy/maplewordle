@@ -128,6 +128,11 @@ function answerFor(d) {
   let e = entryFor(d);
   // Test build only (tools/dev/dev.js console: /egg lucid): today's Extreme clip is Lucid's Garden of Eternal Dream.
   if (window.devEgg === 'lucid' && MODE === 'bgm' && d === Math.floor(Date.now() / DAY_MS)) e = pool.find((x) => data.tracks[x.track]?.egg === 'lucid') ?? e;
+  // Test build only (/bgm kai): today's Extreme clip is one of that boss's BGMs (which one: picked at random when typed).
+  if (window.devBgm && MODE === 'bgm' && d === Math.floor(Date.now() / DAY_MS)) {
+    const list = pool.filter((x) => x.boss.name === window.devBgm.boss);
+    if (list.length) e = list[Math.floor(window.devBgm.r * list.length) % list.length];
+  }
   const boss = e.boss, track = e.track;
   const t = data.tracks[track];
   const h = hash(`${MODE}|${d}|start`);
@@ -445,6 +450,7 @@ function start(d) {
   for (const id of ['player', 'skip', 'picker', 'pickrow', 'infostrip', 'rows']) $(id).hidden = false;
   firstTryGlow(false);
   answer = answerFor(day);
+  if (MODE === 'bgm' && typeof bossKillFor === 'function' && bossKillFor(answer.name)) setTimeout(() => bossKillLoad(bossKillFor(answer.name)), 2000);   // its finishing attack ready for the end
   showPuzzle(day - firstDay() + 1, dateLabel(day), live);   // the info strip (fx.js)
   $('today').hidden = live;
   guesses = [];
@@ -452,6 +458,7 @@ function start(d) {
   $('rows').innerHTML = '';
   $('stats').hidden = true;
   $('share').hidden = true;
+  $('jupiterChar')?.remove();   // Jupiter's entrance character (account.js) belongs to the game that ended
   $('guess').value = '';
   closeList();
   const saved = load(day);
@@ -577,7 +584,26 @@ function guess(name) {
   setTimeout(renderEnd, flipMs);
   scheduleEnd();
   limboOver(won(), flipMs);   // Limbo's alert border: gone on a win, its fail screen on a loss
-  if (won()) {
+  // BGM Clip Extreme on Kai's, Malefic Star's, Mayrin's or Bellona's BGM: that boss's finishing attack plays when the
+  // game ends, won (any guess) or lost; a first-guess win plays it in place of your win effect (fx.js bossKill).
+  const kill = MODE === 'bgm' && typeof bossKillFor === 'function' ? bossKillFor(answer.name) : null;
+  // ...and on Jupiter's: your character's entrance under Share (account.js), in place of a first-guess win effect (no
+  // character: the usual). Each of these keeps the BGM quiet until its burst, then (bigWinAt): won in 1: the meso fountain
+  // + Mayrin's Descend · won in 2+: the meso rain + Kaling's Four Auspicious Beasts · lost: Seren's Burning City
+  const game = answer, n = guesses.length, ok = won();
+  if (MODE === 'bgm' && answer.name === 'Jupiter' && typeof acctJupiterEntrance === 'function' && acct() && acctMapleImg()) {
+    pause();
+    setTimeout(() => { const ms = acctJupiterEntrance(); setTimeout(() => bigWinAt(game, ok, n, true), ms); }, flipMs);
+  } else if (kill) {
+    pause();
+    setTimeout(async () => { const ms = await bossKill(kill); setTimeout(() => bigWinAt(game, ok, n, true), ms); }, flipMs);
+  } else if (ok && n === 1 && typeof hecate !== 'undefined' && (limboAllOn() || hecate?.id === 'limboCut' || HECATE[hecate?.id]?.achv)) {
+    // A first-guess win whose win effect is Limbo Transition (Limbo mode, or ticked on its own in Customize) or a boss
+    // finishing attack you unlocked and ticked (any day, either mode): the same, its meso fountain from the win effect itself.
+    const fx = limboAllOn() ? 'limboCut' : hecate.id;
+    pause();
+    setTimeout(() => { confetti(true); setTimeout(() => bigWinAt(game, ok, n, false), HECATE[fx].burst); }, flipMs);
+  } else if (won()) {
     setTimeout(() => confetti(guesses.length === 1), flipMs);
     // First-guess win: Mayrin's Descend plays (the BGM pauses for it). Other wins: no music, the BGM is already playing.
     if (guesses.length === 1 && live) { pause(); resultSound(true, flipMs, 'firstTry'); }
@@ -591,6 +617,14 @@ function guess(name) {
   noteResult();
 }
 
+// At the burst of a boss's finishing attack, Limbo Transition or Jupiter's entrance (mesos: false when the win effect
+// brings its own meso fountain). Nothing if another game opened meanwhile.
+function bigWinAt(was, ok, n, mesos) {
+  if (answer !== was) return;
+  if (ok && n === 1) { if (mesos) mesoShow(); if (live) resultSound(true, 0, 'firstTry', 1); }   // Mayrin's Descend
+  else if (ok) { if (mesos) confetti(false); if (live) resultSound(true, 0, 'extremeWin', 1); }   // Kaling's Four Auspicious Beasts
+  else if (live) resultSound(false, 0, 'extremeLose');   // Seren's Burning City
+}
 // ---- After the game: the whole track and the bonus guess ----
 
 // Bonus round only for bosses with more than one BGM (every part of the fight is listed, even ones sharing a track).

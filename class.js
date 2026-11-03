@@ -252,7 +252,8 @@ function guess(name) {
   }
   if (over && guesses.includes(answer.name)) setTimeout(() => confetti(guesses.length === 1), flipMs);
   if (over) limboOver(guesses.includes(answer.name), flipMs);   // Limbo's alert border: gone on a win, its fail screen on a loss
-  if (over && live) resultSound(guesses.includes(answer.name), flipMs, !guesses.includes(answer.name) ? 'classLose' : guesses.length === 1 ? 'firstTry' : 'classWin');   // today's puzzle only
+  const kb = guesses.includes(answer.name) && guesses.length === 1 ? firstTryBurst() : 0;   // a boss finishing attack: the music comes in at its burst
+  if (over && live) resultSound(guesses.includes(answer.name), flipMs + kb, !guesses.includes(answer.name) ? 'classLose' : guesses.length === 1 ? 'firstTry' : 'classWin', kb ? 1 : 0);   // today's puzzle only
   for (const el of [$('status'), $('share'), $('rows').querySelector('.bestrow')]) revealAfter(el, flipMs);
   if (over) { updateStreak(); loadStats(); noteResult(); }
 }

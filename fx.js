@@ -241,11 +241,13 @@ const HECATE = {   // ms: clip length, burst: ms into the clip when it bursts (f
   // Limbo's glitch mashup right plays for everyone. The mesos come as it fades out (frame 54 of 65).
   limboCut: { name: 'Limbo Transition', ms: 4200, burst: 3480, pack: 'limboSub', wide: true, solo: true, v: 2 },   // solo: its own card, no box
   // Boss finishing effects (60 ms frames; Siren's Song's End starts 1 s before its Pre ends, Bellona's three parts play at once):
+  // burst (the mesos come out): Siren's Song as the ball booms into its sky, Iaido Alpha as the laser ends and booms, Guide of
+  // Destiny as the last card explodes, Fanatic's Execution as her axe lands
   // yours once you claim that boss's Hidden achievement (achv.js)
-  sirenSong: { name: "Siren's Song", ms: 4500, burst: 2220, v: 2, achv: 'kill:Malefic Star' },
-  iaidoAlpha: { name: 'Kai-ryu Sword: Iaido Alpha', ms: 2640, burst: 1920, achv: 'kill:Kai' },
-  mayrinKill: { name: 'Guide of Destiny', ms: 3600, burst: 1800, v: 2, achv: 'kill:Mayrin' },
-  bellonaKill: { name: "Fanatic's Execution", ms: 2820, burst: 1740, v: 2, achv: 'kill:Bellona' },
+  sirenSong: { name: "Siren's Song", ms: 4500, burst: 2280, v: 2, achv: 'kill:Malefic Star' },
+  iaidoAlpha: { name: 'Kai-ryu Sword: Iaido Alpha', ms: 2640, burst: 1740, achv: 'kill:Kai' },
+  mayrinKill: { name: 'Guide of Destiny', ms: 3600, burst: 2640, v: 2, achv: 'kill:Mayrin' },
+  bellonaKill: { name: "Fanatic's Execution", ms: 2820, burst: 1620, v: 2, achv: 'kill:Bellona' },
 };
 const achvGot = (id) => { try { return JSON.parse(lsGet('mapleWordle:achv') || '{}')._claimed?.[id] != null; } catch { return false; } };   // claimed (achv.js)
 const EFFECTS_KEY = 'mapleWordle:effects', WINFX_KEY = 'mapleWordle:winFx';   // packs bought; win effects picked
@@ -280,7 +282,9 @@ function loadHecate() {
 setTimeout(loadHecate, 3000);
 document.addEventListener('click', (e) => { if (e.target.closest?.('#modes button') && hecateLast) loadHecate(); });
 function playHecate(special = false) {   // special: Limbo's mashup win (plays whatever was put in, Limbo mode or not)
-  if (!special && hecate && limboAllOn() !== (hecate.id === 'limboCut')) { hecate = null; loadHecate(); }   // Limbo mode turned on / off since
+  // Limbo mode turned on / off since it was loaded (Limbo Transition ticked on its own in Customize stays: it's a win
+  // effect of its own too)
+  if (!special && hecate && (limboAllOn() ? hecate.id !== 'limboCut' : hecate.id === 'limboCut' && !pickedSkins().includes('limboCut'))) { hecate = null; loadHecate(); }
   if (!hecate) return 0;
   const { id, skin, blob } = hecate;
   hecate = null;
@@ -302,15 +306,46 @@ function playHecate(special = false) {   // special: Limbo's mashup win (plays w
   document.body.appendChild(el);
   el.play?.().catch(done);
   if (SOUNDS[id]) {   // its skill sound, in step with the clip (from when its video really starts)
-    const lag = id === 'limboCut' ? 150 : 0;
+    // Guide of Destiny's sound starts 0.56 s late, so its last hit (2.08 s in) lands on the card exploding (2.64 s in)
+    const lag = id === 'limboCut' ? 150 : id === 'mayrinKill' ? 560 : 0;
     if (SAFARI) resultSound(true, lag, id);
     else el.addEventListener('playing', () => resultSound(true, lag, id), { once: true });
   }
   return skin.burst;
 }
+// A first-guess win with a boss finishing attack as the win effect: the first-guess music waits for its burst (with the
+// mesos) and starts at full volume, like on that boss's BGM Clip Extreme day. 0 for any other win effect.
+function firstTryBurst() {
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches || limboAllOn() || typeof hecate === 'undefined' || !hecate) return 0;
+  return HECATE[hecate.id]?.achv ? HECATE[hecate.id].burst : 0;
+}
 function bigWin() {
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   setTimeout(mesoShow, playHecate());
+}
+// BGM Clip Extreme on a boss with a finishing attack (Kai, Malefic Star, Mayrin, Bellona): that attack plays for everyone
+// when the game ends, won or lost (bgm.js). A first-guess win plays it in place of your win effect, with the meso show after.
+const bossKillFor = (boss) => Object.keys(HECATE).find((id) => HECATE[id].achv === `kill:${boss}`) || null;
+const bossKillBlob = {};
+function bossKillLoad(id) {
+  if (SOUNDS[id]) soundFile(SOUNDS[id]).catch(() => {});
+  bossKillBlob[id] ??= fetch(`video/hecate/${id}.${SAFARI ? 'webp' : 'webm'}${HECATE[id].v ? '?v=' + HECATE[id].v : ''}`).then((r) => (r.ok ? r.blob() : null)).catch(() => null);
+  return bossKillBlob[id];
+}
+// mesos: 'show' (a first-guess win: the meso fountain), 'rain' (a win in 2+), or none (lost); they come out at its burst.
+async function bossKill(id, mesos) {
+  // Resolves with its burst (ms; 0 when it can't play), so BGM Clip brings its BGM in with the mesos.
+  const fallback = () => { if (mesos === 'show') bigWin(); else if (mesos === 'rain') confetti(false); return 0; };
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return fallback();
+  const blob = await bossKillLoad(id);
+  if (!blob) return fallback();
+  const keep = hecate, was = hecateLast;
+  hecate = { id, skin: HECATE[id], blob };
+  const burst = playHecate(true);
+  hecate = keep;
+  hecateLast = was;
+  if (mesos) setTimeout(() => (mesos === 'show' ? mesoShow() : confetti(false)), burst);
+  return burst;
 }
 // Limbo's glitch mashup answered right (BGM Clip): Limbo's cutscene for everyone (only that: no meso show or glow).
 let limboCutBlob = null;
@@ -463,7 +498,9 @@ function soundFile(src) {
   return soundBytes[src];
 }
 let loseAfterFail = 0;   // (limboOver: a loss with Limbo's fail screen coming: when it's over, in ms from now)
-function resultSound(won, delay, file) {
+// skip: seconds into the clip to start. The special win effects (finishing attacks, Jupiter, Limbo) pass 1 to start Descend and
+// Four Auspicious Beasts past the 1 s fade-in cut into those files, so the music is at full volume on the burst.
+function resultSound(won, delay, file, skip = 0) {
   if (loseAfterFail && !won && !file?.startsWith('fail')) delay = Math.max(delay ?? 0, loseAfterFail);
   if (muted()) return;
   const ctx = soundCtx();
@@ -483,13 +520,13 @@ function resultSound(won, delay, file) {
     const gain = ctx.createGain();
     const volume = (SOUND_LOUDER[file] ?? SOUND_VOLUME) * (PHONE ? 2 : 1);
     gain.gain.setValueAtTime(volume, start);
-    const len = SOUND_LENGTH[file] ?? SOUND_SECONDS;
+    const len = (SOUND_LENGTH[file] ?? SOUND_SECONDS) - skip;
     gain.gain.setValueAtTime(volume, start + len);
     gain.gain.linearRampToValueAtTime(0, start + len + SOUND_FADE);
     const src = ctx.createBufferSource();
     src.buffer = buffer;
     src.connect(gain).connect(master);
-    src.start(start);
+    src.start(start, skip);
     src.stop(start + len + SOUND_FADE);
     resultPlaying.add(src);
     src.onended = () => { resultPlaying.delete(src); done(); };

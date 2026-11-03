@@ -303,12 +303,13 @@ const ACCT_AVATARS = {
 const ACCT_APPEAR = 'mapleWordle:appearFx';
 const acctClaimed = (id) => { try { return JSON.parse(localStorage.getItem('mapleWordle:achv'))?._claimed?.[id] != null; } catch { return false; } };
 const ACCT_EFFECTS = {
-  seethingBalance: { name: 'Seething Balance', from: 'Seething Balance (achievement)', src: 'images/avatars/seething-balance',
+  // apex: ms into it when it peaks (the white flash before it bursts open); BGM Clip's mesos and BGM come in then
+  seethingBalance: { name: 'Seething Balance', from: 'Seething Balance (achievement)', src: 'images/avatars/seething-balance', apex: 2460,
     pic: 'images/achv/seething-balance.png?v=2', owned: () => acctClaimed('kill:Jupiter') },
 };
 const acctAppearOn = () => { const id = acct() && localStorage.getItem(ACCT_APPEAR); return id && ACCT_EFFECTS[id]?.owned() ? id : null; };
-function acctAppearPlay(into) {   // once, then gone (Settings, when it opens)
-  const id = acctAppearOn(), fx = ACCT_EFFECTS[id];
+function acctAppearPlay(into, id = acctAppearOn()) {   // once, then gone (Settings, when it opens; BGM Clip Extreme's Jupiter: acctJupiterEntrance)
+  const fx = ACCT_EFFECTS[id];
   if (!fx || !into || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   for (const x of document.querySelectorAll('.acctappear, .acctappeartop')) x.remove();
   for (const x of document.querySelectorAll('.acctava')) x.style.visibility = '';   // (one cut short by this new one: shown again)
@@ -349,7 +350,7 @@ function acctAppearPlay(into) {   // once, then gone (Settings, when it opens)
   follow = requestAnimationFrame(track);
   const gone = () => { cancelAnimationFrame(follow); el.remove(); top?.remove(); if (ava) ava.style.visibility = ''; watch?.disconnect(); };
   // Leaving Settings (Close, Esc, clicking outside): the effect, the copy of your character and its sound all stop
-  const set = document.getElementById('settings');
+  const set = into.closest('#settings');   // (only when it's playing in Settings)
   const watch = set && new MutationObserver(() => {
     if (!set.hidden || !el.isConnected) return;
     gone();
@@ -358,6 +359,19 @@ function acctAppearPlay(into) {   // once, then gone (Settings, when it opens)
   watch?.observe(set, { attributes: true, attributeFilter: ['hidden'] });
   el.addEventListener('ended', gone); el.addEventListener('error', gone);
   if (safari) setTimeout(gone, 3700);
+}
+// BGM Clip Extreme on Jupiter's BGM: when the game ends (won in any number of guesses or lost), your MapleStory character
+// steps in under the Share button with Jupiter's entrance (Seething Balance), for everyone with a character. Returns when
+// it peaks (ms), for the mesos and the BGM to come in then; 0 (no character, or reduced motion): right away.
+function acctJupiterEntrance() {
+  const share = document.getElementById('share'), img = acct() ? acctMapleImg() : '';
+  document.getElementById('jupiterChar')?.remove();
+  if (!share || !img) return 0;
+  const box = Object.assign(document.createElement('p'), { id: 'jupiterChar', innerHTML: img });
+  share.closest('p').after(box);
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return 0;
+  acctAppearPlay(box, 'seethingBalance');
+  return ACCT_EFFECTS.seethingBalance.apex;
 }
 // A shop avatar you haven't looked at yet (new in the MapleStory Character list): the Settings cog glows with NEW, and
 // Account Settings, MapleStory Character and the avatar itself say NEW, until that list is opened.
