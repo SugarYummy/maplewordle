@@ -69,7 +69,8 @@ footer.panel { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%
 /* Computers and landscape screens: the Changelog wider and taller (more of it at once, fewer wrapped lines) */
 @media (min-width: 900px) and (orientation: landscape) {
   #changelogBody { max-width: min(780px, 70vw); width: min(780px, 70vw); }
-  #changelog .panel { margin-top: 24px; max-height: calc(100vh - 48px); }
+  #changelog { align-items: center; }   /* in the middle, the same gap above and below */
+  #changelog .panel { margin: 0; box-sizing: border-box; max-height: calc(100vh - 48px); }
 }
 /* While one of these windows is open, scrolling only moves the window, never the page behind it. */
 #archive .panel, #changelog .panel, #info .panel, #themes .panel { overscroll-behavior: contain; }
