@@ -26,7 +26,7 @@
 ### 🐛 Bug Fixes
 - **[General]** Patch didn't apply properly, should be fixed now.
 
-## alpha v5 - 1 November 2026
+## alpha v5.0 - 1 November 2026
 ### ✨ New [Character Avatar] Added!
 - **[Account]** Added an option to display your MapleStory [Character Avatar] to your account.
 ### 🔧 Changes
@@ -233,6 +233,6 @@
 ### 🔧 Changes
 - **[General]** Layout fixes.
 
-## alpha v1.0.0 - 10 October 2026
+## alpha v1.0 - 10 October 2026
 ### ✨ New
 - **[General]** First playable version!
