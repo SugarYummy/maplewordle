@@ -311,6 +311,7 @@ function acctAppearPlay(into) {   // once, then gone (Settings, when it opens)
   const id = acctAppearOn(), fx = ACCT_EFFECTS[id];
   if (!fx || !into || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   for (const x of document.querySelectorAll('.acctappear, .acctappeartop')) x.remove();
+  for (const x of document.querySelectorAll('.acctava')) x.style.visibility = '';   // (one cut short by this new one: shown again)
   const safari = typeof SAFARI !== 'undefined' && SAFARI;
   const el = Object.assign(document.createElement(safari ? 'img' : 'video'), { className: 'acctappear', src: `${fx.src}.${safari ? 'webp' : 'webm'}?v=1`, alt: '' });
   if (!safari) Object.assign(el, { muted: true, autoplay: true, playsInline: true });
@@ -332,8 +333,21 @@ function acctAppearPlay(into) {   // once, then gone (Settings, when it opens)
     Object.assign(top.style, { left: r.left + 'px', top: r.top + 'px', width: r.width + 'px', height: r.height + 'px' });
     document.body.appendChild(top);
     if (top.tagName === 'VIDEO') { top.currentTime = ava.currentTime; top.play?.().catch(() => {}); }
+    ava.style.visibility = 'hidden';   // just the copy shows meanwhile (two of you, one over the other, left a faint double outline)
   }
-  const gone = () => { el.remove(); top?.remove(); watch?.disconnect(); };
+  // Follow your character while it plays: the Settings box can still move (it's centred on wide screens, and grows as the
+  // rest of it loads in), so the effect and the copy re-line up every frame instead of staying where it first was
+  let follow = 0;
+  const track = () => {
+    if (!el.isConnected) return;
+    const q = (ava && ava.isConnected ? ava : into).getBoundingClientRect();
+    el.style.left = (ava ? q.left + q.width / 2 : q.left - 46) + 'px';
+    el.style.top = q.top + q.height / 2 + 'px';
+    if (top) Object.assign(top.style, { left: q.left + 'px', top: q.top + 'px', width: q.width + 'px', height: q.height + 'px' });
+    follow = requestAnimationFrame(track);
+  };
+  follow = requestAnimationFrame(track);
+  const gone = () => { cancelAnimationFrame(follow); el.remove(); top?.remove(); if (ava) ava.style.visibility = ''; watch?.disconnect(); };
   // Leaving Settings (Close, Esc, clicking outside): the effect, the copy of your character and its sound all stop
   const set = document.getElementById('settings');
   const watch = set && new MutationObserver(() => {
