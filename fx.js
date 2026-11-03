@@ -2294,6 +2294,18 @@ fetch('CHANGELOG.md', { cache: 'no-cache' }).then((r) => r.text()).then((md) => 
   const btn = document.getElementById('version');
   if (m && btn) btn.textContent = m[1].trim().replace(/\bv\.(?=\d)/, 'v');   // "alpha v.4.3.2" shows as "alpha v4.3.2"
 }).catch(() => {});
+// The big v6 update (achievements): until Nov 6 (UTC), the Changelog opens by itself once for everyone (its newest version
+// open), then never again. Seen: mapleWordle:seenV6 (goes to the account too).
+const SEEN_V6_KEY = 'mapleWordle:seenV6';
+addEventListener('load', () => {
+  if (Date.now() >= Date.UTC(2026, 10, 6) || lsGet(SEEN_V6_KEY)) return;
+  setTimeout(() => {
+    const btn = document.getElementById('version');
+    if (!btn || lsGet(SEEN_V6_KEY) || document.querySelector('.popup:not([hidden])')) return;
+    lsSet(SEEN_V6_KEY, '1');
+    btn.click();
+  }, 600);
+});
 // The Changelog window (every game) built from CHANGELOG.md. Each "## alpha v4.3 - date" is a box you can open and close,
 // and the versions are grouped by their first number (alpha v4, alpha v3, ...) in bigger boxes that open and close too.
 // Only the newest group and its newest version start open.
