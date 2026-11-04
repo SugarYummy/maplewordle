@@ -22,6 +22,8 @@
 //   POST /admin/delete {name}            header X-Admin-Key. Deletes the account and signs out its devices (no undo).
 //   GET  /top                            the site's top 10 by achievement points with at least 1,000 (Master rank)
 //                                        -> {top: [{id, name, ap}]} (AP: the mapleWordle:ap key in each save; cached 5 min)
+//   GET  /rates                          how many accounts have each achievement -> {total, have: {<id>: n}} (total: the
+//                                        accounts with an achievements save, mapleWordle:achv; cached 5 min)
 //   GET  /maple?region=na|eu&name=IGN    a MapleStory character from Nexon's rankings -> {name, level, job, world,
 //                                        img} (404 "nouser" if it isn't ranked). Nexon doesn't let browsers ask it directly.
 // Signed in = header "Authorization: Bearer <token>". Only a hash of each token is stored.
@@ -176,6 +178,24 @@ export default {
       const { results } = await db.prepare(`SELECT id, name, CAST(COALESCE(json_extract(data, '$."mapleWordle:ap"'), '0') AS INTEGER) AS ap FROM users ` +
         'WHERE ap >= 1000 ORDER BY ap DESC, id ASC LIMIT 10').all();
       const res = json({ top: results });
+      res.headers.set('Cache-Control', 'public, max-age=300');
+      await cache.put(key, res.clone());
+      return res;
+    }
+
+    // Achievements' Global Completion Rate: for each achievement, how many accounts have it (the ids in each save's
+    // mapleWordle:achv, not its _notes), out of the accounts that have opened Achievements. No sign-in needed (counts
+    // only). Kept at Cloudflare's edge for 5 minutes, like /top.
+    if (path === '/rates' && request.method === 'GET') {
+      const cache = caches.default, key = new Request(url.origin + '/rates');
+      const hit = await cache.match(key);
+      if (hit) return hit;
+      const saves = `WITH a AS (SELECT json_extract(data, '$."mapleWordle:achv"') AS v FROM users), g AS (SELECT v FROM a WHERE v IS NOT NULL AND json_valid(v)) `;
+      const [count, { results }] = await Promise.all([
+        db.prepare(saves + 'SELECT COUNT(*) AS n FROM g').first(),
+        db.prepare(saves + `SELECT j.key AS id, COUNT(*) AS n FROM g, json_each(CASE WHEN json_valid(g.v) THEN g.v ELSE '{}' END) j WHERE substr(j.key, 1, 1) != '_' AND j.type != 'null' GROUP BY j.key`).all(),
+      ]);
+      const res = json({ total: count?.n || 0, have: Object.fromEntries(results.map((r) => [r.id, r.n])) });
       res.headers.set('Cache-Control', 'public, max-age=300');
       await cache.put(key, res.clone());
       return res;

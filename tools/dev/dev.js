@@ -85,6 +85,14 @@
     const path = new URL(url).pathname.replace(/^\//, '');
     if (path === 'maple') return realFetch(input, init);   // character search: read-only, from Nexon
     const s = load();
+    if (path === 'rates') {   // completion rates: the real site's (read-only), or the pretend accounts' until that's up
+      const real = await realFetch(input, init).catch(() => null);
+      if (real?.ok) return real;
+      const saves = Object.values(s.users).map((u) => { try { return JSON.parse(u.data['mapleWordle:achv']); } catch { return null; } }).filter(Boolean);
+      const have = {};
+      for (const g of saves) for (const [k, v] of Object.entries(g)) if (!k.startsWith('_') && v != null) have[k] = (have[k] || 0) + 1;
+      return reply({ total: saves.length, have });
+    }
     const body = init.body ? JSON.parse(init.body) : {};
     const byName = (n) => Object.values(s.users).find((u) => u.name.toLowerCase() === String(n).toLowerCase());
     if (path === 'signup') return reply({ error: 'devonly' }, 403);

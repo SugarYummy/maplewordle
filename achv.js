@@ -6,6 +6,7 @@
 (() => {
   const ACHV_KEY = 'mapleWordle:achv';   // { <id>: <day unlocked>, _bestWinStreak }
   const DAY_MS = 86400000, today = () => Math.floor(Date.now() / DAY_MS);
+  const fxName = (a) => (typeof HECATE !== 'undefined' && HECATE[a.fx]?.name) || a.full || a.name;   // a win effect reward's name: the same as in Customize (fx.js HECATE)
   const GAMES = { boss: ['story', 'normal', 'hard', 'extreme'], bgm: ['bgmnormal', 'bgm'], class: ['class'], anim: ['anim'] };
   const ALL_MODES = Object.values(GAMES).flat();
   const gameOf = (mode) => Object.keys(GAMES).find((g) => GAMES[g].includes(mode));
@@ -90,9 +91,10 @@
   // Icons: the skill's icon (Kai, Malefic Star); Mayrin and Bellona use their boss picture until GMS has theirs.
   // Hidden: win every BGM of the boss (waiting room, each phase, loot room) in BGM Clip Extreme. Locked: its short name,
   // ??? and N / M; unlocked: its full name (the boss's finishing attack) and what you did.
-  const kill = (boss, name, full, img, fx) => A(`kill:${boss}`, name, `Played all versions of ${boss}'s BGM in Extreme mode.`,
+  // A Hidden boss one: the boss's picture as its icon, and its reward's: rwIcon (a MapleStory icon), or a picture (rwPic)
+  const kill = (boss, name, full, img, fx, rw) => A(`kill:${boss}`, name, `Played all versions of ${boss}'s BGM in Extreme mode.`,
     (s, L) => { const t = L?.tracksOf[boss] || []; return [t.filter((x) => s.tracks.has(x)).length, t.length || 1]; },
-    `images/bosses/${img}.png`, { full, fx, reward: 'Guess in 1 win effect' });
+    `images/bosses/${img}.png`, { full, fx, reward: 'Guess in 1 win effect', ...rw });
   // Five steps per kind: 10 / 20 / 30 / 40 / 100 AP (Common / Rare / Epic / Unique / Legendary). Cups as icons (hidden: their own).
   const steps = (id, names, how, val, needs) => names.map((n, i) => A(`${id}${needs[i]}`, n, how(needs[i]), (s) => upTo(val(s), needs[i]), '', { ap: [10, 20, 30, 40, 100][i] }));
   const times = (n, one, many) => n === 1 ? one : many.replace('#', fmt(n));
@@ -138,13 +140,13 @@
       A('col:anim', 'Skill Master', 'Win Attack Animation with every class.', (s, L) => [count(s.won.anim, L?.anim), L?.anim.length || 1], '', { ap: 100 }),
     ]],
     ['Hidden', [
-      kill('Malefic Star', "Siren's Song", "Siren's Song", '../achv/siren-song', 'sirenSong'),
-      kill('Kai', 'Iaido Alpha', 'Kai-ryu Sword: Iaido Alpha', '../achv/iaido-alpha', 'iaidoAlpha'),
-      kill('Mayrin', 'Guide of Destiny', 'Guide of Destiny', 'mayrin', 'mayrinKill'),
-      kill('Bellona', "Fanatic's Execution", "Fanatic's Execution", 'bellona', 'bellonaKill'),
+      kill('Malefic Star', "Siren's Song", "Siren's Song", 'malefic-star', 'sirenSong', { rwIcon: 'images/achv/siren-song.png' }),
+      kill('Kai', 'Iaido Alpha', 'Iaido Alpha', 'kai', 'iaidoAlpha', { rwIcon: 'images/achv/iaido-alpha.png' }),   // (its win effect, the reward, keeps its full name: fx.js HECATE)
+      kill('Mayrin', 'Guide of Destiny', 'Guide of Destiny', 'mayrin', 'mayrinKill', { rwPic: 'images/fx/hecate/mayrinKill-reward.webp?v=1' }),   // (no icons of their own yet)
+      kill('Bellona', "Fanatic's Execution", "Fanatic's Execution", 'bellona', 'bellonaKill', { rwPic: 'images/fx/hecate/bellonaKill-reward.webp?v=1' }),
       A('kill:Jupiter', 'Seething Balance', "Played all versions of Jupiter's BGM in Extreme mode.",
         (s, L) => { const t = L?.tracksOf.Jupiter || []; return [t.filter((x) => s.tracks.has(x)).length, t.length || 1]; },
-        'images/achv/seething-balance.png?v=2', { appear: 'seethingBalance', reward: 'Seething Balance appearance effect' }),
+        'images/bosses/jupiter.png', { appear: 'seethingBalance', reward: 'Seething Balance Appearance Effect', rwIcon: 'images/achv/seething-balance-icon.png' }),
       A('limbo', 'Subconscious', 'Something stirred in the abyss.', (s) => [s.limboMash ? 1 : 0, 1], 'images/fx/limbo-bundle.webp',
         { full: "Limbo's Subconscious", mesos: 1000, reward: '1,000 mesos' }),
     ], true],
@@ -179,6 +181,55 @@
       if (r.ok) { top = (await r.json()).top || []; topAt = Date.now(); }
     } catch {}
   }
+  // Global Completion Rate (hover a cup): how many of the site's accounts have each achievement, from the account
+  // server's GET /rates (out of the accounts that have opened Achievements). Looked up when the window opens, kept 5 min.
+  let rates = null, ratesAt = 0;
+  async function loadRates() {
+    if ((rates && Date.now() - ratesAt < 300000) || typeof ACCOUNT_URL !== 'string') return;
+    try {
+      const r = await fetch(ACCOUNT_URL + 'rates', { signal: AbortSignal.timeout(4000) });
+      if (r.ok) { rates = await r.json(); ratesAt = Date.now(); }
+    } catch {}
+  }
+  const rateText = (id) => {
+    if (!rates?.total) return null;
+    const pct = ((rates.have?.[id] || 0) / rates.total) * 100;
+    return `Global Completion Rate: ${pct < 0.01 ? 'less than 0.01' : pct >= 100 ? 100 : pct.toFixed(2)}%`;   // (the game's wording for 0 too)
+  };
+  // The tip itself, like the game's: a small dark box by the pointer (a tap shows it on phones)
+  let tip = null;
+  const tipHide = () => { if (tip) tip.hidden = true; };
+  const tipAt = (e, text, sc = 1) => {
+    tip ??= document.body.appendChild(Object.assign(document.createElement('div'), { className: 'achvtip', hidden: true }));
+    // the text stretched sideways like the game draws it (--sx): the box is made as wide as the stretched text
+    const span = Object.assign(document.createElement('span'), { textContent: text });
+    tip.replaceChildren(span);
+    tip.style.width = '';
+    tip.hidden = false;
+    const cs = getComputedStyle(tip), sx = parseFloat(cs.getPropertyValue('--sx')) || 1;
+    tip.style.width = `${span.offsetWidth * sx + parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight)}px`;
+    tip.style.transform = `scale(${sc})`;   // (as big as the window is drawn: see rateTip)
+    const w = tip.offsetWidth * sc, h = tip.offsetHeight * sc;
+    let x = e.clientX + 14 * sc, y = e.clientY + 20 * sc;
+    if (x + w > innerWidth - 6) x = Math.max(6, e.clientX - w - 10 * sc);
+    if (y + h > innerHeight - 6) y = Math.max(6, e.clientY - h - 12 * sc);
+    tip.style.left = x + 'px'; tip.style.top = y + 'px';
+  };
+  addEventListener('scroll', tipHide, true);
+  addEventListener('keydown', tipHide);
+  addEventListener('pointerdown', (e) => { if (!e.target.closest?.('.achvicon')) tipHide(); });
+  function rateTip(el, id) {
+    el.title = '';   // (no row tooltip over the cup)
+    // The game's tip is 27.8% of a row's height (rows are 545 x 100): sized to the row as the window is drawn now (it's
+    // scaled to fit the screen), the tip's own size being 28.25 px tall.
+    const scale = () => (el.closest('.achv')?.getBoundingClientRect().width || 545) / 545 * 27.8 / 28.25;
+    const show = (e) => { const t = rateText(id); if (t) tipAt(e, t, scale()); else tipHide(); };
+    el.addEventListener('pointerenter', show);
+    el.addEventListener('pointermove', (e) => { if (e.pointerType === 'mouse') show(e); });
+    el.addEventListener('pointerleave', tipHide);
+    el.addEventListener('click', show);
+  }
+
   // Ranked up (more AP than the rank saved last time): GradeUp plays, after the achievement banners. Saved in _rank.
   function rankCheck(got, announce) {
     const ap = apOf(got);
@@ -214,7 +265,7 @@
     got._bestWinStreak = Math.max(s.streak, got._bestWinStreak || 0);
     if (changed || first) { try { localStorage.setItem(ACHV_KEY, JSON.stringify(got)); } catch {} }
     if (announce && !first) unlocked.forEach((a) => banner(a, 2500));
-    await loadTop(apOf(got));
+    await Promise.all([loadTop(apOf(got)), loadRates()]);
     rankCheck(got, announce && !first);
     noteClaims();
   }
@@ -301,13 +352,13 @@
     newTag();
     if (a.appear) {   // an appearance effect: Settings > Account Settings > MapleStory Character
       if (typeof acctAvatarCall === 'function') acctAvatarCall();
-      itemPopup({ name: a.full || a.name, img: 'images/fx/seething-balance.webp?v=2' }, 'Successfully Claimed!', false, ['Settings', 'yes'], ['Close', 'plain'])
+      itemPopup({ name: a.full || a.name, img: 'images/achv/seething-balance.png?v=3' }, 'Successfully Claimed!', false, ['Settings', 'yes'], ['Close', 'plain'])
         .then((go) => { if (go) { document.getElementById('achv').hidden = true; document.getElementById('settingsBtn')?.click(); } });
     }
     if (a.fx && typeof drawThemeButton === 'function') {
       customFresh.add(a.fx); customTab = 'win'; drawThemeButton();
       // Like a shop purchase: its picture, and Customize takes you there
-      itemPopup({ name: a.full || a.name, img: `images/fx/hecate/${a.fx}.webp?v=6` }, 'Successfully Claimed!', false, ['Customize', 'yes'], ['Close', 'plain'])
+      itemPopup({ name: fxName(a), img: `images/fx/hecate/${a.fx}.webp?v=7` }, 'Successfully Claimed!', false, ['Customize', 'yes'], ['Close', 'plain'])
         .then((go) => { if (go) { document.getElementById('achv').hidden = true; document.getElementById('themeBtn')?.click(); } });
     }
   }
@@ -354,7 +405,7 @@
         const [have, need] = a.prog(s, L), on = got[a.id] != null, hide = hidden && !on, rw = on && hidden && a.reward;
         const claimed = rw && got._claimed?.[a.id];
         const row = box.appendChild(Object.assign(document.createElement('div'), {
-          className: 'achv' + (on ? ' on' : '') + (hidden ? ' secret' : '') + (a.memory ? ' memory' : '') + (rw ? ' rw' : '') }));
+          className: 'achv' + (on ? ' on' : '') + (hidden ? ' secret' : '') + (a.memory ? ' memory' : '') + (hidden && on ? ' fill' : '') + (rw ? ' rw' : '') }));
         const cup = a.tier === 'common' ? 'normal' : a.tier;
         row.innerHTML = `<div class="achvicon">` + (hidden ? `<img src="${hide ? 'images/achv/4031348.png' : a.icon}" alt="">`
             : `<img class="cup c-${cup}" src="images/achv/ui/cup-${cup}.png" alt="${TIERS[a.tier][0]}"><i aria-label="${TIERS[a.tier][1]} AP">${digits(TIERS[a.tier][1], 'scoreSmall')}</i>`) + '</div>' +
@@ -362,18 +413,21 @@
           `<div class="achvgauge"><i style="width:${on ? 100 : Math.min(1, have / need) * 100}%"></i></div>` +
           (need > 1 && !on ? `<small class="achvnum">${fmt(have)} / ${fmt(need)}</small>` : '') +
           (on ? `<img class="achvseal" src="images/achv/ui/completeSeal.png" alt=""><span class="achvdate"><span>${rowDate(got[a.id])}</span></span>` : '') +
-          (rw ? `<div class="achvrwicon"><img src="${a.mesos ? 'images/fx/meso-bag.png' : a.fx ? `images/fx/hecate/${a.fx}.webp?v=6` : 'images/fx/seething-balance.webp?v=2'}" alt=""></div>` +
+          (rw ? `<div class="achvrwicon"><img${a.rwPic ? ' class="pic"' : ''} src="${a.mesos ? 'images/fx/meso-bag.png' : a.rwPic || a.rwIcon}" alt=""></div>` +
             '<small class="achvreward"></small>' + (claimed ? '<img class="achvclaimed" src="images/achv/ui/claim-disabled.png" alt="Claimed">' : '<button class="achvclaim" aria-label="Claim Reward"></button>') : '');
         row.title = `${TIERS[a.tier][0]} · ${TIERS[a.tier][1]} AP`;
         row.dataset.q = `${on ? a.full || a.name : a.name} ${hide ? '' : a.how}`.toLowerCase();
         row.querySelector('.achvtitle').textContent = on ? a.full || a.name : a.name;
-        row.querySelector('.achvhow').textContent = hide ? '???' : a.how;
+        // (a capital O a little wider, like the game's: each one in its own span, the text as text)
+        row.querySelector('.achvhow').replaceChildren(...(hide ? '???' : a.how).split(/(O)/).filter(Boolean)
+          .map((t) => t === 'O' ? Object.assign(document.createElement('span'), { className: 'bigO', textContent: 'O' }) : document.createTextNode(t)));
         if (hide) row.querySelector('.achvhow').classList.add('achvq');
         if (rw) {   // the reward itself coloured: a win effect by its full name in purple, mesos in meso gold
           row.querySelector('.achvreward').appendChild(Object.assign(document.createElement('span'), a.mesos ? { className: 'rwmeso', textContent: `${fmt(a.mesos)} mesos` }
-            : a.fx ? { className: 'rwfx', textContent: a.full || a.name }
-            : a.appear ? { className: 'rwfx', textContent: `${a.full || a.name} (appearance effect)` } : { textContent: a.reward }));
+            : a.fx ? { className: 'rwfx', textContent: `${fxName(a)} Win Effect` }
+            : a.appear ? { className: 'rwfx', textContent: `${a.full || a.name} Appearance Effect` } : { textContent: a.reward }));
         }
+        rateTip(row.querySelector('.achvicon'), a.id);
         const cb = row.querySelector('.achvclaim');
         if (cb) { cb.addEventListener('click', () => claim(a, cb)); if (typeof hoverSound === 'function') hoverSound(cb); }
       }

@@ -1158,7 +1158,7 @@ function drawThemeButton() {
         fill();
         toast(`${HECATE[id].name}: ${on ? 'Off' : 'On'}`, on ? 'no' : 'yes');
       };
-      const skinCard = (into, id) => onOff(card(into, `images/fx/hecate/${id}.webp${HECATE[id].achv ? '?v=6' : ''}`, HECATE[id].name, false, () => toggle(id), customFresh.has(id)), !all && picked.includes(id));
+      const skinCard = (into, id) => onOff(card(into, `images/fx/hecate/${id}.webp${HECATE[id].achv ? '?v=7' : ''}`, HECATE[id].name, false, () => toggle(id), customFresh.has(id)), !all && picked.includes(id));
       for (const id of ownedSkins().filter((x) => !HECATE[x].pack || HECATE[x].solo)) skinCard(list, id);
       for (const pack of ownedEffects().filter((x) => Object.values(HECATE).some((h) => h.pack === x && !h.solo))) {
         const ids = ownedSkins().filter((x) => HECATE[x].pack === pack && !HECATE[x].solo);

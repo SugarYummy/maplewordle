@@ -170,9 +170,14 @@ function acctRow(tip) {
 function acctRowSetup(body) {
   const go = { signup: () => acctForm('signup'), login: () => acctForm('login'), settings: acctSettings, logout: acctLogout };
   for (const b of body.querySelectorAll('[data-acct]')) b.addEventListener('click', go[b.dataset.acct]);
-  acctAppearPlay(body.querySelector('#acctRow .acctside'));
+  if (Date.now() > acctQuietUntil) acctAppearPlay(body.querySelector('#acctRow .acctside'));   // (when Settings opens, not when it's redrawn)
 }
-const acctRefresh = () => { if (!document.getElementById('settings')?.hidden) document.getElementById('settingsBtn')?.click(); };   // redraw Settings
+let acctQuietUntil = 0;
+const acctRefresh = () => {   // redraw Settings (its appearance effect doesn't play again for it)
+  if (document.getElementById('settings')?.hidden) return;
+  acctQuietUntil = Date.now() + 1000;
+  document.getElementById('settingsBtn')?.click();
+};
 // A small window over everything (like the shop's "Are you sure?"). Returns its panel and a close function.
 function acctWin(html, { closable = true, form = false, onClose } = {}) {
   const win = document.createElement('div');
@@ -305,12 +310,16 @@ const acctClaimed = (id) => { try { return JSON.parse(localStorage.getItem('mapl
 const ACCT_EFFECTS = {
   // apex: ms into it when it peaks (the white flash before it bursts open); BGM Clip's mesos and BGM come in then
   seethingBalance: { name: 'Seething Balance', from: 'Seething Balance (achievement)', src: 'images/avatars/seething-balance', apex: 2460,
-    pic: 'images/achv/seething-balance.png?v=2', owned: () => acctClaimed('kill:Jupiter') },
+    pic: 'images/achv/seething-balance.png?v=3', owned: () => acctClaimed('kill:Jupiter') },
 };
 const acctAppearOn = () => { const id = acct() && localStorage.getItem(ACCT_APPEAR); return id && ACCT_EFFECTS[id]?.owned() ? id : null; };
-function acctAppearPlay(into, id = acctAppearOn()) {   // once, then gone (Settings, when it opens; BGM Clip Extreme's Jupiter: acctJupiterEntrance)
+let acctAppearStop = null;   // the one playing now: cuts it short, its sound too
+// Once, then gone (Settings, when it opens; BGM Clip Extreme's Jupiter: acctJupiterEntrance; MapleStory Character, when
+// it's turned on there). Returns a function that cuts it short.
+function acctAppearPlay(into, id = acctAppearOn()) {
   const fx = ACCT_EFFECTS[id];
-  if (!fx || !into || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (!fx || !into || matchMedia('(prefers-reduced-motion: reduce)').matches) return () => {};
+  acctAppearStop?.();
   for (const x of document.querySelectorAll('.acctappear, .acctappeartop')) x.remove();
   for (const x of document.querySelectorAll('.acctava')) x.style.visibility = '';   // (one cut short by this new one: shown again)
   const safari = typeof SAFARI !== 'undefined' && SAFARI;
@@ -321,7 +330,9 @@ function acctAppearPlay(into, id = acctAppearOn()) {   // once, then gone (Setti
   const sound = () => { if (!sounded && el.isConnected) { sounded = true; soundAt = Date.now(); if (typeof resultSound === 'function') resultSound(true, 0, 'appear'); } };
   if (!safari) el.addEventListener('playing', sound, { once: true });
   // Over everything (not clipped by the Settings box), big, centred on your character (or the gap left of Welcome back)
-  const ava = into.querySelector('.acctava'), r = (ava || into).getBoundingClientRect();
+  const ava = into.querySelector('.acctava, .acctmapleimg, .acctmaple > img'), r = (ava || into).getBoundingClientRect();
+  const over = into.closest('.acctwin') ? '8' : '';   // (in a window: over that window too)
+  el.style.zIndex = over;
   el.style.left = (ava ? r.left + r.width / 2 : r.left - 46) + 'px';
   el.style.top = r.top + r.height / 2 + 'px';
   document.body.appendChild(el);
@@ -331,6 +342,7 @@ function acctAppearPlay(into, id = acctAppearOn()) {   // once, then gone (Setti
   if (ava) {
     top = ava.cloneNode(true);
     top.classList.add('acctappeartop');
+    top.style.zIndex = over;
     Object.assign(top.style, { left: r.left + 'px', top: r.top + 'px', width: r.width + 'px', height: r.height + 'px' });
     document.body.appendChild(top);
     if (top.tagName === 'VIDEO') { top.currentTime = ava.currentTime; top.play?.().catch(() => {}); }
@@ -341,6 +353,11 @@ function acctAppearPlay(into, id = acctAppearOn()) {   // once, then gone (Setti
   let follow = 0;
   const track = () => {
     if (!el.isConnected) return;
+    if (!into.isConnected) {   // (Settings redrawn under it, e.g. a character picked: it ends there, its sound too)
+      gone();
+      if (Date.now() - soundAt < 4500 && typeof stopResultSounds === 'function') stopResultSounds();
+      return;
+    }
     const q = (ava && ava.isConnected ? ava : into).getBoundingClientRect();
     el.style.left = (ava ? q.left + q.width / 2 : q.left - 46) + 'px';
     el.style.top = q.top + q.height / 2 + 'px';
@@ -348,7 +365,19 @@ function acctAppearPlay(into, id = acctAppearOn()) {   // once, then gone (Setti
     follow = requestAnimationFrame(track);
   };
   follow = requestAnimationFrame(track);
-  const gone = () => { cancelAnimationFrame(follow); el.remove(); top?.remove(); if (ava) ava.style.visibility = ''; watch?.disconnect(); };
+  const gone = () => {
+    cancelAnimationFrame(follow); el.remove(); top?.remove(); if (ava) ava.style.visibility = ''; watch?.disconnect();
+    document.removeEventListener('visibilitychange', away);
+    if (acctAppearStop === stop) acctAppearStop = null;
+  };
+  const stop = () => {
+    if (!el.isConnected) return;
+    gone();
+    if (Date.now() - soundAt < 4500 && typeof stopResultSounds === 'function') stopResultSounds();
+  };
+  acctAppearStop = stop;
+  const away = () => { if (document.hidden && into.closest('.acctwin')) stop(); };   // (leaving the tab while it plays in a window)
+  document.addEventListener('visibilitychange', away);
   // Leaving Settings (Close, Esc, clicking outside): the effect, the copy of your character and its sound all stop
   const set = into.closest('#settings');   // (only when it's playing in Settings)
   const watch = set && new MutationObserver(() => {
@@ -359,6 +388,7 @@ function acctAppearPlay(into, id = acctAppearOn()) {   // once, then gone (Setti
   watch?.observe(set, { attributes: true, attributeFilter: ['hidden'] });
   el.addEventListener('ended', gone); el.addEventListener('error', gone);
   if (safari) setTimeout(gone, 3700);
+  return stop;
 }
 // BGM Clip Extreme on Jupiter's BGM: when the game ends (won in any number of guesses or lost), your MapleStory character
 // steps in under the Share button with Jupiter's entrance (Seething Balance), for everyone with a character. Returns when
@@ -447,18 +477,36 @@ function acctMapleWin() {
       effects.map((id) => `<div class="acctpickrow acctfxrow${acctAppearOn() === id ? ' on' : ''}" data-fx="${id}" role="button" tabindex="0">${fresh.includes('fx:' + id) ? acctNewTag : ''}` +
         `<div class="acctmaple"><img class="acctfxpic" src="${ACCT_EFFECTS[id].pic}" alt=""><div><b>${acctEsc(ACCT_EFFECTS[id].name)}</b><span>Plays when your character appears</span></div></div>` +
         '<span class="accttag">Achievement</span></div>').join('') + '</div>' : '') +
-    '<p class="acctchoices"><button class="acctbtn" data-do="add">Add Character</button>' +
-    (cur ? '<button class="acctbtn acctout" data-do="none">Show None</button>' : '') + '</p>' +
+    '<p class="acctchoices"><button class="acctbtn" data-do="add">Add Character</button></p>' +
     '<p class="buybtns"><button class="plain" data-close>Close</button></p>');
-  const again = () => { close(); acctMapleWin(); };
+  panel.classList.add('acctpickwin');   // (wider: room either side, and the cards' text fits on its lines)
   panel.querySelector('[data-close]').addEventListener('click', () => close());
   panel.querySelector('[data-do="add"]').addEventListener('click', () => { close(); acctMapleSearch(); });
-  panel.querySelector('[data-do="none"]')?.addEventListener('click', () => { localStorage.removeItem(ACCT_MAPLE); acctRefresh(); again(); });
+  // A short message over the window for each click (like Customize's): "<name>: On" in green, "<name>: Off" in red
+  let toastTimer;
+  const toast = (text, kind) => {
+    panel.querySelector('.fxtoast')?.remove();
+    const el = Object.assign(document.createElement('div'), { className: 'fxtoast ' + kind, textContent: text });
+    el.setAttribute('role', 'status');
+    panel.appendChild(el);
+    requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('show')));
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 300); }, 2000);
+  };
+  const said = (name, on) => toast(`${name}: ${on ? 'On' : 'Off'}`, on ? 'yes' : 'no');
+  // Turned on: it plays right away on the character picked here; turned off, another character picked or the window
+  // closed (or the tab left) while it plays: it stops there, its sound too
+  let preview = null;
+  const unpreview = () => { preview?.(); preview = null; };
   for (const row of panel.querySelectorAll('.acctfxrow')) {   // on / off (click again to turn it off)
     const pick = () => {
       const on = acctAppearOn() !== row.dataset.fx;
       on ? localStorage.setItem(ACCT_APPEAR, row.dataset.fx) : localStorage.removeItem(ACCT_APPEAR);
       row.classList.toggle('on', on);
+      said(ACCT_EFFECTS[row.dataset.fx].name, on);
+      unpreview();
+      const shown = panel.querySelector('.acctpickrow.on:not(.acctfxrow)');
+      if (on && shown) preview = acctAppearPlay(shown, row.dataset.fx);
     };
     row.addEventListener('click', pick);
     row.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(); } });
@@ -466,10 +514,11 @@ function acctMapleWin() {
   for (const row of panel.querySelectorAll('.acctpickrow:not(.acctfxrow)')) {
     const pick = (e) => {
       if (e.target.closest('.acctdel')) return;
-      const m = items[row.dataset.i];
-      localStorage.setItem(ACCT_MAPLE, JSON.stringify(m.avatar ? { avatar: m.avatar } : m));
-      for (const r of panel.querySelectorAll('.acctpickrow:not(.acctfxrow)')) r.classList.toggle('on', r === row);
-      if (!panel.querySelector('[data-do="none"]')) again();   // (now there's one to hide)
+      const m = items[row.dataset.i], on = !row.classList.contains('on');   // (the one shown, clicked again: show none)
+      unpreview();
+      on ? localStorage.setItem(ACCT_MAPLE, JSON.stringify(m.avatar ? { avatar: m.avatar } : m)) : localStorage.removeItem(ACCT_MAPLE);
+      for (const r of panel.querySelectorAll('.acctpickrow:not(.acctfxrow)')) r.classList.toggle('on', on && r === row);
+      said(m.avatar ? ACCT_AVATARS[m.avatar].name : m.name, on);
       acctRefresh();
     };
     row.addEventListener('click', pick);

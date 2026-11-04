@@ -842,6 +842,7 @@ input[type="search"]::-webkit-search-cancel-button, input[type="search"]::-webki
 .acctwelcome { font-size: 15px; }
 .acctform { display: flex; flex-direction: column; gap: 6px; }
 .acctwin .panel { width: 320px; align-items: stretch; }
+.acctwin .panel.acctpickwin { width: 400px; max-width: calc(100vw - 32px); position: relative; }   /* MapleStory Character (relative: for its On / Off message) */
 .acctwin h2 { text-align: center; }
 .acctfield { display: flex; flex-direction: column; gap: 3px; font-size: 13px; font-weight: 700; }
 .acctfield input { font-family: inherit; font-size: 15px; padding: 6px 9px; border: 1px solid #999; border-radius: 6px; background: rgba(var(--wb), 0.9); }
@@ -1074,9 +1075,11 @@ h1.tglitch .gtext::after { animation: glitchb 1.6s steps(1) -1.088s 1; }
 .achvicon i img { width: calc(11 * var(--p)); height: calc(16 * var(--p)); max-width: none; max-height: none; image-rendering: auto; }
 .achv.secret .achvicon img { filter: none; }
 .achv.memory .achvicon img { width: calc(56 * var(--p)); height: calc(56 * var(--p)); max-width: none; max-height: none; object-fit: cover; border-radius: calc(4 * var(--p)); image-rendering: auto; }   /* (its picture fills the box) */
-.achvtitle { left: calc(83 * var(--p)); top: calc(13 * var(--p)); right: calc(20 * var(--p)); font-size: calc(16.2 * var(--p)); font-weight: 400; letter-spacing: 0.015em; -webkit-text-stroke: calc(0.35 * var(--p)) currentColor;
+.achv.fill .achvicon img { width: calc(56 * var(--p)); height: calc(56 * var(--p)); max-width: none; max-height: none; object-fit: cover; border-radius: calc(4 * var(--p)); }   /* Hidden ones, once you have them: their picture fills the box too */
+.achvtitle { left: calc(82 * var(--p)); top: calc(15 * var(--p)); right: calc(20 * var(--p)); font-size: calc(16.2 * var(--p)); font-weight: 400; letter-spacing: 0.039em; -webkit-text-stroke: calc(0.6 * var(--p)) currentColor;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #f2f2f2; }
-.achvhow { left: calc(83 * var(--p)); top: calc(40 * var(--p)); right: calc(120 * var(--p)); color: #a9a9a9; font-size: calc(11.5 * var(--p)); line-height: 1.3; letter-spacing: 0.04em; }
+.achvhow { left: calc(82 * var(--p)); top: calc(42 * var(--p)); width: calc(343 / 1.204 * var(--p)); color: #aaaaaa; font-family: Gyeokdong, Arial, sans-serif; font-size: calc(9.75 * var(--p)); line-height: 1.3; letter-spacing: 0; transform: scaleX(1.204); transform-origin: 0 0; }   /* the game's font, colour and size, stretched sideways like the game draws it (blocky: wider letters); its width is the space to the date (343) before the stretch */
+.achvhow .bigO { display: inline-block; transform: scaleX(1.15); transform-origin: 0 50%; margin-right: 0.125em; }   /* the game's capital O is fatter (15 vs 13 wide, 3 more to the next letter) */
 .achv.secret .achvtitle { color: #c9a2ff; }
 .achvq { opacity: 0.45; letter-spacing: 0.15em; }
 .achvgauge { left: calc(16 * var(--p)); top: calc(82 * var(--p)); width: calc(513 * var(--p)); height: calc(4 * var(--p)); }
@@ -1084,12 +1087,13 @@ h1.tglitch .gtext::after { animation: glitchb 1.6s steps(1) -1.088s 1; }
 .achvnum { right: calc(16 * var(--p)); top: calc(62 * var(--p)); color: #cfcfcf; font-variant-numeric: tabular-nums; }
 /* The date: a box the size of the art's dark pill, centred in it (so it never runs past it), in MapleStory's date colour */
 .achvdate { left: calc(468 * var(--p)); width: calc(65 * var(--p)); top: calc(35 * var(--p)); height: calc(20 * var(--p)); display: flex; align-items: center; justify-content: center;
-  font: 400 calc(11 * var(--p)) / 1 Arial, 'Liberation Sans', sans-serif; color: #c7b396; letter-spacing: 0; white-space: nowrap; }
-.achvdate > span { display: block; text-box: trim-both cap alphabetic; }   /* centred by the digits themselves (top of the numbers to their baseline), not the font's spacing, so every font sits in the middle */
+  font: 400 calc(10 * var(--p)) / 1 Gyeokdong, Arial, 'Liberation Sans', sans-serif; color: #c7b396; letter-spacing: 0; white-space: nowrap; }
+.achvdate > span { display: block; text-box: trim-both cap alphabetic; transform: scaleX(1.15); }   /* stretched sideways like the game draws it (from its middle, so it stays centred), a touch less than the game so even the widest date keeps clear of the pill's ends */   /* centred by the digits themselves (top of the numbers to their baseline), not the font's spacing, so every font sits in the middle */
 .achv.rw .achvdate { top: calc(35.45 * var(--p)); }   /* the reward row's art: its pill is a row taller (35 to 55), so its middle is a little lower */
 .achvseal { z-index: 1; left: calc(497 * var(--p)); top: calc(53 * var(--p)); width: calc(44 * var(--p)); height: calc(41 * var(--p)); }
 .achvrwicon { left: calc(15 * var(--p)); top: calc(100 * var(--p)); width: calc(38 * var(--p)); height: calc(38 * var(--p)); display: flex; align-items: center; justify-content: center; }
 .achvrwicon img { max-width: calc(34 * var(--p)); max-height: calc(34 * var(--p)); }
+.achvrwicon img.pic { width: calc(28 * var(--p)); height: calc(28 * var(--p)); max-width: none; max-height: none; object-fit: cover; border-radius: calc(5 * var(--p)); }   /* a win / appearance effect: a square of its picture, inside the box's frame */
 /* Centred on the strip's "REWARD :" line (a box around it, not a top edge, so every font sits the same); calm like the label */
 .achvreward { left: calc(112 * var(--p)); top: calc(107.5 * var(--p)); height: calc(24 * var(--p)); right: calc(110 * var(--p)); display: flex; align-items: center;
   font-size: calc(12 * var(--p)); line-height: 1; font-weight: 700; white-space: nowrap; overflow: hidden; }
@@ -1122,13 +1126,13 @@ html.dark .achvstats div { border-color: rgba(255, 255, 255, 0.12); }
 /* An appearance effect (Seething Balance): plays once over the account's avatar when Settings opens */
 .acctside { position: relative; }
 /* 312 x 260 (the effect's 1322 x 1100 at 0.236): its middle (the eye, at 636, 534 in the effect) lands on your character's middle */
-.acctappear { position: fixed; width: 312px; height: 260px; transform: translate(calc(-50% + 5.9px), calc(-50% + 3.8px)); pointer-events: none; z-index: 20; object-fit: contain; }
+.acctappear { position: fixed; width: 312px; height: 260px; transform: translate(calc(-50% + 5.9px), calc(-50% + 3.8px)); pointer-events: none; z-index: 6; object-fit: contain; }   /* (over Settings, as it comes after it, but under any window opened over Settings) */
 .acctpickhead { margin: 12px 0 4px; font-size: 15px; text-align: left; }
 .acctpickrow .acctfxpic { width: 72px; height: 72px; object-fit: contain; }
 .acctpickrow.acctfxrow { padding-right: 104px; }
 .acctpick:empty { display: none; }
 #jupiterChar { display: flex; justify-content: center; margin: 4px 0 0; }   /* BGM Clip Extreme, Jupiter's BGM: your character under Share (account.js) */
-.acctappeartop { position: fixed; margin: 0; z-index: 21; pointer-events: none; }   /* your character, over its appearance effect */
+.acctappeartop { position: fixed; margin: 0; z-index: 6; pointer-events: none; }   /* your character, over its appearance effect */
 /* Achievement tiers: MapleStory's grade colours */
 /* Achievement complete banner (MapleStory's, 1366 x 231; the front is 693 x 194 at 336, 31 over it): scaled to fit */
 .achvbanner { position: fixed; top: calc(6px + 75px * var(--s)); left: 50%; z-index: 23; width: 1366px; height: 231px; pointer-events: none;
@@ -1160,6 +1164,9 @@ html.dark .achvstats div { border-color: rgba(255, 255, 255, 0.12); }
 
 /* morris9 (MD모리스9): the font the game's achievement search box uses (Latin letters only, fonts/morris9.woff2) */
 @font-face { font-family: 'Morris9'; src: url(fonts/morris9.woff2) format('woff2'); font-display: swap; }
+/* MapleStory's own small UI font (Sandoll Gyeokdong G2, from the game's files; English letters only): the achievement
+   descriptions, dates and the completion-rate tip use it in the game (the titles are Arial). */
+@font-face { font-family: 'Gyeokdong'; src: url(fonts/gyeokdong-latin.woff2) format('woff2'); font-display: swap; }
 /* The Achievements window, like MapleStory's: dark frame, its yellow title top left, an X top right (no Close bar) */
 #achv.maplewin > .panel { position: relative; padding: 0 14px 14px; border-radius: 6px; color: #ddd; background: linear-gradient(#3c3c3c, #2a2a2a 120px, #262626);
   border: 1px solid #141414; box-shadow: inset 0 0 0 1px #5a5a5a, 0 10px 34px rgba(0, 0, 0, 0.55); }
@@ -1242,3 +1249,14 @@ html.dark .achvstats div { border-color: rgba(255, 255, 255, 0.12); }
   #settings .popupbody { width: min(620px, 70vw); }
   #archiveList { display: grid; grid-template-columns: repeat(3, 1fr); column-gap: 8px; }
 }
+
+/* Achievements: the Global Completion Rate tip over a cup: the game's own tooltip box (images/achv/ui/tooltip.png, from a
+   2x screenshot of it with the text taken out), stretched sideways, drawn at 0.479x. The text: the game's font (Gyeokdong)
+   at the game's height, stretched sideways (--sx) like the game draws it (blocky: wider letters; achv.js sizes the box to
+   it), where the game puts it: 23 to 42 of the box's 59 rows, 13 in from the left, 10 from the right. */
+.achvtip { position: fixed; z-index: 10000; pointer-events: none; white-space: nowrap; text-align: left; transform-origin: 0 0; box-sizing: border-box;
+  height: 28.25px; padding: 9.25px 4.5px 0 6.2px; border: 0 solid transparent;
+  border-image: url(images/achv/ui/tooltip.png?v=2) 29 20 29 20 fill / 13.9px 9.6px 13.9px 9.6px;
+  color: #fff; font-family: Gyeokdong, Rubik, sans-serif; font-size: 10.45px; line-height: 13px; letter-spacing: 0; --sx: 1.182; }
+.achvtip > span { display: inline-block; transform: scaleX(var(--sx)); transform-origin: 0 0; }
+.achvtip[hidden] { display: none; }
