@@ -58,7 +58,8 @@
       if (mode === 'extreme' || mode === 'bgm') s.extremeWins++;   // Extreme: Boss Wordle Extreme and BGM Clip Extreme
       s.games.add(game);
       if (+w[1] === 1) { s.firstTry++; if (game === 'boss' || game === 'class') s.firstReg++; }   // (a star; regular Wordle: Boss and Class)
-      if (r.endsWith('💎')) s.diamond++;
+      // Each badge counts for the ones under it too: a 🌈 is also a 💎 and a ⭐, a 💎 also a ⭐ (⭐: firstTry, above)
+      if (r.endsWith('💎') || r.endsWith('🌈')) s.diamond++;
       if (r.endsWith('🌈')) s.rainbow++;
       if (read(`mapleWordle:style:${mode}:${d}`) === 'limborb') s.limbo = true;
       // The answer of a won day is its last guess.
@@ -415,7 +416,7 @@
           (on ? `<img class="achvseal" src="images/achv/ui/completeSeal.png" alt=""><span class="achvdate"><span>${rowDate(got[a.id])}</span></span>` : '') +
           (rw ? `<div class="achvrwicon"><img${a.rwPic ? ' class="pic"' : ''} src="${a.mesos ? 'images/fx/meso-bag.png' : a.rwPic || a.rwIcon}" alt=""></div>` +
             '<small class="achvreward"></small>' + (claimed ? '<img class="achvclaimed" src="images/achv/ui/claim-disabled.png" alt="Claimed">' : '<button class="achvclaim" aria-label="Claim Reward"></button>') : '');
-        row.title = `${TIERS[a.tier][0]} · ${TIERS[a.tier][1]} AP`;
+        row.title = hide ? '' : `${fmt(on ? need : Math.min(have, need))} / ${fmt(need)}`;   // its progress (a completed one's too: its number is under the seal)
         row.dataset.q = `${on ? a.full || a.name : a.name} ${hide ? '' : a.how}`.toLowerCase();
         row.querySelector('.achvtitle').textContent = on ? a.full || a.name : a.name;
         // (a capital O a little wider, like the game's: each one in its own span, the text as text)
