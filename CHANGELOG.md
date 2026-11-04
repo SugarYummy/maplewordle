@@ -1,5 +1,11 @@
 # Maple Wordle changelog
 
+## alpha v6.1.1 - 4 November 2026
+### 🔧 Changes
+- **[Achievements]** Hover an achievement icon to see its Global Completion Rate.
+- **[Achievements]** Fonts and layout now look closer to in-game.
+- **[Account]** [MapleStory Character] UX has been improved.
+
 ## alpha v6.1 - 3 November 2026
 ### 🔧 Changes
 - **[General]** Windows are now wider on PC.
