@@ -2,9 +2,12 @@
 
 ## alpha v6.1.1 - 4 November 2026
 ### 🔧 Changes
-- **[Achievements]** Hover an achievement icon to see its Global Completion Rate.
 - **[Achievements]** Fonts and layout now look closer to in-game.
+- **[Achievements]** Hover an achievement icon to see its Global Completion Rate.
+- **[Achievements]** Hover an achievement to see its progress.
 - **[Account]** [MapleStory Character] UX has been improved.
+### 🐛 Bug Fixes
+- **[Achievements]** Rainbows now count towards diamond achievements too.
 
 ## alpha v6.1 - 3 November 2026
 ### 🔧 Changes
