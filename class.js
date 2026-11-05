@@ -126,7 +126,7 @@ function addRow(cells, cls) {
   return tr;
 }
 const byName = (n) => pool.find((e) => e.name === n);
-const guessRow = (g) => addRow(guessCells(g));
+const guessRow = (g) => addRow(guessCells(g), g.name === answer.name ? 'right' : '');   // (right: Limbo's dragon skips it, fx.js)
 
 function answerRow() {
   const a = answer;

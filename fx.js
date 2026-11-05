@@ -1611,7 +1611,7 @@ async function limboGuess(row, wrong, flipMs, force = false) {   // force: show 
 }
 // Every wrong guess row (and wrong bonus answer) on the page gets its dragon (page load, or the effect turned on);
 // turned off, they all go (except on Limbo's mashup answer, which everyone sees).
-const gfxWrong = (row) => !(row.matches('.gbar') ? row : row.firstElementChild)?.classList.contains('green');
+const gfxWrong = (row) => (row.matches('.gbar') ? !row.classList.contains('green') : !row.classList.contains('right'));   // (a guess row's first cell is its photo card: never coloured)
 const gfxResult = (el) => el.matches('#bonusResult, #titleResult');
 const gfxKeep = (el, on) => el.isConnected && (gfxResult(el) ? el.classList.contains('wrong') && (on || el.dataset.limbo === '1') : on);
 function limboDragons() {

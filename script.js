@@ -183,7 +183,7 @@ function guessCells(g) {
 // Extreme mode only: Difficulty column comparing tiers (Easy < Normal < Hard/Chaos < Extreme/Hell).
 const DIFF_TIER = { Easy: 1, Normal: 2, Hard: 3, Chaos: 3, Extreme: 4, Hell: 4 };
 const diffCell = (g) => numberCell(DIFF_TIER[g.difficulty], DIFF_TIER[answer.difficulty], g.difficulty ?? 'Unknown', (a, b) => Math.abs(a - b) <= 1);
-const guessRow = (g) => addRow(guessCells(g));
+const guessRow = (g) => addRow(guessCells(g), g.name === answer.name ? 'right' : '');   // (right: Limbo's dragon skips it, fx.js)
 
 function answerRow() {
   const a = answer;
