@@ -473,7 +473,15 @@ function start(d) {
   renderStreak();
   noteResult();
   limboAutoStart();
+  jupiterAgain();
 }
+// BGM Clip Extreme on Jupiter's BGM, game over: your character's entrance plays again (your character and Seething
+// Balance, its sound too; no mesos or BGM this time) when the game's opened again (reloaded, another mode or the
+// Archive and back) or you come back to the tab. (A browser that hasn't had a click on the site yet keeps it quiet.)
+function jupiterAgain() {
+  if (MODE === 'bgm' && over && answer?.name === 'Jupiter' && typeof acctJupiterEntrance === 'function' && acct() && acctMapleImg()) acctJupiterEntrance();
+}
+document.addEventListener('visibilitychange', () => { if (!document.hidden) jupiterAgain(); });
 // Back on Limbo's mashup day with its bonus still unanswered (another game or mode, then back here): the mashup and
 // Limbo's scene start by themselves. A browser only lets sound start on its own once you've clicked on the site; if it
 // says no, they start on your first click or key press instead (not one on Play itself).
