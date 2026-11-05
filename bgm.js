@@ -478,8 +478,8 @@ function start(d) {
 // BGM Clip Extreme on Jupiter's BGM, game over: your character's entrance plays again (your character and Seething
 // Balance, its sound too; no mesos or BGM this time) when the game's opened again (reloaded, another mode or the
 // Archive and back) or you come back to the tab. (A browser that hasn't had a click on the site yet keeps it quiet.)
-function jupiterAgain() {
-  if (MODE === 'bgm' && over && answer?.name === 'Jupiter' && typeof acctJupiterEntrance === 'function' && acct() && acctMapleImg()) acctJupiterEntrance(true);
+function jupiterAgain() {   // (played on its own day only, like the Hidden achievement: not from the Archive)
+  if (MODE === 'bgm' && over && answer?.name === 'Jupiter' && playedLive(MODE, day) && typeof acctJupiterEntrance === 'function' && acct() && acctMapleImg()) acctJupiterEntrance(true);
 }
 document.addEventListener('visibilitychange', () => { if (!document.hidden) jupiterAgain(); });
 // Back on Limbo's mashup day with its bonus still unanswered (another game or mode, then back here): the mashup and
@@ -599,7 +599,7 @@ function guess(name) {
   // character: the usual). Each of these keeps the BGM quiet until its burst, then (bigWinAt): won in 1: the meso fountain
   // + Mayrin's Descend · won in 2+: the meso rain + Kaling's Four Auspicious Beasts · lost: Seren's Burning City
   const game = answer, n = guesses.length, ok = won();
-  if (MODE === 'bgm' && answer.name === 'Jupiter' && typeof acctJupiterEntrance === 'function' && acct() && acctMapleImg()) {
+  if (MODE === 'bgm' && answer.name === 'Jupiter' && !isArchive(day) && typeof acctJupiterEntrance === 'function' && acct() && acctMapleImg()) {   // (its own day only: not the Archive)
     pause();
     setTimeout(() => bigWinAt(game, ok, n, true, acctJupiterEntrance()), flipMs);
   } else if (kill) {
@@ -655,16 +655,18 @@ function badgeFor(d, ans, g, b, t) {
 }
 const badge = () => over ? badgeFor(day, answer, guesses, bonus, title) : '';
 // Limbo's mashup day: a first-guess win with the mashup answered right gets Limbo's border (in place of 💎 / 🌈's),
-// on the game box and on the Archive row (style.css).
-const limboRingFor = (ans, g, b) => g.length === 1 && g[0] === ans.name && ans.bonus?.mashup?.egg === 'limbo' && b != null && ans.bonus.right.includes(b);
-const rowStyleFor = (m, d) => inMode(m, () => { const s = load(d); return limboRingFor(answerFor(d), s.g, s.bonus) ? 'limborb' : ''; });
+// on the game box and on the Archive row (style.css). Only for a game played on its own day (fx.js playedLive; the
+// Archive: the usual 💎 / 🌈 border).
+const limboRingFor = (ans, g, b, d) => g.length === 1 && g[0] === ans.name && ans.bonus?.mashup?.egg === 'limbo' && b != null && ans.bonus.right.includes(b)
+  && (playedLive(MODE, d) || !isArchive(d));
+const rowStyleFor = (m, d) => inMode(m, () => { const s = load(d); return limboRingFor(answerFor(d), s.g, s.bonus, d) ? 'limborb' : ''; });
 function renderEnd() {
   queueMicrotask(limboDragons);   // a wrong bonus answer from before gets its dragon back (fx.js)
   $('bonusResult').dataset.limbo = isLimboEgg() ? '1' : '';   // Limbo's mashup: its dragon shows for everyone
   renderHints();
   drawTicks();
   drawBar();
-  const game = document.querySelector('.game'), lb = over && limboRingFor(answer, guesses, bonus);
+  const game = document.querySelector('.game'), lb = over && limboRingFor(answer, guesses, bonus, day);
   game.classList.toggle('diamond', !lb && badge() === '💎');
   const ring = game.classList.toggle('rainbow', !lb && badge() === '🌈') | game.classList.toggle('limborb', lb);
   if (ring && !game.querySelector('.rbring')) {   // its spinning ring + glow (style.css)
@@ -1297,7 +1299,8 @@ function saveTracks() {
   for (let i = 0; i < localStorage.length; i++) {
     const m = /^mapleWordle:result:([a-z]+):(\d+)$/.exec(localStorage.key(i));
     if (!m || !(m[1] in MODES)) continue;
-    const d = +m[2];
+    const d = +m[2], look = `mapleWordle:style:${m[1]}:${d}`;
+    if (localStorage.getItem(look) && !rowStyleFor(m[1], d)) localStorage.removeItem(look);   // (Limbo's border from an Archive game: gone)
     if (!playedLive(m[1], d)) continue;
     if (m[1] === 'bgm' && /^(Won|Lost)/.test(localStorage.getItem(localStorage.key(i)))) won.add(inMode('bgm', () => answerFor(d).track));
     if (!mash) mash = inMode(m[1], () => answerFor(d).bonus?.mashup?.egg === 'limbo' && load(d).bonus != null);   // answered at all (right or wrong)
@@ -1311,7 +1314,10 @@ function saveTracks() {
 const noteResult = () => {
   if (over) {
     try { localStorage.setItem(`mapleWordle:result:${MODE}:${day}`, resultFor(MODE, day)); } catch {}
-    try { if (rowStyleFor(MODE, day)) localStorage.setItem(`mapleWordle:style:${MODE}:${day}`, rowStyleFor(MODE, day)); } catch {}   // for the Archive on other pages
+    try {   // for the Archive on other pages (one saved from an Archive game before it needed its own day: gone)
+      const look = rowStyleFor(MODE, day), k = `mapleWordle:style:${MODE}:${day}`;
+      if (look) localStorage.setItem(k, look); else if (localStorage.getItem(k)) localStorage.removeItem(k);
+    } catch {}
     earnGame(MODE, day, resultFor(MODE, day));   // mesos (fx.js): Archive days pay 10%
     if (bonus != null && answer.bonus?.right.includes(bonus)) earnBonus(MODE, day, !!answer.bonus.mashup?.egg);
     if (titleRight()) earnBonus(MODE, day, false, 'title');
