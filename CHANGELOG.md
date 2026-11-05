@@ -1,5 +1,9 @@
 # Maple Wordle changelog
 
+## alpha v6.1.2 - 5 November 2026
+### 🐛 Bug Fixes
+- **[Effects]** [Limbo's Wrong Guess Effect] no longer shows on the correct guess after switching modes.
+
 ## alpha v6.1.1 - 4 November 2026
 ### 🔧 Changes
 - **[Achievements]** Fonts and layout now look closer to in-game.
