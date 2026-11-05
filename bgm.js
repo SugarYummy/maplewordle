@@ -479,7 +479,7 @@ function start(d) {
 // Balance, its sound too; no mesos or BGM this time) when the game's opened again (reloaded, another mode or the
 // Archive and back) or you come back to the tab. (A browser that hasn't had a click on the site yet keeps it quiet.)
 function jupiterAgain() {
-  if (MODE === 'bgm' && over && answer?.name === 'Jupiter' && typeof acctJupiterEntrance === 'function' && acct() && acctMapleImg()) acctJupiterEntrance();
+  if (MODE === 'bgm' && over && answer?.name === 'Jupiter' && typeof acctJupiterEntrance === 'function' && acct() && acctMapleImg()) acctJupiterEntrance(true);
 }
 document.addEventListener('visibilitychange', () => { if (!document.hidden) jupiterAgain(); });
 // Back on Limbo's mashup day with its bonus still unanswered (another game or mode, then back here): the mashup and

@@ -499,7 +499,7 @@ function soundFile(src) {
 }
 let loseAfterFail = 0;   // (limboOver: a loss with Limbo's fail screen coming: when it's over, in ms from now)
 // skip: seconds into the clip to start (0 = from the top).
-function resultSound(won, delay, file, skip = 0) {
+function resultSound(won, delay, file, skip = 0, quiet = true) {   // quiet: the background's music goes quiet meanwhile
   if (loseAfterFail && !won && !file?.startsWith('fail')) delay = Math.max(delay ?? 0, loseAfterFail);
   if (muted()) return;
   const ctx = soundCtx();
@@ -509,7 +509,7 @@ function resultSound(won, delay, file, skip = 0) {
   const gen = resultGen;
   // The background's music goes quiet when the sound starts (after the flip), not when it's asked for. A shop purchase
   // plays over it (doesn't quiet it).
-  const duck = file !== 'purchase';
+  const duck = quiet && file !== 'purchase';
   let counted = false;
   const count = duck && setTimeout(() => { counted = true; resultActive++; }, Math.max(0, (delay ?? 0) - 150));
   const done = () => { clearTimeout(count); if (counted) { counted = false; resultActive = Math.max(0, resultActive - 1); } };

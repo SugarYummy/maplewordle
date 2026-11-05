@@ -316,7 +316,7 @@ const acctAppearOn = () => { const id = acct() && localStorage.getItem(ACCT_APPE
 let acctAppearStop = null;   // the one playing now: cuts it short, its sound too
 // Once, then gone (Settings, when it opens; BGM Clip Extreme's Jupiter: acctJupiterEntrance; MapleStory Character, when
 // it's turned on there). Returns a function that cuts it short.
-function acctAppearPlay(into, id = acctAppearOn()) {
+function acctAppearPlay(into, id = acctAppearOn(), duck = true) {   // duck: the background's music goes quiet while its sound plays
   const fx = ACCT_EFFECTS[id];
   if (!fx || !into || matchMedia('(prefers-reduced-motion: reduce)').matches) return () => {};
   acctAppearStop?.();
@@ -327,7 +327,7 @@ function acctAppearPlay(into, id = acctAppearOn()) {
   if (!safari) Object.assign(el, { muted: true, autoplay: true, playsInline: true });
   el.setAttribute('aria-hidden', 'true');
   let sounded = false, soundAt = 0;
-  const sound = () => { if (!sounded && el.isConnected) { sounded = true; soundAt = Date.now(); if (typeof resultSound === 'function') resultSound(true, 0, 'appear'); } };
+  const sound = () => { if (!sounded && el.isConnected) { sounded = true; soundAt = Date.now(); if (typeof resultSound === 'function') resultSound(true, 0, 'appear', 0, duck); } };
   if (!safari) el.addEventListener('playing', sound, { once: true });
   // Over everything (not clipped by the Settings box), big, centred on your character (or the gap left of Welcome back)
   const ava = into.querySelector('.acctava, .acctmapleimg, .acctmaple > img'), r = (ava || into).getBoundingClientRect();
@@ -393,14 +393,14 @@ function acctAppearPlay(into, id = acctAppearOn()) {
 // BGM Clip Extreme on Jupiter's BGM: when the game ends (won in any number of guesses or lost), your MapleStory character
 // steps in under the Share button with Jupiter's entrance (Seething Balance), for everyone with a character. Returns when
 // it peaks (ms), for the mesos and the BGM to come in then; 0 (no character, or reduced motion): right away.
-function acctJupiterEntrance() {
+function acctJupiterEntrance(again = false) {   // again (bgm.js jupiterAgain): the background's music keeps playing
   const share = document.getElementById('share'), img = acct() ? acctMapleImg() : '';
   document.getElementById('jupiterChar')?.remove();
   if (!share || !img) return 0;
   const box = Object.assign(document.createElement('p'), { id: 'jupiterChar', innerHTML: img });
   share.closest('p').after(box);
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) return 0;
-  acctAppearPlay(box, 'seethingBalance');
+  acctAppearPlay(box, 'seethingBalance', !again);
   return ACCT_EFFECTS.seethingBalance.apex;
 }
 // A shop avatar you haven't looked at yet (new in the MapleStory Character list): the Settings cog glows with NEW, and
