@@ -1846,6 +1846,22 @@ function mesoLog() { try { return JSON.parse(lsGet(MESO_LOG_KEY) || '[]'); } cat
 const mesoTotal = () => mesoLog().reduce((s, e) => s + e.amount, 0);
 // Archive days (any day before today) pay 10%, rounded up.
 const isArchive = (day) => day < Math.floor(Date.now() / 86400000);
+// A game finished on its own day (not from the Archive): mapleWordle:live:<mode>:<day>. Only these count towards the
+// Hidden achievements (achv.js; bgm.js saveTracks), the ones there now and any added later. Set when the game's mesos
+// are worked out (earnGame, every game). Games from before this was kept: counted, unless the meso log says Archive.
+const LIVE_PREFIX = 'mapleWordle:live:';
+const playedLive = (mode, day) => lsGet(`${LIVE_PREFIX}${mode}:${day}`) === '1';
+(function liveSeed() {
+  if (lsGet('mapleWordle:liveSeeded') === '1') return;
+  const archived = new Set(mesoLog().filter((e) => / \(Archive 10%\)$/.test(e.what || '')).map((e) => e.key));
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const m = /^mapleWordle:result:([a-z]+):(\d+)$/.exec(localStorage.key(i));
+      if (m && /^(Won|Lost)/.test(localStorage.getItem(localStorage.key(i)) || '') && !archived.has(`${m[1]}:${m[2]}`)) lsSet(`${LIVE_PREFIX}${m[1]}:${m[2]}`, '1');
+    }
+  } catch {}
+  lsSet('mapleWordle:liveSeeded', '1');
+})();
 const mesoPay = (base, mode, day) => Math.ceil(base * mesoTimes(mode, day) * (isArchive(day) ? 0.1 : 1));
 function earnMeso(key, mode, day, what, base, final = false) {
   const log = mesoLog();
@@ -1865,6 +1881,7 @@ const groupOf = (mode) => MESO_GROUPS.find((g) => g.includes(mode));
 const BEST_ONLY_FROM = MESO_DAY(2026, 10, 21);
 // A game calls this when today's puzzle is over, with its Archive result ("Won 3/6", "Won in 4", "Lost").
 function earnGame(mode, day, result) {
+  if (!isArchive(day) && !playedLive(mode, day)) lsSet(`${LIVE_PREFIX}${mode}:${day}`, '1');
   const t = (day < BEST_ONLY_FROM && MESO_TABLE_OLD[mode]) || MESO_TABLE[mode];
   if (!t) return;
   const m = /^Won (?:in )?(\d+)/.exec(result);

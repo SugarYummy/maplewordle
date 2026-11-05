@@ -1287,9 +1287,10 @@ function resultIn(d) {
   return n ? `In progress (${n}/${maxGuesses()})` : 'Not played';
 }
 window.archiveHere = { modes: Object.keys(MODES), current: () => MODE, result: resultFor, style: rowStyleFor, play: (m, d) => { MODE = m; start(d); } };
-// For the achievements (achv.js): every BGM you've won in Extreme (the Archive too; the bonus doesn't matter), and
-// whether you've ever answered Limbo's glitch mashup (right or wrong).
-const TRACKS_KEY = 'mapleWordle:bgmTracks', LIMBO_MASH_KEY = 'mapleWordle:limboMash';
+// For the Hidden achievements (achv.js): every BGM you've played in Extreme, won or lost (the bonus doesn't matter), and whether you've
+// ever answered Limbo's glitch mashup (right or wrong). Only games played on their own day count, not the Archive
+// (fx.js playedLive). (New keys: the old mapleWordle:bgmTracks / limboMash counted the Archive too.)
+const TRACKS_KEY = 'mapleWordle:bgmTracksLive', LIMBO_MASH_KEY = 'mapleWordle:limboMashLive';
 function saveTracks() {
   const won = new Set();
   let mash = false;
@@ -1297,7 +1298,8 @@ function saveTracks() {
     const m = /^mapleWordle:result:([a-z]+):(\d+)$/.exec(localStorage.key(i));
     if (!m || !(m[1] in MODES)) continue;
     const d = +m[2];
-    if (m[1] === 'bgm' && /^Won/.test(localStorage.getItem(localStorage.key(i)))) won.add(inMode('bgm', () => answerFor(d).track));
+    if (!playedLive(m[1], d)) continue;
+    if (m[1] === 'bgm' && /^(Won|Lost)/.test(localStorage.getItem(localStorage.key(i)))) won.add(inMode('bgm', () => answerFor(d).track));
     if (!mash) mash = inMode(m[1], () => answerFor(d).bonus?.mashup?.egg === 'limbo' && load(d).bonus != null);   // answered at all (right or wrong)
   }
   const v = JSON.stringify([...won].sort());

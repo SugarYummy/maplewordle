@@ -40,8 +40,8 @@
   function stats(L) {
     const s = { played: 0, wins: 0, firstTry: 0, firstReg: 0, diamond: 0, rainbow: 0, days: new Set(), games: new Set(), streak: 0, mesos: 0,
       won: { bgm: new Set(), boss: new Set(), class: new Set(), anim: new Set() }, winsBy: { boss: 0, bgm: 0, class: 0, anim: 0 }, extremeWins: 0, limbo: false,
-      tracks: new Set(json('mapleWordle:bgmTracks', [])), buys: 0,
-      limboMash: read('mapleWordle:limboMash') === '1' };
+      tracks: new Set(json('mapleWordle:bgmTracksLive', [])), buys: 0,
+      limboMash: read('mapleWordle:limboMashLive') === '1' };
     const byMode = {};   // each mode's days played: [day, won]
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i), m = /^mapleWordle:result:([a-z]+):(\d+)$/.exec(key);
@@ -310,7 +310,7 @@
   const setItem = Storage.prototype.setItem;
   Storage.prototype.setItem = function (k, v) {
     setItem.call(this, k, v);
-    if (typeof k === 'string' && (k.startsWith('mapleWordle:result:') || k === 'mapleWordle:mesoLog' || k === 'mapleWordle:bgmTracks' || k === 'mapleWordle:limboMash')) { clearTimeout(check.t); check.t = setTimeout(check, 300); }
+    if (typeof k === 'string' && (k.startsWith('mapleWordle:result:') || k === 'mapleWordle:mesoLog' || k === 'mapleWordle:bgmTracksLive' || k === 'mapleWordle:limboMashLive')) { clearTimeout(check.t); check.t = setTimeout(check, 300); }
   };
 
   // NEW on the trophy button: a reward to claim that you haven't been shown yet. It's shown once (gone after a reload
