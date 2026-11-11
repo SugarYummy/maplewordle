@@ -695,7 +695,10 @@ const roomNet = (myId, code) => PVP_SERVER ? wsNet(myId, code) : tabsNet(myId, c
 // You stand left of the match and the other player right: your MapleStory Character (Account Settings) with your
 // appearance effect, which plays once as the match starts (round 1 waits for it). Bots: a class portrait (the Class
 // game's art, except Tanjiro's: it isn't see-through), named after that class; Hard bots come in with Seething
-// Balance. Training dummies: no portrait. No character: that side stays empty. Phones / portrait: none.
+// Balance. Training dummies: no portrait. You face right (towards them); bots face left (flipped, except the two
+// that already do). Under each one, a box: who they are (name, character, world, level + job for a Nexon character,
+// achievement rank + AP + place, PvP record, daily games) and the match (HP, locks...), which leaves the middle.
+// No character: just the box. Phones / portrait: the boards stay in the middle as before.
 const ENTRANCE_MS = 3800;
 const CLASS_PICS = {   // portrait file: its class (the bot's name)
   'adele': 'Adele', 'angelic-buster': 'Angelic Buster', 'aran': 'Aran', 'arch-mage-f-p': 'Arch Mage (F/P)',
@@ -714,17 +717,71 @@ const CLASS_PICS = {   // portrait file: its class (the bot's name)
   'wind-archer': 'Wind Archer', 'xenon': 'Xenon', 'yeti': 'Yeti', 'zen': 'Zen', 'zero': 'Zero',
 };
 const LOOK_IMG = /^https:\/\/[a-z0-9-]+(\.[a-z0-9-]+)*\.nexon\.net\/[\w\-./%]+$/i;   // (someone else's: only Nexon's own avatar pictures)
+const NO_FLIP = ['cadena', 'kanna'];   // portraits that already face left
+const RANK_NAMES = { bronze: 'Bronze', silver: 'Silver', gold: 'Gold', platinum: 'Platinum', diamond: 'Diamond', master: 'Master' };
+const RANK_AP = [['diamond', 2000], ['platinum', 1000], ['gold', 500], ['silver', 200], ['bronze', 0]];   // (achv.js RANKS)
+const PVP_REC = 'mapleWordle:pvp';   // { w, l, d }: finished matches against at least one person (not Boss Raid)
+const lsJson = (k) => { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } };
+let myPlace = null;   // your place on the site by AP (the account server's GET /place), once looked up
 function myLook() {
+  const look = { info: myInfo() };
   try {
-    if (typeof acct !== 'function' || !acct()) return null;
-    const m = acctMaple(), look = {};
-    if (m?.avatar) { if (!ACCT_AVATARS[m.avatar]?.owned()) return null; look.avatar = m.avatar; }
+    if (typeof acct !== 'function' || !acct()) return look;
+    const m = acctMaple();
+    if (m?.avatar) { if (ACCT_AVATARS[m.avatar]?.owned()) look.avatar = m.avatar; }
     else if (m?.img) look.img = m.img;
-    else return null;
-    const fx = acctAppearOn();
+    const fx = (look.avatar || look.img) && acctAppearOn();
     if (fx) look.fx = fx;
-    return look;
-  } catch { return null; }
+  } catch {}
+  return look;
+}
+function myInfo() {
+  const info = {};
+  try {
+    const m = typeof acct === 'function' && acct() ? acctMaple() : null;
+    if (m && !m.avatar && m.name) Object.assign(info, { ign: m.name, world: m.world || '', level: m.level, job: m.job || '' });   // (a Nexon character only)
+  } catch {}
+  const ap = parseInt(localStorage.getItem('mapleWordle:ap'), 10);
+  if (ap >= 0) {
+    info.ap = ap;
+    const saved = lsJson('mapleWordle:achv')?._rank;
+    info.rank = Object.hasOwn(RANK_NAMES, saved) ? saved : RANK_AP.find((r) => ap >= r[1])[0];
+    if (myPlace) info.place = myPlace;
+  }
+  const rec = lsJson(PVP_REC);
+  if (rec) info.pvp = { w: rec.w || 0, l: rec.l || 0, d: rec.d || 0 };
+  // Daily games: every finished game (Won / Lost), and your best streak going now
+  let n = 0, won = 0, streak = 0;
+  try {
+    const day = Math.floor(Date.now() / 86400000);
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (/^mapleWordle:result:[a-z]+:\d+$/.test(k)) { const v = localStorage.getItem(k) || ''; if (/^Won/.test(v)) { n++; won++; } else if (/^Lost/.test(v)) n++; }
+      const sm = /^mapleWordle:streak:([a-z]+)$/.exec(k);
+      if (sm) { const st = lsJson(k); if (st && !(sm[1] === 'story' && st.last != null && st.last < day - 1)) streak = Math.max(streak, st.count || 0); }
+    }
+  } catch {}
+  if (n) info.daily = { n, won, streak };
+  return info;
+}
+function notePvp(m) {   // your record, once per match: only against people (bots don't count), not Boss Raid
+  if (m.mode === 'raid' || notePvp.done.has(m.id) || !m.players.some((p) => p.id !== me.id && !p.bot) || !m.players.some((p) => p.id === me.id)) return;
+  notePvp.done.add(m.id);
+  const r = lsJson(PVP_REC) || { w: 0, l: 0, d: 0 };
+  if (m.over.draw || m.over.winners.length !== 1) r.d = (r.d || 0) + 1;
+  else if (m.over.winners[0] === me.id) r.w = (r.w || 0) + 1;
+  else r.l = (r.l || 0) + 1;
+  try { localStorage.setItem(PVP_REC, JSON.stringify(r)); } catch {}
+}
+notePvp.done = new Set();
+async function loadPlace() {   // (the test site's pretend account server answers this too)
+  const ap = parseInt(localStorage.getItem('mapleWordle:ap'), 10);
+  if (!(ap >= 0) || typeof ACCOUNT_URL !== 'string') return;
+  try {
+    const r = await fetch(ACCOUNT_URL + 'place?ap=' + ap);
+    const d = r.ok ? await r.json() : null;
+    if (d?.place > 0) myPlace = d.place;
+  } catch {}
 }
 function cleanLook(l) {   // (it came from another player: only what this page knows)
   if (!l || typeof l !== 'object') return null;
@@ -732,8 +789,15 @@ function cleanLook(l) {   // (it came from another player: only what this page k
   if (has(typeof ACCT_AVATARS === 'undefined' ? undefined : ACCT_AVATARS, l.avatar)) out.avatar = l.avatar;
   else if (typeof l.img === 'string' && l.img.length < 2000 && LOOK_IMG.test(l.img)) out.img = l.img;   // (Nexon's are ~1,070 long)
   else if (typeof l.cls === 'string' && Object.hasOwn(CLASS_PICS, l.cls)) out.cls = l.cls;
-  else return null;
-  if (has(typeof ACCT_EFFECTS === 'undefined' ? undefined : ACCT_EFFECTS, l.fx)) out.fx = l.fx;
+  if ((out.avatar || out.img || out.cls) && has(typeof ACCT_EFFECTS === 'undefined' ? undefined : ACCT_EFFECTS, l.fx)) out.fx = l.fx;
+  const i = l.info && typeof l.info === 'object' ? l.info : {}, info = {};
+  const num = (x, max) => (Number.isFinite(x) && x >= 0 ? Math.min(Math.floor(x), max) : null);
+  const str = (x, n) => (typeof x === 'string' && x ? x.slice(0, n) : null);
+  if (str(i.ign, 20)) Object.assign(info, { ign: str(i.ign, 20), world: str(i.world, 24) || '', level: num(i.level, 999), job: str(i.job, 32) || '' });
+  if (num(i.ap, 1e6) != null && Object.hasOwn(RANK_NAMES, i.rank)) Object.assign(info, { ap: num(i.ap, 1e6), rank: i.rank, place: num(i.place, 1e8) || null });
+  if (i.pvp && typeof i.pvp === 'object') info.pvp = { w: num(i.pvp.w, 1e6) || 0, l: num(i.pvp.l, 1e6) || 0, d: num(i.pvp.d, 1e6) || 0 };
+  if (i.daily && num(i.daily.n, 1e6)) info.daily = { n: num(i.daily.n, 1e6), won: Math.min(num(i.daily.won, 1e6) || 0, num(i.daily.n, 1e6)), streak: num(i.daily.streak, 1e5) || 0 };
+  out.info = info;
   return out;
 }
 const botLook = (cls, level) => (cls ? { cls, ...(level === 'hard' ? { fx: 'seethingBalance' } : {}) } : null);
@@ -748,17 +812,34 @@ function lookHtml(l) {
   if (l.img) return `<img class="pvpfig nexon" src="${esc(l.img)}" alt="" referrerpolicy="no-referrer">`;
   return `<img class="pvpfig cls" src="images/classes/${esc(l.cls)}.png" alt="">`;
 }
+const SIDES = matchMedia('(min-width: 1100px) and (orientation: landscape)');
+const isDuel = () => !!game && game.players.length === 2 && game.mode !== 'raid' && game.players.some((p) => p.id === me.id);
+const sidesOn = () => isDuel() && SIDES.matches;
+function infoHtml(p, l) {
+  const i = l?.info || {}, f = (x) => x.toLocaleString('en-US'), rows = [`<b class="nm">${p.bot ? '🤖 ' : ''}${esc(p.name)}${p.id === me.id ? ' (you)' : ''}</b>`];
+  if (p.bot) rows.push(`<span>${esc(BOTS[p.bot]?.name.replace(/ \(.*/, '') || '')} bot</span>`);
+  else {
+    if (i.ign) rows.push(`<span>${esc(i.ign)}${i.world ? ' · ' + esc(i.world) : ''}</span>`);
+    if (i.ign && i.level) rows.push(`<span>Lv. ${i.level} ${esc(i.job)}</span>`);
+    if (i.rank) rows.push(`<span class="rk"><img src="images/achv/rank/${i.rank}.png" alt="">${RANK_NAMES[i.rank]} · ${f(i.ap)} AP${i.place ? ` · #${f(i.place)}` : ''}</span>`);
+    if (i.pvp) rows.push(`<span>⚔️ PvP ${f(i.pvp.w)}W ${f(i.pvp.l)}L${i.pvp.d ? ` ${f(i.pvp.d)}D` : ''}</span>`);
+    if (i.daily) rows.push(`<span>📅 ${f(i.daily.n)} games · ${Math.round(i.daily.won / i.daily.n * 100)}% won · ${i.daily.streak}🔥</span>`);
+  }
+  return `<div class="pvpinfo">${rows.join('')}</div>`;
+}
 function drawChars() {
-  const box = $('chars');
-  const duel = game && game.players.length === 2 && game.mode !== 'raid' && game.players.some((p) => p.id === me.id);
-  if (!duel) { box.hidden = true; box.innerHTML = ''; return; }
+  const box = $('chars'), on = sidesOn();
+  document.body.classList.toggle('pvpsides', on);
+  if (!on) { box.hidden = true; box.innerHTML = ''; return; }
   const side = (p, cls) => {
-    const l = cleanLook(p.look);
-    return `<div class="pvpchar ${cls}" data-pid="${esc(p.id)}">${l ? `<div class="pvpstage">${lookHtml(l)}</div><b>${esc(p.name)}</b>` : ''}</div>`;
+    const l = cleanLook(p.look), flip = cls === 'me' || (l?.cls && !NO_FLIP.includes(l.cls));
+    return `<div class="pvpchar ${cls}" data-pid="${esc(p.id)}">${l?.avatar || l?.img || l?.cls ? `<div class="pvpstage${flip ? ' flip' : ''}">${lookHtml(l)}</div>` : ''}` +
+      `<div class="pvpbox">${infoHtml(p, l)}<div class="pvpslot"></div></div></div>`;
   };
   box.innerHTML = side(game.players.find((p) => p.id === me.id), 'me') + side(game.players.find((p) => p.id !== me.id), 'foe');
-  box.hidden = !box.querySelector('.pvpstage');
+  box.hidden = false;
 }
+SIDES.addEventListener?.('change', () => { if (game && isDuel()) { drawChars(); drawBoards(); } });
 function charsEntrance() {
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   let any = false;
@@ -835,7 +916,7 @@ function stopMusic(fade = 1.2) {
 const me = { id: newId(), name: '' };
 let net = null, room = null, game = null, host = null;   // host: {match | tour} when this page runs the match
 const screens = ['lobby', 'room', 'match', 'bracket', 'result'];
-function show(name) { for (const s of screens) $(s).hidden = s !== name; window.scrollTo?.(0, 0); }
+function show(name) { for (const s of screens) $(s).hidden = s !== name; if (name !== 'match') document.body.classList.remove('pvpsides'); window.scrollTo?.(0, 0); }
 
 function defaultName() {
   try { const a = JSON.parse(localStorage.getItem('mapleWordle:account') || 'null'); if (a?.name) return a.name; } catch {}
@@ -1206,14 +1287,15 @@ function onMatch(m) {
   game = { id: m.id, cfg: m.cfg, players: m.players, state: m.state, mode: m.mode, startHp: m.startHp, round: 0, history: [] };
   $('reveal').hidden = true;
   $('questions').innerHTML = '';
+  $('questions').hidden = false;
   $('matchMsg').textContent = '';
   $('roundNo').textContent = 'Get ready…';
   $('multBadge').hidden = true; $('sdBadge').hidden = true;
   $('musicState').textContent = '♪';
   setClock(m.cfg.time, m.cfg.time);
   show('match');
+  drawChars();   // (first: the boards go into its boxes on a wide screen)
   drawBoards();
-  drawChars();
   charsEntrance();
 }
 function spectate(m) {
@@ -1229,6 +1311,7 @@ function onLoad(m) {
   $('multBadge').hidden = !(m.mult > 1); $('multBadge').textContent = `x${m.mult} damage`;
   $('sdBadge').hidden = !m.sudden; $('sdBadge').textContent = 'Sudden death';
   $('reveal').hidden = true;
+  $('questions').hidden = false;
   $('matchMsg').textContent = '';
   setClock(m.time, m.time);
   $('musicState').textContent = '♪ Loading the track…';
@@ -1286,6 +1369,7 @@ const skillsOpen = () => game && game.startPerf && !game.timeIsUp && !game.ended
 function drawSkills() {
   const box = $('skills');
   if (!game || game.mode !== 'raid') { box.hidden = true; box.innerHTML = ''; return; }
+  if (game.revealing) { box.hidden = true; return; }
   box.hidden = false;
   const st = game.state.players[me.id];
   if (!st || st.out) { box.innerHTML = '<p class="pvpout">You’re out: your team fights on.</p>'; return; }
@@ -1437,7 +1521,9 @@ function drawBoards(state = game?.state) {
     else if (g.mode === 'best') stat = `<div class="wins">${'●'.repeat(st.wins)}${'○'.repeat(Math.max(0, neededWins(c.bestOf) - st.wins))}</div><small>${st.wins} round win${st.wins === 1 ? '' : 's'} (need ${neededWins(c.bestOf)})</small>`;
     const locked = g.others?.[p.id] || new Set();
     const dots = g.qs ? Object.keys(g.qs).map((q) => `<span class="dot${locked.has(q) ? ' on' : ''}" title="${QNAME[q]}">${locked.has(q) ? '🔒' : '⏳'}</span>`).join('') : '';
-    html += `<div class="pvpboard${p.id === me.id ? ' me' : ''}${st.out ? ' out' : ''}" data-pid="${p.id}"><div class="who">${p.bot ? '🤖 ' : ''}${esc(p.name)}${p.id === me.id ? ' (you)' : ''}</div>${stat}<div class="dots">${st.out ? 'Out' : dots}</div></div>`;
+    const board = `<div class="pvpboard${p.id === me.id ? ' me' : ''}${st.out ? ' out' : ''}" data-pid="${p.id}"><div class="who">${p.bot ? '🤖 ' : ''}${esc(p.name)}${p.id === me.id ? ' (you)' : ''}</div>${stat}<div class="dots">${st.out ? 'Out' : dots}</div></div>`;
+    const slot = sidesOn() && document.querySelector(`#chars .pvpchar[data-pid="${CSS.escape(p.id)}"] .pvpslot`);
+    if (slot) slot.innerHTML = board; else html += board;
   }
   $('boards').innerHTML = html + '</div>';
 }
@@ -1445,6 +1531,8 @@ function drawBoards(state = game?.state) {
 async function onReveal(r) {
   if (!game || r.id !== game.id) return;
   game.revealing = true;
+  $('questions').hidden = true;   // (the results show what everyone locked in)
+  $('skills').hidden = true;
   cancelAnimationFrame(game.timer);
   game.timeIsUp = true;
   $('clockNum').textContent = '–';
@@ -1535,6 +1623,7 @@ function evText(e, name, r) {
 }
 function onEnd(m) {
   if (!game || m.id !== game.id) return;
+  notePvp(m);
   const wait = $('reveal').hidden ? 0 : 900;
   setTimeout(() => showResult(m), wait);
 }
@@ -1645,10 +1734,11 @@ $('infoClose').addEventListener('click', () => { $('info').hidden = true; });
 
 // ---------- Start ----------
 addEventListener('pagehide', () => { if (net && room && !room.local) net.send('all', room.hostId === me.id ? { t: 'closed', why: 'The host left the room.' } : { t: 'bye' }); });
+loadPlace();
 loadData().then(() => {
   const code = new URLSearchParams(location.search).get('room');
   lobby();
   if (code && /^[A-Za-z]{4}$/.test(code)) joinRoom(code.toUpperCase());
 }).catch(() => lobby('Couldn’t load the BGM list. Try reloading.'));
-window.pvpDebug = { get game() { return game; }, get room() { return room; }, get host() { return host; }, dmgAt, DATA: () => DATA, Match, botAnswers, music, cleanLook, botLook };
+window.pvpDebug = { get game() { return game; }, get room() { return room; }, get host() { return host; }, dmgAt, DATA: () => DATA, Match, botAnswers, music, cleanLook, botLook, myLook, myInfo, notePvp };
 })();

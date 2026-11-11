@@ -21,6 +21,7 @@
 //                                        (admin.html on the site types these as /find commands)
 //   POST /admin/delete {name}            header X-Admin-Key. Deletes the account and signs out its devices (no undo).
 //   GET  /top                            the site's top 10 by achievement points with at least 1,000 (Master rank)
+//   GET  /place?ap=N                     the place N achievement points has on the site (1 = most), e.g. PvP's #12
 //                                        -> {top: [{id, name, ap}]} (AP: the mapleWordle:ap key in each save; cached 5 min)
 //   GET  /rates                          how many accounts have each achievement -> {total, have: {<id>: n}} (total: the
 //                                        accounts with an achievements save, mapleWordle:achv; cached 5 min)
@@ -178,6 +179,21 @@ export default {
       const { results } = await db.prepare(`SELECT id, name, CAST(COALESCE(json_extract(data, '$."mapleWordle:ap"'), '0') AS INTEGER) AS ap FROM users ` +
         'WHERE ap >= 1000 ORDER BY ap DESC, id ASC LIMIT 10').all();
       const res = json({ top: results });
+      res.headers.set('Cache-Control', 'public, max-age=300');
+      await cache.put(key, res.clone());
+      return res;
+    }
+
+    // Your place by achievement points (1 + how many accounts have more), for PvP's info box. No sign-in needed (a
+    // count only). Kept at Cloudflare's edge for 5 minutes, like /top.
+    if (path === '/place' && request.method === 'GET') {
+      const ap = Number(url.searchParams.get('ap'));
+      if (!Number.isInteger(ap) || ap < 0 || ap > 1000000) return json({ error: 'ap' }, 400);
+      const cache = caches.default, key = new Request(url.origin + '/place?ap=' + ap);
+      const hit = await cache.match(key);
+      if (hit) return hit;
+      const r = await db.prepare(`SELECT COUNT(*) AS n FROM users WHERE CAST(COALESCE(json_extract(data, '$."mapleWordle:ap"'), '0') AS INTEGER) > ?`).bind(ap).first();
+      const res = json({ place: (r?.n || 0) + 1 });
       res.headers.set('Cache-Control', 'public, max-age=300');
       await cache.put(key, res.clone());
       return res;

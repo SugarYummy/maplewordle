@@ -93,6 +93,10 @@
       for (const g of saves) for (const [k, v] of Object.entries(g)) if (!k.startsWith('_') && v != null) have[k] = (have[k] || 0) + 1;
       return reply({ total: saves.length, have });
     }
+    if (path === 'place') {   // a place by achievement points among the test accounts (the real server: GET /place)
+      const ap = Number(new URL(url).searchParams.get('ap')) || 0;
+      return reply({ place: Object.values(s.users).filter((u) => (parseInt(u.data?.['mapleWordle:ap'], 10) || 0) > ap).length + 1 });
+    }
     const body = init.body ? JSON.parse(init.body) : {};
     const byName = (n) => Object.values(s.users).find((u) => u.name.toLowerCase() === String(n).toLowerCase());
     if (path === 'signup') return reply({ error: 'devonly' }, 403);
