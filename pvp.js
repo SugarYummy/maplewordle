@@ -1033,6 +1033,7 @@ function lock(q, value) {
   const box = $('questions').querySelector(`[data-q="${q}"]`);
   if (box) { box.classList.add('locked'); box.querySelector('.qbody').innerHTML = `<span class="qlock">🔒 ${esc(value)} <small>${(ms / 1000).toFixed(2)} s</small></span>`; }
   if (Object.keys(game.qs).every((k) => game.locks[k])) $('matchMsg').textContent = 'All locked in. Waiting for the others…';
+  else if (!matchMedia('(pointer: coarse)').matches) $('questions').querySelector('.pvpqbox:not(.locked):not(.missed) input')?.focus({ preventScroll: true });   // (computers: straight on to the next one; phones would pop the keyboard up)
 }
 function onLocked(m) {
   if (!game || m.id !== game.id) return;
@@ -1064,7 +1065,7 @@ function drawQuestions(active) {
       f.onsubmit = (e) => { e.preventDefault(); lock(q, f.querySelector('input').value); };
     } else dropdown(body, q, spec.options || (q === 'bgm' ? bossNames() : q === 'title' ? DATA.titles : DATA.byName[game.answerBoss]?.labels || []));
   }
-  box.querySelector('input')?.focus({ preventScroll: true });
+  if (!matchMedia('(pointer: coarse)').matches) box.querySelector('input')?.focus({ preventScroll: true });
 }
 // The site's search box with a list under it: type to filter, click (or Enter on the highlighted row) to lock it in.
 function dropdown(body, q, items) {
