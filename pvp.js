@@ -66,7 +66,6 @@ const BOTS = {
   hard:   { name: 'Hard', p: 0.9, know: 3.7, click: 1.6, pick: 1.8, think: 1, cps: 6.5 },
   dummy:  { name: 'Dummy (never answers)', p: 0, never: true },
 };
-const BOT_NAMES = ['Mano', 'Stumpy', 'Faust', 'King Slime', 'Mushmom', 'Zombie Mushmom', 'Jr. Balrog', 'Crimson Balrog', 'Ergoth', 'Ravana', 'Deo', 'Timer'];
 // One "slowness" number per player for a round: their lock-in times added up, a question left unanswered counting as
 // the whole round + 1 s. Higher = slower.
 const slowness = (per, qs, time) => Object.keys(qs).reduce((s, q) => s + (per.items[q]?.ms ?? (time + 1) * 1000), 0);
@@ -695,18 +694,25 @@ const roomNet = (myId, code) => PVP_SERVER ? wsNet(myId, code) : tabsNet(myId, c
 // ============================== Characters (PC / landscape, 1v1) ==============================
 // You stand left of the match and the other player right: your MapleStory Character (Account Settings) with your
 // appearance effect, which plays once as the match starts (round 1 waits for it). Bots: a class portrait (the Class
-// game's art, except Tanjiro's: it isn't see-through); Hard bots come in with Seething Balance. No character: that
-// side stays empty. Phones / portrait: none.
+// game's art, except Tanjiro's: it isn't see-through), named after that class; Hard bots come in with Seething
+// Balance. Training dummies: no portrait. No character: that side stays empty. Phones / portrait: none.
 const ENTRANCE_MS = 3800;
-const CLASS_PICS = [
-  'adele', 'angelic-buster', 'aran', 'arch-mage-f-p', 'arch-mage-i-l', 'ark', 'battle-mage', 'beast-tamer', 'bishop',
-  'blaster', 'blaze-wizard', 'bow-master', 'buccaneer', 'cadena', 'cannoneer', 'corsair', 'dark-knight',
-  'dawn-warrior', 'demon-avenger', 'demon-slayer', 'dual-blade', 'erel-light', 'evan', 'hayato', 'hero', 'hoyoung',
-  'iel', 'illium', 'jett', 'kain', 'kaiser', 'kanna', 'khali', 'kinesis', 'lara', 'lethe', 'luminous', 'lynn',
-  'marksman', 'mechanic', 'mercedes', 'mihile', 'mo-xuan', 'night-lord', 'night-walker', 'paladin', 'pathfinder',
-  'phantom', 'pink-bean', 'ren', 'saitama', 'shade', 'shadower', 'sia-astelle', 'thunder-breaker',
-  'wild-hunter', 'wind-archer', 'xenon', 'yeti', 'zen', 'zero',
-];
+const CLASS_PICS = {   // portrait file: its class (the bot's name)
+  'adele': 'Adele', 'angelic-buster': 'Angelic Buster', 'aran': 'Aran', 'arch-mage-f-p': 'Arch Mage (F/P)',
+  'arch-mage-i-l': 'Arch Mage (I/L)', 'ark': 'Ark', 'battle-mage': 'Battle Mage', 'beast-tamer': 'Beast Tamer',
+  'bishop': 'Bishop', 'blaster': 'Blaster', 'blaze-wizard': 'Blaze Wizard', 'bow-master': 'Bow Master',
+  'buccaneer': 'Buccaneer', 'cadena': 'Cadena', 'cannoneer': 'Cannoneer', 'corsair': 'Corsair',
+  'dark-knight': 'Dark Knight', 'dawn-warrior': 'Dawn Warrior', 'demon-avenger': 'Demon Avenger',
+  'demon-slayer': 'Demon Slayer', 'dual-blade': 'Dual Blade', 'erel-light': 'Erel Light', 'evan': 'Evan',
+  'hayato': 'Hayato', 'hero': 'Hero', 'hoyoung': 'Hoyoung', 'iel': 'Iel', 'illium': 'Illium', 'jett': 'Jett',
+  'kain': 'Kain', 'kaiser': 'Kaiser', 'kanna': 'Kanna', 'khali': 'Khali', 'kinesis': 'Kinesis', 'lara': 'Lara',
+  'lethe': 'Lethe', 'luminous': 'Luminous', 'lynn': 'Lynn', 'marksman': 'Marksman', 'mechanic': 'Mechanic',
+  'mercedes': 'Mercedes', 'mihile': 'Mihile', 'mo-xuan': 'Mo Xuan', 'night-lord': 'Night Lord',
+  'night-walker': 'Night Walker', 'paladin': 'Paladin', 'pathfinder': 'Pathfinder', 'phantom': 'Phantom',
+  'pink-bean': 'Pink Bean', 'ren': 'Ren', 'saitama': 'Saitama', 'shade': 'Shade', 'shadower': 'Shadower',
+  'sia-astelle': 'Sia Astelle', 'thunder-breaker': 'Thunder Breaker', 'wild-hunter': 'Wild Hunter',
+  'wind-archer': 'Wind Archer', 'xenon': 'Xenon', 'yeti': 'Yeti', 'zen': 'Zen', 'zero': 'Zero',
+};
 const LOOK_IMG = /^https:\/\/[a-z0-9-]+(\.[a-z0-9-]+)*\.nexon\.net\/[\w\-./%]+$/i;   // (someone else's: only Nexon's own avatar pictures)
 function myLook() {
   try {
@@ -724,17 +730,14 @@ function cleanLook(l) {   // (it came from another player: only what this page k
   if (!l || typeof l !== 'object') return null;
   const out = {}, has = (o, k) => typeof k === 'string' && typeof o !== 'undefined' && Object.hasOwn(o, k);
   if (has(typeof ACCT_AVATARS === 'undefined' ? undefined : ACCT_AVATARS, l.avatar)) out.avatar = l.avatar;
-  else if (typeof l.img === 'string' && l.img.length < 400 && LOOK_IMG.test(l.img)) out.img = l.img;
-  else if (CLASS_PICS.includes(l.cls)) out.cls = l.cls;
+  else if (typeof l.img === 'string' && l.img.length < 2000 && LOOK_IMG.test(l.img)) out.img = l.img;   // (Nexon's are ~1,070 long)
+  else if (typeof l.cls === 'string' && Object.hasOwn(CLASS_PICS, l.cls)) out.cls = l.cls;
   else return null;
   if (has(typeof ACCT_EFFECTS === 'undefined' ? undefined : ACCT_EFFECTS, l.fx)) out.fx = l.fx;
   return out;
 }
-function botLook(name, level) {   // the same portrait for the same bot name
-  let h = 7;
-  for (const ch of String(name)) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
-  return { cls: CLASS_PICS[h % CLASS_PICS.length], ...(level === 'hard' ? { fx: 'seethingBalance' } : {}) };
-}
+const botLook = (cls, level) => (cls ? { cls, ...(level === 'hard' ? { fx: 'seethingBalance' } : {}) } : null);
+const botClasses = () => shuffle(Object.keys(CLASS_PICS));
 const isSafari = () => typeof SAFARI !== 'undefined' && SAFARI;
 function lookHtml(l) {
   if (l.avatar) {
@@ -879,15 +882,18 @@ function seatsFor(cfg) {   // how many players this mode wants (bots fill the em
   if (cfg.mode === 'raid') return cfg.raidSize;
   return 2;
 }
-let botNames = shuffle(BOT_NAMES);   // the same bots from the room screen into the match (new ones for each room)
+let botNames = botClasses();   // the same bots (classes) from the room screen into the match (new ones for each room)
 function botMembers(cfg, humans) {
-  const n = Math.max(0, seatsFor(cfg) - humans.length), names = botNames, out = [];
-  for (let i = 0; i < n; i++) out.push({ id: 'bot' + i, name: (cfg.botLevel === 'dummy' ? 'Training Dummy' : names[i % names.length]) + (n > 1 && cfg.botLevel === 'dummy' ? ' ' + (i + 1) : ''), bot: cfg.botLevel, ready: true });
+  const n = Math.max(0, seatsFor(cfg) - humans.length), dummy = cfg.botLevel === 'dummy', out = [];
+  for (let i = 0; i < n; i++) {
+    const cls = dummy ? null : botNames[i % botNames.length];
+    out.push({ id: 'bot' + i, name: dummy ? 'Training Dummy' + (n > 1 ? ' ' + (i + 1) : '') : CLASS_PICS[cls], cls, bot: cfg.botLevel, ready: true });
+  }
   return out;
 }
 function openLocal(cfg, title) {
   leaveRoom(true);
-  botNames = shuffle(BOT_NAMES);
+  botNames = botClasses();
   net = localNet(me.id);
   net.handlers.push(onMessage);
   room = { code: null, local: true, hostId: me.id, members: [{ id: me.id, name: me.name, bot: null, ready: true, look: myLook() }], cfg, title };
@@ -896,7 +902,7 @@ function openLocal(cfg, title) {
 }
 function createRoom(queue, code = newCode()) {
   leaveRoom(true);
-  botNames = shuffle(BOT_NAMES);
+  botNames = botClasses();
   const cfg = loadCfg();
   cfg.queue = !!queue;
   if (cfg.botLevel === 'dummy') cfg.botLevel = 'normal';
@@ -1101,14 +1107,15 @@ function startMatch() {
   const c = JSON.parse(JSON.stringify(room.cfg));
   if (c.mode === 'best') c.q = { bgm: true, phase: false, title: false };
   const people = room.members.filter((m) => !m.bot).map((m) => ({ id: m.id, name: m.name, bot: null, look: m.id === me.id ? myLook() : cleanLook(m.look) }));
-  const bots = room.local || room.fill ? botMembers(c, people).map((b) => ({ id: b.id, name: b.name, bot: b.bot, look: botLook(b.name, b.bot) })) : [];
+  const bots = room.local || room.fill ? botMembers(c, people).map((b) => ({ id: b.id, name: b.name, bot: b.bot, look: botLook(b.cls, b.bot) })) : [];
   let players = [...people, ...bots];
   if (c.mode === 'tour') {
     const size = [2, 4, 8].find((n) => n >= players.length) || 8;
     players = players.slice(0, size);
     while (players.length < size) {
-      const name = BOT_NAMES[players.length % BOT_NAMES.length], bot = c.botLevel === 'dummy' ? 'easy' : c.botLevel;
-      players.push({ id: 'bot' + players.length, name, bot, look: botLook(name, bot) });
+      const used = new Set(players.map((p) => p.name)), cls = botNames.find((k) => !used.has(CLASS_PICS[k])) || botNames[0];
+      const bot = c.botLevel === 'dummy' ? 'easy' : c.botLevel;
+      players.push({ id: 'bot' + players.length, name: CLASS_PICS[cls], bot, look: botLook(cls, bot) });
     }
   }
   if (!['raid'].includes(c.mode) && players.length < 2) { $('roomMsg').textContent = 'This mode needs at least 2 players.'; return; }
