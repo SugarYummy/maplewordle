@@ -143,7 +143,7 @@
     ['Hidden', [
       kill('Malefic Star', "Siren's Song", "Siren's Song", 'malefic-star', 'sirenSong', { rwIcon: 'images/achv/siren-song.png' }),
       kill('Kai', 'Iaido Alpha', 'Iaido Alpha', 'kai', 'iaidoAlpha', { rwIcon: 'images/achv/iaido-alpha.png' }),   // (its win effect, the reward, keeps its full name: fx.js HECATE)
-      kill('Mayrin', 'Guide of Destiny', 'Guide of Destiny', 'mayrin', 'mayrinKill', { rwPic: 'images/fx/hecate/mayrinKill-reward.webp?v=1' }),   // (no icons of their own yet)
+      kill('Mayrin', 'Guiding Fate: Doom', 'Guiding Fate: Doom', 'mayrin', 'mayrinKill', { rwPic: 'images/fx/hecate/mayrinKill-reward.webp?v=1' }),   // (no icons of their own yet)
       kill('Bellona', "Fanatic's Execution", "Fanatic's Execution", 'bellona', 'bellonaKill', { rwPic: 'images/fx/hecate/bellonaKill-reward.webp?v=1' }),
       A('kill:Jupiter', 'Seething Balance', "Played all versions of Jupiter's BGM in Extreme mode.",
         (s, L) => { const t = L?.tracksOf.Jupiter || []; return [t.filter((x) => s.tracks.has(x)).length, t.length || 1]; },

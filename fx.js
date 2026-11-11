@@ -246,7 +246,7 @@ const HECATE = {   // ms: clip length, burst: ms into the clip when it bursts (f
   // yours once you claim that boss's Hidden achievement (achv.js)
   sirenSong: { name: "Siren's Song", ms: 4500, burst: 2280, v: 2, achv: 'kill:Malefic Star' },
   iaidoAlpha: { name: 'Kai-ryu Sword: Iaido Alpha', ms: 2640, burst: 1740, achv: 'kill:Kai' },
-  mayrinKill: { name: 'Guide of Destiny', ms: 3600, burst: 2640, v: 2, achv: 'kill:Mayrin' },
+  mayrinKill: { name: 'Guiding Fate: Doom', ms: 3600, burst: 2640, v: 2, achv: 'kill:Mayrin' },
   bellonaKill: { name: "Fanatic's Execution", ms: 2820, burst: 1620, v: 2, achv: 'kill:Bellona' },
 };
 const achvGot = (id) => { try { return JSON.parse(lsGet('mapleWordle:achv') || '{}')._claimed?.[id] != null; } catch { return false; } };   // claimed (achv.js)
@@ -306,7 +306,7 @@ function playHecate(special = false) {   // special: Limbo's mashup win (plays w
   document.body.appendChild(el);
   el.play?.().catch(done);
   if (SOUNDS[id]) {   // its skill sound, in step with the clip (from when its video really starts)
-    // Guide of Destiny's sound starts 0.56 s late, so its last hit (2.08 s in) lands on the card exploding (2.64 s in)
+    // Guiding Fate: Doom's sound starts 0.56 s late, so its last hit (2.08 s in) lands on the card exploding (2.64 s in)
     const lag = id === 'limboCut' ? 150 : id === 'mayrinKill' ? 560 : 0;
     if (SAFARI) resultSound(true, lag, id);
     else el.addEventListener('playing', () => resultSound(true, lag, id), { once: true });
