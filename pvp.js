@@ -57,8 +57,15 @@ const CHOICES = { time: [10, 15, 20, 30, 60], hp: [100, 500, 1000, 2000], lives:
                   bossHp: [30000, 60000, 120000, 250000], raidLives: [1, 3, 5], tourHp: [250, 500, 1000] };
 const LIMITS = { time: [1, 999], hp: [1, 9999], lives: [1, 20], firstTo: [1, 99], bestOf: [1, 99], bossHp: [1, 9999999], raidLives: [1, 20], tourHp: [1, 9999] };
 const INPUTS = { typed: 'Type it (80% match)', dropdown: 'Dropdown', abcd: 'A / B / C / D' };
-const BOTS = { easy: { name: 'Easy', p: 0.5, mean: 13, none: 0.12 }, normal: { name: 'Normal', p: 0.72, mean: 8, none: 0.05 },
-               hard: { name: 'Hard', p: 0.9, mean: 4.5, none: 0.01 }, dummy: { name: 'Dummy (never answers)', p: 0, mean: 0, none: 1 } };
+// Bots answer at a person's pace (typical seconds; each answer varies around them): know = hearing the track and
+// knowing the boss, then the input: click = an A/B/C/D button, pick = search a dropdown and pick, typing = think +
+// letters at cps letters a second. p = how often it's right.
+const BOTS = {
+  easy:   { name: 'Easy', p: 0.5, know: 10, click: 4.5, pick: 4, think: 2.5, cps: 3.5 },
+  normal: { name: 'Normal', p: 0.72, know: 6.5, click: 2.8, pick: 2.6, think: 1.5, cps: 5 },
+  hard:   { name: 'Hard', p: 0.9, know: 3.7, click: 1.6, pick: 1.8, think: 1, cps: 6.5 },
+  dummy:  { name: 'Dummy (never answers)', p: 0, never: true },
+};
 const BOT_NAMES = ['Mano', 'Stumpy', 'Faust', 'King Slime', 'Mushmom', 'Zombie Mushmom', 'Jr. Balrog', 'Crimson Balrog', 'Ergoth', 'Ravana', 'Deo', 'Timer'];
 // One "slowness" number per player for a round: their lock-in times added up, a question left unanswered counting as
 // the whole round + 1 s. Higher = slower.
@@ -142,14 +149,18 @@ function isRight(q, value, tr, qs) {
 
 // ============================== Bots ==============================
 function botAnswers(level, qs, tr, time) {
-  const b = BOTS[level] || BOTS.normal, out = {}, hurry = clamp(time / 30, 0.35, 1);   // short rounds: they hurry too
+  const b = BOTS[level] || BOTS.normal, out = {};
+  if (b.never) return out;
+  const vary = (x, min) => Math.max(min, x * Math.exp((Math.random() - 0.5) * 0.8));   // about x0.67 to x1.5
   let t = 0;
-  for (const q of QS) {
-    if (!qs[q] || Math.random() < b.none) continue;
-    t += Math.max(0.6, b.mean * hurry * Math.exp((Math.random() - 0.5) * 1.3) * (t ? 0.35 : 1));   // later questions go quicker
-    if (t > time - 0.15) break;
+  for (const q of QS) {   // in order, one after another, like a person
+    if (!qs[q]) continue;
     const right = Math.random() < b.p * (q === 'bgm' ? 1 : q === 'phase' ? 0.9 : 0.8);
-    out[q] = { value: right ? rightValue(q, tr) : wrongValue(q, tr, qs[q]), ms: Math.round(t * 1000) };
+    const value = right ? rightValue(q, tr) : wrongValue(q, tr, qs[q]), style = qs[q].style;
+    if (!t) t = vary(b.know, 2);
+    t += style === 'abcd' ? vary(b.click, 0.6) : style === 'typed' ? vary(b.think, 0.4) + String(value).length / b.cps * vary(1, 0.8) : vary(b.pick, 1);
+    if (t > time - 0.15) break;   // out of time: it doesn't get to the rest either
+    out[q] = { value, ms: Math.round(t * 1000) };
   }
   return out;
 }
@@ -285,7 +296,8 @@ class Match {
       return this.resolve();
     }
     this.send('all', { t: 'load', id: this.id, round: s.round, track: { id: tr.id, v: tr.v }, qs, time, mult: this.multNow(), tb: s.tb, sudden: s.sudden, move: s.boss?.move ?? null });
-    this.later(() => this.go(), 20000);   // someone's music won't load: start anyway
+    const cur = this.cur;
+    this.later(() => { if (this.cur === cur) this.go(); }, 20000);   // someone's music won't load: start this round anyway
     this.checkReady();
   }
   multNow() { return ['hp', 'ffa'].includes(this.mode) && !this.state.tb ? multOf(this.state.round) : 1; }
@@ -1110,7 +1122,7 @@ function spectate(m) {
 }
 function onLoad(m) {
   if (!game || m.id !== game.id) return;
-  Object.assign(game, { round: m.round, qs: m.qs, time: m.time, mult: m.mult, locks: {}, startPerf: 0, others: {}, tb: m.tb, sudden: m.sudden, revealing: false, casts: {}, ended: false });
+  Object.assign(game, { round: m.round, qs: m.qs, time: m.time, mult: m.mult, locks: {}, startPerf: 0, others: {}, tb: m.tb, sudden: m.sudden, revealing: false, casts: {}, ended: false, buf: null });
   if (m.move && game.state.boss) game.state.boss.move = m.move;
   const meP = game.state.players[me.id];
   game.out = meP?.out;
@@ -1124,8 +1136,13 @@ function onLoad(m) {
   drawQuestions(false);
   drawBoards();
   drawSkills();
-  loadMusic(m.track).then((buf) => { if (game?.round === m.round) { game.buf = buf; net.send('host', { t: 'ready', id: game.id, round: m.round }); $('musicState').textContent = '♪ Ready. Waiting for everyone…'; } })
-    .catch(() => { $('musicState').textContent = '♪ The track didn’t load.'; net.send('host', { t: 'ready', id: game.id, round: m.round }); });
+  const mine = () => game?.id === m.id && game.round === m.round;
+  loadMusic(m.track).then((buf) => {
+    if (!mine()) return;
+    game.buf = buf;
+    if (!game.startPerf) { net.send('host', { t: 'ready', id: game.id, round: m.round }); $('musicState').textContent = '♪ Ready. Waiting for everyone…'; }
+    else if (!game.revealing) { playMusic(buf); $('musicState').textContent = '♪ Playing (it loops until the time is up)'; }   // arrived after the round started
+  }).catch(() => { if (!mine()) return; $('musicState').textContent = '♪ The track didn’t load.'; if (!game.startPerf) net.send('host', { t: 'ready', id: game.id, round: m.round }); });
 }
 function onGo(m) {
   if (!game || m.id !== game.id || m.round !== game.round) return;
@@ -1140,7 +1157,7 @@ function onGo(m) {
     drawSkills();
     tick();
   };
-  if (game.buf || !game.buf) go();
+  go();
 }
 function elapsed() { return game?.startPerf ? Math.max(0, performance.now() - game.startPerf) : 0; }
 function setClock(left, total) {
@@ -1534,5 +1551,5 @@ loadData().then(() => {
   lobby();
   if (code && /^[A-Za-z]{4}$/.test(code)) joinRoom(code.toUpperCase());
 }).catch(() => lobby('Couldn’t load the BGM list. Try reloading.'));
-window.pvpDebug = { get game() { return game; }, get room() { return room; }, get host() { return host; }, dmgAt, DATA: () => DATA, Match };
+window.pvpDebug = { get game() { return game; }, get room() { return room; }, get host() { return host; }, dmgAt, DATA: () => DATA, Match, botAnswers, music };
 })();
