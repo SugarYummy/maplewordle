@@ -822,7 +822,7 @@ function infoHtml(p, l) {
     if (i.ign) rows.push(`<span>${esc(i.ign)}${i.world ? ' · ' + esc(i.world) : ''}</span>`);
     if (i.ign && i.level) rows.push(`<span>Lv. ${i.level} ${esc(i.job)}</span>`);
     if (i.rank) rows.push(`<span class="rk"><img src="images/achv/rank/${i.rank}.png" alt="">${RANK_NAMES[i.rank]} · ${f(i.ap)} AP${i.place ? ` · #${f(i.place)}` : ''}</span>`);
-    if (i.pvp) rows.push(`<span>⚔️ PvP ${f(i.pvp.w)}W ${f(i.pvp.l)}L${i.pvp.d ? ` ${f(i.pvp.d)}D` : ''}</span>`);
+    if (i.pvp) rows.push(`<span title="PvP wins / losses / draws">⚔️ PvP ${f(i.pvp.w)}/${f(i.pvp.l)}/${f(i.pvp.d)}</span>`);   // (like a KDA)
     if (i.daily) rows.push(`<span>📅 ${f(i.daily.n)} games · ${Math.round(i.daily.won / i.daily.n * 100)}% won · ${i.daily.streak}🔥</span>`);
   }
   return `<div class="pvpinfo">${rows.join('')}</div>`;
