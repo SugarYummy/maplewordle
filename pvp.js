@@ -718,8 +718,8 @@ const roomNet = (myId, code) => PVP_SERVER ? wsNet(myId, code) : tabsNet(myId, c
 // You stand left of the match and the other player right: your MapleStory Character (Account Settings) with your
 // appearance effect, which plays once as the match starts (round 1 waits for it). Bots: a class portrait (the Class
 // game's art, except Tanjiro's: it isn't see-through), named after that class; Hard bots come in with Seething
-// Balance. Training dummies: no portrait. You face right (towards them); bots face left (flipped, except the two
-// that already do). Under each one, a box: who they are (name, character, world, level + job for a Nexon character,
+// Balance. Training dummies: no portrait. You face right (towards them); bots face left (flipped, except the ones
+// that already do: NO_FLIP). Under each one, a box: who they are (name, character, world, level + job for a Nexon character,
 // achievement rank + AP + place, PvP record, daily games) and the match (HP, locks...), which leaves the middle.
 // No character: just the box. Phones / portrait: the boards stay in the middle as before.
 const ENTRANCE_MS = 3800;
@@ -740,7 +740,8 @@ const CLASS_PICS = {   // portrait file: its class (the bot's name)
   'wind-archer': 'Wind Archer', 'xenon': 'Xenon', 'yeti': 'Yeti', 'zen': 'Zen', 'zero': 'Zero',
 };
 const LOOK_IMG = /^https:\/\/[a-z0-9-]+(\.[a-z0-9-]+)*\.nexon\.net\/[\w\-./%]+$/i;   // (someone else's: only Nexon's own avatar pictures)
-const NO_FLIP = ['cadena', 'kanna'];   // portraits that already face left
+const NO_FLIP = ['battle-mage', 'blaster', 'blaze-wizard', 'dawn-warrior', 'demon-avenger', 'demon-slayer', 'iel',   // portraits that already face left
+  'kanna', 'mechanic', 'night-walker', 'pink-bean', 'saitama', 'thunder-breaker', 'wild-hunter', 'wind-archer', 'yeti'];
 const RANK_NAMES = { bronze: 'Bronze', silver: 'Silver', gold: 'Gold', platinum: 'Platinum', diamond: 'Diamond', master: 'Master' };
 const RANK_AP = [['diamond', 2000], ['platinum', 1000], ['gold', 500], ['silver', 200], ['bronze', 0]];   // (achv.js RANKS)
 const PVP_REC = 'mapleWordle:pvp';   // { w, l, d }: finished matches against at least one person (not Boss Raid)
