@@ -85,9 +85,10 @@ bosses = [
     b("Pink Bean", MW, "Male", "All", ALLP, {
         "Normal": (140, 1, [2_100_000_000]),
         "Chaos": (170, 3, [12_600_000_000, 23_100_000_000, 33_600_000_000])}),
-    b("Cygnus", MW, "Female", "All except KMS", ALLP, {
+    b("Cygnus", MW, "Female", "All", ALLP, {
         "Easy": (165, 1, [10_500_000_000]),
-        "Normal": (165, 1, [63*B])}, notes="Removed from KMS in the Overdrive update"),
+        "Normal": (165, 1, [63*B])}, notes="Easy was removed from every server (GMS: Nov 11, 2026); Normal is still on every server",
+        diffRegion={"Easy": "Removed"}),
     b("Princess No", MW, "Female", "All except KMS", ALLP, {
         "Normal": (180, 1, [500*B])}),
     b("Akechi Mitsuhide", MW, "Male", "JMS/GMS/MSEA", ALLP, {
@@ -118,9 +119,9 @@ bosses = [
         "Hard": (250, 1, [178_500*B])}),
     b("Malicia", MW, "Female", "JMS/CMS/TMS/MSEA", ALLP, {
         "Normal": (250, 4, [49*T + 21*T, 56*T, 24*T, 28*T]),
-        "Extreme": (250, 4, [300*Q], "300Q+")},
-        notes="MSEA added Lian Plateau (Li-an Highlands) in Nov 2025, and her wiki page lists MSEA names and drops. Normal HP from Bahamut (TMS) boss HP table, Jul 2026: P1 49T + inner world 21T, P2 56T, P3 24T, P4 28T. "
-              "Extreme: known phases total ~149.7Q but Phase 4 is unknown, so shown as 300Q+"),
+        "Extreme": (250, 4, [200*Q], "200Q+")},
+        notes="MSEA added Lian Plateau (Li-an Highlands) in Nov 2025, and her wiki page lists MSEA names and drops. Normal HP from Bahamut (TMS) boss HP table, Jul 2026: P1 49T + inner world 21T, P2 56T, P3 24T, P4 28T, then ~33% less (MSEA, Nov 11, 2026). "
+              "Extreme: known phases total ~149.7Q but Phase 4 is unknown, so shown as 300Q+; ~33% less since Nov 11, 2026: 200Q+"),
     b("Darknell", AR, "Male", "All", ALLP, {
         "Normal": (255, 1, [26_250*B]),
         "Hard": (255, 1, [157_500*B])}),
@@ -170,9 +171,9 @@ bosses = [
         "Normal": (295, 1, [10_266*T]),
         "Hard": (295, 1, [49_400*T])}),
     b("Kai", "Other", "Male", "Seasonal", ALLP, {
-        "Normal": (270, 2, [63*T, 63*T]),
+        "Normal": (235, 2, [63*T, 63*T]),
         "Hard": (280, 2, [241_500*B, 241_500*B])},
-        notes="Challenger World seasonal boss; World set to Other (Nexus Tower)"),
+        notes="Challenger World seasonal boss; World set to Other (Nexus Tower). Normal came back Nov 12, 2026 - Feb 9, 2027: Lv 235+, HP ~90.4% less"),
     b("Mayrin", "Other", "Female", "Seasonal", ALLP, {
         "Normal": (270, 2, [58_925*B, 58_925*B]),
         "Hard": (280, 2, [290*T, 290*T])},
@@ -226,6 +227,8 @@ HP_CUT = {
     "Limbo": {"Normal": 0.325, "Hard": 0.325},
     "Baldrix": {"Normal": 0.322, "Hard": 0.322},
     "Jupiter": {"Normal": 0.32, "Hard": 0.32},
+    "Malicia": {"Normal": 0.33},   # MSEA v255 (not in GMS); Extreme has an HP label above (300Q+ -> 200Q+)
+    "Kai": {"Normal": 0.904},      # returning boss (Normal), Nov 12, 2026
 }
 for _b in bosses:
     for _d, _r in HP_CUT.get(_b["name"], {}).items():

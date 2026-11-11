@@ -42,8 +42,8 @@ Story/Normal and Hard use one difficulty per boss (Hard/Chaos > Extreme > Normal
 | 34 | OMNI-CLN | Normal | Maple World | Other | All | 1 | 1.68B | 180 | Story/Normal / Hard / Extreme |
 | 35 | Pink Bean | Normal | Maple World | Male | All | 1 | 2.1B | 140 | Extreme |
 | 36 | Pink Bean | Chaos | Maple World | Male | All | 3 | 69.3B | 170 | Story/Normal / Hard / Extreme |
-| 37 | Cygnus | Easy | Maple World | Female | All except KMS | 1 | 10.5B | 165 | Extreme |
-| 38 | Cygnus | Normal | Maple World | Female | All except KMS | 1 | 63B | 165 | Story/Normal / Hard / Extreme |
+| 37 | Cygnus | Easy | Maple World | Female | Removed | 1 | 10.5B | 165 | Extreme |
+| 38 | Cygnus | Normal | Maple World | Female | All | 1 | 63B | 165 | Story/Normal / Hard / Extreme |
 | 39 | Princess No | Normal | Maple World | Female | All except KMS | 1 | 500B | 180 | Story/Normal / Hard / Extreme |
 | 40 | Akechi Mitsuhide | Normal | Maple World | Male | JMS/GMS/MSEA | 2 | 700B | 200 | Story/Normal / Hard / Extreme |
 | 41 | Lotus | Normal | Maple World | Male | All | 3 | 1.077T | 190 | Extreme |
@@ -63,8 +63,8 @@ Story/Normal and Hard use one difficulty per boss (Hard/Chaos > Extreme > Normal
 | 55 | Gloom | Chaos | Arcane River | Other | All | 1 | 86.013T | 245 | Story/Normal / Hard / Extreme |
 | 56 | Verus Hilla | Normal | Arcane River | Female | All | 1 | 61.225T | 250 | Extreme |
 | 57 | Verus Hilla | Hard | Arcane River | Female | All | 1 | 122.451T | 250 | Story/Normal / Hard / Extreme |
-| 58 | Malicia | Normal | Maple World | Female | JMS/CMS/TMS/MSEA | 4 | 178T | 250 | Extreme |
-| 59 | Malicia | Extreme | Maple World | Female | JMS/CMS/TMS/MSEA | 4 | 300Q+ | 250 | Story/Normal / Hard / Extreme |
+| 58 | Malicia | Normal | Maple World | Female | JMS/CMS/TMS/MSEA | 4 | 119.26T | 250 | Extreme |
+| 59 | Malicia | Extreme | Maple World | Female | JMS/CMS/TMS/MSEA | 4 | 200Q+ | 250 | Story/Normal / Hard / Extreme |
 | 60 | Darknell | Normal | Arcane River | Male | All | 1 | 18.034T | 255 | Extreme |
 | 61 | Darknell | Hard | Arcane River | Male | All | 1 | 108.203T | 255 | Story/Normal / Hard / Extreme |
 | 62 | Black Mage | Hard | Arcane River | Male | All | 4 | 165.847T | 255 | Story/Normal / Hard / Extreme |
@@ -97,7 +97,7 @@ Story/Normal and Hard use one difficulty per boss (Hard/Chaos > Extreme > Normal
 | 89 | Baldrix | Extreme | Grandis | Male | KMS only | 3 | 50Q+ | 290 | Extreme |
 | 90 | Jupiter | Normal | Grandis | Male | All | 1 | 6.981Q | 295 | Extreme |
 | 91 | Jupiter | Hard | Grandis | Male | All | 1 | 33.592Q | 295 | Story/Normal / Hard / Extreme |
-| 92 | Kai | Normal | Other | Male | Seasonal | 2 | 126T | 270 | Extreme |
+| 92 | Kai | Normal | Other | Male | Seasonal | 2 | 12.096T | 235 | Extreme |
 | 93 | Kai | Hard | Other | Male | Seasonal | 2 | 483T | 280 | Story/Normal / Hard / Extreme |
 | 94 | Mayrin | Normal | Other | Female | Seasonal | 2 | 117.85T | 270 | Extreme |
 | 95 | Mayrin | Hard | Other | Female | Seasonal | 2 | 580T | 280 | Story/Normal / Hard / Extreme |
@@ -122,12 +122,12 @@ Story/Normal and Hard use one difficulty per boss (Hard/Chaos > Extreme > Normal
 - **Horntail**: Phase 3 = all 8 body parts
 - **Vellum**: GMS HP (MSEA: 120B)
 - **Gollux**: GMS HP, 3 Head phases only. Wiki only lists the 180+ requirement, so every mode uses 180
-- **Cygnus**: Removed from KMS in the Overdrive update
-- **Malicia**: MSEA added Lian Plateau (Li-an Highlands) in Nov 2025, and her wiki page lists MSEA names and drops. Normal HP from Bahamut (TMS) boss HP table, Jul 2026: P1 49T + inner world 21T, P2 56T, P3 24T, P4 28T. Extreme: known phases total ~149.7Q but Phase 4 is unknown, so shown as 300Q+
+- **Cygnus**: Easy was removed from every server (GMS: Nov 11, 2026); Normal is still on every server
+- **Malicia**: MSEA added Lian Plateau (Li-an Highlands) in Nov 2025, and her wiki page lists MSEA names and drops. Normal HP from Bahamut (TMS) boss HP table, Jul 2026: P1 49T + inner world 21T, P2 56T, P3 24T, P4 28T, then ~33% less (MSEA, Nov 11, 2026). Extreme: known phases total ~149.7Q but Phase 4 is unknown, so shown as 300Q+; ~33% less since Nov 11, 2026: 200Q+
 - **Kaling**: P1 = 3 perils, P2 = Kaling, P3 = 3 perils + Frenzied Kaling
 - **Limbo**: P2 = two separate parts. Extreme: KMST (test server), HP not known yet, roughly 45Q+
 - **Baldrix**: Extreme: KMST (test server), HP not known yet, roughly 50Q+
-- **Kai**: Challenger World seasonal boss; World set to Other (Nexus Tower)
+- **Kai**: Challenger World seasonal boss; World set to Other (Nexus Tower). Normal came back Nov 12, 2026 - Feb 9, 2027: Lv 235+, HP ~90.4% less
 - **Mayrin**: Challenger World Season 4 boss (Namu Wiki). One HP bar split into 2 phases: she changes form at 50% HP. Called Meilin until her English name, Mayrin, was confirmed at MapleFest 2026
 - **Balrog**: Only Easy mode exists; HP = body + 2 extra parts
 - **Yakuza Boss**: Showa Town (Zipangu): in JMS, GMS and MSEA only; entry level = Showa Town quest requirement
