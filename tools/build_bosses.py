@@ -204,6 +204,35 @@ bosses = [
       notes="Apostle of Darmoor; no boss fight found on MapleWiki or Namu Wiki (story character only)"),
 ]
 
+# Boss HP cut in the Nov 11, 2026 update (GMS v.272 / MSEA v255; KMS had it in Overdrive, Jun 2026). The HP in the list
+# above is from before it; the build multiplies every phase by (1 - cut), using the official patch note percentages.
+# Check: Black Mage (Hard) 472.5T -> 165.8475T, the same total Namu Wiki shows for KMS.
+HP_CUT = {
+    "Zakum": {"Chaos": 0.325}, "Magnus": {"Hard": 0.317}, "Papulatus": {"Chaos": 0.313},
+    "Lotus": {"Normal": 0.316, "Hard": 0.316, "Extreme": 0.322},
+    "Damien": {"Normal": 0.315, "Hard": 0.315},
+    "Guardian Angel Slime": {"Normal": 0.314, "Chaos": 0.314},
+    "Lucid": {"Easy": 0.315, "Normal": 0.315, "Hard": 0.285},
+    "Will": {"Easy": 0.329, "Normal": 0.329, "Hard": 0.329},
+    "Gloom": {"Normal": 0.323, "Chaos": 0.323},
+    "Verus Hilla": {"Normal": 0.314, "Hard": 0.314},
+    "Darknell": {"Normal": 0.313, "Hard": 0.313},
+    "Black Mage": {"Hard": 0.649, "Extreme": 0.323},
+    "Chosen Seren": {"Normal": 0.321, "Hard": 0.321, "Extreme": 0.321},
+    "Kalos": {"Easy": 0.332, "Normal": 0.332, "Chaos": 0.332, "Extreme": 0.332},
+    "First Adversary": {"Easy": 0.322, "Normal": 0.322, "Hard": 0.322, "Extreme": 0.322},
+    "Kaling": {"Easy": 0.322, "Normal": 0.322, "Hard": 0.322, "Extreme": 0.322},
+    "Malefic Star": {"Normal": 0.32, "Hard": 0.32},
+    "Limbo": {"Normal": 0.325, "Hard": 0.325},
+    "Baldrix": {"Normal": 0.322, "Hard": 0.322},
+    "Jupiter": {"Normal": 0.32, "Hard": 0.32},
+}
+for _b in bosses:
+    for _d, _r in HP_CUT.get(_b["name"], {}).items():
+        lv, ph, hps, *labels = _b["diffs"][_d]
+        assert not labels, (_b["name"], _d)   # an HP label (e.g. 45Q+) would hide the cut
+        _b["diffs"][_d] = (lv, ph, [round(h * (1 - _r)) for h in hps])
+
 # Maple Guide icons from maplestorywiki.net, per boss (all difficulties share one).
 IMAGES = {
     'Mayrin': 'images/bosses/mayrin.png',
@@ -285,7 +314,7 @@ for bo in bosses:
             pools[p].append(entry(bo, bo['main'], label(bo['name'], bo['main'])))
 
 data = {
-    "_about": "Boss data for Maple Wordle. Sources: maplestorywiki.net, Namu Wiki, Bahamut TMS HP table (Oct 2026). "
+    "_about": "Boss data for Maple Wordle. Sources: maplestorywiki.net, Namu Wiki, Bahamut TMS HP table (Oct 2026); HP after the Nov 11, 2026 boss HP cut (GMS v.272 patch notes). "
               "Normal/Hard modes use one difficulty per boss (Hard/Chaos > Extreme > Normal > Easy; Gollux = Hell). "
               "Extreme mode lists every difficulty as its own entry. hp = sum of all phase HP. level = entry level. "
               "Story mode uses the normal pool with unlimited guesses. null = Unknown; hpLabel overrides the HP display (e.g. 300Q+).",

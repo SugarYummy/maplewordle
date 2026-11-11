@@ -8,13 +8,13 @@ Story/Normal and Hard use one difficulty per boss (Hard/Chaos > Extreme > Normal
 |---|---|---|---|---|---|---|---|---|---|
 | 1 | Zakum | Easy | Maple World | Other | All | 1 | 2.2M | 50 | Extreme |
 | 2 | Zakum | Normal | Maple World | Other | All | 1 | 7M | 90 | Extreme |
-| 3 | Zakum | Chaos | Maple World | Other | All | 1 | 84B | 90 | Story/Normal / Hard / Extreme |
+| 3 | Zakum | Chaos | Maple World | Other | All | 1 | 56.7B | 90 | Story/Normal / Hard / Extreme |
 | 4 | Papulatus | Easy | Maple World | Other | All | 2 | 400M | 115 | Extreme |
 | 5 | Papulatus | Normal | Maple World | Other | All | 2 | 16.8B | 155 | Extreme |
-| 6 | Papulatus | Chaos | Maple World | Other | All | 2 | 504B | 190 | Story/Normal / Hard / Extreme |
+| 6 | Papulatus | Chaos | Maple World | Other | All | 2 | 346.248B | 190 | Story/Normal / Hard / Extreme |
 | 7 | Magnus | Easy | Grandis | Male | All | 1 | 400M | 115 | Extreme |
 | 8 | Magnus | Normal | Grandis | Male | All | 1 | 6B | 155 | Extreme |
-| 9 | Magnus | Hard | Grandis | Male | All | 1 | 120B | 175 | Story/Normal / Hard / Extreme |
+| 9 | Magnus | Hard | Grandis | Male | All | 1 | 81.96B | 175 | Story/Normal / Hard / Extreme |
 | 10 | Hilla | Normal | Maple World | Female | All | 1 | 500M | 85 | Extreme |
 | 11 | Hilla | Hard | Maple World | Female | All | 1 | 16.8B | 170 | Story/Normal / Hard / Extreme |
 | 12 | Mori Ranmaru | Normal | Maple World | Male | All except KMS | 1 | 1B | 120 | Extreme |
@@ -46,57 +46,57 @@ Story/Normal and Hard use one difficulty per boss (Hard/Chaos > Extreme > Normal
 | 38 | Cygnus | Normal | Maple World | Female | All except KMS | 1 | 63B | 165 | Story/Normal / Hard / Extreme |
 | 39 | Princess No | Normal | Maple World | Female | All except KMS | 1 | 500B | 180 | Story/Normal / Hard / Extreme |
 | 40 | Akechi Mitsuhide | Normal | Maple World | Male | JMS/GMS/MSEA | 2 | 700B | 200 | Story/Normal / Hard / Extreme |
-| 41 | Lotus | Normal | Maple World | Male | All | 3 | 1.575T | 190 | Extreme |
-| 42 | Lotus | Hard | Maple World | Male | All | 3 | 33.285T | 190 | Story/Normal / Hard / Extreme |
-| 43 | Lotus | Extreme | Maple World | Male | All | 3 | 1.811Q | 190 | Extreme |
-| 44 | Damien | Normal | Maple World | Male | All | 2 | 1.2T | 190 | Extreme |
-| 45 | Damien | Hard | Maple World | Male | All | 2 | 36T | 190 | Story/Normal / Hard / Extreme |
-| 46 | Guardian Angel Slime | Normal | Maple World | Other | All | 1 | 5T | 210 | Extreme |
-| 47 | Guardian Angel Slime | Chaos | Maple World | Other | All | 1 | 90T | 210 | Story/Normal / Hard / Extreme |
-| 48 | Lucid | Easy | Arcane River | Female | All | 2 | 12T | 220 | Extreme |
-| 49 | Lucid | Normal | Arcane River | Female | All | 2 | 24T | 220 | Extreme |
-| 50 | Lucid | Hard | Arcane River | Female | All | 3 | 117.6T | 220 | Story/Normal / Hard / Extreme |
-| 51 | Will | Easy | Arcane River | Male | All | 3 | 16.8T | 235 | Extreme |
-| 52 | Will | Normal | Arcane River | Male | All | 3 | 25.2T | 235 | Extreme |
-| 53 | Will | Hard | Arcane River | Male | All | 3 | 126T | 235 | Story/Normal / Hard / Extreme |
-| 54 | Gloom | Normal | Arcane River | Other | All | 1 | 25.41T | 245 | Extreme |
-| 55 | Gloom | Chaos | Arcane River | Other | All | 1 | 127.05T | 245 | Story/Normal / Hard / Extreme |
-| 56 | Verus Hilla | Normal | Arcane River | Female | All | 1 | 89.25T | 250 | Extreme |
-| 57 | Verus Hilla | Hard | Arcane River | Female | All | 1 | 178.5T | 250 | Story/Normal / Hard / Extreme |
+| 41 | Lotus | Normal | Maple World | Male | All | 3 | 1.077T | 190 | Extreme |
+| 42 | Lotus | Hard | Maple World | Male | All | 3 | 22.767T | 190 | Story/Normal / Hard / Extreme |
+| 43 | Lotus | Extreme | Maple World | Male | All | 3 | 1.228Q | 190 | Extreme |
+| 44 | Damien | Normal | Maple World | Male | All | 2 | 822B | 190 | Extreme |
+| 45 | Damien | Hard | Maple World | Male | All | 2 | 24.66T | 190 | Story/Normal / Hard / Extreme |
+| 46 | Guardian Angel Slime | Normal | Maple World | Other | All | 1 | 3.43T | 210 | Extreme |
+| 47 | Guardian Angel Slime | Chaos | Maple World | Other | All | 1 | 61.74T | 210 | Story/Normal / Hard / Extreme |
+| 48 | Lucid | Easy | Arcane River | Female | All | 2 | 8.22T | 220 | Extreme |
+| 49 | Lucid | Normal | Arcane River | Female | All | 2 | 16.44T | 220 | Extreme |
+| 50 | Lucid | Hard | Arcane River | Female | All | 3 | 84.084T | 220 | Story/Normal / Hard / Extreme |
+| 51 | Will | Easy | Arcane River | Male | All | 3 | 11.273T | 235 | Extreme |
+| 52 | Will | Normal | Arcane River | Male | All | 3 | 16.909T | 235 | Extreme |
+| 53 | Will | Hard | Arcane River | Male | All | 3 | 84.546T | 235 | Story/Normal / Hard / Extreme |
+| 54 | Gloom | Normal | Arcane River | Other | All | 1 | 17.203T | 245 | Extreme |
+| 55 | Gloom | Chaos | Arcane River | Other | All | 1 | 86.013T | 245 | Story/Normal / Hard / Extreme |
+| 56 | Verus Hilla | Normal | Arcane River | Female | All | 1 | 61.225T | 250 | Extreme |
+| 57 | Verus Hilla | Hard | Arcane River | Female | All | 1 | 122.451T | 250 | Story/Normal / Hard / Extreme |
 | 58 | Malicia | Normal | Maple World | Female | JMS/CMS/TMS/MSEA | 4 | 178T | 250 | Extreme |
 | 59 | Malicia | Extreme | Maple World | Female | JMS/CMS/TMS/MSEA | 4 | 300Q+ | 250 | Story/Normal / Hard / Extreme |
-| 60 | Darknell | Normal | Arcane River | Male | All | 1 | 26.25T | 255 | Extreme |
-| 61 | Darknell | Hard | Arcane River | Male | All | 1 | 157.5T | 255 | Story/Normal / Hard / Extreme |
-| 62 | Black Mage | Hard | Arcane River | Male | All | 4 | 472.5T | 255 | Story/Normal / Hard / Extreme |
-| 63 | Black Mage | Extreme | Arcane River | Male | All | 4 | 4.811Q | 255 | Extreme |
-| 64 | Chosen Seren | Normal | Grandis | Female | All | 2 | 207.9T | 260 | Extreme |
-| 65 | Chosen Seren | Hard | Grandis | Female | All | 2 | 483T | 260 | Story/Normal / Hard / Extreme |
-| 66 | Chosen Seren | Extreme | Grandis | Female | All | 2 | 6.48Q | 260 | Extreme |
-| 67 | Kalos | Easy | Grandis | Male | All | 2 | 357T | 265 | Extreme |
-| 68 | Kalos | Normal | Grandis | Male | All | 2 | 1.056Q | 265 | Extreme |
-| 69 | Kalos | Chaos | Grandis | Male | All | 2 | 5.126Q | 265 | Story/Normal / Hard / Extreme |
-| 70 | Kalos | Extreme | Grandis | Male | All | 2 | 21.296Q | 265 | Extreme |
-| 71 | First Adversary | Easy | Grandis | Male | All | 3 | 570T | 270 | Extreme |
-| 72 | First Adversary | Normal | Grandis | Male | All | 3 | 1.65Q | 270 | Extreme |
-| 73 | First Adversary | Hard | Grandis | Male | All | 3 | 10.45Q | 270 | Story/Normal / Hard / Extreme |
-| 74 | First Adversary | Extreme | Grandis | Male | All | 3 | 32.18Q | 270 | Extreme |
-| 75 | Kaling | Easy | Grandis | Female | All | 3 | 658.15T | 275 | Extreme |
-| 76 | Kaling | Normal | Grandis | Female | All | 3 | 2.79Q | 275 | Extreme |
-| 77 | Kaling | Hard | Grandis | Female | All | 3 | 9.423Q | 275 | Story/Normal / Hard / Extreme |
-| 78 | Kaling | Extreme | Grandis | Female | All | 3 | 39.96Q | 275 | Extreme |
-| 79 | Malefic Star | Normal | Grandis | Female | All | 1 | 3.288Q | 280 | Extreme |
-| 80 | Malefic Star | Hard | Grandis | Female | All | 1 | 14.74Q | 280 | Story/Normal / Hard / Extreme |
+| 60 | Darknell | Normal | Arcane River | Male | All | 1 | 18.034T | 255 | Extreme |
+| 61 | Darknell | Hard | Arcane River | Male | All | 1 | 108.203T | 255 | Story/Normal / Hard / Extreme |
+| 62 | Black Mage | Hard | Arcane River | Male | All | 4 | 165.847T | 255 | Story/Normal / Hard / Extreme |
+| 63 | Black Mage | Extreme | Arcane River | Male | All | 4 | 3.257Q | 255 | Extreme |
+| 64 | Chosen Seren | Normal | Grandis | Female | All | 2 | 141.164T | 260 | Extreme |
+| 65 | Chosen Seren | Hard | Grandis | Female | All | 2 | 327.957T | 260 | Story/Normal / Hard / Extreme |
+| 66 | Chosen Seren | Extreme | Grandis | Female | All | 2 | 4.4Q | 260 | Extreme |
+| 67 | Kalos | Easy | Grandis | Male | All | 2 | 238.476T | 265 | Extreme |
+| 68 | Kalos | Normal | Grandis | Male | All | 2 | 705.408T | 265 | Extreme |
+| 69 | Kalos | Chaos | Grandis | Male | All | 2 | 3.424Q | 265 | Story/Normal / Hard / Extreme |
+| 70 | Kalos | Extreme | Grandis | Male | All | 2 | 14.226Q | 265 | Extreme |
+| 71 | First Adversary | Easy | Grandis | Male | All | 3 | 386.46T | 270 | Extreme |
+| 72 | First Adversary | Normal | Grandis | Male | All | 3 | 1.119Q | 270 | Extreme |
+| 73 | First Adversary | Hard | Grandis | Male | All | 3 | 7.085Q | 270 | Story/Normal / Hard / Extreme |
+| 74 | First Adversary | Extreme | Grandis | Male | All | 3 | 21.818Q | 270 | Extreme |
+| 75 | Kaling | Easy | Grandis | Female | All | 3 | 446.226T | 275 | Extreme |
+| 76 | Kaling | Normal | Grandis | Female | All | 3 | 1.892Q | 275 | Extreme |
+| 77 | Kaling | Hard | Grandis | Female | All | 3 | 6.389Q | 275 | Story/Normal / Hard / Extreme |
+| 78 | Kaling | Extreme | Grandis | Female | All | 3 | 27.093Q | 275 | Extreme |
+| 79 | Malefic Star | Normal | Grandis | Female | All | 1 | 2.236Q | 280 | Extreme |
+| 80 | Malefic Star | Hard | Grandis | Female | All | 1 | 10.023Q | 280 | Story/Normal / Hard / Extreme |
 | 81 | Bellona | Easy | Grandis | Female | KMS only | 2 | 779T | 280 | Extreme |
 | 82 | Bellona | Normal | Grandis | Female | KMS only | 2 | 4.122Q | 280 | Extreme |
 | 83 | Bellona | Hard | Grandis | Female | KMS only | 2 | 13.716Q | 280 | Story/Normal / Hard / Extreme |
-| 84 | Limbo | Normal | Grandis | Male | All | 3 | 6.48Q | 285 | Extreme |
-| 85 | Limbo | Hard | Grandis | Male | All | 3 | 12.432Q | 285 | Story/Normal / Hard / Extreme |
+| 84 | Limbo | Normal | Grandis | Male | All | 3 | 4.374Q | 285 | Extreme |
+| 85 | Limbo | Hard | Grandis | Male | All | 3 | 8.392Q | 285 | Story/Normal / Hard / Extreme |
 | 86 | Limbo | Extreme | Grandis | Male | KMS only | 3 | 45Q+ | 285 | Extreme |
-| 87 | Baldrix | Normal | Grandis | Male | All | 3 | 9.055Q | 290 | Extreme |
-| 88 | Baldrix | Hard | Grandis | Male | All | 3 | 20.1Q | 290 | Story/Normal / Hard / Extreme |
+| 87 | Baldrix | Normal | Grandis | Male | All | 3 | 6.139Q | 290 | Extreme |
+| 88 | Baldrix | Hard | Grandis | Male | All | 3 | 13.628Q | 290 | Story/Normal / Hard / Extreme |
 | 89 | Baldrix | Extreme | Grandis | Male | KMS only | 3 | 50Q+ | 290 | Extreme |
-| 90 | Jupiter | Normal | Grandis | Male | All | 1 | 10.266Q | 295 | Extreme |
-| 91 | Jupiter | Hard | Grandis | Male | All | 1 | 49.4Q | 295 | Story/Normal / Hard / Extreme |
+| 90 | Jupiter | Normal | Grandis | Male | All | 1 | 6.981Q | 295 | Extreme |
+| 91 | Jupiter | Hard | Grandis | Male | All | 1 | 33.592Q | 295 | Story/Normal / Hard / Extreme |
 | 92 | Kai | Normal | Other | Male | Seasonal | 2 | 126T | 270 | Extreme |
 | 93 | Kai | Hard | Other | Male | Seasonal | 2 | 483T | 280 | Story/Normal / Hard / Extreme |
 | 94 | Mayrin | Normal | Other | Female | Seasonal | 2 | 117.85T | 270 | Extreme |
