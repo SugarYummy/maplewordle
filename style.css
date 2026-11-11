@@ -1048,6 +1048,7 @@ html.dark .fxswitch.onbox { color: #ccc; }
 html.dark :is(#games, #subgames) button:disabled { color: #999; }
 html.dark .shopitem.lockeditem b, html.dark .shopitem .locked { color: #aaa; }
 html.dark td.cardcell { background: #3a3f4a; }
+html.dark :is(.green, .yellow, .red), html.dark .answer td:not(.cardcell) { color: #1b1e24; }   /* the hint colours are light: dark text on them, as in light mode (the dark theme's light grey was nearly invisible on the answer row's blue) */
 html.dark #bundletipbox { background: #262a32; color: #c3c8d1; }
 html.dark :is(td, th) { border-color: #5a606c; }
 html.dark :is(#archiveList button, .themecard, .acctpickrow, .shopitem) { border-color: rgba(255, 255, 255, 0.15); }
