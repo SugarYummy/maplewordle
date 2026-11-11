@@ -5,9 +5,9 @@
 //
 // Damage for a right answer locked in t seconds after the music starts: BGM = ceil(25 + 125 x 0.6^(t/10)),
 // phase = ceil(that x 0.2), title = ceil(that x 0.5) (from the exact value). Wrong = 0.
-// Modes: HP, Life, First to N, Best of N (speed duel), Boss Raid (co-op), Free-for-all, Tournament.
-// Every mode: from the 3rd round in a row where nothing changes, the slowest guesser loses 100 HP / a life (First to N:
-// a point) (Best of N: 3 drawn rounds in a row = a draw). Round 20 is the last: most HP / lives / points / round wins
+// Modes: HP, Life, First to N, Speed Duel (key 'best': best of N rounds, BGM only), Boss Raid (co-op), Free-for-all,
+// Tournament. Every mode: from the 3rd round in a row where nothing changes, the slowest guesser loses 100 HP / a life
+// (First to N: a point) (Speed Duel: 3 drawn rounds in a row = a draw). Round 20 is the last: most HP / lives / points / round wins
 // wins, equal = draw. So no match can go on forever.
 //
 // Who runs a match: the room's host (its creator) runs the rules on their own device and sends everyone what happens;
@@ -43,13 +43,13 @@ const multOf = (round) => round >= 10 ? 5 : round >= 5 ? 2 : 1;   // x2 from rou
 const ROUND_CAP = 20, DRAW_HP = 100, DRAWS_BEFORE_PENALTY = 3, TIEBREAK_TRIES = 3;
 const LOBBY_MS = 30000, COUNT_MS = 5000;   // before round 1: read the rules, press Ready (or 30 s); before each round: 5 s
 const MODES = {
-  hp:    { name: 'HP', solo: 1, desc: 'Right answers deal damage. Each round the side that dealt less takes the difference.' },
-  life:  { name: 'Life', solo: 1, desc: 'Get any question wrong (or run out of time) and you lose a life.' },
-  first: { name: 'First to N', solo: 1, multi: true, desc: 'BGM 1 point, phase 0.25, title 0.5. First to N points wins.' },
-  best:  { name: 'Best of N', solo: 1, desc: 'BGM only. A right answer beats a wrong one; two right ones: the faster takes the round.' },
-  raid:  { name: 'Boss Raid', coop: true, multi: true, desc: 'Everyone vs one boss. Fast right answers earn ⭐ points; spend them on skills (bursts, i-frame, heal, buffs). The boss shows its next move each round.' },
-  ffa:   { name: 'Free-for-all', multi: true, desc: 'Everyone takes (the round’s highest damage - their own). Last one standing wins.' },
-  tour:  { name: 'Tournament', multi: true, desc: 'A bracket of 1v1 HP matches (2, 4 or 8 players) until one winner.' },
+  hp:    { name: 'HP', solo: 1, desc: 'Both start with the same HP. Right answers deal damage (faster = more). Each round, whoever dealt less loses the difference in HP. Hit 0 HP and you lose.' },
+  life:  { name: 'Life', solo: 1, desc: 'Everyone has a few lives. Get any question wrong or run out of time and you lose one. Lose them all and you’re out.' },
+  first: { name: 'First to N', solo: 1, multi: true, desc: 'Right answers score points: BGM 1, Phase 0.25, Title 0.5. The first to reach the target score wins.' },
+  best:  { name: 'Speed Duel', solo: 1, desc: 'Just the BGM question. Whoever names the boss right the fastest wins the round; if nobody is right, it’s a draw. First to win more than half the rounds wins.' },
+  raid:  { name: 'Boss Raid', coop: true, multi: true, desc: 'Everyone vs one boss. Right answers earn ⭐ points (faster = more). Spend them on skills: bursts, i-frame, heal, buffs. The boss shows its next move each round.' },
+  ffa:   { name: 'Free-for-all', multi: true, desc: 'Right answers deal damage (faster = more). Each round, everyone loses HP by how far they were behind the round’s top damage. Last one standing wins.' },
+  tour:  { name: 'Tournament', multi: true, desc: '2, 4 or 8 players in a bracket of 1v1 HP matches. Win a match to move on; the last one standing is the champion.' },
 };
 const DEFAULTS = { mode: 'hp', time: 30, q: { bgm: true, phase: false, title: false }, input: { bgm: 'dropdown', phase: 'abcd', title: 'typed' },
                    hp: 1000, lives: 5, lastChance: false, firstTo: 5, bestOf: 5, bossHp: 60000, raidLives: 3, tourHp: 500, tourSize: 4,
@@ -60,11 +60,12 @@ const LIMITS = { time: [1, 999], hp: [1, 9999], lives: [1, 20], firstTo: [1, 99]
 const INPUTS = { typed: 'Type it (80% match)', dropdown: 'Dropdown', abcd: 'A / B / C / D' };
 // Bots answer at a person's pace (typical seconds; each answer varies around them): know = hearing the track and
 // knowing the boss, then the input: click = an A/B/C/D button, pick = search a dropdown and pick, typing = think +
-// letters at cps letters a second. p = how often it's right.
+// letters at cps letters a second. p = how often it's right. Hard only: abcdKnow = knowing it quicker when the first
+// question is A/B/C/D (four choices to spot it in), quick = how often a dropdown answer comes ~25% faster.
 const BOTS = {
   easy:   { name: 'Easy', p: 0.5, know: 10, click: 4.5, pick: 4, think: 2.5, cps: 3.5 },
   normal: { name: 'Normal', p: 0.72, know: 6.5, click: 2.8, pick: 2.6, think: 1.5, cps: 5 },
-  hard:   { name: 'Hard', p: 0.9, know: 3.7, click: 1.6, pick: 1.8, think: 1, cps: 6.5 },
+  hard:   { name: 'Hard', p: 0.9, know: 3.7, click: 0.8, pick: 1.8, think: 1, cps: 6.5, abcdKnow: 0.65, quick: 0.25 },
   dummy:  { name: 'Dummy (never answers)', p: 0, never: true },
 };
 // One "slowness" number per player for a round: their lock-in times added up, a question left unanswered counting as
@@ -157,8 +158,9 @@ function botAnswers(level, qs, tr, time) {
     if (!qs[q]) continue;
     const right = Math.random() < b.p * (q === 'bgm' ? 1 : q === 'phase' ? 0.9 : 0.8);
     const value = right ? rightValue(q, tr) : wrongValue(q, tr, qs[q]), style = qs[q].style;
-    if (!t) t = vary(b.know, 2);
-    t += style === 'abcd' ? vary(b.click, 0.6) : style === 'typed' ? vary(b.think, 0.4) + String(value).length / b.cps * vary(1, 0.8) : vary(b.pick, 1);
+    const abcd = style === 'abcd', quick = style === 'dropdown' && Math.random() < (b.quick || 0) ? 0.75 : 1;
+    if (!t) t = vary(b.know, 2) * (abcd ? b.abcdKnow || 1 : quick);
+    t += abcd ? vary(b.click, 0.45) : style === 'typed' ? vary(b.think, 0.4) + String(value).length / b.cps * vary(1, 0.8) : vary(b.pick, 1) * quick;
     if (t > time - 0.15) break;   // out of time: it doesn't get to the rest either
     out[q] = { value, ms: Math.round(t * 1000) };
   }
@@ -298,7 +300,7 @@ class Match {
     const tr = this.pickTrack(), bgmOnly = this.mode === 'best' || s.tb > 0;
     const qs = makeQuestions(this.cfg, tr, bgmOnly);
     const time = this.cfg.time;
-    this.cur = { round: s.round, tr, qs, time, answers: {}, casts: {}, ready: new Set(), done: new Set(), goAt: 0 };
+    this.cur = { round: s.round, tr, qs, time, speed: bgmOnly, answers: {}, casts: {}, ready: new Set(), done: new Set(), goAt: 0 };
     if (this.mode === 'raid') this.pickMove();
     for (const p of this.players) if (p.bot || s.players[p.id].out) { this.cur.ready.add(p.id); }
     if (this.simulate) {   // bots only (a tournament match without people): straight to the result
@@ -511,7 +513,7 @@ class Match {
         if (s.streak >= DRAWS_BEFORE_PENALTY) over = { winners: [], reason: `${DRAWS_BEFORE_PENALTY} drawn rounds in a row` };
       }
       const w = ids.find((id) => P(id).wins >= neededWins(cfg.bestOf));
-      if (!over && w) over = { winners: [w], reason: `Won ${P(w).wins} of best of ${cfg.bestOf}` };
+      if (!over && w) over = { winners: [w], reason: `Won ${P(w).wins} rounds (best of ${cfg.bestOf})` };
     } else if (this.mode === 'raid') {
       const b = s.boss, mv = b.move || { k: 'attack', dmg: 0 }, iframe = new Set();
       // 1. Skills, in a fixed order, paid from the points each player had (checked again here)
@@ -579,7 +581,8 @@ class Match {
       answer: { boss: c.tr.boss, image: DATA.byName[c.tr.boss].image, labels: c.tr.labels, title: c.tr.title },
       per, ev, mult: this.multNow(), state: JSON.parse(JSON.stringify(s)),
     };
-    this.history.push({ round: c.round, title: c.tr.title, boss: c.tr.boss, per: Object.fromEntries(Object.entries(per).map(([k, v]) => [k, { total: v.total, pts: v.pts, ok: v.allOk }])) });
+    this.history.push({ round: c.round, title: c.tr.title, boss: c.tr.boss, speed: !!c.speed,   // speed: won on time (Speed Duel, tiebreak)
+      per: Object.fromEntries(Object.entries(per).map(([k, v]) => [k, { total: v.total, pts: v.pts, ok: v.allOk, ms: v.items.bgm?.v != null ? v.items.bgm.ms : null }])) });
     if (this.simulate) { if (over) this.finish(); else this.nextRound(); return; }
     this.send('all', reveal);
     const wait = revealMs(reveal);
@@ -1356,7 +1359,7 @@ function rulesHtml() {
   if (m === 'hp' || m === 'ffa') row('Damage', 'Faster right answers hit harder. x2 from round 5, x5 from round 10');
   if (m === 'life') row('Lives', c.lives);
   if (m === 'first') row('Points to win', c.firstTo);
-  if (m === 'best') row('Best of', c.bestOf);
+  if (m === 'best') row('Rounds', `Best of ${c.bestOf}: the first to win ${neededWins(c.bestOf)} rounds takes the match`);
   if (m === 'raid' && game.state.boss) { row('Boss', `${esc(game.state.boss.name)} · ${f(game.state.boss.max)} HP`); row('Lives each', c.raidLives); }
   row('Last round', `Round ${ROUND_CAP}`);
   const bot = game.players.find((p) => p.bot);
@@ -1728,7 +1731,7 @@ function showResult(m) {
   const pl = m.players;
   const pts = m.mode === 'first', raidRes = m.mode === 'raid';
   $('resultTable').innerHTML = `<thead><tr><th>Round</th><th>Track</th>${pl.map((p) => `<th>${esc(p.name)}</th>`).join('')}</tr></thead><tbody>` +
-    m.history.map((h) => `<tr><td>${h.round}</td><td class="trk">${esc(h.title)}<small>${esc(h.boss)}</small></td>${pl.map((p) => { const x = h.per[p.id]; return `<td>${x ? (pts ? '+' + x.pts : raidRes ? '+' + x.total + '⭐' : x.total) + (x.ok ? ' ✅' : '') : '-'}</td>`; }).join('')}</tr>`).join('') + '</tbody>';
+    m.history.map((h) => `<tr><td>${h.round}</td><td class="trk">${esc(h.title)}<small>${esc(h.boss)}</small></td>${pl.map((p) => { const x = h.per[p.id]; return `<td>${!x ? '-' : h.speed ? (x.ms != null ? `${(x.ms / 1000).toFixed(2)} s ${x.ok ? '✅' : '❌'}` : 'No answer') : (pts ? '+' + x.pts : raidRes ? '+' + x.total + '⭐' : x.total) + (x.ok ? ' ✅' : '')}</td>`; }).join('')}</tr>`).join('') + '</tbody>';
   if (win && !o.draw) { try { confetti?.(); } catch {} }
   const local = room?.local, hostMe = isHost();
   $('again').hidden = tourGame;
@@ -1808,16 +1811,17 @@ pressing Enter) locks it in. Nobody sees what's right until the reveal.</p>
 BGM = 25 + 125 × 0.6<sup>seconds ÷ 10</sup>, rounded up (150 at 0 s, 100 at 10 s, 70 at 20 s, never below 25).
 Phase = that × 0.2, title = that × 0.5. Wrong = 0.</p>
 <ul>
-<li><b>HP</b>: each round the side that dealt less takes the difference. x2 from round 5, x5 from round 10.</li>
-<li><b>Life</b>: anything wrong or unanswered costs a life. Both out at once: sudden death.</li>
-<li><b>First to N</b>: BGM 1 point, phase 0.25, title 0.5.</li>
-<li><b>Best of N</b>: BGM only; a right answer beats a wrong one, then the faster one wins the round.</li>
+<li><b>HP</b>: both start with the same HP. Each round, whoever dealt less loses the difference. x2 from round 5, x5 from round 10.</li>
+<li><b>Life</b>: get any question wrong (or leave it unanswered) and you lose a life. Everyone out at once: sudden death.</li>
+<li><b>First to N</b>: right answers score points (BGM 1, Phase 0.25, Title 0.5). First to the target score wins.</li>
+<li><b>Speed Duel</b>: just the BGM question. The fastest right answer wins the round (time, not damage). First to win
+more than half the rounds (best of 3, 5 or 7) wins.</li>
 <li><b>Boss Raid</b>: everyone vs one boss, which shows its next move each round. Right answers earn ⭐ points
 (fast = more: the damage numbers above). Spend them on skills, then press End turn: Mini burst (50), 2-min burst
 (200), I-frame (100, for its ultimate), Heal (50), Benediction (200, party damage up), Awaken (200, one player becomes
 strong). Skills go off first, then the boss moves. Its attacks take your HP; at 0 you lose a life.</li>
-<li><b>Free-for-all</b>: everyone takes (the round's highest damage - their own).</li>
-<li><b>Tournament</b>: a bracket of 1v1 HP matches; a draw goes to a speed tiebreak.</li>
+<li><b>Free-for-all</b>: each round, everyone loses HP by how far they were behind the round's top damage.</li>
+<li><b>Tournament</b>: a bracket of 1v1 HP matches; a draw goes to a speed tiebreak (fastest right BGM).</li>
 </ul>
 <p>From the 3rd round in a row where nothing changes, the slowest player loses 100 HP / a life. Round 20 is the last
 round: the most HP / lives / points / round wins takes it.</p>`;
