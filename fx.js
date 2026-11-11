@@ -702,10 +702,13 @@ applyBox();
   if (typeof acctAvatarCall === 'function') setTimeout(acctAvatarCall);   // a new shop avatar to look at (account.js; after the rest of this file has run)
 })();
 
-// VIP (the secret passcode in Settings): a player for every BGM we have, in random order, each from start to end.
+// VIP (the secret passcode in Settings): a player for every BGM we have, in random order, each from start to end:
+// the boss BGMs here, plus the full library on Cloudflare R2 (data/vip-bgm.json: file name, title, where it plays;
+// the songs that are already boss BGMs are left out of it). A track that won't load is skipped.
 // It only lasts for this page: reloading or going to another page turns it off again. Only the passcode's hash is here.
+const VIP_R2 = 'https://bgm.ima.moe/';
 const VIP_HASH = '8cce1429a5b04f566923575513cd321f4f5aa34353b789691e55889cc379c588';
-const vip = { on: false, audio: null, list: null, names: {}, titles: {}, cur: null, loop: 0 };
+const vip = { on: false, audio: null, list: null, names: {}, titles: {}, cur: null, loop: 0, fails: 0 };
 async function vipCheck(code) {
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(code.trim()));
   return [...new Uint8Array(buf)].map((x) => x.toString(16).padStart(2, '0')).join('') === VIP_HASH;
@@ -771,6 +774,13 @@ async function vipShow(body) {
     for (const b of d.bosses) for (const a of b.areas) (vip.names[a.track] ??= new Set()).add(b.name);
     vip.titles = Object.fromEntries(Object.entries(d.tracks).map(([k, t]) => [k, t.title]));
     vip.versions = Object.fromEntries(Object.entries(d.tracks).map(([k, t]) => [k, t.v]));
+    const more = await fetch('data/vip-bgm.json').then((r) => r.ok ? r.json() : []).catch(() => []);
+    for (const t of more) {
+      const id = 'r2:' + t.f;
+      vip.list.push(id);
+      vip.titles[id] = t.t;
+      if (t.d) vip.names[id] = new Set([t.d]);
+    }
   }
   body.querySelector('#vipPlay').onclick = () => {
     if (!vip.audio) return vipNext();
@@ -806,13 +816,16 @@ function vipNext() {
     vip.audio = new Audio();
     vip.audio.loop = !!vip.loopSong;
     vip.audio.addEventListener('ended', vipNext);   // straight on to another one
+    vip.audio.addEventListener('error', () => { if (++vip.fails <= 5) vipNext(); });   // won't load: the next one (5 in a row: stop)
+    vip.audio.addEventListener('playing', () => { vip.fails = 0; });
     for (const ev of ['timeupdate', 'play', 'pause', 'loadedmetadata']) vip.audio.addEventListener(ev, vipDraw);
     for (const ev of ['play', 'pause', 'ended']) vip.audio.addEventListener(ev, () => { if (tbgm.master) tbgm.master.gain.value = themeBgmLevel(); });
   }
   let v = 50;
   try { v = Number(localStorage.getItem('mapleWordle:bgmVolume') ?? 50); } catch {}
   vip.audio.volume = Math.min(1, v / 50);   // the same volume as BGM Clip's player
-  vip.audio.src = `audio/bgm/${id}.mp3${vip.versions?.[id] ? '?v=' + vip.versions[id] : ''}`;
+  vip.audio.src = id.startsWith('r2:') ? VIP_R2 + encodeURIComponent(id.slice(3)) + '.mp3'
+    : `audio/bgm/${id}.mp3${vip.versions?.[id] ? '?v=' + vip.versions[id] : ''}`;
   vip.audio.play().catch(() => {});
   vipDraw();
 }
