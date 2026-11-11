@@ -297,7 +297,7 @@
       #devConsole input { flex: 1; min-width: 0; font: 13px ui-monospace, Consolas, monospace; padding: 4px 8px; border: 1px solid #999; border-radius: 6px; }
       #devConsole pre { flex-basis: 100%; margin: 0; white-space: pre-wrap; font: 12px/1.4 ui-monospace, Consolas, monospace; color: #444; }
       #devConsole pre:empty { display: none; }
-      @media (max-width: 700px) { #devTag { bottom: 64px; } #devBuilds { bottom: 104px; } }`;
+      @media (max-width: 700px) { #devTag { font-size: 10px; padding: 3px 8px; } #devBuilds { bottom: 44px; } }`;
     document.head.appendChild(css);
   });
 })();

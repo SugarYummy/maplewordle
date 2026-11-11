@@ -129,10 +129,12 @@ td.cardcell { background: #b9bdc6; }
 #list .item img, #list .item .noimg { width: 40px; height: 40px; object-fit: contain; flex: none; }
 #list .item .noimg { display: flex; align-items: center; justify-content: center; background: #ddd; }
 #list .item.active { background: #ddd; }   /* one highlight: follows the mouse and the arrow keys */
-/* Phones: keep the corner boxes clear of the Discord box and the game panel. */
+/* Phones: the Discord box sits at the end of the page (pushed to the bottom of the screen when the game is short)
+   instead of floating over the game, which left the version and credit boxes above it covering a big strip of a small
+   screen. Those two go back to the bottom corners, with room left for them under the Discord box. */
 @media (max-width: 700px) {
-  #version, #creditWrap { bottom: 64px; }
-  .game { margin-top: 56px; }
+  footer.panel { position: static; transform: none; margin: auto 16px 44px; border-radius: 12px; white-space: normal; max-width: none; }
+  .game { margin-top: 56px; margin-bottom: 12px; }
 }
 /* Guess the Class: group cards hold several portraits side by side, so let them be wider. */
 .card img.wide { width: auto; max-width: 150px; }
