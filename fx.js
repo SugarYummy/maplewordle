@@ -585,6 +585,15 @@ function applyBox() {
   st.setProperty('--boxT', (0.38 * Math.min(1, k)).toFixed(3));   // 🌈 box: pastel rainbow tint
 }
 applyBox();
+// BGM PvP (test site only for now): a side button after Achievements, before Customize. It opens pvp.html in the game frame.
+(() => {
+  if (!/\/maplewordledev\//.test(location.pathname) && !['localhost', '127.0.0.1'].includes(location.hostname)) return;
+  const here = /(^|\/)pvp(\.html)?$/.test(location.pathname);
+  const btn = Object.assign(document.createElement('button'), { id: 'pvpBtn', className: 'panel' + (here ? ' on' : ''), title: 'BGM PvP (test only)', textContent: '⚔️' });
+  btn.setAttribute('aria-label', 'BGM PvP');
+  btn.addEventListener('click', () => { if (!here) location.href = 'pvp'; });
+  document.body.appendChild(btn);
+})();
 (() => {
   const btn = document.createElement('button');
   btn.id = 'settingsBtn';

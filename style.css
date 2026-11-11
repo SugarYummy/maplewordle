@@ -414,6 +414,12 @@ body.glitch :is(button, input, select) { text-shadow: inherit; }   /* the browse
             display: flex; align-items: center; justify-content: center; font-size: 18px; line-height: 1; border: none; border-radius: 8px; cursor: pointer; }
 #themeBtn:hover { background: rgba(var(--wb), 0.8); }
 #themeBtn img { width: 24px; height: 24px; object-fit: contain; }
+/* BGM PvP button (fx.js, test site only): after Achievements, before Customize (which moves down one when it's there) */
+#pvpBtn { position: fixed; top: 96px; right: 12px; z-index: 5; margin: 0; max-width: none; width: 34px; height: 34px; padding: 0;
+          display: flex; align-items: center; justify-content: center; font-size: 18px; line-height: 1; border: none; border-radius: 8px; cursor: pointer; }
+#pvpBtn:hover { background: rgba(var(--wb), 0.8); }
+#pvpBtn.on { outline: 2px solid var(--ol); cursor: default; }
+body:has(#pvpBtn) #themeBtn { top: 138px; }
 #themes { position: fixed; inset: 0; z-index: 6; background: rgba(0, 0, 0, 0.4); display: flex; align-items: flex-start; justify-content: center; }
 #themes[hidden] { display: none; }
 #themes .panel { margin-top: 48px; max-height: calc(100vh - 96px); overflow-y: auto; min-width: 280px; scrollbar-width: none; }
@@ -1059,7 +1065,8 @@ h1.tglitch .gtext::after { animation: glitchb 1.6s steps(1) -1.088s 1; }
 #achvBtn, #achvBtn:hover { background: none; box-shadow: none; }   /* the icon is its own tile */
 #achvBtn:hover img { filter: brightness(1.15); }
 #achvBtn .newtag { top: -5px; left: -8px; font-size: 9px; line-height: 13px; padding: 0 4px; }
-@media (max-width: 700px) { #achvBtn { top: 12px; right: 54px; } #themeBtn { top: 12px; right: 96px; } }   /* phones: in a row beside Settings (a column would cover the game box) */
+@media (max-width: 700px) { #achvBtn { top: 12px; right: 54px; } #themeBtn { top: 12px; right: 96px; } }
+@media (max-width: 700px) { #pvpBtn { top: 12px; right: 96px; } body:has(#pvpBtn) #themeBtn { top: 12px; right: 138px; } }   /* phones: in a row beside Settings (a column would cover the game box) */
 #achvBtn img { width: 30px; height: 30px; }
 .achvlocked { margin: 18px 8px; font-weight: 600; line-height: 1.5; text-align: center; }
 .achvcount { margin: 0 0 6px; font-weight: 700; }

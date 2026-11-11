@@ -1,0 +1,189 @@
+/* BGM PvP (pvp.html / pvp.js). Plain boxes and buttons; the see-through colours follow --wb so dark mode works. */
+body.pvppage .game { width: min(760px, calc(100% - 64px)); box-sizing: border-box; }
+.pvpscreen[hidden] { display: none; }
+.pvpscreen h2 { margin: 8px 0; }
+.pvpscreen button, .pvphow button { font-size: 15px; padding: 6px 14px; border-radius: 8px; border: 1px solid rgba(0, 0, 0, 0.25);
+  background: rgba(var(--wb), 0.8); cursor: pointer; }
+.pvpscreen button:not(:disabled):hover, .pvphow button:hover { background: rgba(var(--wb), 1); }
+.pvpscreen button:disabled { cursor: default; opacity: 0.65; }
+.pvpscreen button.on { font-weight: bold; outline: 2px solid var(--ol); }
+.pvpscreen input:not([type]), .pvpscreen input[type="search"], .pvpscreen input[type="number"], .pvpscreen select {
+  font-size: 15px; padding: 5px 8px; border-radius: 6px; border: 1px solid rgba(0, 0, 0, 0.3); box-sizing: border-box; }
+.pvpbig { font-weight: bold; min-width: 110px; }
+.pvpmsg { min-height: 1.2em; margin: 8px 0; font-weight: 500; }
+.pvpmsg:empty { min-height: 0; margin: 0; }
+.pvpnote { font-size: 13px; opacity: 0.85; max-width: 560px; margin: 8px auto 0; }
+.pvpbtns { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin: 12px 0 0; }
+.pvphow { margin: 14px 0 0; }
+.pvphow button { font-size: 13px; padding: 4px 12px; }
+
+/* Lobby */
+.pvpname { margin: 4px 0 12px; }
+.pvpname input { width: 180px; margin-left: 6px; }
+.pvpcards { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+.pvpscreen .pvpcard { display: flex; flex-direction: column; gap: 4px; align-items: flex-start; text-align: left; padding: 12px 14px; border-radius: 10px; }
+.pvpcard b { font-size: 16px; }
+.pvpcard span { font-size: 13px; opacity: 0.8; }
+.pvpjoin { margin: 14px 0 0; display: flex; gap: 8px; justify-content: center; align-items: center; flex-wrap: wrap; }
+.pvpjoin input { width: 80px; text-transform: uppercase; letter-spacing: 3px; text-align: center; font-weight: bold; margin-left: 6px; }
+
+/* Room */
+.pvpcode { font-family: ui-monospace, Consolas, monospace; letter-spacing: 4px; background: rgba(var(--wb), 0.8); padding: 0 8px; border-radius: 6px; }
+.pvplink { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin: 6px 0; }
+.pvplink input { width: min(340px, 100%); font-size: 13px !important; }
+.pvpvis { font-size: 14px; margin: 6px 0; }
+.pvpvis label { margin: 0 6px; white-space: nowrap; }
+.pvpplayers { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin: 8px 0 12px; }
+.pvpplayer { padding: 5px 12px; border-radius: 999px; background: rgba(var(--wb), 0.75); font-size: 14px; border: 1px solid rgba(0, 0, 0, 0.12); }
+.pvpplayer.bot { opacity: 0.85; }
+.pvpplayer .ok { color: #1b8a2e; }
+.pvpplayer i { opacity: 0.7; }
+.pvpset { text-align: left; background: rgba(var(--wb), 0.45); border-radius: 10px; padding: 8px 12px; }
+.pvprow { display: flex; gap: 10px; align-items: center; padding: 6px 0; border-bottom: 1px solid rgba(0, 0, 0, 0.08); flex-wrap: wrap; }
+.pvprow:last-child { border-bottom: 0; }
+.pvprow > .k { flex: 0 0 130px; font-weight: 600; font-size: 14px; }
+.pvpchips, .pvpmodes { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.pvpchips button, .pvpmodes button { font-size: 14px !important; padding: 4px 10px !important; }
+.pvpchips .custom { font-size: 13px; display: inline-flex; align-items: center; gap: 4px; padding: 2px 6px; border-radius: 8px; }
+.pvpchips .custom.on { outline: 2px solid var(--ol); font-weight: bold; }
+.pvpchips .custom input { width: 84px; font-size: 14px !important; padding: 3px 6px !important; }
+.pvpdesc { font-size: 13px; margin: 2px 0 6px; opacity: 0.85; }
+.pvpqs { display: flex; flex-direction: column; gap: 6px; }
+.pvpq { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.pvpq label { min-width: 70px; font-size: 14px; }
+.pvpq select { font-size: 14px !important; padding: 3px 6px !important; }
+.pvpcheck { font-size: 14px; }
+
+/* Match */
+#matchTop { display: flex; align-items: center; gap: 8px; justify-content: center; flex-wrap: wrap; margin: 4px 0 8px; font-weight: bold; }
+#roundNo { font-size: 18px; }
+#multBadge, #sdBadge { font-size: 13px; padding: 2px 10px; border-radius: 999px; color: #fff; }
+#multBadge { background: #d9480f; }
+#sdBadge { background: #5f3dc4; }
+#multBadge[hidden], #sdBadge[hidden] { display: none; }
+#clock { position: relative; width: 46px; height: 46px; display: inline-flex; align-items: center; justify-content: center; margin-left: 6px; }
+#clock svg { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
+#clock circle { fill: none; stroke-width: 3; }
+#clock circle:first-child { stroke: rgba(0, 0, 0, 0.12); }
+#clockArc { stroke: #1971c2; stroke-linecap: round; transition: stroke-dashoffset 0.1s linear; }
+#clock.low #clockArc { stroke: #e03131; }
+#clock.low #clockNum { color: #e03131; }
+#clockNum { font-size: 17px; font-variant-numeric: tabular-nums; }
+.pvpboss { display: flex; gap: 10px; align-items: center; justify-content: center; margin: 0 0 8px; }
+.pvpboss img { width: 56px; height: 56px; object-fit: contain; }
+.pvpboss > div { width: min(360px, 70%); text-align: left; }
+.pvpboards { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
+.pvpboard { background: rgba(var(--wb), 0.7); border-radius: 10px; padding: 6px 10px; text-align: left; border: 2px solid transparent; transition: border-color 0.3s; }
+.pvpboard.me { border-color: rgba(25, 113, 194, 0.55); }
+.pvpboard.out { opacity: 0.5; }
+.pvpboard.hit { animation: pvphit 0.5s ease; }
+@keyframes pvphit { 0%, 100% { transform: none; } 20% { transform: translateX(-4px); background: rgba(224, 49, 49, 0.35); } 60% { transform: translateX(4px); } }
+.pvpboard .who { font-weight: bold; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pvpboard small { font-size: 12px; opacity: 0.85; }
+.bar { height: 10px; border-radius: 5px; background: rgba(0, 0, 0, 0.15); overflow: hidden; margin: 4px 0 2px; }
+.bar i { display: block; height: 100%; background: linear-gradient(#51cf66, #2f9e44); transition: width 0.6s ease; }
+.bar.pts i { background: linear-gradient(#ffd43b, #f59f00); }
+.bar.boss i { background: linear-gradient(#ff6b6b, #c92a2a); }
+.hearts { font-size: 14px; letter-spacing: 1px; margin: 3px 0; line-height: 1.3; word-break: break-all; }
+.wins { font-size: 16px; letter-spacing: 2px; color: #f59f00; }
+.pvpboard .dots { font-size: 13px; margin-top: 2px; min-height: 18px; }
+.pvpboard .dot { margin-right: 3px; opacity: 0.55; }
+.pvpboard .dot.on { opacity: 1; }
+#music { display: flex; gap: 10px; align-items: center; justify-content: center; margin: 10px 0; font-size: 14px; flex-wrap: wrap; }
+#pvpVol { width: 120px; }
+#questions { display: flex; flex-direction: column; gap: 10px; }
+.pvpqbox { background: rgba(var(--wb), 0.7); border-radius: 10px; padding: 8px 12px; text-align: left; border: 2px solid transparent; }
+.pvpqbox.locked { border-color: rgba(25, 113, 194, 0.5); }
+.pvpqbox.missed { opacity: 0.7; }
+.qhead { margin-bottom: 6px; font-size: 14px; }
+.qhead b { font-size: 15px; margin-right: 4px; }
+.qhead span { opacity: 0.8; }
+.qwait { font-size: 14px; opacity: 0.7; }
+.qlock { font-size: 15px; font-weight: 600; }
+.qlock small { font-weight: normal; opacity: 0.75; margin-left: 6px; }
+.abcd { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.pvpscreen .abcd button { text-align: left; font-size: 14px; padding: 8px 10px; }
+.abcd button b { display: inline-block; width: 20px; }
+.typed { display: flex; gap: 6px; }
+.typed input { flex: 1; min-width: 0; }
+.pvppick { position: relative; }
+.pvppick input { width: 100%; }
+.pvplist { position: absolute; top: 100%; left: 0; right: 0; max-height: 260px; overflow-y: auto; z-index: 7; background: #fff; border: 1px solid #999; border-radius: 0 0 6px 6px; text-align: left; }
+.pvplist[hidden] { display: none; }
+.pvplist .item { display: flex; align-items: center; gap: 10px; padding: 5px 8px; cursor: pointer; font-size: 14px; }
+.pvplist .item img { width: 34px; height: 34px; object-fit: contain; flex: none; }
+.pvplist .item.active, .pvplist .item:hover { background: #ddd; }
+.pvplist .none { padding: 6px 8px; opacity: 0.7; font-size: 14px; }
+.pvpout { font-size: 15px; opacity: 0.85; }
+
+/* Reveal */
+#reveal { margin-top: 12px; background: rgba(var(--wb), 0.75); border-radius: 10px; padding: 8px 10px; }
+#reveal[hidden] { display: none; }
+#reveal h3 { margin: 4px 0 8px; }
+.pvprev { border-collapse: collapse; width: 100%; font-size: 14px; }
+.pvprev th, .pvprev td { padding: 6px 8px; border-bottom: 1px solid rgba(0, 0, 0, 0.1); vertical-align: middle; }
+.pvprev thead th { font-size: 13px; }
+.pvprev tbody th { text-align: left; min-width: 120px; }
+.pvprev .qn { display: block; font-size: 12px; opacity: 0.7; font-weight: normal; }
+.pvprev .ans { display: flex; align-items: center; gap: 6px; font-weight: bold; }
+.pvprev .ans img { width: 30px; height: 30px; object-fit: contain; }
+.pvprev td { text-align: center; }
+.pvprev td small { display: block; font-size: 11px; opacity: 0.75; }
+.pvprev td .pick { word-break: break-word; }
+.pvprev td .none { opacity: 0.6; font-style: italic; }
+.pvprev .gain { display: block; color: #1b8a2e; font-size: 15px; }
+.pvprev td.ok { background: rgba(64, 192, 87, 0.13); }
+.pvprev td.no { background: rgba(250, 82, 82, 0.1); }
+.pvprev tr.tot th, .pvprev tr.tot td { border-bottom: 0; font-size: 15px; }
+#reveal .apply p { margin: 6px 0; font-size: 15px; }
+
+/* Bracket */
+.pvpbracket { display: flex; gap: 14px; overflow-x: auto; padding: 4px 2px 8px; justify-content: center; }
+.pvpbracket .col { display: flex; flex-direction: column; min-width: 150px; }
+.pvpbracket .ties { flex: 1; display: flex; flex-direction: column; justify-content: space-around; gap: 10px; }
+.pvpbracket h4 { margin: 0 0 4px; font-size: 14px; }
+.tie { background: rgba(var(--wb), 0.75); border-radius: 8px; padding: 4px 8px; text-align: left; font-size: 14px; border: 2px solid transparent; }
+.tie.live { border-color: #1971c2; }
+.tie > div { padding: 2px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tie > div.w { font-weight: bold; }
+.tie > div.l { opacity: 0.55; text-decoration: line-through; }
+.tie small { display: block; font-size: 11px; opacity: 0.75; }
+.champ { font-size: 18px; margin: 10px 0 0; }
+
+/* Result */
+#resultHead { font-size: 26px; }
+#resultTable { border-collapse: collapse; margin: 8px auto; font-size: 14px; }
+#resultTable th, #resultTable td { padding: 4px 10px; border-bottom: 1px solid rgba(0, 0, 0, 0.1); }
+#resultTable .trk { text-align: left; }
+#resultTable .trk small { display: block; opacity: 0.7; font-size: 12px; }
+
+/* The how-to-play window */
+#info .panel { max-width: min(560px, calc(100% - 64px)); text-align: left; margin-top: 60px; max-height: calc(100vh - 140px); overflow-y: auto; }
+#info h2 { text-align: center; }
+#info li { margin: 4px 0; }
+
+/* Dark mode */
+html.dark .pvplist { background: #262a32; border-color: #5a606c; }
+html.dark .pvplist .item.active, html.dark .pvplist .item:hover { background: #3a3f4a; }
+html.dark :is(.pvpscreen, .pvphow) button { border-color: rgba(255, 255, 255, 0.2); }
+html.dark .pvpscreen :is(input, select) { border-color: rgba(255, 255, 255, 0.25); }
+html.dark .pvpplayer .ok, html.dark .pvprev .gain { color: #6fdc6f; }
+html.dark :is(.pvprow, .pvprev th, .pvprev td, #resultTable th, #resultTable td) { border-color: rgba(255, 255, 255, 0.1); }
+html.dark #clock circle:first-child { stroke: rgba(255, 255, 255, 0.15); }
+html.dark #clockArc { stroke: #74c0fc; }
+
+/* Phones */
+@media (max-width: 700px) {
+  body.pvppage .game { width: calc(100% - 24px); max-width: none; margin-left: 12px; margin-right: 12px; padding: 8px 10px 14px; }
+  .pvprow > .k { flex-basis: 100%; }
+  .pvpcards { grid-template-columns: 1fr 1fr; }
+  .pvpscreen .pvpcard { padding: 10px; }
+  .pvpcard b { font-size: 15px; }
+  .abcd { grid-template-columns: 1fr; }
+  .pvprev { font-size: 13px; }
+  .pvprev th, .pvprev td { padding: 5px 4px; }
+  .pvprev tbody th { min-width: 90px; }
+  .pvpboards { grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); }
+  .pvpbracket { justify-content: flex-start; }
+}
+@media (prefers-reduced-motion: reduce) { .pvpboard.hit { animation: none; } .bar i { transition: none; } }

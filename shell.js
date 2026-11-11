@@ -1,6 +1,6 @@
 // Every game runs inside this one page (in a frame), so the address bar stays at ima.moe/maplewordle/ and the background
 // music keeps playing from game to game (fx.js keeps it here, in this page, not in the game's).
-// Links: /boss/story, /boss/normal, /boss/hard, /boss/extreme, /bgm/normal, /bgm/extreme, /class/, /class/animation
+// Links: /boss/story, /boss/normal, /boss/hard, /boss/extreme, /bgm/normal, /bgm/extreme, /class/, /class/animation, /pvp/ABCD
 // (and short ones like /extreme or /animation). Those aren't real files, so GitHub's 404.html sends them here as ?r=...
 // A game page opened on its own (an old link to /class or /bgm) comes here the same way (move.js).
 window.mwShell = true;
@@ -13,6 +13,7 @@ window.mwShell = true;
     if (BOSS.includes(a)) return ['boss', a];
     if (a === 'bgm') return ['bgm', { normal: 'bgmnormal', extreme: 'bgm', bgmnormal: 'bgmnormal', bgm: 'bgm' }[b]];
     if (a === 'animation' || a === 'anim') return ['animation'];
+    if (a === 'pvp') return ['pvp', undefined, /^[a-z]{4}$/.test(b) ? b.toUpperCase() : null];   // /pvp/ABCD: a room's share link
     if (a === 'class') return [b === 'animation' || b === 'anim' ? 'animation' : 'class'];
     return ['boss', BOSS.includes(b) ? b : undefined];   // boss/..., the main page, and anything not made yet (map, boss/sound)
   };
@@ -20,9 +21,10 @@ window.mwShell = true;
   const here = location.pathname.replace(/index\.html$/, '');
   let src;
   if (q.has('r')) {
-    const [page, mode] = route(q.get('r'));
+    const [page, mode, roomCode] = route(q.get('r'));
     q.delete('r');
     if (mode && !q.has('mode')) q.set('mode', mode);
+    if (roomCode) q.set('room', roomCode);
     src = page + ([...q].length ? '?' + q : '');
   } else if (history.state?.src) src = history.state.src;   // a reload: the game you were on
   else src = 'boss' + location.search;

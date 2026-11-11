@@ -23,7 +23,7 @@
   // keeps the music going between games (shell.js).
   if (window.top === window && !document.documentElement.hasAttribute('data-shell')) {
     const page = location.pathname.split('/').pop().replace(/\.html$/, '');
-    if (['boss', 'class', 'bgm', 'animation'].includes(page)) {
+    if (['boss', 'class', 'bgm', 'animation', 'pvp'].includes(page)) {
       const q = new URLSearchParams(location.search);
       q.set('r', page);
       location.replace(location.pathname.replace(/[^/]*$/, '') + '?' + q + location.hash);

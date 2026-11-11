@@ -1,0 +1,109 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mapledle - BGM PvP</title>
+<script src="move.js?v=4"></script>
+<script src="account.js?v=22"></script>
+<script>{const c=document.documentElement.classList;c.add('fps30');try{c.toggle('dark',localStorage.getItem('mapleWordle:dark')==='1');c.toggle('fps30',localStorage.getItem('mapleWordle:fps')!=='60')}catch{}}</script>
+<link rel="stylesheet" href="style.css?v=283">
+<link rel="stylesheet" href="pvp.css?v=1">
+</head>
+<body class="pvppage">
+<div class="panel game" id="pvp">
+<h1>Mapledle</h1>
+<div id="games">
+  <button onclick="location.href='boss'">Guess the Boss</button>
+  <button onclick="location.href='class'">Guess the Class</button>
+  <button class="on">BGM PvP<small>Test only</small></button>
+</div>
+
+<!-- Lobby: who you play against -->
+<section id="lobby" class="pvpscreen">
+  <p class="pvpname"><label>Your name <input id="pvpName" maxlength="16" autocomplete="off" spellcheck="false"></label></p>
+  <div class="pvpcards">
+    <button class="pvpcard" data-go="bot"><b>🤖 Play vs Bot</b><span>A computer opponent, any mode</span></button>
+    <button class="pvpcard" data-go="practice"><b>🎯 Practice</b><span>No opponent: a dummy that never answers</span></button>
+    <button class="pvpcard" data-go="raid"><b>🐉 Boss Raid (solo)</b><span>You (and bot teammates) vs one boss</span></button>
+    <button class="pvpcard" data-go="create"><b>🏠 Create a room</b><span>Share a link or a 4-letter code</span></button>
+    <button class="pvpcard" data-go="queue"><b>🎲 Random queue</b><span>Get matched with anyone waiting</span></button>
+  </div>
+  <form id="joinForm" class="pvpjoin">
+    <label>Room code <input id="joinCode" maxlength="4" autocomplete="off" spellcheck="false" placeholder="ABCD"></label>
+    <button type="submit">Join</button>
+  </form>
+  <p id="lobbyMsg" class="pvpmsg"></p>
+  <p id="netNote" class="pvpnote"></p>
+</section>
+
+<!-- Room: settings + players before a match -->
+<section id="room" class="pvpscreen" hidden>
+  <div id="roomHead"></div>
+  <div id="roomPlayers"></div>
+  <div id="roomSettings"></div>
+  <p id="roomMsg" class="pvpmsg"></p>
+  <p class="pvpbtns"><button id="roomStart" class="pvpbig">Start</button> <button id="roomReady" class="pvpbig" hidden>Ready</button> <button id="roomLeave">Leave</button></p>
+</section>
+
+<!-- Match -->
+<section id="match" class="pvpscreen" hidden>
+  <div id="matchTop">
+    <span id="roundNo"></span><span id="multBadge" hidden></span><span id="sdBadge" hidden></span>
+    <span id="clock"><span id="clockNum">30</span><svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="16" /><circle id="clockArc" cx="18" cy="18" r="16" /></svg></span>
+  </div>
+  <div id="boards"></div>
+  <div id="music"><span id="musicState">♪ Loading…</span> <input id="pvpVol" type="range" min="0" max="100" title="BGM volume"></div>
+  <div id="questions"></div>
+  <div id="reveal" hidden></div>
+  <p id="matchMsg" class="pvpmsg"></p>
+  <p class="pvpbtns"><button id="matchQuit">Leave match</button></p>
+</section>
+
+<!-- Tournament bracket -->
+<section id="bracket" class="pvpscreen" hidden>
+  <h2>Tournament</h2>
+  <div id="bracketBody"></div>
+  <p id="bracketMsg" class="pvpmsg"></p>
+  <p class="pvpbtns"><button id="bracketBack" hidden>Back to the lobby</button></p>
+</section>
+
+<!-- Result -->
+<section id="result" class="pvpscreen" hidden>
+  <h2 id="resultHead"></h2>
+  <p id="resultWhy"></p>
+  <div class="table-wrap"><table id="resultTable"></table></div>
+  <p class="pvpbtns"><button id="again" class="pvpbig">Play again</button> <button id="toLobby">Back to the lobby</button></p>
+</section>
+<p class="pvphow"><button id="howBtn" type="button">How to play</button></p>
+</div>
+<footer class="panel">
+  Want to give any suggestions or feedback?<br>
+  <a href="https://discord.gg/f22H4UJ" target="_blank" rel="noopener">Join the Discord!</a>
+</footer>
+<div id="creditWrap">
+  <div id="clip-left" class="peekclip"><img src="images/peek/sato.png" alt=""></div>
+  <div id="clip-mid" class="peekclip"><img src="images/peek/elysia.png" alt=""></div>
+  <div id="clip-right" class="peekclip"><img src="images/peek/moeko.png" alt=""></div>
+  <div id="credit" class="panel">Made by Yuki with Love &lt;3</div>
+</div>
+<button id="version" class="panel">alpha v6.1</button>
+<div id="info" hidden>
+  <div class="panel">
+    <h2>BGM PvP: how to play</h2>
+    <div id="infoBody"></div>
+    <p class="closebar"><button id="infoClose">Close</button></p>
+  </div>
+</div>
+<div id="changelog" hidden>
+  <div class="panel">
+    <h2>Changelog</h2>
+    <div id="changelogBody"></div>
+    <p class="closebar"><button id="changelogClose">Close</button></p>
+  </div>
+</div>
+<script src="fx.js?v=218"></script>
+<script src="achv.js?v=75"></script>
+<script src="pvp.js?v=1"></script>
+</body>
+</html>
