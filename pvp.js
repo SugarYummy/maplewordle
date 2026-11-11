@@ -250,7 +250,8 @@ class Match {
   alive() { return this.players.filter((p) => !this.state.players[p.id].out); }
   start() {
     this.send('all', { t: 'match', id: this.id, cfg: this.cfg, players: this.players, state: this.state, mode: this.mode, startHp: this.startHp });
-    this.nextRound();
+    const intro = !this.simulate && this.players.length === 2 && this.mode !== 'raid' && this.players.some((p) => p.look?.fx);   // (1v1: entrances first)
+    if (intro) this.later(() => this.nextRound(), ENTRANCE_MS); else this.nextRound();
   }
   stop() { this.stopped = true; this.timers.forEach(clearTimeout); }
   // Someone left (closed the page, pressed Leave): they're out; a 1v1 (or the last two) ends with the other one winning.
@@ -691,6 +692,88 @@ function wsNet(myId, code) {
 }
 const roomNet = (myId, code) => PVP_SERVER ? wsNet(myId, code) : tabsNet(myId, code);
 
+// ============================== Characters (PC / landscape, 1v1) ==============================
+// You stand left of the match and the other player right: your MapleStory Character (Account Settings) with your
+// appearance effect, which plays once as the match starts (round 1 waits for it). Bots: a class portrait (the Class
+// game's art, except Tanjiro's: it isn't see-through); Hard bots come in with Seething Balance. No character: that
+// side stays empty. Phones / portrait: none.
+const ENTRANCE_MS = 3800;
+const CLASS_PICS = [
+  'adele', 'angelic-buster', 'aran', 'arch-mage-f-p', 'arch-mage-i-l', 'ark', 'battle-mage', 'beast-tamer', 'bishop',
+  'blaster', 'blaze-wizard', 'bow-master', 'buccaneer', 'cadena', 'cannoneer', 'corsair', 'dark-knight',
+  'dawn-warrior', 'demon-avenger', 'demon-slayer', 'dual-blade', 'erel-light', 'evan', 'hayato', 'hero', 'hoyoung',
+  'iel', 'illium', 'jett', 'kain', 'kaiser', 'kanna', 'khali', 'kinesis', 'lara', 'lethe', 'luminous', 'lynn',
+  'marksman', 'mechanic', 'mercedes', 'mihile', 'mo-xuan', 'night-lord', 'night-walker', 'paladin', 'pathfinder',
+  'phantom', 'pink-bean', 'ren', 'saitama', 'shade', 'shadower', 'sia-astelle', 'thunder-breaker',
+  'wild-hunter', 'wind-archer', 'xenon', 'yeti', 'zen', 'zero',
+];
+const LOOK_IMG = /^https:\/\/[a-z0-9-]+(\.[a-z0-9-]+)*\.nexon\.net\/[\w\-./%]+$/i;   // (someone else's: only Nexon's own avatar pictures)
+function myLook() {
+  try {
+    if (typeof acct !== 'function' || !acct()) return null;
+    const m = acctMaple(), look = {};
+    if (m?.avatar) { if (!ACCT_AVATARS[m.avatar]?.owned()) return null; look.avatar = m.avatar; }
+    else if (m?.img) look.img = m.img;
+    else return null;
+    const fx = acctAppearOn();
+    if (fx) look.fx = fx;
+    return look;
+  } catch { return null; }
+}
+function cleanLook(l) {   // (it came from another player: only what this page knows)
+  if (!l || typeof l !== 'object') return null;
+  const out = {}, has = (o, k) => typeof k === 'string' && typeof o !== 'undefined' && Object.hasOwn(o, k);
+  if (has(typeof ACCT_AVATARS === 'undefined' ? undefined : ACCT_AVATARS, l.avatar)) out.avatar = l.avatar;
+  else if (typeof l.img === 'string' && l.img.length < 400 && LOOK_IMG.test(l.img)) out.img = l.img;
+  else if (CLASS_PICS.includes(l.cls)) out.cls = l.cls;
+  else return null;
+  if (has(typeof ACCT_EFFECTS === 'undefined' ? undefined : ACCT_EFFECTS, l.fx)) out.fx = l.fx;
+  return out;
+}
+function botLook(name, level) {   // the same portrait for the same bot name
+  let h = 7;
+  for (const ch of String(name)) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  return { cls: CLASS_PICS[h % CLASS_PICS.length], ...(level === 'hard' ? { fx: 'seethingBalance' } : {}) };
+}
+const isSafari = () => typeof SAFARI !== 'undefined' && SAFARI;
+function lookHtml(l) {
+  if (l.avatar) {
+    const av = ACCT_AVATARS[l.avatar];
+    return isSafari() ? `<img class="pvpfig" src="${esc(av.src)}.webp" alt="">`
+      : `<video class="pvpfig" src="${esc(av.src)}.webm" autoplay muted loop playsinline disablepictureinpicture aria-hidden="true"></video>`;
+  }
+  if (l.img) return `<img class="pvpfig nexon" src="${esc(l.img)}" alt="" referrerpolicy="no-referrer">`;
+  return `<img class="pvpfig cls" src="images/classes/${esc(l.cls)}.png" alt="">`;
+}
+function drawChars() {
+  const box = $('chars');
+  const duel = game && game.players.length === 2 && game.mode !== 'raid' && game.players.some((p) => p.id === me.id);
+  if (!duel) { box.hidden = true; box.innerHTML = ''; return; }
+  const side = (p, cls) => {
+    const l = cleanLook(p.look);
+    return `<div class="pvpchar ${cls}" data-pid="${esc(p.id)}">${l ? `<div class="pvpstage">${lookHtml(l)}</div><b>${esc(p.name)}</b>` : ''}</div>`;
+  };
+  box.innerHTML = side(game.players.find((p) => p.id === me.id), 'me') + side(game.players.find((p) => p.id !== me.id), 'foe');
+  box.hidden = !box.querySelector('.pvpstage');
+}
+function charsEntrance() {
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  let any = false;
+  for (const el of document.querySelectorAll('#chars .pvpchar')) {
+    const l = cleanLook(game.players.find((p) => p.id === el.dataset.pid)?.look), fx = l?.fx && ACCT_EFFECTS[l.fx], stage = el.querySelector('.pvpstage');
+    if (!fx || !stage || !stage.offsetParent) continue;   // (not shown here: a phone, or portrait)
+    const v = Object.assign(document.createElement(isSafari() ? 'img' : 'video'), { className: 'pvpfx', src: `${fx.src}.${isSafari() ? 'webp' : 'webm'}?v=1`, alt: '' });
+    if (!isSafari()) Object.assign(v, { muted: true, autoplay: true, playsInline: true });
+    v.setAttribute('aria-hidden', 'true');
+    stage.prepend(v);
+    const gone = () => v.remove();
+    v.addEventListener('ended', gone); v.addEventListener('error', gone);
+    setTimeout(gone, ENTRANCE_MS + 700);
+    any = true;
+  }
+  if (any && typeof resultSound === 'function') resultSound(true, 0, 'appear', 0, true);   // one sound, even for two
+}
+
 // ============================== Music ==============================
 const music = { ctx: null, gain: null, src: null, buf: null, id: null, startAt: 0, playing: false };
 const bgmVolume = () => clamp(Number(lsGet('mapleWordle:bgmVolume', 50)), 0, 100);
@@ -807,7 +890,7 @@ function openLocal(cfg, title) {
   botNames = shuffle(BOT_NAMES);
   net = localNet(me.id);
   net.handlers.push(onMessage);
-  room = { code: null, local: true, hostId: me.id, members: [{ id: me.id, name: me.name, bot: null, ready: true }], cfg, title };
+  room = { code: null, local: true, hostId: me.id, members: [{ id: me.id, name: me.name, bot: null, ready: true, look: myLook() }], cfg, title };
   drawRoom();
   show('room');
 }
@@ -820,7 +903,7 @@ function createRoom(queue, code = newCode()) {
   net = roomNet(me.id, code);
   net.hostId = me.id;
   net.handlers.push(onMessage);
-  room = { code, local: false, hostId: me.id, members: [{ id: me.id, name: me.name, bot: null, ready: false }], cfg, title: 'Room ' + code, fill: false };
+  room = { code, local: false, hostId: me.id, members: [{ id: me.id, name: me.name, bot: null, ready: false, look: myLook() }], cfg, title: 'Room ' + code, fill: false };
   advertise();
   drawRoom();
   show('room');
@@ -831,7 +914,7 @@ function joinRoom(code) {
   net = roomNet(me.id, code);
   net.handlers.push(onMessage);
   room = { code, joining: true, members: [], cfg: loadCfg(), title: 'Room ' + code };
-  net.send('all', { t: 'hello', name: me.name });
+  net.send('all', { t: 'hello', name: me.name, look: myLook() });
   $('lobbyMsg').textContent = 'Looking for room ' + code + '…';
   setTimeout(() => { if (room?.joining && room.code === code) lobby(`Room ${code} wasn’t found (or it’s full).`); }, 2500);
 }
@@ -1017,13 +1100,16 @@ function startMatch() {
   clearTimeout(countTimer);
   const c = JSON.parse(JSON.stringify(room.cfg));
   if (c.mode === 'best') c.q = { bgm: true, phase: false, title: false };
-  const people = room.members.filter((m) => !m.bot).map((m) => ({ id: m.id, name: m.name, bot: null }));
-  const bots = room.local || room.fill ? botMembers(c, people).map((b) => ({ id: b.id, name: b.name, bot: b.bot })) : [];
+  const people = room.members.filter((m) => !m.bot).map((m) => ({ id: m.id, name: m.name, bot: null, look: m.id === me.id ? myLook() : cleanLook(m.look) }));
+  const bots = room.local || room.fill ? botMembers(c, people).map((b) => ({ id: b.id, name: b.name, bot: b.bot, look: botLook(b.name, b.bot) })) : [];
   let players = [...people, ...bots];
   if (c.mode === 'tour') {
     const size = [2, 4, 8].find((n) => n >= players.length) || 8;
     players = players.slice(0, size);
-    while (players.length < size) players.push({ id: 'bot' + players.length, name: BOT_NAMES[players.length % BOT_NAMES.length], bot: c.botLevel === 'dummy' ? 'easy' : c.botLevel });
+    while (players.length < size) {
+      const name = BOT_NAMES[players.length % BOT_NAMES.length], bot = c.botLevel === 'dummy' ? 'easy' : c.botLevel;
+      players.push({ id: 'bot' + players.length, name, bot, look: botLook(name, bot) });
+    }
   }
   if (!['raid'].includes(c.mode) && players.length < 2) { $('roomMsg').textContent = 'This mode needs at least 2 players.'; return; }
   if (c.mode === 'ffa' && players.length < 3) { $('roomMsg').textContent = 'Free-for-all needs at least 3 players (turn on bots for the empty seats).'; return; }
@@ -1053,7 +1139,7 @@ function onMessage(from, m) {
     if (m.t === 'hello' && from !== me.id && !room.local) {
       const people = room.members.filter((x) => !x.bot);
       if (room.playing || people.length >= Math.max(2, seatsFor(room.cfg))) { net.send(from, { t: 'full' }); return; }
-      if (!room.members.some((x) => x.id === from)) room.members.push({ id: from, name: String(m.name || 'Player').slice(0, 16), bot: null, ready: false });
+      if (!room.members.some((x) => x.id === from)) room.members.push({ id: from, name: String(m.name || 'Player').slice(0, 16), bot: null, ready: false, look: cleanLook(m.look) });
       roomCountdown(); roomBroadcast(); drawRoom();
       return;
     }
@@ -1114,8 +1200,14 @@ function onMatch(m) {
   $('reveal').hidden = true;
   $('questions').innerHTML = '';
   $('matchMsg').textContent = '';
+  $('roundNo').textContent = 'Get ready…';
+  $('multBadge').hidden = true; $('sdBadge').hidden = true;
+  $('musicState').textContent = '♪';
+  setClock(m.cfg.time, m.cfg.time);
   show('match');
   drawBoards();
+  drawChars();
+  charsEntrance();
 }
 function spectate(m) {
   if ($('bracket').hidden === false) $('bracketMsg').textContent = 'Matches are being played…';
@@ -1551,5 +1643,5 @@ loadData().then(() => {
   lobby();
   if (code && /^[A-Za-z]{4}$/.test(code)) joinRoom(code.toUpperCase());
 }).catch(() => lobby('Couldn’t load the BGM list. Try reloading.'));
-window.pvpDebug = { get game() { return game; }, get room() { return room; }, get host() { return host; }, dmgAt, DATA: () => DATA, Match, botAnswers, music };
+window.pvpDebug = { get game() { return game; }, get room() { return room; }, get host() { return host; }, dmgAt, DATA: () => DATA, Match, botAnswers, music, cleanLook, botLook };
 })();
