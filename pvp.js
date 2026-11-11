@@ -17,7 +17,9 @@
 //   ws    - the PvP server (worker/pvp.js on Cloudflare), once it's set up: PVP_SERVER below
 (() => {
 'use strict';
-const PVP_SERVER = '';   // e.g. 'wss://maplewordle-pvp.<account>.workers.dev' once worker/pvp.js is deployed
+// The PvP server (worker/pvp.js), e.g. 'wss://maplewordle-pvp.<account>.workers.dev', once it's deployed. Until it's
+// written in here, the test site can try one from the browser console: localStorage['mapleWordle:pvpServer'] = 'wss://...'
+const PVP_SERVER = (() => { try { return localStorage.getItem('mapleWordle:pvpServer') || ''; } catch { return ''; } })().replace(/\/+$/, '');
 
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -26,7 +28,7 @@ const shuffle = (a) => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) {
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 const lsGet = (k, d = null) => { try { const v = localStorage.getItem(k); return v == null ? d : v; } catch { return d; } };
 const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch {} };
-const newId = () => Math.random().toString(36).slice(2, 10);
+const newId = () => Math.random().toString(36).slice(2, 10).padEnd(8, '0');
 const CODE_LETTERS = 'ABCDEFGHJKLMNPQRSTUVWXYZ';   // no I / O (they look like 1 / 0)
 const newCode = () => Array.from({ length: 4 }, () => CODE_LETTERS[rnd(CODE_LETTERS.length)]).join('');
 const sfx = (n) => { try { uiSound(n); } catch {} };
@@ -691,15 +693,28 @@ function leaveRoom(quiet) {
     net.close();
   }
   clearInterval(advTimer);
+  if (advCode) { queueApi('close', { code: advCode }); advCode = null; }
   net = null; room = null; game = null;
   if (!quiet) lobby();
 }
 // The random queue (between tabs until the server exists): rooms set to "Random queue" announce themselves; someone
 // queueing joins the first one with a free seat, or makes one and waits.
 let advTimer = 0, qChan = null;
+const queueApi = (what, body) => fetch(PVP_SERVER.replace(/^ws/, 'http') + '/queue/' + what, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }).catch(() => {});
+let advCode = null;
 function advertise() {
   clearInterval(advTimer);
-  if (!room?.cfg.queue || PVP_SERVER) return;
+  if (PVP_SERVER) {   // the server keeps the list: say "open" every few seconds while waiting, "close" once not
+    const open = () => room?.cfg.queue && room.code && room.hostId === me.id && !room.playing && room.members.filter((m) => !m.bot).length < Math.max(2, seatsFor(room.cfg));
+    const say = () => {
+      if (open()) { advCode = room.code; queueApi('open', { code: room.code, n: room.members.filter((m) => !m.bot).length, seats: Math.max(2, seatsFor(room.cfg)) }); }
+      else if (advCode) { queueApi('close', { code: advCode }); advCode = null; }
+    };
+    say();
+    if (room?.cfg.queue) advTimer = setInterval(say, 4000);
+    return;
+  }
+  if (!room?.cfg.queue) return;
   qChan ??= new BroadcastChannel('mapledle-pvp:queue');
   const say = () => { if (room?.cfg.queue && room.hostId === me.id && !game) qChan.postMessage({ t: 'open', code: room.code, n: room.members.filter((m) => !m.bot).length, seats: seatsFor(room.cfg) }); };
   say();
@@ -898,6 +913,16 @@ function onMessage(from, m) {
     if (['lock', 'done'].includes(m.t) || (m.t === 'ready' && m.id)) { host?.receive(from, m); }
   }
   if (m.t === 'ready' && m.id && from === me.id && isHost()) return;   // (handled above)
+  // The PvP server itself
+  if (from === 'server') {
+    if (m.t === 'welcome' && room && !room.local) {
+      if (isHost() && m.n > 1 && !room.playing && room.members.length === 1) return createRoom(room.cfg.queue);   // that code was taken: another one
+      if (room.joining && m.n <= 1) return lobby(`Room ${room.code} wasn\u2019t found.`);
+    }
+    if (m.t === 'closed' && room && !room.local) lobby(m.why || 'Lost the connection to the PvP server.');
+    return;
+  }
+  if (m.t === 'bye' && room && !isHost() && from === room.hostId) return lobby('The host left the room.');
   // Everyone: what the host says
   if (from !== room?.hostId && from !== me.id && !(room?.joining && m.t === 'room')) { if (!(m.t === 'full' && room?.joining)) return; }
   switch (m.t) {

@@ -1,0 +1,16 @@
+// Wrangler config for the BGM PvP server (worker/pvp.js). Deploy: npx wrangler deploy -c worker/pvp.wrangler.jsonc
+// (Free plan is fine: SQLite-backed Durable Objects, see worker/PVP-SETUP.md)
+{
+  "name": "maplewordle-pvp",
+  "main": "pvp.js",
+  "compatibility_date": "2026-10-01",
+  "durable_objects": {
+    "bindings": [
+      { "name": "ROOMS", "class_name": "PvpRoom" },
+      { "name": "QUEUE", "class_name": "PvpQueue" }
+    ]
+  },
+  "migrations": [
+    { "tag": "v1", "new_sqlite_classes": ["PvpRoom", "PvpQueue"] }
+  ]
+}
