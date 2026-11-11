@@ -835,7 +835,9 @@ function vipDraw() {
   const a = vip.audio, playing = a && !a.paused;
   $v('vipPlay').textContent = playing ? '❚❚ Pause' : '▶︎ Play';
   $v('vipLoop').classList.toggle('on', !!vip.loopSong);
-  $v('vipNow').textContent = vip.cur ? `${[...(vip.names[vip.cur] || [])].join(' / ')} - ${vip.titles[vip.cur]}` : 'Press Play for a random BGM';
+  const where = vip.cur ? [...(vip.names[vip.cur] || [])].join(' / ') : '';
+  const title = vip.titles[vip.cur] || '', same = where.toLowerCase() === title.toLowerCase();   // "Ariant - Ariant" -> "Ariant"
+  $v('vipNow').textContent = vip.cur ? (where && !same ? `${where} - ${title}` : title) : 'Press Play for a random BGM';
   const t = a?.currentTime || 0, len = a?.duration || 0, at = len ? t / len * 100 : 0;
   $v('vipFill').style.width = at + '%';
   $v('vipText').textContent = `${t.toFixed(1)} / ${len.toFixed(1)}`;
