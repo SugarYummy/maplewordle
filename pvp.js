@@ -41,6 +41,7 @@ const POINTS = { bgm: 1, phase: 0.25, title: 0.5 };
 const dmgAt = (sec, q) => Math.ceil(+((25 + 125 * 0.6 ** (Math.max(0, sec) / 10)) * SCALE[q]).toFixed(6));
 const multOf = (round) => round >= 10 ? 5 : round >= 5 ? 2 : 1;   // x2 from round 5, x5 from round 10
 const ROUND_CAP = 20, DRAW_HP = 100, DRAWS_BEFORE_PENALTY = 3, TIEBREAK_TRIES = 3;
+const LOBBY_MS = 30000, COUNT_MS = 5000;   // before round 1: read the rules, press Ready (or 30 s); before each round: 5 s
 const MODES = {
   hp:    { name: 'HP', solo: 1, desc: 'Right answers deal damage. Each round the side that dealt less takes the difference.' },
   life:  { name: 'Life', solo: 1, desc: 'Get any question wrong (or run out of time) and you lose a life.' },
@@ -249,9 +250,21 @@ class Match {
   alive() { return this.players.filter((p) => !this.state.players[p.id].out); }
   start() {
     this.send('all', { t: 'match', id: this.id, cfg: this.cfg, players: this.players, state: this.state, mode: this.mode, startHp: this.startHp });
-    const intro = !this.simulate && this.players.length === 2 && this.mode !== 'raid' && this.players.some((p) => p.look?.fx);   // (1v1: entrances first)
-    if (intro) this.later(() => this.nextRound(), ENTRANCE_MS); else this.nextRound();
+    if (this.simulate) return this.nextRound();
+    const intro = this.players.length === 2 && this.mode !== 'raid' && this.players.some((p) => p.look?.fx);   // (1v1: entrances first)
+    this.later(() => this.lobby(), intro ? ENTRANCE_MS : 0);
   }
+  // Before round 1: everyone sees the rules; round 1 comes once everyone has pressed Ready, or after 30 s. Bots are ready.
+  lobby() {
+    if (this.done) return;
+    this.mready = new Set(this.players.filter((p) => p.bot).map((p) => p.id));
+    this.lobbyOn = true;
+    this.send('all', { t: 'lobby', id: this.id, ms: LOBBY_MS, ready: [...this.mready] });
+    this.later(() => this.lobbyEnd(), LOBBY_MS);
+    this.lobbyCheck();
+  }
+  lobbyCheck() { if (this.lobbyOn && this.players.every((p) => this.mready.has(p.id) || this.state.players[p.id].out)) this.lobbyEnd(); }
+  lobbyEnd() { if (!this.lobbyOn || this.done) return; this.lobbyOn = false; this.nextRound(); }
   stop() { this.stopped = true; this.timers.forEach(clearTimeout); }
   // Someone left (closed the page, pressed Leave): they're out; a 1v1 (or the last two) ends with the other one winning.
   forfeit(pid) {
@@ -268,6 +281,7 @@ class Match {
       return this.finish();
     }
     if (this.cur) { this.cur.ready.add(pid); this.cur.done.add(pid); this.checkReady(); this.checkAll(); }
+    this.lobbyCheck();
   }
   later(fn, ms) { this.timers.push(setTimeout(() => { if (!this.stopped) fn(); }, ms)); }
   pickTrack() {
@@ -295,9 +309,10 @@ class Match {
       }
       return this.resolve();
     }
-    this.send('all', { t: 'load', id: this.id, round: s.round, track: { id: tr.id, v: tr.v }, qs, time, mult: this.multNow(), tb: s.tb, sudden: s.sudden, move: s.boss?.move ?? null });
+    this.send('all', { t: 'load', id: this.id, round: s.round, track: { id: tr.id, v: tr.v }, qs, time, mult: this.multNow(), tb: s.tb, sudden: s.sudden, move: s.boss?.move ?? null, count: COUNT_MS });
     const cur = this.cur;
-    this.later(() => { if (this.cur === cur) this.go(); }, 20000);   // someone's music won't load: start this round anyway
+    this.later(() => { if (this.cur === cur) { cur.counted = true; this.checkReady(); } }, COUNT_MS);   // the 5 s count first
+    this.later(() => { if (this.cur === cur) this.go(); }, COUNT_MS + 20000);   // someone's music won't load: start this round anyway
     this.checkReady();
   }
   multNow() { return ['hp', 'ffa'].includes(this.mode) && !this.state.tb ? multOf(this.state.round) : 1; }
@@ -319,7 +334,7 @@ class Match {
     }
     b.move = mv; b.last = mv.k;
   }
-  checkReady() { if (this.cur && !this.cur.goAt && this.players.every((p) => this.cur.ready.has(p.id))) this.go(); }
+  checkReady() { if (this.cur && this.cur.counted && !this.cur.goAt && this.players.every((p) => this.cur.ready.has(p.id))) this.go(); }
   go() {
     const c = this.cur;
     if (!c || c.goAt) return;
@@ -350,6 +365,14 @@ class Match {
   }
   // Messages from players (people only).
   receive(from, m) {
+    if (m.t === 'mready') {   // Ready, in the lobby before round 1
+      if (this.lobbyOn && this.players.some((p) => p.id === from) && !this.mready.has(from)) {
+        this.mready.add(from);
+        this.send('all', { t: 'isready', id: this.id, pid: from });   // (not 'mready': that one is for the host)
+        this.lobbyCheck();
+      }
+      return;
+    }
     const c = this.cur;
     if (!c || m.round !== c.round || !this.players.some((p) => p.id === from)) return;
     if (m.t === 'ready') { c.ready.add(from); this.checkReady(); }
@@ -816,7 +839,8 @@ const SIDES = matchMedia('(min-width: 1100px) and (orientation: landscape)');
 const isDuel = () => !!game && game.players.length === 2 && game.mode !== 'raid' && game.players.some((p) => p.id === me.id);
 const sidesOn = () => isDuel() && SIDES.matches;
 function infoHtml(p, l) {
-  const i = l?.info || {}, f = (x) => x.toLocaleString('en-US'), rows = [`<b class="nm">${p.bot ? '🤖 ' : ''}${esc(p.name)}${p.id === me.id ? ' (you)' : ''}</b>`];
+  const i = l?.info || {}, f = (x) => x.toLocaleString('en-US');
+  const rows = [`<b class="nm">${p.bot ? '🤖 ' : ''}${esc(p.name)}${p.id === me.id ? ' (you)' : ''} <span class="rdy" data-rdy="${esc(p.id)}" hidden>READY</span></b>`];
   if (p.bot) rows.push(`<span>${esc(BOTS[p.bot]?.name.replace(/ \(.*/, '') || '')} bot</span>`);
   else {
     if (i.ign) rows.push(`<span>${esc(i.ign)}${i.world ? ' · ' + esc(i.world) : ''}</span>`);
@@ -1007,6 +1031,7 @@ function joinRoom(code) {
 }
 function leaveRoom(quiet) {
   stopMusic(0);
+  clearInterval(game?.countTimer);
   if (host) { host.stop(); host = null; }
   if (net) {
     if (room && !room.local && room.code) net.send('all', room.hostId === me.id ? { t: 'closed', why: 'The host left the room.' } : { t: 'bye' });
@@ -1234,7 +1259,7 @@ function onMessage(from, m) {
     if (m.t === 'ready' && from !== me.id) { const x = room.members.find((y) => y.id === from); if (x) { x.ready = !!m.v; roomCountdown(); roomBroadcast(); drawRoom(); } return; }
     if (m.t === 'bye') { host?.forfeit?.(from); room.members = room.members.filter((x) => x.id !== from); room.endsAt = null; roomCountdown(); roomBroadcast(); drawRoom(); return; }
     if (m.t === 'back') { const x = room.members.find((y) => y.id === from); if (x) { x.back = true; roomCountdown(); roomBroadcast(); drawRoom(); } return; }
-    if (['lock', 'done', 'cast'].includes(m.t) || (m.t === 'ready' && m.id)) { host?.receive(from, m); }
+    if (['lock', 'done', 'cast', 'mready'].includes(m.t) || (m.t === 'ready' && m.id)) { host?.receive(from, m); }
   }
   if (m.t === 'ready' && m.id && from === me.id && isHost()) return;   // (handled above)
   // The PvP server itself
@@ -1269,6 +1294,8 @@ function onMessage(from, m) {
     case 'closed': if (room && !room.local) lobby(m.why || 'The room was closed.'); break;
     case 'starting': $('roomMsg').textContent = 'Starting…'; break;
     case 'match': onMatch(m); break;
+    case 'lobby': onLobby(m); break;
+    case 'isready': onMready(m); break;
     case 'load': onLoad(m); break;
     case 'go': onGo(m); break;
     case 'locked': onLocked(m); break;
@@ -1284,10 +1311,12 @@ function onMessage(from, m) {
 const mine = (m) => m.players?.some((p) => p.id === me.id) || game?.id === m.id;
 function onMatch(m) {
   if (!m.players.some((p) => p.id === me.id)) { if (!game) spectate(m); return; }   // a tournament match you're not in
+  clearInterval(game?.countTimer);
   game = { id: m.id, cfg: m.cfg, players: m.players, state: m.state, mode: m.mode, startHp: m.startHp, round: 0, history: [] };
   $('reveal').hidden = true;
-  $('questions').innerHTML = '';
+  $('questions').innerHTML = rulesHtml();
   $('questions').hidden = false;
+  $('matchReady').hidden = true;
   $('matchMsg').textContent = '';
   $('roundNo').textContent = 'Get ready…';
   $('multBadge').hidden = true; $('sdBadge').hidden = true;
@@ -1301,19 +1330,68 @@ function onMatch(m) {
 function spectate(m) {
   if ($('bracket').hidden === false) $('bracketMsg').textContent = 'Matches are being played…';
 }
+// A count on the round clock: the lobby before round 1 (30 s) and the start of each round (5 s)
+function countdown(ms, total, each) {
+  clearInterval(game.countTimer);
+  const end = performance.now() + ms;
+  const step = () => {
+    const left = Math.max(0, (end - performance.now()) / 1000);
+    setClock(left, total / 1000);
+    $('clock').classList.remove('low');
+    each?.(Math.ceil(left));
+    if (left <= 0) clearInterval(game.countTimer);
+  };
+  step();
+  game.countTimer = setInterval(step, 200);
+}
+function rulesHtml() {
+  const c = game.cfg, m = game.mode, f = (x) => Number(x).toLocaleString('en-US'), rows = [];
+  const row = (k, v) => rows.push(`<tr><th>${k}</th><td>${v}</td></tr>`), mode = MODES[c.mode] || MODES[m];
+  row('Mode', `<b>${esc(mode.name)}</b>: ${esc(mode.desc)}`);
+  row('Round time', `${c.time} s`);
+  row('Questions', QS.filter((q) => c.q[q]).map((q) => `${QNAME[q]} <small>(${esc(INPUTS[c.input[q]] || '')})</small>`).join(' · '));
+  if (m === 'hp' || m === 'ffa') row(c.mode === 'tour' ? 'HP per match' : 'HP', f(game.startHp));
+  if (m === 'hp' || m === 'ffa') row('Last chance', c.lastChance ? 'On: once per match, a hit that would KO you leaves you at 1 HP' : 'Off');
+  if (m === 'hp' || m === 'ffa') row('Damage', 'Faster right answers hit harder. x2 from round 5, x5 from round 10');
+  if (m === 'life') row('Lives', c.lives);
+  if (m === 'first') row('Points to win', c.firstTo);
+  if (m === 'best') row('Best of', c.bestOf);
+  if (m === 'raid' && game.state.boss) { row('Boss', `${esc(game.state.boss.name)} · ${f(game.state.boss.max)} HP`); row('Lives each', c.raidLives); }
+  row('Last round', `Round ${ROUND_CAP}`);
+  const bot = game.players.find((p) => p.bot);
+  if (bot) row('Bots', esc(BOTS[bot.bot]?.name || ''));
+  return `<div class="pvprules"><h3>Rules</h3><table>${rows.join('')}</table></div>`;
+}
+function onLobby(m) {
+  if (!game || m.id !== game.id) return;
+  game.mready = new Set(m.ready);
+  const btn = $('matchReady'), mine = game.players.some((p) => p.id === me.id) && !game.state.players[me.id]?.out;
+  btn.hidden = !mine; btn.disabled = false; btn.textContent = 'Ready';
+  $('musicState').textContent = 'The match starts when everyone is ready';
+  countdown(m.ms, LOBBY_MS, (n) => { $('roundNo').textContent = `Starts in ${n}`; });
+  drawBoards();
+}
+function onMready(m) {
+  if (!game || m.id !== game.id || !game.mready) return;
+  game.mready.add(m.pid);
+  if (m.pid === me.id) { $('matchReady').disabled = true; $('matchReady').textContent = 'Ready ✓'; }
+  drawBoards();
+}
 function onLoad(m) {
   if (!game || m.id !== game.id) return;
   Object.assign(game, { round: m.round, qs: m.qs, time: m.time, mult: m.mult, locks: {}, startPerf: 0, others: {}, tb: m.tb, sudden: m.sudden, revealing: false, casts: {}, ended: false, buf: null });
   if (m.move && game.state.boss) game.state.boss.move = m.move;
   const meP = game.state.players[me.id];
   game.out = meP?.out;
-  $('roundNo').textContent = m.tb ? `Tiebreak ${m.tb}` : `Round ${m.round}${m.round === ROUND_CAP ? ' (last)' : ''}`;
+  game.label = m.tb ? `Tiebreak ${m.tb}` : `Round ${m.round}${m.round === ROUND_CAP ? ' (last)' : ''}`;
+  game.mready = null;
+  $('matchReady').hidden = true;
+  countdown(m.count || 0, COUNT_MS, (n) => { $('roundNo').textContent = n > 0 ? `${game.label} starts in ${n}` : game.label; });
   $('multBadge').hidden = !(m.mult > 1); $('multBadge').textContent = `x${m.mult} damage`;
   $('sdBadge').hidden = !m.sudden; $('sdBadge').textContent = 'Sudden death';
   $('reveal').hidden = true;
   $('questions').hidden = false;
   $('matchMsg').textContent = '';
-  setClock(m.time, m.time);
   $('musicState').textContent = '♪ Loading the track…';
   drawQuestions(false);
   drawBoards();
@@ -1328,6 +1406,9 @@ function onLoad(m) {
 }
 function onGo(m) {
   if (!game || m.id !== game.id || m.round !== game.round) return;
+  clearInterval(game.countTimer);
+  $('roundNo').textContent = game.label;
+  setClock(game.time, game.time);
   const go = () => {
     let at = 0;
     if (game.buf) at = playMusic(game.buf);
@@ -1521,16 +1602,20 @@ function drawBoards(state = game?.state) {
     else if (g.mode === 'best') stat = `<div class="wins">${'●'.repeat(st.wins)}${'○'.repeat(Math.max(0, neededWins(c.bestOf) - st.wins))}</div><small>${st.wins} round win${st.wins === 1 ? '' : 's'} (need ${neededWins(c.bestOf)})</small>`;
     const locked = g.others?.[p.id] || new Set();
     const dots = g.qs ? Object.keys(g.qs).map((q) => `<span class="dot${locked.has(q) ? ' on' : ''}" title="${QNAME[q]}">${locked.has(q) ? '🔒' : '⏳'}</span>`).join('') : '';
-    const board = `<div class="pvpboard${p.id === me.id ? ' me' : ''}${st.out ? ' out' : ''}" data-pid="${p.id}"><div class="who">${p.bot ? '🤖 ' : ''}${esc(p.name)}${p.id === me.id ? ' (you)' : ''}</div>${stat}<div class="dots">${st.out ? 'Out' : dots}</div></div>`;
+    const rdy = g.mready?.has(p.id) ? ' <span class="rdy">READY</span>' : '';
+    const board = `<div class="pvpboard${p.id === me.id ? ' me' : ''}${st.out ? ' out' : ''}" data-pid="${p.id}"><div class="who">${p.bot ? '🤖 ' : ''}${esc(p.name)}${p.id === me.id ? ' (you)' : ''}${rdy}</div>${stat}<div class="dots">${st.out ? 'Out' : dots}</div></div>`;
     const slot = sidesOn() && document.querySelector(`#chars .pvpchar[data-pid="${CSS.escape(p.id)}"] .pvpslot`);
     if (slot) slot.innerHTML = board; else html += board;
   }
   $('boards').innerHTML = html + '</div>';
+  for (const el of document.querySelectorAll('#chars .rdy')) el.hidden = !g.mready?.has(el.dataset.rdy);
 }
 // The reveal, one step at a time (the same on every screen: the host waits for it before the next round).
 async function onReveal(r) {
   if (!game || r.id !== game.id) return;
   game.revealing = true;
+  clearInterval(game.countTimer);
+  $('matchReady').hidden = true;
   $('questions').hidden = true;   // (the results show what everyone locked in)
   $('skills').hidden = true;
   cancelAnimationFrame(game.timer);
@@ -1629,6 +1714,7 @@ function onEnd(m) {
 }
 function showResult(m) {
   stopMusic(2);
+  clearInterval(game?.countTimer);
   const o = m.over, win = o.winners.includes(me.id);
   const tourGame = game?.cfg.mode === 'tour';
   const names = (ids) => ids.map((id) => m.players.find((p) => p.id === id)?.name ?? '?').join(', ');
@@ -1666,6 +1752,11 @@ $('toLobby').addEventListener('click', () => {
   sfx('click');
   if (lastBracket && !lastBracket.champion) { show('bracket'); drawBracket(lastBracket); return; }
   leaveRoom();
+});
+$('matchReady').addEventListener('click', () => {
+  if (!game || !game.mready || game.mready.has(me.id)) return;
+  $('matchReady').disabled = true;
+  net.send('host', { t: 'mready', id: game.id });
 });
 $('matchQuit').addEventListener('click', () => {
   if (!confirm('Leave this match?')) return;
