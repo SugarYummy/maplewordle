@@ -1292,10 +1292,12 @@ window.archiveHere = { modes: Object.keys(MODES), current: () => MODE, result: r
 // For the Hidden achievements (achv.js): every BGM you've played in Extreme, won or lost (the bonus doesn't matter), and whether you've
 // ever answered Limbo's glitch mashup (right or wrong). Only games played on their own day count, not the Archive
 // (fx.js playedLive). (New keys: the old mapleWordle:bgmTracks / limboMash counted the Archive too.)
-const TRACKS_KEY = 'mapleWordle:bgmTracksLive', LIMBO_MASH_KEY = 'mapleWordle:limboMashLive';
+const TRACKS_KEY = 'mapleWordle:bgmTracksLive', LIMBO_MASH_KEY = 'mapleWordle:limboMashLive', LUCID_EGG_KEY = 'mapleWordle:lucidEggLive';   // lucidEgg: Lucid's Garden of Eternal Dream day in Extreme, finished (won or lost) with both bonuses answered, all on the day
+// Every bonus that day has (Bonus 1, Bonus 2: the title) answered, right or wrong
+const bonusesDone = (d) => { const ans = answerFor(d), s = load(d); return (!ans.bonus || s.bonus != null) && (!titleOnFor(d, ans) || s.title != null); };
 function saveTracks() {
   const won = new Set();
-  let mash = false;
+  let mash = false, lucid = false;
   for (let i = 0; i < localStorage.length; i++) {
     const m = /^mapleWordle:result:([a-z]+):(\d+)$/.exec(localStorage.key(i));
     if (!m || !(m[1] in MODES)) continue;
@@ -1303,12 +1305,14 @@ function saveTracks() {
     if (localStorage.getItem(look) && !rowStyleFor(m[1], d)) localStorage.removeItem(look);   // (Limbo's border from an Archive game: gone)
     if (!playedLive(m[1], d)) continue;
     if (m[1] === 'bgm' && /^(Won|Lost)/.test(localStorage.getItem(localStorage.key(i)))) won.add(inMode('bgm', () => answerFor(d).track));
+    if (!lucid && m[1] === 'bgm') lucid = inMode('bgm', () => answerFor(d).t.egg === 'lucid') && lsGet(`mapleWordle:live:bgm+bonus:${d}`) === '1';   // (and both bonuses answered that day)
     if (!mash) mash = inMode(m[1], () => answerFor(d).bonus?.mashup?.egg === 'limbo' && load(d).bonus != null);   // answered at all (right or wrong)
   }
   const v = JSON.stringify([...won].sort());
   try {
     if (localStorage.getItem(TRACKS_KEY) !== v) localStorage.setItem(TRACKS_KEY, v);
     if (mash && localStorage.getItem(LIMBO_MASH_KEY) !== '1') localStorage.setItem(LIMBO_MASH_KEY, '1');
+    if (lucid && localStorage.getItem(LUCID_EGG_KEY) !== '1') localStorage.setItem(LUCID_EGG_KEY, '1');
   } catch {}
 }
 const noteResult = () => {
@@ -1319,6 +1323,7 @@ const noteResult = () => {
       if (look) localStorage.setItem(k, look); else if (localStorage.getItem(k)) localStorage.removeItem(k);
     } catch {}
     earnGame(MODE, day, resultFor(MODE, day));   // mesos (fx.js): Archive days pay 10%
+    if (!isArchive(day) && bonusesDone(day)) lsSet(`mapleWordle:live:${MODE}+bonus:${day}`, '1');   // both bonuses answered on the day itself (Hidden achievements)
     if (bonus != null && answer.bonus?.right.includes(bonus)) earnBonus(MODE, day, !!answer.bonus.mashup?.egg);
     if (titleRight()) earnBonus(MODE, day, false, 'title');
     try { saveTracks(); } catch {}

@@ -41,7 +41,7 @@
     const s = { played: 0, wins: 0, firstTry: 0, firstReg: 0, diamond: 0, rainbow: 0, days: new Set(), games: new Set(), streak: 0, mesos: 0,
       won: { bgm: new Set(), boss: new Set(), class: new Set(), anim: new Set() }, winsBy: { boss: 0, bgm: 0, class: 0, anim: 0 }, extremeWins: 0, limbo: false,
       tracks: new Set(json('mapleWordle:bgmTracksLive', [])), buys: 0,
-      limboMash: read('mapleWordle:limboMashLive') === '1' };
+      limboMash: read('mapleWordle:limboMashLive') === '1', lucidEgg: read('mapleWordle:lucidEggLive') === '1' };
     const byMode = {};   // each mode's days played: [day, won]
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i), m = /^mapleWordle:result:([a-z]+):(\d+)$/.exec(key);
@@ -150,6 +150,7 @@
         'images/bosses/jupiter.png', { appear: 'seethingBalance', reward: 'Seething Balance Appearance Effect', rwIcon: 'images/achv/seething-balance-icon.png' }),
       A('limbo', 'Subconscious', 'Something stirred in the abyss.', (s) => [s.limboMash ? 1 : 0, 1], 'images/fx/limbo-bundle.webp',
         { full: "Limbo's Subconscious", mesos: 1000, reward: '1,000 mesos' }),
+      A('egg:lucid', 'Garden of Eternal Dream', 'Dream of a blooming garden, lasting for all of eternity', (s) => [s.lucidEgg ? 1 : 0, 1], 'images/bosses/lucid.png', { ap: 30 }),   // (Lucid's egg day in BGM Clip Extreme, played on the day: bgm.js saveTracks)
     ], true],
     // Memories: for having been there on a special day (only on the day itself). The whole section stays out of sight
     // until you have one, and only counts up (no "/ N").
@@ -310,7 +311,7 @@
   const setItem = Storage.prototype.setItem;
   Storage.prototype.setItem = function (k, v) {
     setItem.call(this, k, v);
-    if (typeof k === 'string' && (k.startsWith('mapleWordle:result:') || k === 'mapleWordle:mesoLog' || k === 'mapleWordle:bgmTracksLive' || k === 'mapleWordle:limboMashLive')) { clearTimeout(check.t); check.t = setTimeout(check, 300); }
+    if (typeof k === 'string' && (k.startsWith('mapleWordle:result:') || k === 'mapleWordle:mesoLog' || k === 'mapleWordle:bgmTracksLive' || k === 'mapleWordle:limboMashLive' || k === 'mapleWordle:lucidEggLive')) { clearTimeout(check.t); check.t = setTimeout(check, 300); }
   };
 
   // NEW on the trophy button: a reward to claim that you haven't been shown yet. It's shown once (gone after a reload

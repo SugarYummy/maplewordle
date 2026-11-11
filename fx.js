@@ -313,11 +313,14 @@ function playHecate(special = false) {   // special: Limbo's mashup win (plays w
   }
   return skin.burst;
 }
-// A first-guess win with a boss finishing attack as the win effect: the first-guess music waits for its burst (with the
-// mesos), starting 0.5 s early so its fade-in is up by then, like on that boss's BGM Clip Extreme day. 0 for any other win effect.
+// A first-guess win with a boss finishing attack or Limbo Transition (Limbo mode, or ticked on its own) as the win effect:
+// the first-guess music waits for its burst (with the mesos), starting 0.5 s early so its fade-in is up by then, like in
+// BGM Clip. 0 for any other win effect.
 function firstTryBurst() {
-  if (matchMedia('(prefers-reduced-motion: reduce)').matches || limboAllOn() || typeof hecate === 'undefined' || !hecate) return 0;
-  return HECATE[hecate.id]?.achv ? Math.max(1, HECATE[hecate.id].burst - 500) : 0;   // 0.5 s early: the music's fade-in is up by the burst
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches || typeof hecate === 'undefined' || !hecate) return 0;
+  const id = hecate.id;
+  if (limboAllOn() ? id !== 'limboCut' : id === 'limboCut' && !pickedSkins().includes('limboCut')) return 0;   // (playHecate drops it)
+  return HECATE[id]?.achv || id === 'limboCut' ? Math.max(1, HECATE[id].burst - 500) : 0;   // 0.5 s early: the music's fade-in is up by the burst
 }
 function bigWin() {
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
@@ -610,7 +613,9 @@ applyBox();
         : '<span class="vipfield"><input id="vipCode" type="text" placeholder="Passcode" autocomplete="off" spellcheck="false" autocapitalize="off" data-1p-ignore data-lpignore="true" data-form-type="other"><span id="vipMsg"></span></span><button id="vipGo">Enter</button>') + '</div>' +
       '<div id="vipBox" hidden><div class="vipctl"><button id="vipPlay"></button><button id="vipReplay" title="Start this song over">⏮ Replay</button>' +
       '<button id="vipSkip">⏭ Skip</button><button id="vipLoop" title="Loop this song">🔁 Loop</button></div><p id="vipNow"></p>' +
-      '<div id="vipTrack"><span id="vipText">0.0 / 0.0</span><span id="vipArrow">▼</span><div id="vipBar"><div id="vipFill"></div></div></div></div>';
+      '<div id="vipTrack"><span id="vipText">0.0 / 0.0</span><span id="vipArrow">▼</span><div id="vipBar"><div id="vipFill"></div></div></div></div>' +
+      `<div class="setrow"><span class="setlabel">Credits &amp; Info ${tip('Who made what, and what the site saves.')}</span><button id="setCredits">View</button></div>`;
+    body.querySelector('#setCredits').addEventListener('click', creditsWin);
     vipSetup(body);
     if (typeof acctRowSetup === 'function') acctRowSetup(body);
     // Each (i) gets a dark box that fades in over the rows below it (it doesn't push anything down): shown while
@@ -695,6 +700,38 @@ const vip = { on: false, audio: null, list: null, names: {}, titles: {}, cur: nu
 async function vipCheck(code) {
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(code.trim()));
   return [...new Uint8Array(buf)].map((x) => x.toString(16).padStart(2, '0')).join('') === VIP_HASH;
+}
+// Settings > Credits & Info: a window over Settings (Esc, the X or a click outside closes it).
+function creditsWin() {
+  const win = document.createElement('div');
+  win.className = 'popup buyask creditwin';
+  win.innerHTML = '<div class="panel"><h2>Credits &amp; Info</h2><div class="creditbody">' +
+    '<section><h3>About</h3>' +
+    '<p>Mapledle is a free, fan-made site. It is not affiliated with or endorsed by NEXON.</p>' +
+    "<p><b>No ads, ever. No purchases, ever.</b> It's non-profit and non-commercial: Meso and shop items are earned only by playing.</p></section>" +
+    '<section><h3>Your data</h3>' +
+    '<p>Your progress (Meso, Customize, stats, settings and so on) is saved in this browser.</p>' +
+    '<p>An account is optional and needs no email. You only need one for achievements, PvP (coming soon) or playing on another device.</p>' +
+    "<p>The only thing sent without asking is each day's result: how many guesses it took and whether a bonus was right. " +
+    "It's added to the anonymous counts everyone sees, with nothing that identifies you.</p></section>" +
+    '<section><h3>Credits</h3>' +
+    '<p><b>MapleStory</b><br>Art, music, sounds and names: ⓒ NEXON Korea Corporation All Rights Reserved. Used for fan purposes only.</p>' +
+    '<p><b>Game data</b><br>MapleStory Wiki (maplestorywiki.net), Namu Wiki, Bahamut (TMS boss HP)</p>' +
+    "<p><b>Fonts</b><br>Rubik (Google Fonts), and MapleStory's own fonts in Achievements</p></section>" +
+    '<section><h3>Special thanks</h3>' +
+    '<p><b>Pigoo</b> for helping with Attack Animation clips</p>' +
+    '<p><img class="dcicon" src="images/icons/discord.svg" alt="Discord"><b>@lax.lax</b> for reporting bugs and suggestions</p>' +
+    '<p><img class="dcicon" src="images/icons/discord.svg" alt="Discord"><b>@ichiyam</b> for helping with initial development of the website and suggestions</p>' +
+    '<p>... and many more (anonymous or small contributions) for helping out!</p></section>' +
+    '<section><h3>Contact</h3>' +
+    '<p>Questions, feedback or bugs: <a href="https://discord.gg/f22H4UJ" target="_blank" rel="noopener">Join the Discord!</a></p></section>' +
+    '</div><p class="buybtns"><button class="plain">Close</button></p></div>';
+  const close = () => { win.remove(); removeEventListener('keydown', esc, true); };
+  const esc = (e) => { if (e.key === 'Escape') { e.stopImmediatePropagation(); close(); } };
+  win.addEventListener('click', (e) => { if (e.target === win) close(); });
+  win.querySelector('.buybtns button').addEventListener('click', close);
+  addEventListener('keydown', esc, true);
+  document.body.appendChild(win);
 }
 function vipSetup(body) {
   const go = body.querySelector('#vipGo'), code = body.querySelector('#vipCode');

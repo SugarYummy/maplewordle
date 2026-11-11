@@ -465,6 +465,16 @@ body.glitch :is(button, input, select) { text-shadow: inherit; }   /* the browse
 .buyask h2 { font-size: 20px; margin: 0 0 4px; }
 .buyask .themepic { width: 224px; height: 126px; border: 1px solid rgba(0, 0, 0, 0.2); }
 .buyask .buyname { font-size: 17px; }
+/* Settings > Credits & Info */
+.creditwin .panel { max-width: min(560px, calc(100vw - 32px)); align-items: stretch; max-height: calc(100vh - 48px); box-sizing: border-box; }
+.creditwin h2 { text-align: center; }
+.creditbody { overflow-y: auto; text-align: left; line-height: 1.4; font-size: 14px; padding-right: 4px; }
+.creditbody section + section { border-top: 1px solid rgba(0, 0, 0, 0.12); margin-top: 12px; padding-top: 10px; }
+.creditbody h3 { font-size: 15px; margin: 0 0 6px; }
+.creditbody p { margin: 0 0 6px; }
+.creditbody p:last-child { margin-bottom: 0; }
+.creditbody .dcicon { width: 16px; height: 16px; vertical-align: -3px; margin-right: 4px; }
+.creditwin .buybtns { justify-content: center; }
 .buyask .price { display: flex; align-items: center; gap: 5px; font-weight: 700; font-size: 17px; color: #8a6000; }
 .buyask .price img { width: 20px; height: 20px; image-rendering: pixelated; }
 .buybtns { display: flex; gap: 12px; margin: 6px 0 2px; }
@@ -635,7 +645,7 @@ body.glitch :is(button, input, select) { text-shadow: inherit; }   /* the browse
 @media (prefers-reduced-motion: reduce) { #bonusCall button, #bonusCall button::after, #bonus.waiting::after { animation: none; } }
 /* VIP player in Settings (secret passcode). */
 #vipCode { font-family: inherit; font-size: 14px; padding: 4px 8px; width: 120px; border: 1px solid #999; border-radius: 6px; }
-#vipGo, .vipctl button { font-family: inherit; font-size: 14px; padding: 4px 12px; border-radius: 8px; cursor: pointer; border: 1px solid rgba(0, 0, 0, 0.2); background: rgba(var(--wb), 0.7); }
+#vipGo, #setCredits, .vipctl button { font-family: inherit; font-size: 14px; padding: 4px 12px; border-radius: 8px; cursor: pointer; border: 1px solid rgba(0, 0, 0, 0.2); background: rgba(var(--wb), 0.7); }
 .vipfield { position: relative; display: inline-block; }
 #vipMsg { position: absolute; left: 2px; top: calc(100% + 2px); font-size: 12px; color: #c22; white-space: nowrap; opacity: 0; transition: opacity 0.4s ease; pointer-events: none; }
 #vipMsg.show { opacity: 1; transition: opacity 0.15s ease; }

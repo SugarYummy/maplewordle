@@ -543,6 +543,153 @@
     "Chain Sickle",
     "Strike Arrow"
    ]
+  },
+  {
+   "id": 37,
+   "class": "Evan",
+   "videos": [
+    67,
+    68
+   ],
+   "credit": "Pigoo",
+   "creditImage": "videos/anim/credit37.jpg",
+   "since": "2026-11-12",
+   "skills": [
+    "Wind Circle",
+    "Mana Burst IV"
+   ]
+  },
+  {
+   "id": 38,
+   "class": "Mercedes",
+   "videos": [
+    69,
+    70
+   ],
+   "credit": "Pigoo",
+   "creditImage": "videos/anim/credit38.jpg",
+   "since": "2026-11-12",
+   "skills": [
+    "Stunning Strikes",
+    "Ishtar's Ring"
+   ]
+  },
+  {
+   "id": 39,
+   "class": "Kanna",
+   "videos": [
+    71,
+    72
+   ],
+   "credit": "Pigoo",
+   "creditImage": "videos/anim/credit39.jpg",
+   "since": "2026-11-12",
+   "skills": [
+    "Evil's End Talisman",
+    "Dance"
+   ],
+   "skillsFull": [
+    "Evil's End Talisman",
+    "Soul-Shatter Talisman: Dance"
+   ]
+  },
+  {
+   "id": 40,
+   "class": "Kaiser",
+   "videos": [
+    73,
+    74
+   ],
+   "credit": "Pigoo",
+   "creditImage": "videos/anim/credit40.jpg",
+   "since": "2026-11-12",
+   "skills": [
+    "Blade Burst",
+    "Gigas Wave"
+   ]
+  },
+  {
+   "id": 41,
+   "class": "Cadena",
+   "videos": [
+    75,
+    76
+   ],
+   "credit": "Pigoo",
+   "creditImage": "videos/anim/credit41.jpg",
+   "since": "2026-11-12",
+   "skills": [
+    "Summon Daggers",
+    "Thrash IV"
+   ],
+   "skillsFull": [
+    "Summon Daggers",
+    "Chain Arts: Thrash IV"
+   ]
+  },
+  {
+   "id": 42,
+   "class": "Angelic Buster",
+   "videos": [
+    77,
+    78
+   ],
+   "credit": "Pigoo",
+   "creditImage": "videos/anim/credit42.jpg",
+   "since": "2026-11-12",
+   "skills": [
+    "Finale Ribbon",
+    "Celestial Roar"
+   ]
+  },
+  {
+   "id": 43,
+   "class": "Illium",
+   "videos": [
+    79,
+    80
+   ],
+   "credit": "Pigoo",
+   "creditImage": "videos/anim/credit43.jpg",
+   "since": "2026-11-12",
+   "skills": [
+    "Longinus Spear",
+    "Radiant Javelin II"
+   ]
+  },
+  {
+   "id": 44,
+   "class": "Lara",
+   "videos": [
+    81,
+    82
+   ],
+   "credit": "Pigoo",
+   "creditImage": "videos/anim/credit44.jpg",
+   "since": "2026-11-12",
+   "skills": [
+    "Dragon Vein Eruption",
+    "Essence Sprinkle"
+   ]
+  },
+  {
+   "id": 45,
+   "class": "Hoyoung",
+   "videos": [
+    83,
+    84
+   ],
+   "credit": "Pigoo",
+   "creditImage": "videos/anim/credit45.jpg",
+   "since": "2026-11-12",
+   "skills": [
+    "Gold-Banded Cudgel",
+    "Ground-Shattering Wave"
+   ],
+   "skillsFull": [
+    "Humanity: Gold-Banded Cudgel",
+    "Earth: Ground-Shattering Wave"
+   ]
   }
  ],
  "days": [
