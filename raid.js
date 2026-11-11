@@ -237,6 +237,7 @@ R.resolve = (S, inputs, rand = Math.random) => {
   }
   const run = (x) => {
     const { c, sk, arg } = x;
+    if (c.me.out || (sk.ok && !sk.ok(c.me, S))) return;   // (two skills queued on the same gauge: the second can't be paid for)
     c.noCd = false;
     const said = sk.use(c, arg);
     if (sk.cd > 0 && !c.noCd) c.me.cd[sk.key] = sk.cd;

@@ -47,16 +47,16 @@ const MODES = {
   life:  { name: 'Life', solo: 1, desc: 'Everyone has a few lives. Get any question wrong or run out of time and you lose one. Lose them all and you’re out.' },
   first: { name: 'First to N', solo: 1, multi: true, desc: 'Right answers score points: BGM 1, Phase 0.25, Title 0.5. The first to reach the target score wins.' },
   best:  { name: 'Speed Duel', solo: 1, desc: 'Just the BGM question. Whoever names the boss right the fastest wins the round; if nobody is right, it’s a draw. First to win more than half the rounds wins.' },
-  raid:  { name: 'Boss Raid', coop: true, multi: true, desc: 'Everyone vs one boss. Right answers earn ⭐ points (faster = more). Spend them on skills: bursts, i-frame, heal, buffs. The boss shows its next move each round.' },
+  raid:  { name: 'Boss Raid', coop: true, multi: true, desc: 'Everyone vs one boss, each as a class of their choice. Right answers power your attacks (faster = stronger). Class skills have cooldowns in rounds. The boss shows its next move every round: guard, dodge or burst at the right time.' },
   ffa:   { name: 'Free-for-all', multi: true, desc: 'Right answers deal damage (faster = more). Each round, everyone loses HP by how far they were behind the round’s top damage. Last one standing wins.' },
   tour:  { name: 'Tournament', multi: true, desc: '2, 4 or 8 players in a bracket of 1v1 HP matches. Win a match to move on; the last one standing is the champion.' },
 };
 const DEFAULTS = { mode: 'hp', time: 30, q: { bgm: true, phase: false, title: false }, input: { bgm: 'dropdown', phase: 'abcd', title: 'typed' },
-                   hp: 1000, lives: 5, lastChance: false, firstTo: 5, bestOf: 5, bossHp: 60000, raidLives: 3, tourHp: 500, tourSize: 4,
+                   hp: 1000, lives: 5, lastChance: false, firstTo: 5, bestOf: 5, raidDiff: 'normal', raidLives: 3, tourHp: 500, tourSize: 4,
                    ffaSize: 4, firstSize: 2, raidSize: 1, botLevel: 'normal', queue: false };
 const CHOICES = { time: [10, 15, 20, 30, 60], hp: [100, 500, 1000, 2000], lives: [1, 3, 5, 10], firstTo: [3, 5, 10], bestOf: [3, 5, 7],
-                  bossHp: [30000, 60000, 120000, 250000], raidLives: [1, 3, 5], tourHp: [250, 500, 1000] };
-const LIMITS = { time: [1, 999], hp: [1, 9999], lives: [1, 20], firstTo: [1, 99], bestOf: [1, 99], bossHp: [1, 9999999], raidLives: [1, 20], tourHp: [1, 9999] };
+                  raidLives: [1, 3, 5], tourHp: [250, 500, 1000] };
+const LIMITS = { time: [1, 999], hp: [1, 9999], lives: [1, 20], firstTo: [1, 99], bestOf: [1, 99], raidLives: [1, 20], tourHp: [1, 9999] };
 const INPUTS = { typed: 'Type it (80% match)', dropdown: 'Dropdown', abcd: 'A / B / C / D' };
 // Bots answer at a person's pace (typical seconds; each answer varies around them): know = hearing the track and
 // knowing the boss, then the input: click = an A/B/C/D button, pick = search a dropdown and pick, typing = think +
@@ -173,62 +173,21 @@ function wrongValue(q, tr, spec) {
   return bad.length ? bad[rnd(bad.length)] : '???';
 }
 
-// ============================== Boss Raid: skills and the boss's moves ==============================
-// Right answers don't hit the boss here: they earn ⭐ points (the same numbers as damage elsewhere: fast = more), kept
-// from round to round. During a round you queue skills with the points you have, then press End turn. When the round
-// ends: points from this round's answers come in, buffs go up, heals / i-frames, then bursts hit the boss; if it's
-// still standing it does the move it showed at the start of the round. Every number here is a first guess to tune.
-const RAID = {
-  playerHp: 1000,
-  def: 0.2,                            // the boss's defense: skill damage x (1 - def)
-  shield: 0.5,                         // damage it takes on a Shield round
-  bossHeal: 0.08,                      // Heal move: this much of its max HP
-  heal: 0.4,                           // the Heal skill: this much of your max HP
-  bene: { mult: 1.4, rounds: 3 },      // Benediction: the whole party's damage x1.4, this round + 2 more
-  awaken: { mult: 2.5, rounds: 2 },    // Awaken: one player's damage x2.5 and ignores defense, this round + 1 more
-  attack: (round) => 100 + 25 * round, // the boss's normal attack (everyone); Focus = x2.5 on one player
-  ult: 99999,                          // Ultimate: everyone who didn't i-frame goes down (loses a life)
-};
-const SKILLS = {
-  mini:   { name: 'Mini burst', icon: '💥', cost: 50, dmg: [3000, 5000], desc: '3,000-5,000 damage' },
-  burst:  { name: '2-min burst', icon: '🔥', cost: 200, dmg: [18000, 30000], desc: '18,000-30,000 damage' },
-  iframe: { name: 'I-frame', icon: '🛡️', cost: 100, desc: 'You take no damage this round' },
-  heal:   { name: 'Heal', icon: '💚', cost: 50, desc: 'Heal 40% of your HP' },
-  bene:   { name: 'Benediction', icon: '✨', cost: 200, desc: 'Whole party: x1.4 damage for 3 rounds' },
-  awaken: { name: 'Awaken', icon: '⚡', cost: 200, target: true, desc: 'One player: x2.5 damage, ignores defense, 2 rounds' },
-};
-const SKILL_ORDER = ['bene', 'awaken', 'heal', 'iframe', 'mini', 'burst'];   // how they go off at the end of a round
-const castCost = (casts) => Object.keys(casts || {}).reduce((x, k) => x + (SKILLS[k]?.cost || 0), 0);
-// What the boss is about to do, in words (the screen and the reveal)
-function moveText(mv, boss, nameOf) {
-  if (!mv) return '';
-  const n = (x) => x.toLocaleString('en-US');
-  switch (mv.k) {
-    case 'attack': return `⚔️ ${boss} attacks everyone: ${n(mv.dmg)} damage`;
-    case 'focus': return `🎯 ${boss} targets ${nameOf(mv.pid)}: ${n(mv.dmg)} damage`;
-    case 'charge': return `🌀 ${boss} is charging something huge. It hits next round!`;
-    case 'ult': return `☄️ ${boss}'s ultimate: everyone without an i-frame goes down!`;
-    case 'shield': return `🔰 ${boss} shields itself: half damage this round`;
-    case 'heal': return `💗 ${boss} will heal ${n(mv.amount)} HP`;
-  }
-  return '';
+// ============================== Boss Raid ==============================
+// The rules are in raid.js (MapleRaid) and the classes in raid-classes.js; here is only what links them to a match.
+const MR = window.MapleRaid;
+const RAID_CLASS_KEY = 'mapleWordle:raidClass';
+const raidClassOk = (k) => typeof k === 'string' && Object.hasOwn(MR.CLASSES, k);
+const myRaidClass = () => { const k = lsGet(RAID_CLASS_KEY); return raidClassOk(k) ? k : 'hero'; };
+const randomRaidClass = () => MR.ORDER[rnd(MR.ORDER.length)];
+// Your Power for a round: each question you got right counts by its weight (BGM 1, Phase 0.2, Title 0.5) x its speed
+function raidPower(items) {
+  let got = 0, all = 0;
+  for (const [q, it] of Object.entries(items)) { all += SCALE[q]; if (it.ok) got += SCALE[q] * MR.RULES.power(it.ms / 1000); }
+  return all ? got / all : 0;
 }
-// Bots on your team: i-frame the ultimate, heal when low, burst when they can (keeping 100 for an ultimate on the way).
-function botCasts(st, pid, alive) {
-  const me = st.players[pid], mv = st.boss.move, out = {};
-  let sp = me.sp;
-  const keep = mv.k === 'charge' ? SKILLS.iframe.cost : 0;
-  const buy = (k, t = true, reserve = keep) => { if (!out[k] && sp - SKILLS[k].cost >= reserve) { out[k] = t; sp -= SKILLS[k].cost; } };
-  if (mv.k === 'ult' || (mv.k === 'focus' && mv.pid === pid && me.hp <= mv.dmg)) buy('iframe', true, 0);
-  if (mv.k !== 'ult' && me.hp < me.maxHp * 0.45) buy('heal', true, 0);
-  if (mv.k !== 'shield') {
-    if (alive.length > 1 && !alive.some((id) => st.players[id].bene > 0) && Math.random() < 0.4) buy('bene', true, keep + 200);
-    if (!me.awaken && Math.random() < 0.25) buy('awaken', pid, keep + 200);
-    buy('burst');
-    if (Math.random() < 0.6) buy('mini');
-  }
-  return out;
-}
+const fillNames = (t, name) => String(t).replace(/\{p:([\w-]+)\}/g, (m, id) => `<b>${esc(name(id))}</b>`);
+const skillIcon = (sk, cls = '') => `<img class="skic ${cls}" src="images/skills/${MR.iconOf(sk)}.png" alt="" onerror="this.style.visibility='hidden'">`;
 
 // ============================== A match (runs on the host) ==============================
 // players: [{id, name, bot}] (bot: a BOTS level, or null for a person). send(to, msg): to 'all' or a player id.
@@ -241,8 +200,8 @@ class Match {
     for (const p of players) this.state.players[p.id] = { hp: this.startHp, lives: this.mode === 'raid' ? cfg.raidLives : cfg.lives, points: 0, wins: 0, out: false, lc: false };
     if (this.mode === 'raid') {
       const b = DATA.bosses[rnd(DATA.bosses.length)];
-      this.state.boss = { name: b.name, image: b.image, hp: cfg.bossHp * players.length, max: cfg.bossHp * players.length, def: RAID.def, move: null, lastUlt: 0, last: null };
-      for (const p of players) Object.assign(this.state.players[p.id], { hp: RAID.playerHp, maxHp: RAID.playerHp, sp: 0, bene: 0, awaken: 0 });
+      for (const p of players) Object.assign(this.state.players[p.id], MR.newPlayer(raidClassOk(p.rc) ? p.rc : randomRaidClass(), cfg.raidLives));
+      this.state.boss = MR.newBoss(b.name, b.image, players.length, cfg.raidDiff);
     }
     this.used = new Set();
     this.history = [];
@@ -301,13 +260,13 @@ class Match {
     const qs = makeQuestions(this.cfg, tr, bgmOnly);
     const time = this.cfg.time;
     this.cur = { round: s.round, tr, qs, time, speed: bgmOnly, answers: {}, casts: {}, ready: new Set(), done: new Set(), goAt: 0 };
-    if (this.mode === 'raid') this.pickMove();
+    if (this.mode === 'raid') MR.pickMove(s);
     for (const p of this.players) if (p.bot || s.players[p.id].out) { this.cur.ready.add(p.id); }
     if (this.simulate) {   // bots only (a tournament match without people): straight to the result
       const alive = this.alive().map((p) => p.id);
       for (const p of this.alive()) {
         this.cur.answers[p.id] = botAnswers(p.bot, qs, tr, time);
-        if (this.mode === 'raid') this.cur.casts[p.id] = botCasts(s, p.id, alive);
+        if (this.mode === 'raid') this.cur.casts[p.id] = this.raidBot(p, this.cur.answers[p.id], this.cur);
       }
       return this.resolve();
     }
@@ -318,24 +277,12 @@ class Match {
     this.checkReady();
   }
   multNow() { return ['hp', 'ffa'].includes(this.mode) && !this.state.tb ? multOf(this.state.round) : 1; }
-  // Boss Raid: the move the boss shows at the start of a round (and does at its end).
-  pickMove() {
-    const s = this.state, b = s.boss, r = s.round, base = RAID.attack(r);
-    const alive = this.alive().map((p) => p.id);
-    let mv;
-    if (b.last === 'charge') { mv = { k: 'ult', dmg: RAID.ult }; b.lastUlt = r; }
-    else if (r <= 2) mv = { k: 'attack', dmg: base };
-    else {
-      const w = { attack: 4, focus: alive.length ? 2 : 0, charge: r >= 3 && r - b.lastUlt >= 4 ? 1.6 : 0, shield: b.last !== 'shield' ? 1 : 0, heal: b.last !== 'heal' && b.hp < b.max * 0.7 ? 1 : 0 };
-      let x = Math.random() * Object.values(w).reduce((a, v) => a + v, 0), k = 'attack';
-      for (const [key, v] of Object.entries(w)) { if ((x -= v) < 0) { k = key; break; } }
-      if (k === 'attack') mv = { k, dmg: base };
-      else if (k === 'focus') mv = { k, dmg: Math.round(base * 2.5), pid: alive[rnd(alive.length)] };
-      else if (k === 'heal') mv = { k, amount: Math.round(b.max * RAID.bossHeal) };
-      else mv = { k };
-    }
-    b.move = mv; b.last = mv.k;
+  // Boss Raid: a bot's skills for the round. It usually knows whether its own answer is right.
+  raidBot(p, a, c) {
+    const q = c.qs.bgm ? 'bgm' : Object.keys(c.qs)[0], right = !!a?.[q] && isRight(q, a[q].value, c.tr, c.qs);
+    return MR.botCasts(this.state, p.id, Math.random() < 0.9 ? right : !right);
   }
+  lastRound() { return this.mode === 'raid' ? MR.DIFFS[this.state.boss.diff].cap : ROUND_CAP; }
   checkReady() { if (this.cur && this.cur.counted && !this.cur.goAt && this.players.every((p) => this.cur.ready.has(p.id))) this.go(); }
   go() {
     const c = this.cur;
@@ -349,7 +296,7 @@ class Match {
       for (const [q, v] of Object.entries(a)) this.later(() => { if (this.cur === c && !c.over) { c.answers[p.id][q] = v; this.send('all', { t: 'locked', id: this.id, round: c.round, pid: p.id, q }); this.checkDone(p.id); } }, v.ms);
       if (this.mode === 'raid') {   // a bot picks its skills partway in, and ends its turn once it has answered
         const castAt = Math.min(c.time * 1000 - 300, 1500 + rnd(2500));
-        this.later(() => { if (this.cur === c && !c.over) { c.casts[p.id] = botCasts(this.state, p.id, this.alive().map((x) => x.id)); this.send('all', { t: 'casts', id: this.id, round: c.round, pid: p.id, casts: c.casts[p.id] }); } }, castAt);
+        this.later(() => { if (this.cur === c && !c.over) { c.casts[p.id] = this.raidBot(p, a, c); this.send('all', { t: 'casts', id: this.id, round: c.round, pid: p.id, casts: c.casts[p.id] }); } }, castAt);
         const lastAt = Math.max(castAt, ...Object.values(a).map((v) => v.ms)) + 600;
         this.later(() => { if (this.cur === c) { c.done.add(p.id); this.checkAll(); } }, Math.min(lastAt, c.time * 1000));
       } else this.later(() => { if (this.cur === c) { c.done.add(p.id); this.checkAll(); } }, c.time * 1000);
@@ -386,15 +333,14 @@ class Match {
       this.send('all', { t: 'locked', id: this.id, round: c.round, pid: from, q: m.q });
       this.checkDone(from);
     } else if (m.t === 'done') { c.done.add(from); this.checkAll(); }
-    else if (m.t === 'cast') {   // Boss Raid: queue (on) or drop (off) a skill for this round, paid from the points you have
-      const P = this.state.players[from], sk = SKILLS[m.skill];
+    else if (m.t === 'cast') {   // Boss Raid: queue (on) or drop (off) a skill for this round
+      const P = this.state.players[from], key = String(m.skill), sk = P && MR.skill(P.cls, key);
       if (this.mode !== 'raid' || c.over || !c.goAt || !sk || P.out || c.done.has(from)) return;
       const mine = (c.casts[from] ??= {});
-      if (m.on === false) delete mine[m.skill];
-      else {
-        const tgt = sk.target ? (this.state.players[m.target] && !this.state.players[m.target].out ? m.target : from) : true;
-        const others = Object.fromEntries(Object.entries(mine).filter(([k]) => k !== m.skill));
-        if (castCost(others) + sk.cost <= P.sp) mine[m.skill] = tgt;
+      if (m.on === false) delete mine[key];
+      else if (MR.canCast(this.state, from, key)) {
+        mine[key] = sk.target ? (this.state.players[m.target] && !this.state.players[m.target].out ? m.target : from)
+          : sk.options ? clamp(Math.floor(+m.target) || 0, 0, sk.options.length - 1) : true;
       }
       this.send('all', { t: 'casts', id: this.id, round: c.round, pid: from, casts: mine });
     }
@@ -515,56 +461,21 @@ class Match {
       const w = ids.find((id) => P(id).wins >= neededWins(cfg.bestOf));
       if (!over && w) over = { winners: [w], reason: `Won ${P(w).wins} rounds (best of ${cfg.bestOf})` };
     } else if (this.mode === 'raid') {
-      const b = s.boss, mv = b.move || { k: 'attack', dmg: 0 }, iframe = new Set();
-      // 1. Skills, in a fixed order, paid from the points each player had (checked again here)
-      const casts = {};
+      const inputs = {};
       for (const id of ids) {
-        const want = c.casts[id] || {}, ok = {};
-        let left = P(id).sp;
-        for (const k of SKILL_ORDER) if (want[k] && left >= SKILLS[k].cost) { ok[k] = want[k]; left -= SKILLS[k].cost; }
-        casts[id] = ok;
-        P(id).sp = left;
+        const main = per[id].items.bgm ?? Object.values(per[id].items)[0];
+        per[id].power = raidPower(per[id].items);
+        per[id].total = Math.round(per[id].power * 100);   // (shown as Power %)
+        inputs[id] = { power: per[id].power, sec: main?.ok ? main.ms / 1000 : null, casts: c.casts[id] || {} };
       }
-      const each = (k, fn) => { for (const id of ids) if (casts[id][k]) fn(id, casts[id][k]); };
-      each('bene', (id) => { for (const x of ids) P(x).bene = RAID.bene.rounds; ev.push({ k: 'cast', pid: id, skill: 'bene' }); });
-      each('awaken', (id, t) => { const tgt = P(t) && !P(t).out ? t : id; P(tgt).awaken = RAID.awaken.rounds; ev.push({ k: 'cast', pid: id, skill: 'awaken', target: tgt }); });
-      each('heal', (id) => { const p = P(id), before = p.hp; p.hp = Math.min(p.maxHp, p.hp + Math.round(p.maxHp * RAID.heal)); ev.push({ k: 'cast', pid: id, skill: 'heal', amount: p.hp - before }); });
-      each('iframe', (id) => { iframe.add(id); ev.push({ k: 'cast', pid: id, skill: 'iframe' }); });
-      if (mv.k === 'shield') ev.push({ k: 'bossMove', move: mv });   // shown before the bursts it halves
-      for (const k of ['mini', 'burst']) each(k, (id) => {
-        const [lo, hi] = SKILLS[k].dmg, p = P(id);
-        const mult = (p.bene > 0 ? RAID.bene.mult : 1) * (p.awaken > 0 ? RAID.awaken.mult : 1);
-        const def = p.awaken > 0 ? 0 : b.def, shield = mv.k === 'shield' ? RAID.shield : 1;
-        const dmg = Math.round((lo + Math.random() * (hi - lo)) * mult * (1 - def) * shield);
-        b.hp = Math.max(0, b.hp - dmg);
-        ev.push({ k: 'cast', pid: id, skill: k, dmg, mult: +mult.toFixed(2), shield: shield < 1 });
-      });
-      // 2. The boss's move (if it's still standing)
-      const hit = (id, amount) => {
-        const p = P(id);
-        if (iframe.has(id)) return ev.push({ k: 'dodge', pid: id });
-        p.hp -= amount;
-        ev.push({ k: 'bossHit', pid: id, amount: Math.min(amount, p.hp + amount) });
-        if (p.hp <= 0) {
-          p.lives--;
-          if (p.lives > 0) { p.hp = p.maxHp; ev.push({ k: 'life', pid: id, why: 'down' }); }
-          else { p.hp = 0; p.out = true; ev.push({ k: 'out', pid: id }); }
-        }
-      };
-      if (b.hp > 0) {
-        if (mv.k !== 'shield') ev.push({ k: 'bossMove', move: mv });
-        if (mv.k === 'attack' || mv.k === 'ult') for (const id of ids) hit(id, mv.dmg);
-        else if (mv.k === 'focus') { const t = P(mv.pid) && !P(mv.pid).out ? mv.pid : ids[rnd(ids.length)]; if (t) hit(t, mv.dmg); }
-        else if (mv.k === 'heal') { const before = b.hp; b.hp = Math.min(b.max, b.hp + mv.amount); ev.push({ k: 'bossHeal', amount: b.hp - before }); }
-      }
-      // 3. Buffs tick down; this round's points come in
-      for (const id of ids) { const p = P(id); if (p.bene > 0) p.bene--; if (p.awaken > 0) p.awaken--; p.sp += per[id].total; if (per[id].total) ev.push({ k: 'sp', pid: id, amount: per[id].total }); }
+      for (const e of MR.resolve(s, inputs)) ev.push({ ...e, kind: e.k, k: 'raid' });
+      const b = s.boss;
       if (b.hp <= 0) over = { winners: this.players.map((p) => p.id), reason: `${b.name} defeated in round ${s.round}`, coop: true };
       else if (!this.alive().length) over = { winners: [], reason: `Everyone fell. ${b.name} had ${b.hp.toLocaleString('en-US')} HP left`, coop: true, lost: true };
     }
     // Round 20: the last one.
-    if (!over && s.round >= ROUND_CAP) {
-      if (this.mode === 'raid') over = { winners: [], reason: `Round ${ROUND_CAP}: ${s.boss.name} still had ${s.boss.hp.toLocaleString('en-US')} HP`, coop: true, lost: true };
+    if (!over && s.round >= this.lastRound()) {
+      if (this.mode === 'raid') over = { winners: [], reason: `Time's up (round ${this.lastRound()}): ${s.boss.name} still had ${s.boss.hp.toLocaleString('en-US')} HP`, coop: true, lost: true };
       else {
         const left = this.alive().map((p) => p.id);
         const score = (id) => this.mode === 'life' ? P(id).lives : this.mode === 'first' ? P(id).points : this.mode === 'best' ? P(id).wins : P(id).hp;
@@ -582,7 +493,8 @@ class Match {
       per, ev, mult: this.multNow(), state: JSON.parse(JSON.stringify(s)),
     };
     this.history.push({ round: c.round, title: c.tr.title, boss: c.tr.boss, speed: !!c.speed,   // speed: won on time (Speed Duel, tiebreak)
-      per: Object.fromEntries(Object.entries(per).map(([k, v]) => [k, { total: v.total, pts: v.pts, ok: v.allOk, ms: v.items.bgm?.v != null ? v.items.bgm.ms : null }])) });
+      per: Object.fromEntries(Object.entries(per).map(([k, v]) => [k, { total: v.total, pts: v.pts, ok: v.allOk, ms: v.items.bgm?.v != null ? v.items.bgm.ms : null }])),
+      dmg: this.mode === 'raid' ? Object.fromEntries(ev.filter((e) => e.kind === 'atk').map((e) => [e.pid, e.amount])) : null });
     if (this.simulate) { if (over) this.finish(); else this.nextRound(); return; }
     this.send('all', reveal);
     const wait = revealMs(reveal);
@@ -599,19 +511,20 @@ class Match {
 }
 // How long the reveal takes on screen (the host waits that long before the next round).
 const STEP = { answer: 900, scores: 1300, totals: 1100, skills: 1800, boss: 1800, apply: 2300 };
+const stepMs = (st) => st.ms ?? STEP[st.s];
 function revealSteps(r) {
   const steps = [];
   for (const q of QS) if (r.qs[q]) steps.push({ s: 'answer', q }, { s: 'scores', q });
-  if (Object.keys(r.qs).length > 1) steps.push({ s: 'totals' });
-  if (r.mode === 'raid') {
-    const casts = r.ev.some((e) => e.k === 'cast');   // a Shield is shown with the skills it halves
-    if (casts) steps.push({ s: 'skills' });
-    if (r.ev.some((e) => e.k === 'bossMove' && !(casts && e.move.k === 'shield'))) steps.push({ s: 'boss' });
+  if (Object.keys(r.qs).length > 1 || r.mode === 'raid') steps.push({ s: 'totals' });
+  if (r.mode === 'raid') {   // the party's skills and attacks, then the boss: a moment longer the more there is to read
+    const n = (s) => r.ev.filter((e) => e.k === 'raid' && e.s === s).length;
+    if (n('skills')) steps.push({ s: 'skills', ms: Math.min(6500, 1200 + 500 * n('skills')) });
+    if (n('boss')) steps.push({ s: 'boss', ms: Math.min(5000, 1200 + 450 * n('boss')) });
   }
   steps.push({ s: 'apply' });
   return steps;
 }
-const revealMs = (r) => revealSteps(r).reduce((x, st) => x + STEP[st.s], 0) + 700;
+const revealMs = (r) => revealSteps(r).reduce((x, st) => x + stepMs(st), 0) + 700;
 
 // ============================== Tournament (runs on the host) ==============================
 class Tournament {
@@ -953,8 +866,9 @@ function defaultName() {
 function loadCfg() {
   let c = {};
   try { c = JSON.parse(lsGet('mapleWordle:pvpSettings', '{}')) || {}; } catch {}
-  if ((c.v || 1) < 2) delete c.bossHp;   // (v2: Boss Raid's boss HP went from ~1,000 to ~60,000 when skills came in)
-  return { ...DEFAULTS, ...c, v: 2, q: { ...DEFAULTS.q, ...c.q }, input: { ...DEFAULTS.input, ...c.input } };
+  delete c.bossHp;   // (v3: Boss Raid has difficulties instead of a boss HP)
+  if (!Object.hasOwn(MR.DIFFS, c.raidDiff)) delete c.raidDiff;
+  return { ...DEFAULTS, ...c, v: 3, q: { ...DEFAULTS.q, ...c.q }, input: { ...DEFAULTS.input, ...c.input } };
 }
 const saveCfg = (c) => lsSet('mapleWordle:pvpSettings', JSON.stringify(c));
 
@@ -992,11 +906,13 @@ function seatsFor(cfg) {   // how many players this mode wants (bots fill the em
   return 2;
 }
 let botNames = botClasses();   // the same bots (classes) from the room screen into the match (new ones for each room)
+const raidFirst = (list) => [...list.filter(raidClassOk), ...list.filter((k) => !raidClassOk(k))];   // (Boss Raid: bots whose class has a kit)
 function botMembers(cfg, humans) {
   const n = Math.max(0, seatsFor(cfg) - humans.length), dummy = cfg.botLevel === 'dummy', out = [];
+  const names = cfg.mode === 'raid' ? raidFirst(botNames) : botNames;
   for (let i = 0; i < n; i++) {
-    const cls = dummy ? null : botNames[i % botNames.length];
-    out.push({ id: 'bot' + i, name: dummy ? 'Training Dummy' + (n > 1 ? ' ' + (i + 1) : '') : CLASS_PICS[cls], cls, bot: cfg.botLevel, ready: true });
+    const cls = dummy ? null : names[i % names.length];
+    out.push({ id: 'bot' + i, name: dummy ? 'Training Dummy' + (n > 1 ? ' ' + (i + 1) : '') : CLASS_PICS[cls], cls, bot: cfg.botLevel, ready: true, rc: raidClassOk(cls) ? cls : null });
   }
   return out;
 }
@@ -1005,7 +921,7 @@ function openLocal(cfg, title) {
   botNames = botClasses();
   net = localNet(me.id);
   net.handlers.push(onMessage);
-  room = { code: null, local: true, hostId: me.id, members: [{ id: me.id, name: me.name, bot: null, ready: true, look: myLook() }], cfg, title };
+  room = { code: null, local: true, hostId: me.id, members: [{ id: me.id, name: me.name, bot: null, ready: true, look: myLook(), rc: myRaidClass() }], cfg, title };
   drawRoom();
   show('room');
 }
@@ -1018,7 +934,7 @@ function createRoom(queue, code = newCode()) {
   net = roomNet(me.id, code);
   net.hostId = me.id;
   net.handlers.push(onMessage);
-  room = { code, local: false, hostId: me.id, members: [{ id: me.id, name: me.name, bot: null, ready: false, look: myLook() }], cfg, title: 'Room ' + code, fill: false };
+  room = { code, local: false, hostId: me.id, members: [{ id: me.id, name: me.name, bot: null, ready: false, look: myLook(), rc: myRaidClass() }], cfg, title: 'Room ' + code, fill: false };
   advertise();
   drawRoom();
   show('room');
@@ -1029,7 +945,7 @@ function joinRoom(code) {
   net = roomNet(me.id, code);
   net.handlers.push(onMessage);
   room = { code, joining: true, members: [], cfg: loadCfg(), title: 'Room ' + code };
-  net.send('all', { t: 'hello', name: me.name, look: myLook() });
+  net.send('all', { t: 'hello', name: me.name, look: myLook(), rc: myRaidClass() });
   $('lobbyMsg').textContent = 'Looking for room ' + code + '…';
   setTimeout(() => { if (room?.joining && room.code === code) lobby(`Room ${code} wasn’t found (or it’s full).`); }, 2500);
 }
@@ -1131,7 +1047,10 @@ function drawRoom() {
   const people = room.members.filter((m) => !m.bot);
   const bots = room.local || room.fill ? botMembers(c, people) : [];
   const all = [...people, ...bots];
-  $('roomPlayers').innerHTML = `<div class="pvpplayers">${all.map((m) => `<span class="pvpplayer${m.bot ? ' bot' : ''}">${m.bot ? '🤖' : m.id === room.hostId ? '👑' : '🙂'} ${esc(m.name)}${m.id === me.id ? ' (you)' : ''}${!room.local && !m.bot ? (m.back === false ? ' <i>reading results…</i>' : m.ready ? ' <b class="ok">Ready</b>' : ' <i>not ready</i>') : ''}</span>`).join('')}</div>`;
+  const raidOn = c.mode === 'raid';
+  const clsTag = (m) => (raidOn && !m.bot && raidClassOk(m.rc) ? ` <small class="rctag"><img src="images/classes/${m.rc}.png" alt="">${esc(MR.cls(m.rc).name)}</small>` : '');
+  $('roomPlayers').innerHTML = `<div class="pvpplayers">${all.map((m) => `<span class="pvpplayer${m.bot ? ' bot' : ''}">${m.bot ? '🤖' : m.id === room.hostId ? '👑' : '🙂'} ${esc(m.name)}${m.id === me.id ? ' (you)' : ''}${clsTag(m)}${!room.local && !m.bot ? (m.back === false ? ' <i>reading results…</i>' : m.ready ? ' <b class="ok">Ready</b>' : ' <i>not ready</i>') : ''}</span>`).join('')}</div>` +
+    (raidOn ? raidClassHtml(room.members.find((x) => x.id === me.id)?.rc || myRaidClass()) : '');
   // Settings
   const modeBtns = Object.entries(MODES).filter(([k, m]) => room.local ? (room.title === 'Boss Raid' ? k === 'raid' : k !== 'raid') : true)
     .map(([k, m]) => `<button type="button" data-mode="${k}" class="${c.mode === k ? 'on' : ''}"${dis}>${m.name}</button>`).join('');
@@ -1149,7 +1068,7 @@ function drawRoom() {
   if (m === 'life') extra += `<div class="pvprow"><span class="k">Lives</span>${chips('lives', CHOICES.lives)}</div>`;
   if (m === 'first') extra += `<div class="pvprow"><span class="k">Points to win</span>${chips('firstTo', CHOICES.firstTo)}</div>`;
   if (m === 'best') extra += `<div class="pvprow"><span class="k">Best of</span>${chips('bestOf', CHOICES.bestOf)}</div>`;
-  if (m === 'raid') extra += `<div class="pvprow"><span class="k">Boss HP per player</span>${chips('bossHp', CHOICES.bossHp)}</div><div class="pvprow"><span class="k">Lives each</span>${chips('raidLives', CHOICES.raidLives)}</div>`;
+  if (m === 'raid') extra += `<div class="pvprow"><span class="k">Difficulty</span><span class="pvpchips" data-diff>${Object.entries(MR.DIFFS).map(([k, d]) => `<button type="button" data-v="${k}" class="${c.raidDiff === k ? 'on' : ''}"${dis}>${d.name}</button>`).join('')}</span></div><div class="pvprow"><span class="k">Lives each</span>${chips('raidLives', CHOICES.raidLives)}</div>`;
   const sizeRow = (key, list, label) => `<div class="pvprow"><span class="k">${label}</span><span class="pvpchips" data-size="${key}">${list.map((n) => `<button type="button" data-v="${n}" class="${c[key] === n ? 'on' : ''}"${dis}>${n}</button>`).join('')}</span></div>`;
   if (m === 'tour') extra += sizeRow('tourSize', [2, 4, 8], 'Players');
   if (m === 'ffa') extra += sizeRow('ffaSize', [3, 4, 5, 6, 7, 8], 'Players');
@@ -1181,6 +1100,34 @@ function drawRoom() {
   $('roomMsg').textContent = msg;
   wireRoom();
 }
+// Boss Raid: your class (its kit, and the list to change it)
+function raidKitHtml(cls) {
+  const { C } = MR.kit(cls), f = (x) => x.toLocaleString('en-US');
+  const row = (sk) => `<div class="rcsk">${skillIcon(sk)}<div><b>${esc(sk.name)}</b> <small>${sk.cd ? `every ${sk.cd} rounds` : 'any round'}${sk.cd >= 10 ? ` (from round ${MR.RULES.warmUp + 1})` : ''}</small><br>${esc(MR.desc(cls, sk))}</div></div>`;
+  return `<div class="rchead"><img class="rcpic" src="images/classes/${cls}.png" alt=""><div><b class="rcname">${esc(C.name)}</b> <small>${esc(C.role)} · ${f(C.hp)} HP</small>` +
+    `<p class="rctrait"><b>${esc(C.trait[0])}.</b> ${esc(C.trait[1])}</p></div></div>` +
+    `<div class="rcskills"><div class="rcsk">${skillIcon({ name: C.basic })}<div><b>${esc(C.basic)}</b> <small>main attack, free every round you answer right</small><br>${f(C.atk)} damage × your Power</div></div>${C.skills.map(row).join('')}</div>` +
+    `<details class="rccommon"><summary>Everyone also has: ${MR.COMMON.map((x) => esc(x.name)).join(', ')}</summary><div class="rcskills">${MR.COMMON.map(row).join('')}</div></details>`;
+}
+let raidPickOpen = false;
+function raidClassHtml(cls) {
+  const grid = raidPickOpen ? `<div class="rcgrid">${MR.ORDER.map((k) => `<button type="button" data-rc="${k}" class="${k === cls ? 'on' : ''}" title="${esc(MR.cls(k).role)}"><img src="images/classes/${k}.png" alt="" loading="lazy"><span>${esc(MR.cls(k).name)}</span><small>${esc(MR.cls(k).role)}</small></button>`).join('')}</div>` : '';
+  return `<div class="raidcls"><h3>Your class <button type="button" id="raidChange">${raidPickOpen ? 'Close the list' : 'Change class'}</button> <button type="button" id="raidRandom">🎲 Random</button></h3>${grid}${raidKitHtml(cls)}</div>`;
+}
+function setRaidClass(k) {
+  if (!raidClassOk(k) || !room) return;
+  lsSet(RAID_CLASS_KEY, k);
+  const mine = room.members.find((x) => x.id === me.id);
+  if (mine) mine.rc = k;
+  if (isHost()) roomBroadcast(); else net?.send('host', { t: 'rc', rc: k });
+  drawRoom();
+}
+function wireRaidClass() {
+  const ch = $('raidChange'); if (!ch) return;
+  ch.onclick = () => { sfx('click'); raidPickOpen = !raidPickOpen; drawRoom(); };
+  $('raidRandom').onclick = () => { sfx('click'); setRaidClass(randomRaidClass()); };
+  document.querySelectorAll('#roomPlayers [data-rc]').forEach((b) => b.onclick = () => { sfx('click'); raidPickOpen = false; setRaidClass(b.dataset.rc); });
+}
 let roomTick = setInterval(() => { if (room && !room.local && room.endsAt && !$('room').hidden) $('roomMsg').textContent = `Starting in ${Math.max(0, Math.ceil((room.endsAt - Date.now()) / 1000))} s, or as soon as everyone is Ready.`; }, 500);
 function wireRoom() {
   const box = $('roomSettings');
@@ -1192,6 +1139,8 @@ function wireRoom() {
     inp.onchange = () => { const v = Math.round(+inp.value); if (v) setCfg((c) => { c[key] = clamp(v, ...LIMITS[key]); if (key === 'bestOf' && c[key] % 2 === 0) c[key] = Math.min(99, c[key] + 1); }); };
   });
   box.querySelectorAll('.pvpchips[data-size] button').forEach((b) => b.onclick = () => setCfg((c) => { c[b.parentElement.dataset.size] = +b.dataset.v; }));
+  box.querySelectorAll('.pvpchips[data-diff] button').forEach((b) => b.onclick = () => setCfg((c) => { c.raidDiff = b.dataset.v; }));
+  wireRaidClass();
   box.querySelectorAll('[data-q]').forEach((x) => x.onchange = () => setCfg((c) => { c.q[x.dataset.q] = x.checked; }));
   box.querySelectorAll('[data-input]').forEach((x) => x.onchange = () => setCfg((c) => { c.input[x.dataset.input] = x.value; }));
   const lc = $('lcBox'); if (lc) lc.onchange = () => setCfg((c) => { c.lastChance = lc.checked; });
@@ -1216,8 +1165,8 @@ function startMatch() {
   clearTimeout(countTimer);
   const c = JSON.parse(JSON.stringify(room.cfg));
   if (c.mode === 'best') c.q = { bgm: true, phase: false, title: false };
-  const people = room.members.filter((m) => !m.bot).map((m) => ({ id: m.id, name: m.name, bot: null, look: m.id === me.id ? myLook() : cleanLook(m.look) }));
-  const bots = room.local || room.fill ? botMembers(c, people).map((b) => ({ id: b.id, name: b.name, bot: b.bot, look: botLook(b.cls, b.bot) })) : [];
+  const people = room.members.filter((m) => !m.bot).map((m) => ({ id: m.id, name: m.name, bot: null, look: m.id === me.id ? myLook() : cleanLook(m.look), rc: raidClassOk(m.rc) ? m.rc : 'hero' }));
+  const bots = room.local || room.fill ? botMembers(c, people).map((b) => ({ id: b.id, name: b.name, bot: b.bot, look: botLook(b.cls, b.bot), rc: b.rc })) : [];
   let players = [...people, ...bots];
   if (c.mode === 'tour') {
     const size = [2, 4, 8].find((n) => n >= players.length) || 8;
@@ -1256,11 +1205,12 @@ function onMessage(from, m) {
     if (m.t === 'hello' && from !== me.id && !room.local) {
       const people = room.members.filter((x) => !x.bot);
       if (room.playing || people.length >= Math.max(2, seatsFor(room.cfg))) { net.send(from, { t: 'full' }); return; }
-      if (!room.members.some((x) => x.id === from)) room.members.push({ id: from, name: String(m.name || 'Player').slice(0, 16), bot: null, ready: false, look: cleanLook(m.look) });
+      if (!room.members.some((x) => x.id === from)) room.members.push({ id: from, name: String(m.name || 'Player').slice(0, 16), bot: null, ready: false, look: cleanLook(m.look), rc: raidClassOk(m.rc) ? m.rc : 'hero' });
       roomCountdown(); roomBroadcast(); drawRoom();
       return;
     }
     if (m.t === 'ready' && from !== me.id) { const x = room.members.find((y) => y.id === from); if (x) { x.ready = !!m.v; roomCountdown(); roomBroadcast(); drawRoom(); } return; }
+    if (m.t === 'rc' && from !== me.id) { const x = room.members.find((y) => y.id === from); if (x && raidClassOk(m.rc) && !room.playing) { x.rc = m.rc; roomBroadcast(); drawRoom(); } return; }
     if (m.t === 'bye') { host?.forfeit?.(from); room.members = room.members.filter((x) => x.id !== from); room.endsAt = null; roomCountdown(); roomBroadcast(); drawRoom(); return; }
     if (m.t === 'back') { const x = room.members.find((y) => y.id === from); if (x) { x.back = true; roomCountdown(); roomBroadcast(); drawRoom(); } return; }
     if (['lock', 'done', 'cast', 'mready'].includes(m.t) || (m.t === 'ready' && m.id)) { host?.receive(from, m); }
@@ -1348,6 +1298,7 @@ function countdown(ms, total, each) {
   step();
   game.countTimer = setInterval(step, 200);
 }
+const lastRound = () => (game?.mode === 'raid' && game.state.boss ? MR.DIFFS[game.state.boss.diff].cap : ROUND_CAP);
 function rulesHtml() {
   const c = game.cfg, m = game.mode, f = (x) => Number(x).toLocaleString('en-US'), rows = [];
   const row = (k, v) => rows.push(`<tr><th>${k}</th><td>${v}</td></tr>`), mode = MODES[c.mode] || MODES[m];
@@ -1360,8 +1311,15 @@ function rulesHtml() {
   if (m === 'life') row('Lives', c.lives);
   if (m === 'first') row('Points to win', c.firstTo);
   if (m === 'best') row('Rounds', `Best of ${c.bestOf}: the first to win ${neededWins(c.bestOf)} rounds takes the match`);
-  if (m === 'raid' && game.state.boss) { row('Boss', `${esc(game.state.boss.name)} · ${f(game.state.boss.max)} HP`); row('Lives each', c.raidLives); }
-  row('Last round', `Round ${ROUND_CAP}`);
+  if (m === 'raid' && game.state.boss) {
+    const b = game.state.boss, mine = game.state.players[me.id];
+    row('Boss', `${esc(b.name)} · ${esc(MR.DIFFS[b.diff].name)} · ${f(b.max)} HP · ${Math.round(b.def * 100)}% defense`);
+    row('Lives each', c.raidLives);
+    row('Your Power', 'A right answer: 100% at 0 s, 80% at 10 s, 68% at 20 s. Wrong: 0%. Every attack is × your Power');
+    row('Skills', 'Pick them while the music plays, then End turn. A skill used this round is back after its cooldown (2 minutes in the game = 4 rounds)');
+    if (mine) row('Your class', `<b>${esc(MR.cls(mine.cls).name)}</b>: ${esc(MR.cls(mine.cls).trait[1])}`);
+  }
+  row(m === 'raid' ? 'Time limit' : 'Last round', `Round ${lastRound()}`);
   const bot = game.players.find((p) => p.bot);
   if (bot) row('Bots', esc(BOTS[bot.bot]?.name || ''));
   return `<div class="pvprules"><h3>Rules</h3><table>${rows.join('')}</table></div>`;
@@ -1387,7 +1345,7 @@ function onLoad(m) {
   if (m.move && game.state.boss) game.state.boss.move = m.move;
   const meP = game.state.players[me.id];
   game.out = meP?.out;
-  game.label = m.tb ? `Tiebreak ${m.tb}` : `Round ${m.round}${m.round === ROUND_CAP ? ' (last)' : ''}`;
+  game.label = m.tb ? `Tiebreak ${m.tb}` : `Round ${m.round}${m.round === lastRound() ? ' (last)' : ''}`;
   game.mready = null;
   $('matchReady').hidden = true;
   countdown(m.count || 0, COUNT_MS, (n) => { $('roundNo').textContent = n > 0 ? `${game.label} starts in ${n}` : game.label; });
@@ -1458,30 +1416,48 @@ function drawSkills() {
   box.hidden = false;
   const st = game.state.players[me.id];
   if (!st || st.out) { box.innerHTML = '<p class="pvpout">You’re out: your team fights on.</p>'; return; }
-  const mine = game.casts[me.id] || {}, queued = castCost(mine), left = st.sp - queued, open = skillsOpen();
+  const { C } = MR.kit(st.cls), mine = game.casts[me.id] || {}, open = skillsOpen(), f = (x) => x.toLocaleString('en-US');
+  const spent = Object.keys(mine).reduce((x, k) => x + (MR.skill(st.cls, k)?.cost || 0), 0);
   const note = open ? 'Pick skills, then End turn' : game.ended ? 'Turn ended' : !game.startPerf ? 'Skills open when the music starts' : '';
-  box.innerHTML = `<div class="skhead"><b>⭐ ${left}</b> points${queued ? ` <small>(${queued} on skills)</small>` : ''}<span>${note}</span></div>` +
-    `<div class="skbar">${Object.entries(SKILLS).map(([k, sk]) => {
-      const on = k in mine, can = open && (on || left >= sk.cost);
-      const who = on && sk.target && mine[k] !== me.id ? ` → ${esc(nameOf(mine[k]))}` : '';
-      return `<button type="button" data-sk="${k}" class="${on ? 'on' : ''}"${can ? '' : ' disabled'} title="${esc(sk.desc)}"><span class="ic">${sk.icon}</span><b>${sk.name}</b><small>${sk.cost} ⭐${who}</small></button>`;
-    }).join('')}</div><div class="sktarget" hidden></div>` +
+  const usable = (sk) => MR.canCast(game.state, me.id, sk.key) && (!sk.cost || spent + sk.cost <= st.g);
+  const btn = (sk) => {
+    const on = sk.key in mine, cd = st.cd[sk.key] || 0, can = open && (on || usable(sk));
+    const sub = sk.key === 'pot' ? `${st.pots} left` : cd > 0 ? `in ${cd} round${cd === 1 ? '' : 's'}` : sk.cd ? `every ${sk.cd} rounds` : 'any round';
+    const arg = !on ? '' : sk.target && mine[sk.key] !== me.id ? ` → ${esc(nameOf(mine[sk.key]))}` : sk.options ? ` → ${esc(sk.options[mine[sk.key]]?.split(':')[0] || '')}` : '';
+    return `<button type="button" data-sk="${sk.key}" class="${on ? 'on' : ''}${can ? '' : ' no'}${game.skDesc === sk.key ? ' sel' : ''}" aria-disabled="${!can}">` +
+      `<span class="ic">${skillIcon(sk)}${cd > 0 ? `<i class="cd">${cd}</i>` : ''}</span><b>${esc(sk.short || sk.name)}</b><small>${sub}${arg}</small></button>`;
+  };
+  const d = game.skDesc && MR.skill(st.cls, game.skDesc);
+  box.innerHTML = `<div class="skhead"><img class="rcpic sm" src="images/classes/${st.cls}.png" alt=""><div><b>${esc(C.name)}</b> · ${esc(C.basic)}: <b>${f(C.atk)}</b> × your Power, free every round you answer right` +
+      `<br><small><b>${esc(C.trait[0])}.</b> ${esc(C.trait[1])}</small></div><span class="sknote">${note}</span></div>` +
+    `<div class="skbar">${C.skills.map(btn).join('')}<span class="sksep"></span>${MR.COMMON.map(btn).join('')}</div>` +
+    `<p class="skdesc">${d ? `${skillIcon(d, 'sm')} <b>${esc(d.name)}</b>: ${esc(MR.desc(st.cls, d))}` : 'Tap a skill to pick it (tap again to drop it). Its description shows here.'}</p><div class="sktarget" hidden></div>` +
     `<p class="skend"><button type="button" id="endTurn" class="pvpbig"${open ? '' : ' disabled'}>${game.ended ? 'Turn ended ✓' : 'End turn ✓'}</button></p>`;
-  box.querySelectorAll('[data-sk]').forEach((b) => b.onclick = () => clickSkill(b.dataset.sk));
+  box.querySelectorAll('[data-sk]').forEach((b) => {
+    b.onclick = () => clickSkill(b.dataset.sk);
+    b.onmouseenter = () => { const sk = MR.skill(st.cls, b.dataset.sk), el = box.querySelector('.skdesc'); if (sk && el) el.innerHTML = `${skillIcon(sk, 'sm')} <b>${esc(sk.name)}</b>: ${esc(MR.desc(st.cls, sk))}`; };
+  });
   $('endTurn').onclick = endTurn;
 }
 function clickSkill(k) {
-  if (!skillsOpen()) return;
-  const mine = (game.casts[me.id] ??= {}), sk = SKILLS[k];
+  const st = game?.state.players[me.id], sk = st && MR.skill(st.cls, k);
+  if (!sk) return;
+  game.skDesc = k;
+  const mine = (game.casts[me.id] ??= {});
+  if (!skillsOpen()) return drawSkills();
   if (k in mine) { delete mine[k]; net.send('host', { t: 'cast', id: game.id, round: game.round, skill: k, on: false }); sfx('click'); drawSkills(); drawBoards(); return; }
+  const spent = Object.keys(mine).reduce((x, key) => x + (MR.skill(st.cls, key)?.cost || 0), 0);
+  if (!MR.canCast(game.state, me.id, k) || (sk.cost && spent + sk.cost > st.g)) return drawSkills();   // (just its description)
   const team = game.players.filter((p) => !game.state.players[p.id]?.out);
-  if (sk.target && team.length > 1) {   // who gets it?
+  const ask = (label, choices) => {   // who gets it / which one?
+    drawSkills();
     const pick = $('skills').querySelector('.sktarget');
     pick.hidden = false;
-    pick.innerHTML = `<span>${sk.icon} ${sk.name} on:</span>` + team.map((p) => `<button type="button" data-t="${p.id}">${esc(p.name)}${p.id === me.id ? ' (you)' : ''}</button>`).join('') + '<button type="button" data-t="">Cancel</button>';
-    pick.querySelectorAll('[data-t]').forEach((b) => b.onclick = () => { if (b.dataset.t) cast(k, b.dataset.t); else { pick.hidden = true; } });
-    return;
-  }
+    pick.innerHTML = `<span>${skillIcon(sk, 'sm')} ${esc(sk.name)} ${label}</span>` + choices.map(([v, text]) => `<button type="button" data-t="${esc(v)}">${esc(text)}</button>`).join('') + '<button type="button" data-t="">Cancel</button>';
+    pick.querySelectorAll('[data-t]').forEach((b) => b.onclick = () => { if (b.dataset.t !== '') cast(k, sk.options ? +b.dataset.t : b.dataset.t); else pick.hidden = true; });
+  };
+  if (sk.target && team.length > 1) return ask('on:', team.map((p) => [p.id, p.name + (p.id === me.id ? ' (you)' : '')]));
+  if (sk.options) return ask(':', sk.options.map((o, i) => [String(i), o]));
   cast(k, sk.target ? me.id : true);
 }
 function cast(k, target) {
@@ -1585,9 +1561,13 @@ function drawBoards(state = game?.state) {
   let html = '';
   if (g.mode === 'raid' && s.boss) {
     const b = s.boss, pct = b.hp / b.max * 100, f = (x) => x.toLocaleString('en-US');
-    html += `<div class="pvpboss"><img src="${esc(b.image)}" alt=""><div><b>${esc(b.name)}</b><div class="bar boss"><i style="width:${pct}%"></i></div>` +
-      `<small>${f(b.hp)} / ${f(b.max)} HP · ${Math.round(b.def * 100)}% defense</small></div></div>` +
-      (b.move ? `<div class="intent${b.move.k === 'ult' || b.move.k === 'charge' ? ' ult' : ''}"><small>${g.revealing ? 'This round' : 'Next move'}</small> ${esc(moveText(b.move, b.name, nameOf))}</div>` : '');
+    const tags = [...b.vuln.map((v) => `<span class="bf bad" title="Takes more damage">${esc(v.name)} +${Math.round((v.m - 1) * 100)}% · ${v.n}</span>`),
+      ...b.weak.map((v) => `<span class="bf bad" title="Hits softer">${esc(v.name)} −${Math.round((1 - v.m) * 100)}% attack · ${v.n}</span>`),
+      b.dots.length ? `<span class="bf bad">🔥 ${b.dots.length} burn${b.dots.length === 1 ? '' : 's'}</span>` : '',
+      b.bindImmune > 0 ? `<span class="bf">⛓️ resists binds · ${b.bindImmune}</span>` : '', b.enraged ? '<span class="bf ult">😡 Enraged</span>' : ''].join('');
+    html += `<div class="pvpboss"><img src="${esc(b.image)}" alt=""><div><b>${esc(b.name)}</b> <small class="diff">${esc(MR.DIFFS[b.diff].name)}</small><div class="bar boss"><i style="width:${pct}%"></i></div>` +
+      `<small>${f(b.hp)} / ${f(b.max)} HP · ${Math.round(b.def * 100)}% defense</small>${tags ? `<div class="bfs">${tags}</div>` : ''}</div></div>` +
+      (b.move ? `<div class="intent${b.move.k === 'ult' || b.move.k === 'charge' ? ' ult' : b.move.k === 'tired' ? ' good' : ''}"><small>${g.revealing ? 'This round' : 'Its move this round'}</small> ${fillNames(esc(MR.moveText(b.move, b.name)), nameOf)}</div>` : '');
   }
   html += '<div class="pvpboards">';
   for (const p of g.players) {
@@ -1596,10 +1576,15 @@ function drawBoards(state = game?.state) {
     let stat = '';
     if (g.mode === 'hp' || g.mode === 'ffa') stat = `<div class="bar"><i style="width:${clamp(st.hp / g.startHp * 100, 0, 100)}%"></i></div><small>${Math.max(0, st.hp)} / ${g.startHp} HP${st.lc ? ' · Last chance used' : ''}</small>`;
     else if (g.mode === 'raid') {
-      const queued = !g.revealing && g.casts?.[p.id] ? Object.keys(g.casts[p.id]).map((k) => SKILLS[k]?.icon || '').join('') : '';
-      stat = `<div class="bar"><i style="width:${clamp(st.hp / st.maxHp * 100, 0, 100)}%"></i></div><small>${Math.max(0, st.hp)} / ${st.maxHp} HP</small>` +
+      const C = MR.cls(st.cls);
+      const queued = !g.revealing && g.casts?.[p.id] ? Object.keys(g.casts[p.id]).map((k) => { const sk = MR.skill(st.cls, k); return sk ? skillIcon(sk, 'sm') : ''; }).join('') : '';
+      const lines = [C.gauge ? `<span class="gauge" title="${esc(C.trait[1])}">${esc(C.gauge.name)} <b>${st.g}</b>/${C.gauge.max}</span>` : '', st.st && C.stances ? `<span class="gauge">${esc(C.stances[st.st] || '')}</span>` : '',
+        C.status?.(st) ? `<span class="gauge">${esc(C.status(st))}</span>` : ''].join('');
+      const buffs = [...st.buffs.map((f) => `<span class="bf" title="${esc(MR.h.buffWords(f) || f.name)}">${esc(f.name)} · ${f.n}</span>`), ...st.sum.map((x) => `<span class="bf sum" title="Summon">${esc(x.name)} · ${x.n}</span>`)].join('');
+      stat = `<div class="rcwho"><img src="images/classes/${st.cls}.png" alt=""><span>${esc(C.name)}</span></div>` +
+        `<div class="bar"><i style="width:${clamp(st.hp / st.maxHp * 100, 0, 100)}%"></i></div><small>${Math.max(0, st.hp).toLocaleString('en-US')} / ${st.maxHp.toLocaleString('en-US')} HP</small>` +
         `<div class="hearts">${st.lives > 0 ? '❤️'.repeat(Math.min(st.lives, 20)) : '🖤'}</div>` +
-        `<div class="raidline"><b>⭐ ${st.sp}</b>${st.bene > 0 ? ` <span title="Benediction">✨${st.bene}</span>` : ''}${st.awaken > 0 ? ` <span title="Awaken">⚡${st.awaken}</span>` : ''}${queued ? ` <span class="queued" title="Skills picked this round">${queued}</span>` : ''}</div>`;
+        (lines ? `<div class="raidline">${lines}</div>` : '') + (buffs ? `<div class="bfs">${buffs}</div>` : '') + (queued ? `<div class="queued" title="Skills picked this round">${queued}</div>` : '');
     }
     else if (g.mode === 'life') stat = `<div class="hearts">${st.lives > 0 ? '❤️'.repeat(Math.min(st.lives, 20)) : (s.sudden && !st.out ? '💀 Sudden death' : '🖤')}</div>`;
     else if (g.mode === 'first') stat = `<div class="bar pts"><i style="width:${clamp(st.points / c.firstTo * 100, 0, 100)}%"></i></div><small>${st.points} / ${c.firstTo} points</small>`;
@@ -1633,7 +1618,7 @@ async function onReveal(r) {
   const qList = QS.filter((q) => r.qs[q]);
   box.innerHTML = `<h3>${r.state.tb ? 'Tiebreak' : 'Round ' + r.round} results</h3><div class="table-wrap"><table class="pvprev"><thead><tr><th></th>${pl.map((p) => `<th>${esc(p.name)}${p.id === me.id ? ' (you)' : ''}</th>`).join('')}</tr></thead><tbody>` +
     qList.map((q) => `<tr data-q="${q}"><th><span class="qn">${QNAME[q]}</span><span class="ans"></span></th>${pl.map((p) => `<td data-pid="${p.id}"></td>`).join('')}</tr>`).join('') +
-    (qList.length > 1 ? `<tr class="tot"><th>Total</th>${pl.map((p) => `<td data-pid="${p.id}"></td>`).join('')}</tr>` : '') +
+    (qList.length > 1 || game.mode === 'raid' ? `<tr class="tot"><th>${game.mode === 'raid' ? 'Power' : 'Total'}</th>${pl.map((p) => `<td data-pid="${p.id}"></td>`).join('')}</tr>` : '') +
     `</tbody></table></div><div class="apply"></div>`;
   box.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   const pts = game.mode === 'first', speed = game.mode === 'best' || r.state.tb, raid = game.mode === 'raid';
@@ -1656,24 +1641,24 @@ async function onReveal(r) {
         const time = it.ms != null ? `<small>${(it.ms / 1000).toFixed(2)} s</small>` : '';
         td.className = it.ok ? 'ok' : 'no';
         td.innerHTML = it.v == null ? '<span class="none">No answer</span>'
-          : `${it.ok ? '✅' : '❌'} <span class="pick">${esc(it.v)}</span> ${time}${it.ok && !speed ? `<b class="gain">${pts ? '+' + it.pts : raid ? '+' + it.dmg + ' ⭐' : it.dmg}</b>` : ''}`;
+          : `${it.ok ? '✅' : '❌'} <span class="pick">${esc(it.v)}</span> ${time}${it.ok && !speed && !raid ? `<b class="gain">${pts ? '+' + it.pts : it.dmg}</b>` : ''}`;
       }
     } else if (st.s === 'totals') {
-      for (const p of pl) box.querySelector(`tr.tot td[data-pid="${p.id}"]`).innerHTML = `<b>${pts ? '+' + r.per[p.id].pts + ' pts' : raid ? '+' + r.per[p.id].total + ' ⭐' : r.per[p.id].total + ' dmg'}</b>`;
+      for (const p of pl) box.querySelector(`tr.tot td[data-pid="${p.id}"]`).innerHTML = `<b>${pts ? '+' + r.per[p.id].pts + ' pts' : raid ? r.per[p.id].total + '%' : r.per[p.id].total + ' dmg'}</b>`;
     } else if (st.s === 'skills') {
-      showEv((e) => e.k === 'cast' || (e.k === 'bossMove' && e.move.k === 'shield'));
+      showEv((e) => e.k === 'raid' && e.s === 'skills');
       sfx('click');
     } else if (st.s === 'boss') {
-      showEv((e) => ['bossMove', 'bossHit', 'dodge', 'bossHeal', 'life', 'out'].includes(e.k));
+      showEv((e) => e.k === 'raid' && e.s === 'boss');
     } else if (st.s === 'apply') {
       showEv(() => true);
       if (!box.querySelector('.apply').innerHTML) box.querySelector('.apply').innerHTML = '<p>Nothing happened.</p>';
       game.state = r.state;
       drawBoards(r.state);
-      for (const e of r.ev) if (e.k === 'hp' || e.k === 'life' || e.k === 'bossHit') document.querySelector(`.pvpboard[data-pid="${e.pid}"]`)?.classList.add('hit');
+      for (const e of r.ev) if (e.k === 'hp' || e.k === 'life' || e.kind === 'bossHit' || e.kind === 'life') document.querySelector(`.pvpboard[data-pid="${e.pid}"]`)?.classList.add('hit');
       if (r.state.over) $('matchMsg').textContent = '';
     }
-    await new Promise((res) => setTimeout(res, STEP[st.s]));
+    await new Promise((res) => setTimeout(res, stepMs(st)));
   }
   if (!r.state.over) stopMusic(1.5);
 }
@@ -1693,19 +1678,7 @@ function evText(e, name, r) {
     case 'random': return `🎲 Random pick: ${n(e.pid)}`;
     case 'point': return `🐢 3+ even rounds: ${n(e.pid)} was the slowest and loses a point`;
     case 'pts': return e.pts ? `⭐ ${n(e.pid)} +${e.pts} point${e.pts === 1 ? '' : 's'}` : '';
-    case 'cast': {
-      const f = (x) => x.toLocaleString('en-US'), boss = esc(r.state.boss?.name ?? 'The boss');
-      if (e.skill === 'bene') return `✨ ${n(e.pid)} casts Benediction: the party deals x${RAID.bene.mult} damage for ${RAID.bene.rounds} rounds`;
-      if (e.skill === 'awaken') return e.target === e.pid ? `⚡ ${n(e.pid)} awakens: x${RAID.awaken.mult} damage, ignoring defense` : `⚡ ${n(e.pid)} awakens ${n(e.target)}: x${RAID.awaken.mult} damage, ignoring defense`;
-      if (e.skill === 'heal') return `💚 ${n(e.pid)} heals ${e.amount} HP`;
-      if (e.skill === 'iframe') return `🛡️ ${n(e.pid)} gets ready to i-frame`;
-      return `${SKILLS[e.skill].icon} ${n(e.pid)}’s ${SKILLS[e.skill].name} hits ${boss} for <b>${f(e.dmg)}</b>${e.mult > 1 ? ` (x${e.mult})` : ''}${e.shield ? ' (shielded: half)' : ''}`;
-    }
-    case 'bossMove': return esc(moveText(e.move, r.state.boss?.name ?? 'The boss', name));
-    case 'bossHit': return `💢 ${n(e.pid)} takes ${e.amount} damage`;
-    case 'dodge': return `🛡️ ${n(e.pid)} i-frames it: no damage`;
-    case 'bossHeal': return `💗 ${esc(r.state.boss?.name ?? 'The boss')} heals ${e.amount.toLocaleString('en-US')} HP`;
-    case 'sp': return `⭐ ${n(e.pid)} +${e.amount} points`;
+    case 'raid': return `<span class="rev ${e.kind || ''}">${e.ic ? `<img class="skic sm" src="images/skills/${esc(e.ic)}.png" alt="" onerror="this.remove()"> ` : ''}${fillNames(e.t, name)}</span>`;   // (the raid's own words: raid.js)
     case 'tiebreak': return '⚖️ A draw: a speed tiebreak decides (first right BGM wins)';
   }
   return '';
@@ -1730,8 +1703,18 @@ function showResult(m) {
   $('resultWhy').textContent = o.reason;
   const pl = m.players;
   const pts = m.mode === 'first', raidRes = m.mode === 'raid';
+  // Boss Raid: who did what (the most damage = MVP)
+  let extra = '';
+  if (raidRes && m.state.stats) {
+    const f = (x) => Math.round(x).toLocaleString('en-US'), st = (id) => m.state.stats[id] || { dmg: 0, heal: 0, taken: 0, right: 0 };
+    const top = Math.max(...pl.map((p) => st(p.id).dmg)), all = pl.reduce((x, p) => x + st(p.id).dmg, 0) || 1;
+    extra = `<div class="table-wrap"><table class="raidstats"><thead><tr><th>Player</th><th>Class</th><th>Damage</th><th>Share</th><th>Healing</th><th>Damage taken</th><th>Right answers</th></tr></thead><tbody>` +
+      pl.map((p) => { const x = st(p.id), ps = m.state.players[p.id]; return `<tr class="${x.dmg === top && top > 0 ? 'mvp' : ''}"><td>${x.dmg === top && top > 0 ? '⭐ ' : ''}${p.bot ? '🤖 ' : ''}${esc(p.name)}</td><td>${esc(MR.cls(ps?.cls).name)}</td><td>${f(x.dmg)}</td><td>${Math.round(x.dmg / all * 100)}%</td><td>${f(x.heal)}</td><td>${f(x.taken)}</td><td>${x.right} / ${m.history.length}</td></tr>`; }).join('') +
+      `</tbody></table></div>`;
+  }
+  $('resultExtra').innerHTML = extra;
   $('resultTable').innerHTML = `<thead><tr><th>Round</th><th>Track</th>${pl.map((p) => `<th>${esc(p.name)}</th>`).join('')}</tr></thead><tbody>` +
-    m.history.map((h) => `<tr><td>${h.round}</td><td class="trk">${esc(h.title)}<small>${esc(h.boss)}</small></td>${pl.map((p) => { const x = h.per[p.id]; return `<td>${!x ? '-' : h.speed ? (x.ms != null ? `${(x.ms / 1000).toFixed(2)} s ${x.ok ? '✅' : '❌'}` : 'No answer') : (pts ? '+' + x.pts : raidRes ? '+' + x.total + '⭐' : x.total) + (x.ok ? ' ✅' : '')}</td>`; }).join('')}</tr>`).join('') + '</tbody>';
+    m.history.map((h) => `<tr><td>${h.round}</td><td class="trk">${esc(h.title)}<small>${esc(h.boss)}</small></td>${pl.map((p) => { const x = h.per[p.id]; return `<td>${!x ? '-' : h.speed ? (x.ms != null ? `${(x.ms / 1000).toFixed(2)} s ${x.ok ? '✅' : '❌'}` : 'No answer') : (pts ? '+' + x.pts : raidRes ? `${x.total}% <small>${(h.dmg?.[p.id] || 0).toLocaleString('en-US')} dmg</small>` : x.total) + (x.ok ? ' ✅' : '')}</td>`; }).join('')}</tr>`).join('') + '</tbody>';
   if (win && !o.draw) { try { confetti?.(); } catch {} }
   const local = room?.local, hostMe = isHost();
   $('again').hidden = tourGame;
@@ -1816,10 +1799,15 @@ Phase = that × 0.2, title = that × 0.5. Wrong = 0.</p>
 <li><b>First to N</b>: right answers score points (BGM 1, Phase 0.25, Title 0.5). First to the target score wins.</li>
 <li><b>Speed Duel</b>: just the BGM question. The fastest right answer wins the round (time, not damage). First to win
 more than half the rounds (best of 3, 5 or 7) wins.</li>
-<li><b>Boss Raid</b>: everyone vs one boss, which shows its next move each round. Right answers earn ⭐ points
-(fast = more: the damage numbers above). Spend them on skills, then press End turn: Mini burst (50), 2-min burst
-(200), I-frame (100, for its ultimate), Heal (50), Benediction (200, party damage up), Awaken (200, one player becomes
-strong). Skills go off first, then the boss moves. Its attacks take your HP; at 0 you lose a life.</li>
+<li><b>Boss Raid</b>: everyone vs one boss, each as a class of their choice (every class has its own trait and
+three of its skills, plus three skills everyone has: Aeonian Rise, Erda Nova, Power Elixir). Your answers set your
+<b>Power</b> for the round: wrong = 0%, right = 100% at 0 s, 80% at 10 s, 68% at 20 s. Every attack is × your Power, so
+save your big skills for a track you know. Your main attack is free; skills are picked while the music plays and come
+back after their cooldown: the skill's cooldown in the game ÷ 30 s, in rounds (2 minutes = 4 rounds). Skills go off
+first, then the boss does the move it showed at the start of the round: an attack on everyone, on one player, a test
+(wrong answers get hurt), a shield, a heal, or its ultimate (it charges for a round first; be untouchable, or go down.
+The round after, it is worn out and takes +50% damage). Its attacks grow every round, and the last round is its time
+limit. At 0 HP you lose a life.</li>
 <li><b>Free-for-all</b>: each round, everyone loses HP by how far they were behind the round's top damage.</li>
 <li><b>Tournament</b>: a bracket of 1v1 HP matches; a draw goes to a speed tiebreak (fastest right BGM).</li>
 </ul>

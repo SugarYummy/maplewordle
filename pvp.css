@@ -134,18 +134,65 @@ body.pvppage .game { width: min(760px, calc(100% - 64px)); box-sizing: border-bo
 .intent.ult { border-color: #c92a2a; background: rgba(255, 214, 214, 0.9); animation: pvpult 1s ease-in-out infinite alternate; }
 html.dark .intent.ult { background: rgba(110, 30, 30, 0.9); }
 @keyframes pvpult { to { box-shadow: 0 0 12px 2px rgba(224, 49, 49, 0.6); } }
-.raidline { font-size: 13px; margin-top: 2px; }
-.raidline .queued { letter-spacing: 1px; }
+.raidline { font-size: 12px; margin-top: 2px; display: flex; gap: 4px 8px; flex-wrap: wrap; }
+.raidline .gauge b { font-size: 14px; }
+.queued { margin-top: 3px; display: flex; gap: 2px; flex-wrap: wrap; }
+.bfs { display: flex; gap: 3px; flex-wrap: wrap; margin-top: 3px; }
+.bf { font-size: 11px; line-height: 1.3; padding: 1px 6px; border-radius: 8px; background: rgba(81, 207, 102, 0.3); white-space: nowrap; }
+.bf.sum { background: rgba(116, 192, 252, 0.35); }
+.bf.bad { background: rgba(240, 140, 0, 0.3); }
+.bf.ult { background: rgba(201, 42, 42, 0.35); }
+.rcwho { display: flex; align-items: center; gap: 4px; font-size: 12px; opacity: 0.9; }
+.rcwho img { width: 22px; height: 26px; object-fit: contain; }
+.pvpboss .diff { font-size: 11px; padding: 1px 6px; border-radius: 8px; background: rgba(201, 42, 42, 0.25); vertical-align: middle; }
+.intent.good { border-color: #2f9e44; background: rgba(211, 249, 216, 0.9); }
+html.dark .intent.good { background: rgba(30, 80, 40, 0.9); }
+#reveal .rev.bossMove { font-weight: 700; }
+#reveal .rev.enrage { font-weight: 700; color: #c92a2a; }
+/* Boss Raid: your class (room screen) */
+.raidcls { margin: 10px 0 0; padding: 8px 12px 10px; border-radius: 10px; background: rgba(var(--wb), 0.75); text-align: left; }
+.raidcls h3 { margin: 0 0 8px; font-size: 16px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.pvpscreen .raidcls h3 button { font-size: 13px; padding: 3px 10px; }
+.rchead { display: flex; gap: 10px; align-items: center; }
+.rcpic { width: 66px; height: 80px; object-fit: contain; flex: none; }
+.rcpic.sm { width: 40px; height: 48px; }
+.rcname { font-size: 18px; }
+.rctrait { margin: 4px 0 0; font-size: 14px; line-height: 1.4; }
+.rcskills { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px 14px; margin-top: 8px; }
+.rcsk { display: flex; gap: 8px; align-items: flex-start; font-size: 13px; line-height: 1.35; }
+.rcsk .skic { flex: none; }
+.rcsk small { opacity: 0.75; }
+.rccommon { margin-top: 8px; font-size: 13px; }
+.rccommon summary { cursor: pointer; opacity: 0.85; }
+.rcgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 6px; margin: 0 0 10px; max-height: 330px; overflow-y: auto; padding: 4px; }
+.pvpscreen .rcgrid button { display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 4px 2px; font-size: 12px; line-height: 1.15; }
+.rcgrid img { width: 46px; height: 56px; object-fit: contain; }
+.rcgrid small { font-size: 10px; opacity: 0.7; }
+.pvpscreen .rcgrid button.on { outline: 3px solid #1971c2; background: rgba(116, 192, 252, 0.45); }
+.rctag { opacity: 0.9; } .rctag img { width: 16px; height: 19px; object-fit: contain; vertical-align: -4px; margin-right: 2px; }
+.raidstats { width: 100%; border-collapse: collapse; margin: 0 0 12px; font-size: 14px; }
+.raidstats th, .raidstats td { padding: 4px 8px; text-align: right; } .raidstats th:first-child, .raidstats td:first-child { text-align: left; }
+.raidstats .mvp td { font-weight: 700; background: rgba(255, 212, 59, 0.25); }
+@media (max-width: 640px) { .rcskills { grid-template-columns: 1fr; } }
 #skills { background: rgba(var(--wb), 0.7); border-radius: 10px; padding: 8px 10px; margin: 10px 0 0; }
 #skills[hidden] { display: none; }
-.skhead { display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; font-size: 15px; margin-bottom: 6px; }
-.skhead small { opacity: 0.75; }
-.skhead span { margin-left: auto; font-size: 13px; opacity: 0.75; }
-.skbar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
-.pvpscreen .skbar button { display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 6px 4px; font-size: 13px; line-height: 1.2; }
-.skbar .ic { font-size: 20px; }
-.skbar small { font-size: 12px; opacity: 0.8; }
+.skhead { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 14px; margin-bottom: 8px; text-align: left; line-height: 1.35; }
+.skhead > div { flex: 1 1 240px; min-width: 0; }
+.skhead small { opacity: 0.8; }
+.skhead .sknote { margin-left: auto; font-size: 13px; opacity: 0.75; }
+.skbar { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
+.skbar .sksep { display: none; }
+.pvpscreen .skbar button { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 3px; font-size: 12px; line-height: 1.2; min-width: 0; }
+.skbar button b { overflow-wrap: anywhere; }
+.skbar .ic { position: relative; display: block; width: 40px; height: 40px; }
+.skic { width: 40px; height: 40px; image-rendering: pixelated; vertical-align: middle; }   /* (the game's 32 x 32 icons, kept crisp) */
+.skic.sm { width: 22px; height: 22px; }
+.skbar .cd { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.62); color: #fff; font: 800 20px/1 system-ui, sans-serif; font-style: normal; border-radius: 4px; }
+.skbar small { font-size: 11px; opacity: 0.8; }
 .pvpscreen .skbar button.on { outline: 3px solid #1971c2; background: rgba(116, 192, 252, 0.45); }
+.pvpscreen .skbar button.no { opacity: 0.55; }
+.pvpscreen .skbar button.sel { box-shadow: 0 0 0 2px rgba(240, 140, 0, 0.9) inset; }
+.skdesc { margin: 8px 0 0; padding: 6px 10px; border-radius: 8px; background: rgba(var(--wb), 0.75); font-size: 14px; text-align: left; min-height: 22px; line-height: 1.4; }
 .sktarget { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-top: 8px; font-size: 14px; }
 .sktarget[hidden] { display: none; }
 .pvpscreen .sktarget button { font-size: 13px; padding: 4px 10px; }
@@ -216,7 +263,8 @@ html.dark #clockArc { stroke: #74c0fc; }
   .pvpscreen .pvpcard { padding: 10px; }
   .pvpcard b { font-size: 15px; }
   .abcd { grid-template-columns: 1fr; }
-  .skbar { grid-template-columns: repeat(2, 1fr); }
+  .skbar { grid-template-columns: repeat(3, 1fr); }
+  .skic { width: 36px; height: 36px; } .skbar .ic { width: 36px; height: 36px; }
   .pvprev { font-size: 13px; }
   .pvprev th, .pvprev td { padding: 5px 4px; }
   .pvprev tbody th { min-width: 90px; }

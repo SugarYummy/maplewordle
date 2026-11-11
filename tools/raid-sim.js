@@ -158,7 +158,7 @@ function tuneWin(iter = 5, n = 300) {
     let worst = 0, spread = [];
     for (const k of R.ORDER) {
       const ws = winRate([k], 'normal', 'normal', n, 23 + it, oS).win, wt = winRate([k, ...REF], 'normal', 'normal', n, 29 + it, oT).win;
-      const off = 0.5 * (0.5 - ws) + 0.5 * 1.5 * (0.5 - wt);   // (in a trio a class is a third of the party: its win rate moves less)
+      const off = 0.62 * (0.5 - ws) + 0.38 * 1.5 * (0.5 - wt);   // (alone counts a little more: it's how most people will play; in a trio a class is a third of the party, so its win rate moves less)
       T[k] = Math.max(0.5, Math.min(1.8, T[k] * Math.exp(0.5 * off)));
       worst = Math.max(worst, Math.abs(off)); spread.push(ws);
     }
