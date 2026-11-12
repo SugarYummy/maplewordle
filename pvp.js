@@ -1800,14 +1800,17 @@ Phase = that × 0.2, title = that × 0.5. Wrong = 0.</p>
 <li><b>Speed Duel</b>: just the BGM question. The fastest right answer wins the round (time, not damage). First to win
 more than half the rounds (best of 3, 5 or 7) wins.</li>
 <li><b>Boss Raid</b>: everyone vs one boss, each as a class of their choice (every class has its own trait and
-three of its skills, plus three skills everyone has: Aeonian Rise, Erda Nova, Power Elixir). Your answers set your
+its real skills, plus three skills everyone has: Aeonian Rise, Erda Nova, Power Elixir). Your answers set your
 <b>Power</b> for the round: wrong = 0%, right = 100% at 0 s, 80% at 10 s, 68% at 20 s. Every attack is × your Power, so
 save your big skills for a track you know. Your main attack is free; skills are picked while the music plays and come
 back after their cooldown: the skill's cooldown in the game ÷ 30 s, in rounds (2 minutes = 4 rounds). Skills go off
 first, then the boss does the move it showed at the start of the round: an attack on everyone, on one player, a test
 (wrong answers get hurt), a shield, a heal, or its ultimate (it charges for a round first; be untouchable, or go down.
 The round after, it is worn out and takes +50% damage). Its attacks grow every round, and the last round is its time
-limit. At 0 HP you lose a life.</li>
+limit. At 0 HP you lose a life. <b>Binds</b> (Erda Nova, some class skills, every Origin) stop the boss for the round
+and strip its defense: that is the moment to use everything. Two binds in one round hold it for 2 rounds; after that it
+can be bound again 3 rounds later. Your <b>Origin</b> (gold edge) is your biggest skill: it binds, you can't be touched
+while you use it, and it comes back after 18 rounds, so once a fight.</li>
 <li><b>Free-for-all</b>: each round, everyone loses HP by how far they were behind the round's top damage.</li>
 <li><b>Tournament</b>: a bracket of 1v1 HP matches; a draw goes to a speed tiebreak (fastest right BGM).</li>
 </ul>
