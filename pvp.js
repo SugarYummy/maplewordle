@@ -1103,7 +1103,7 @@ function drawRoom() {
 // Boss Raid: your class (its kit, and the list to change it)
 function raidKitHtml(cls) {
   const { C } = MR.kit(cls), f = (x) => x.toLocaleString('en-US');
-  const row = (sk) => `<div class="rcsk">${skillIcon(sk)}<div><b>${esc(sk.name)}</b> <small>${sk.cd ? `every ${sk.cd} rounds` : 'any round'}${sk.cd >= 10 ? ` (from round ${MR.RULES.warmUp + 1})` : ''}</small><br>${esc(MR.desc(cls, sk))}</div></div>`;
+  const row = (sk) => `<div class="rcsk">${skillIcon(sk)}<div><b>${esc(sk.name)}</b> <small>${sk.cd ? `every ${sk.cd} rounds` : 'any round'}</small><br>${esc(MR.desc(cls, sk))}</div></div>`;
   return `<div class="rchead"><img class="rcpic" src="images/classes/${cls}.png" alt=""><div><b class="rcname">${esc(C.name)}</b> <small>${esc(C.role)} · ${f(C.hp)} HP</small>` +
     `<p class="rctrait"><b>${esc(C.trait[0])}.</b> ${esc(C.trait[1])}</p></div></div>` +
     `<div class="rcskills"><div class="rcsk">${skillIcon({ name: C.basic })}<div><b>${esc(C.basic)}</b> <small>main attack, free every round you answer right</small><br>${f(C.atk)} damage × your Power</div></div>${C.skills.map(row).join('')}</div>` +
@@ -1424,13 +1424,13 @@ function drawSkills() {
     const on = sk.key in mine, cd = st.cd[sk.key] || 0, can = open && (on || usable(sk));
     const sub = sk.key === 'pot' ? `${st.pots} left` : cd > 0 ? `in ${cd} round${cd === 1 ? '' : 's'}` : sk.cd ? `every ${sk.cd} rounds` : 'any round';
     const arg = !on ? '' : sk.target && mine[sk.key] !== me.id ? ` → ${esc(nameOf(mine[sk.key]))}` : sk.options ? ` → ${esc(sk.options[mine[sk.key]]?.split(':')[0] || '')}` : '';
-    return `<button type="button" data-sk="${sk.key}" class="${on ? 'on' : ''}${can ? '' : ' no'}${game.skDesc === sk.key ? ' sel' : ''}" aria-disabled="${!can}">` +
+    return `<button type="button" data-sk="${sk.key}" class="${on ? 'on' : ''}${can ? '' : ' no'}${game.skDesc === sk.key ? ' sel' : ''}${sk.origin ? ' org' : ''}" aria-disabled="${!can}">` +
       `<span class="ic">${skillIcon(sk)}${cd > 0 ? `<i class="cd">${cd}</i>` : ''}</span><b>${esc(sk.short || sk.name)}</b><small>${sub}${arg}</small></button>`;
   };
   const d = game.skDesc && MR.skill(st.cls, game.skDesc);
   box.innerHTML = `<div class="skhead"><img class="rcpic sm" src="images/classes/${st.cls}.png" alt=""><div><b>${esc(C.name)}</b> · ${esc(C.basic)}: <b>${f(C.atk)}</b> × your Power, free every round you answer right` +
       `<br><small><b>${esc(C.trait[0])}.</b> ${esc(C.trait[1])}</small></div><span class="sknote">${note}</span></div>` +
-    `<div class="skbar">${C.skills.map(btn).join('')}<span class="sksep"></span>${MR.COMMON.map(btn).join('')}</div>` +
+    `<div class="skbar${C.skills.length + MR.COMMON.length > 6 ? ' many' : ''}">${C.skills.map(btn).join('')}<span class="sksep"></span>${MR.COMMON.map(btn).join('')}</div>` +
     `<p class="skdesc">${d ? `${skillIcon(d, 'sm')} <b>${esc(d.name)}</b>: ${esc(MR.desc(st.cls, d))}` : 'Tap a skill to pick it (tap again to drop it). Its description shows here.'}</p><div class="sktarget" hidden></div>` +
     `<p class="skend"><button type="button" id="endTurn" class="pvpbig"${open ? '' : ' disabled'}>${game.ended ? 'Turn ended ✓' : 'End turn ✓'}</button></p>`;
   box.querySelectorAll('[data-sk]').forEach((b) => {
@@ -1564,10 +1564,10 @@ function drawBoards(state = game?.state) {
     const tags = [...b.vuln.map((v) => `<span class="bf bad" title="Takes more damage">${esc(v.name)} +${Math.round((v.m - 1) * 100)}% · ${v.n}</span>`),
       ...b.weak.map((v) => `<span class="bf bad" title="Hits softer">${esc(v.name)} −${Math.round((1 - v.m) * 100)}% attack · ${v.n}</span>`),
       b.dots.length ? `<span class="bf bad">🔥 ${b.dots.length} burn${b.dots.length === 1 ? '' : 's'}</span>` : '',
-      b.bindImmune > 0 ? `<span class="bf">⛓️ resists binds · ${b.bindImmune}</span>` : '', b.enraged ? '<span class="bf ult">😡 Enraged</span>' : ''].join('');
+      (g.round || 0) < b.bindFree && !(b.move?.k === 'bound') ? `<span class="bf">⛓️ resists binds until round ${b.bindFree}</span>` : '', b.enraged ? '<span class="bf ult">😡 Enraged</span>' : ''].join('');
     html += `<div class="pvpboss"><img src="${esc(b.image)}" alt=""><div><b>${esc(b.name)}</b> <small class="diff">${esc(MR.DIFFS[b.diff].name)}</small><div class="bar boss"><i style="width:${pct}%"></i></div>` +
       `<small>${f(b.hp)} / ${f(b.max)} HP · ${Math.round(b.def * 100)}% defense</small>${tags ? `<div class="bfs">${tags}</div>` : ''}</div></div>` +
-      (b.move ? `<div class="intent${b.move.k === 'ult' || b.move.k === 'charge' ? ' ult' : b.move.k === 'tired' ? ' good' : ''}"><small>${g.revealing ? 'This round' : 'Its move this round'}</small> ${fillNames(esc(MR.moveText(b.move, b.name)), nameOf)}</div>` : '');
+      (b.move ? `<div class="intent${b.move.k === 'ult' || b.move.k === 'charge' ? ' ult' : b.move.k === 'tired' || b.move.k === 'bound' ? ' good' : ''}"><small>${g.revealing ? 'This round' : 'Its move this round'}</small> ${fillNames(esc(MR.moveText(b.move, b.name)), nameOf)}</div>` : '');
   }
   html += '<div class="pvpboards">';
   for (const p of g.players) {

@@ -182,6 +182,8 @@ html.dark .intent.good { background: rgba(30, 80, 40, 0.9); }
 .skhead .sknote { margin-left: auto; font-size: 13px; opacity: 0.75; }
 .skbar { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
 .skbar .sksep { display: none; }
+.skbar.many { grid-template-columns: repeat(4, 1fr); }   /* 7 or 8 skills: two even rows */
+.pvpscreen .skbar button.org { border-color: #d9a520; box-shadow: inset 0 0 0 1px #d9a520; }   /* the Origin skill */
 .pvpscreen .skbar button { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 3px; font-size: 12px; line-height: 1.2; min-width: 0; }
 .skbar button b { overflow-wrap: anywhere; }
 .skbar .ic { position: relative; display: block; width: 40px; height: 40px; }
@@ -264,6 +266,9 @@ html.dark #clockArc { stroke: #74c0fc; }
   .pvpcard b { font-size: 15px; }
   .abcd { grid-template-columns: 1fr; }
   .skbar { grid-template-columns: repeat(3, 1fr); }
+  .skbar.many { grid-template-columns: repeat(4, 1fr); }
+  .pvpscreen .skbar.many button { font-size: 11px; }
+  .pvpscreen .skbar.many button b { font-size: 10.5px; letter-spacing: -0.3px; }
   .skic { width: 36px; height: 36px; } .skbar .ic { width: 36px; height: 36px; }
   .pvprev { font-size: 13px; }
   .pvprev th, .pvprev td { padding: 5px 4px; }

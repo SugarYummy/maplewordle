@@ -10,13 +10,13 @@ const rng = (seed) => () => { let t = (seed += 0x6D2B79F5); t = Math.imul(t ^ (t
 // Players: how often they're right, and their typical answer time (the PvP bots' numbers, with a dropdown)
 const LEVELS = { easy: { p: 0.5, sec: 14 }, normal: { p: 0.72, sec: 9 }, hard: { p: 0.9, sec: 5.5 }, pro: { p: 0.97, sec: 3.5 } };
 
-function fight({ party, level = 'normal', diff = 'normal', lives = 3, seed = 1, log = false, noDeath = false, over = null }) {
+function fight({ party, level = 'normal', diff = 'normal', lives = 3, seed = 1, log = false, noDeath = false, over = null, rounds = 0, track = null }) {
   const rand = rng(seed), L = LEVELS[level];
   const S = { round: 0, players: {}, stats: {} };
   party.forEach((cls, i) => { S.players['p' + i] = R.newPlayer(cls, noDeath ? 999 : lives); });
   S.boss = R.newBoss('Boss', '', party.length, diff);
   if (over) { const b = S.boss; if (over.hp) { b.hp = b.max = Math.round(b.max * over.hp); } if (over.atk) b.atk *= over.atk; }
-  const cap = noDeath ? 60 : R.DIFFS[S.boss.diff].cap;
+  const cap = rounds || (noDeath ? 60 : R.DIFFS[S.boss.diff].cap);
   while (S.round < cap) {
     S.round++;
     R.pickMove(S, rand);
@@ -27,7 +27,9 @@ function fight({ party, level = 'normal', diff = 'normal', lives = 3, seed = 1, 
       inputs[pid] = { power: right ? R.RULES.power(sec) : 0, sec, casts: R.botCasts(S, pid, know, rand) };
     }
     const mv = S.boss.move;
+    const hp0 = S.boss.hp;
     const ev = R.resolve(S, inputs, rand);
+    if (track) track(S, inputs, hp0 - S.boss.hp);
     if (log) {
       console.log(`\n— Round ${S.round} — ${R.moveText(mv, 'Boss')}`);
       for (const e of ev) console.log('  ' + e.t.replace(/<[^>]+>/g, '').replace(/\{p:(p\d)\}/g, (m, id) => R.cls(S.players[id].cls).name));
@@ -188,11 +190,69 @@ function calibrate(n = 8) {
   writeDiffs(out);
 }
 
+// ---------- Tuning to the damage charts ----------
+// A dummy fight the length of the charts' (5m40s = 11 rounds, nobody dies, good players): each class's attack (TUNE)
+// moves until its damage stands to the lowest class's the way the chart says, and its Origin (ORIGIN) until the round
+// it is used in holds the chart's share of the damage. Classes that aren't on the GMS chart get the GMS value of the
+// class at the same place in the KMS ranking.
+function chartTargets() {
+  const kms = require('../../maplewordle-notes/raid/kms-dps-chart.json').rows;
+  const byName = Object.fromEntries(R.ORDER.map((k) => [R.cls(k).name.toLowerCase(), k]));
+  const rank = {}; kms.forEach((r, i) => { const k = byName[r.cls.toLowerCase()]; if (k) rank[k] = i / (kms.length - 1); });
+  const gms = Object.values(R.CHART).map((v) => v[0]).sort((a, b) => b - a), shares = Object.values(R.CHART).map((v) => v[1]).sort((a, b) => a - b);
+  const medShare = shares[Math.floor(shares.length / 2)];
+  const at = (q) => { const x = q * (gms.length - 1), i = Math.floor(x), f = x - i; return gms[i] * (1 - f) + (gms[Math.min(gms.length - 1, i + 1)]) * f; };
+  const T = {};
+  for (const k of R.ORDER) T[k] = R.CHART[k] ? { rel: R.CHART[k][0], share: R.CHART[k][1] } : { rel: +at(rank[k] ?? 0.5).toFixed(1), share: medShare, placed: rank[k] == null ? 'middle' : 'kms' };
+  return T;
+}
+function measure(k, n, party = [k]) {
+  let dmg = 0, burst = 0;
+  for (let i = 0; i < n; i++) {
+    let b = 0;
+    const f = fight({ party, level: 'hard', diff: 'hard', noDeath: true, over: { hp: 1e6 }, rounds: 11, seed: 3 + i * 7919,
+      track: (S, inp) => { const st = (S.stats.p0 ??= { dmg: 0 }), d = st.dmg - (st._l || 0); st._l = st.dmg; if (Object.keys(inp.p0?.casts || {}).some((c) => R.skill(k, c)?.origin)) b += d; } });
+    dmg += f.S.stats.p0?.dmg || 0; burst += b;
+  }
+  return { dmg: dmg / n, share: burst / dmg * 100 };
+}
+function chart(iter = 8, n = 150) {
+  const want = chartTargets();
+  const T = Object.fromEntries(R.ORDER.map((k) => [k, R.TUNE[k] ?? 1])), O = Object.fromEntries(R.ORDER.map((k) => [k, R.ORIGIN[k] ?? 1]));
+  const base = Object.fromEntries(R.ORDER.map((k) => [k, R.cls(k).atk / (R.TUNE[k] ?? 1)]));
+  const apply = () => { for (const k of R.ORDER) { R.cls(k).atk = Math.round(base[k] * T[k] / 10) * 10; R.cls(k).originK = O[k]; } };
+  let m = {};
+  for (let it = 0; it <= iter; it++) {
+    apply();
+    for (const k of R.ORDER) m[k] = measure(k, n);
+    // the middle class keeps the attack it has, so the boss's numbers stay meaningful
+    const ratio = R.ORDER.map((k) => m[k].dmg / (1 + want[k].rel / 100)), ref = median(ratio);
+    let wd = 0, ws = 0;
+    for (const k of R.ORDER) {
+      const offD = ref * (1 + want[k].rel / 100) / m[k].dmg, s = m[k].share / 100, w = want[k].share / 100;
+      const offS = (w / (1 - w)) / Math.max(0.01, s / (1 - s));
+      wd = Math.max(wd, Math.abs(offD - 1)); ws = Math.max(ws, Math.abs(m[k].share - want[k].share));
+      // (an Origin is never a small hit: at least ~5x attack, more for the classes the chart calls bursty)
+      if (it < iter) { T[k] = Math.max(0.3, Math.min(3, T[k] * offD ** 0.9)); O[k] = Math.max(0.45 * want[k].share / 18.9, Math.min(6, O[k] * offS ** 0.8)); }
+    }
+    console.error(`pass ${it}: damage off by up to ${(wd * 100).toFixed(1)}%, burst share off by up to ${ws.toFixed(1)} points`);
+  }
+  const low = Math.min(...R.ORDER.map((k) => m[k].dmg));
+  console.log('class                 chart   sim   burst chart/sim   attack  origin x');
+  for (const k of R.ORDER.slice().sort((a, b) => m[b].dmg - m[a].dmg)) console.log(k.padEnd(20), ('+' + want[k].rel.toFixed(1)).padStart(6) + (want[k].placed ? '*' : ' '), ('+' + ((m[k].dmg / low - 1) * 100).toFixed(1)).padStart(6), want[k].share.toFixed(1).padStart(8), m[k].share.toFixed(1).padStart(5), String(R.cls(k).atk).padStart(8), (8 * O[k]).toFixed(1).padStart(7));
+  const lines = ['const TUNE = { ' + R.ORDER.map((k) => `'${k}': ${T[k].toFixed(3)}`).join(', ') + ' };', 'const ORIGIN = { ' + R.ORDER.map((k) => `'${k}': ${O[k].toFixed(3)}`).join(', ') + ' };'];
+  if (!WRITE) return console.log(lines.join('\n'));
+  const f = path.join(__dirname, '../raid-classes.js'); let src = fs.readFileSync(f, 'utf8');
+  if (!/^const TUNE = \{.*\};$/m.test(src) || !/^const ORIGIN = \{.*\};$/m.test(src)) throw new Error('TUNE / ORIGIN line not found');
+  fs.writeFileSync(f, src.replace(/^const TUNE = \{.*\};$/m, lines[0]).replace(/^const ORIGIN = \{.*\};$/m, lines[1]));
+  console.error('written to raid-classes.js');
+}
 const [cmd, ...args] = process.argv.slice(2).filter((a) => a !== '--write');
 if (cmd === 'report') report(+args[0] || 300);
 else if (cmd === 'tune') tune(+args[0] || 6, +args[1] || 200);
 else if (cmd === 'diff') diffTable(+args[0] || 200);
 else if (cmd === 'tunewin') tuneWin(+args[0] || 5, +args[1] || 300);
+else if (cmd === 'chart') chart(+args[0] || 8, +args[1] || 150);
 else if (cmd === 'calibrate') calibrate(+args[0] || 8);
 else if (cmd === 'fight') { const f = fight({ party: args.filter((a) => R.CLASSES[a]).length ? args.filter((a) => R.CLASSES[a]) : ['hero'], level: args.find((a) => LEVELS[a]) || 'normal', diff: (args.find((a) => a.startsWith('d=')) || 'd=normal').slice(2), seed: +(args.find((a) => /^\d+$/.test(a)) || 1), log: true }); console.log(f.win ? `\nWON in round ${f.rounds}` : `\nLOST in round ${f.rounds}`); }
 else console.log('report | tune | diff | fight <classes...> [easy|normal|hard|pro] [d=hard] [seed]');
