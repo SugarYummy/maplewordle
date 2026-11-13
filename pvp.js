@@ -1103,7 +1103,7 @@ function drawRoom() {
 // Boss Raid: your class (its kit, and the list to change it)
 function raidKitHtml(cls) {
   const { C } = MR.kit(cls), f = (x) => x.toLocaleString('en-US');
-  const row = (sk) => `<div class="rcsk">${skillIcon(sk)}<div><b>${esc(sk.name)}</b> <small>${sk.passive ? 'always on' : sk.ascent ? 'twice a fight' : sk.cd ? `every ${sk.cd} rounds` : 'any round'}${sk.origin ? ' · Origin' : sk.faction ? ' · faction skill' : ''}</small><br>${esc(MR.desc(cls, sk))}</div></div>`;
+  const row = (sk) => `<div class="rcsk">${skillIcon(sk)}<div><b>${esc(sk.name)}</b> <small>${sk.passive ? 'always on' : sk.ascent ? 'twice a fight' : sk.cd ? (sk.cd === 1 ? 'every round' : `every ${sk.cd} rounds`) : 'any round'}${sk.origin ? ' · Origin' : sk.faction ? ' · faction skill' : ''}</small><br>${esc(MR.desc(cls, sk))}</div></div>`;
   return `<div class="rchead"><img class="rcpic" src="images/classes/${cls}.png" alt=""><div><b class="rcname">${esc(C.name)}</b> <small>${esc(C.role)} · ${f(C.hp)} HP</small>` +
     `<p class="rctrait"><b>${esc(C.trait[0])}.</b> ${esc(C.trait[1])}</p></div></div>` +
     `<div class="rcskills"><div class="rcsk">${skillIcon({ name: C.basic })}<div><b>${esc(C.basic)}</b> <small>main attack, free every round you answer right</small><br>${f(Math.round(C.atk * (C.basicMult ?? 1)))} damage × your Power</div></div>${C.skills.map(row).join('')}</div>` +
@@ -1422,7 +1422,7 @@ function drawSkills() {
   const usable = (sk) => MR.canCast(game.state, me.id, sk.key) && (!sk.cost || spent + sk.cost <= st.g);
   const btn = (sk) => {
     const on = sk.key in mine, cd = st.cd[sk.key] || 0, can = open && (on || usable(sk));
-    const sub = sk.passive ? 'always on' : sk.ascent ? `${st.asc} left` : cd > 0 ? `in ${cd} round${cd === 1 ? '' : 's'}` : sk.cd ? `every ${sk.cd} rounds` : 'any round';
+    const sub = sk.passive ? 'always on' : sk.ascent ? `${st.asc} left` : cd > 0 ? `in ${cd} round${cd === 1 ? '' : 's'}` : sk.cd ? (sk.cd === 1 ? 'every round' : `every ${sk.cd} rounds`) : 'any round';
     const arg = !on ? '' : sk.target && mine[sk.key] !== me.id ? ` → ${esc(nameOf(mine[sk.key]))}` : sk.options ? ` → ${esc(sk.options[mine[sk.key]]?.split(':')[0] || '')}` : '';
     return `<button type="button" data-sk="${sk.key}" class="${on ? 'on' : ''}${can ? '' : ' no'}${game.skDesc === sk.key ? ' sel' : ''}${sk.origin ? ' org' : sk.ascent ? ' asc' : sk.faction ? ' fac' : ''}" aria-disabled="${!can}">` +
       `<span class="ic">${skillIcon(sk)}${cd > 0 ? `<i class="cd">${cd}</i>` : ''}</span><b>${esc(sk.short || sk.name)}</b><small>${sub}${arg}</small></button>`;
