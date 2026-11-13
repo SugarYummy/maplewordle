@@ -185,7 +185,14 @@ html.dark .intent.good { background: rgba(30, 80, 40, 0.9); }
 .skbar.many { grid-template-columns: repeat(5, 1fr); }   /* big kits: even rows */
 .pvpscreen .skbar button.asc { border-color: #9a6bd8; box-shadow: inset 0 0 0 1px #9a6bd8; }   /* Ascent */
 .pvpscreen .skbar button.fac { border-color: #3aa76d; box-shadow: inset 0 0 0 1px #3aa76d; }   /* faction skill */
-.bf.good { background: rgba(58, 167, 109, 0.25); }
+/* A buff, summon or bind resistance as an icon with the rounds left on it */
+.bfi { position: relative; display: inline-block; margin: 1px 3px 1px 0; line-height: 0; }
+.bfi b { position: absolute; right: -3px; bottom: -3px; min-width: 13px; padding: 0 2px; border-radius: 7px; background: #222; color: #fff; font-size: 10px; line-height: 13px; text-align: center; }
+.bfi i { font-style: normal; font-size: 11px; line-height: 1.2; background: rgba(0, 0, 0, 0.08); border-radius: 4px; padding: 2px 16px 2px 4px; display: inline-block; }
+.bfi.sum .skic { outline: 1px solid #5b8fd6; border-radius: 3px; }
+.skic.off { filter: grayscale(1); }
+.gauge.st { display: block; }
+.gauge .skic.sm, .rev .skic.sm { vertical-align: middle; }
 .pvpscreen .skbar button.org { border-color: #d9a520; box-shadow: inset 0 0 0 1px #d9a520; }   /* the Origin skill */
 .pvpscreen .skbar button { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 3px; font-size: 12px; line-height: 1.2; min-width: 0; }
 .skbar button b { overflow-wrap: anywhere; }

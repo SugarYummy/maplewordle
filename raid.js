@@ -52,7 +52,7 @@ R.DIFFS = {   // hp, atk: checked with tools/raid-sim.js. grow: its attack grows
 // ---------- Skills everyone has ----------
 const COMMON = [
   { key: 'rise', name: 'Aeonian Rise', cd: 4, ph: 1, ai: 'iframe', common: true,
-    desc: () => 'Untouchable this round',
+    desc: () => 'i-frame this round',
     use: (c) => { c.iframe(c.pid); return ''; } },
   { key: 'nova', name: 'Erda Nova', cd: 4, ph: 1, ai: 'bind', common: true,
     desc: () => `Binds the boss this round: its move is cancelled, its defense is 0. It resists binds for the next ${R.RULES.rebind - 1} rounds`,
@@ -74,14 +74,14 @@ R.add = (key, C) => {
   if (C.origin) {   // every class's Origin: a huge hit (or summon) that also binds, and you can't be touched while you cast it
     const o = C.origin, mult = () => (o.mult ?? 8) * (C.originK ?? 1);
     C.skills.push({ key: slug(o.name), name: o.name, short: o.short, cd: R.RULES.originCd, ph: 1, ai: 'origin', origin: true, noReset: true, team: true,
-      desc: (K) => `${o.summon ? `Summon · ${o.summon} rounds · ${dn(K, mult() / o.summon)} a round` : `${dn(K, mult())} damage`}. Binds the boss. Untouchable this round${o.note ? '. ' + o.note : ''}`,
+      desc: (K) => `${o.summon ? `Summon · ${o.summon} rounds · ${dn(K, mult() / o.summon)} a round` : `${dn(K, mult())} damage`}. Binds the boss. i-frame this round${o.note ? '. ' + o.note : ''}`,
       use: (c) => { c.iframe(c.pid); const said = c.bind('origin'); if (o.summon) c.summon(o.name, mult() / o.summon, o.summon); else c.hit(mult(), { n: o.name }); o.then?.(c); return said; } });
   }
   if (C.ascent) {   // every class's Ascent: twice a fight, the same damage whoever you play, and the boss can't touch you that round
     const a = C.ascent;
     C.skills.push({ key: slug(a.name), name: a.name, short: a.short, cd: 0, ph: 1, ai: 'ascent', ascent: true, noReset: true,
       ok: (me) => me.asc > 0,
-      desc: () => `Untouchable this round. ${fmt(R.RULES.ascentDmg)} fixed damage (nothing changes it). ${R.RULES.ascentUses} uses a fight`,
+      desc: () => `i-frame this round. ${fmt(R.RULES.ascentDmg)} fixed damage. ${R.RULES.ascentUses} uses`,
       use: (c) => { c.me.asc--; c.iframe(c.pid); c.hit(1, { n: a.name, flat: R.RULES.ascentDmg }); return ''; } });
   }
   C.byKey = Object.fromEntries([...C.skills, ...COMMON].map((s) => [s.key, s]));
@@ -175,10 +175,10 @@ R.moveText = (mv, boss) => {
     case 'focus': return `🎯 ${boss} targets {p:${mv.pid}}: ${fmt(mv.dmg)}`;
     case 'test': return `🧠 Test: ${fmt(mv.dmg)} to everyone who answers wrong`;
     case 'charge': return `🌀 ${boss} is charging its ultimate`;
-    case 'ult': return `☄️ Ultimate: be untouchable or go down`;
+    case 'ult': return `☄️ Ultimate: i-frame or go down`;
     case 'tired': return `😮‍💨 ${boss} is worn out: takes +${pct(R.RULES.groggy - 1)} damage, hits for ${fmt(mv.dmg)}`;
     case 'heavy': return `🔨 Heavy blow: ${fmt(mv.dmg)} (${fmt(mv.soft)} if you answer right)`;
-    case 'seal': return `🚫 ${fmt(mv.dmg)} to everyone, no potions next round`;
+    case 'seal': return `🚫 ${fmt(mv.dmg)} to everyone, {i:power-elixir} sealed next round`;
     case 'shield': return `🔰 ${boss} shields: half damage this round`;
     case 'heal': return `💗 ${boss} will heal ${fmt(mv.amount)}`;
   }
@@ -242,7 +242,7 @@ R.resolve = (S, inputs, rand = Math.random) => {
           if (!rc.kinds.has(kind)) { rc.kinds.add(kind); if (rc.kinds.size === 2) rc.both = true; return `binds ${b.name}`; }
           return `${b.name} is already bound`;
         }
-        if (S.round < b.bindFree) return `${b.name} resists the bind`;
+        if (S.round < b.bindFree) return `${b.name} resists`;
         rc.bound = true; rc.kinds.add(kind); b.bindFree = S.round + X.rebind; b.binds = (b.binds || 0) + 1;
         b.last = 'bound';   // (whatever it was doing is broken off: no ultimate after a cancelled charge, no rest after a cancelled ultimate)
         return `binds ${b.name}`;
@@ -282,7 +282,7 @@ R.resolve = (S, inputs, rand = Math.random) => {
     if (!sk.common) c.me.lastSkill = sk.key;
     c.C.cast?.(c, sk);
     // (k: 'cast' + name: the page shows these as icons; imp: worth a line of text too)
-    if (said || sk.ph !== 2) say('skills', `{p:${c.pid}} · <b>${sk.short || sk.name}</b>${said ? ' ' + said : ''}`, { pid: c.pid, ic: R.iconOf(sk), k: 'cast', name: sk.name, imp: sk.key === 'nova' || !!sk.origin });
+    if (said || sk.ph !== 2) say('skills', `{p:${c.pid}} · <b>${sk.short || sk.name}</b>${said ? ' ' + said : ''}`, { pid: c.pid, ic: R.iconOf(sk), k: 'cast', name: sk.name, said: said || '', imp: sk.key === 'nova' || !!sk.origin });
   };
   for (const ph of [0, 1]) for (const x of rc.casts) if ((x.sk.ph ?? 2) === ph) run(x);
   if (rc.both) say('skills', `⛓️ 2× bind this round: +${pct(X.bothBind - 1)} FD`, { k: 'bossMove' });
@@ -295,7 +295,7 @@ R.resolve = (S, inputs, rand = Math.random) => {
     for (const s of me.sum) c.hit(s.mult, { n: s.name, free: s.pw ? c.power : 1, sum: true });   // (pw: a summon that follows your Power instead of fighting on its own)
     C.after?.(c);
     const total = c.parts.reduce((a, x) => a + x.d, 0);
-    const icon = (n) => { const base = n.replace(/^✨ /, '').replace(/ ×\d+$/, ''); if (base === C.basic) return slug(C.basic); if (C.partIcons?.[base]) return C.partIcons[base]; const sk = C.skills.find((x) => x.name === base || x.short === base); return sk ? R.iconOf(sk) : null; };
+    const icon = (n) => { const base = n.replace(/^✨ /, '').replace(/ ×\d+$/, ''); if (base === C.basic) return slug(C.basic); if (C.partIcons?.[base]) return C.partIcons[base]; const sk = C.skills.find((x) => x.name === base || x.short === base); return sk ? R.iconOf(sk) : slug(base); };   // (no skill by that name: a trait's hit, its icon is saved under its own name)
     if (total) say('skills', `{p:${pid}} ${c.parts.map((x) => `${x.n} <b>${fmt(x.d)}</b>`).join(' · ')}${c.parts.length > 1 ? ` = <b>${fmt(total)}</b>` : ''}${c.power > 0 ? '' : ' <small>(wrong answer: only summons)</small>'}`, { pid, k: 'atk', amount: total, parts: c.parts.map((x) => ({ n: x.n, d: x.d, ic: icon(x.n) })) });
     else say('skills', `{p:${pid}} ${c.power > 0 ? 'deals no damage' : 'answered wrong: no attack'}`, { pid, k: 'miss' });
     for (const t of c.notes) say('skills', `{p:${pid}} ${t}`, { pid });
@@ -326,7 +326,7 @@ R.resolve = (S, inputs, rand = Math.random) => {
   const hurt = (pid, amount, o = {}) => {
     const p = P(pid), c = ctxs[pid];
     if (!p || p.out) return;
-    if (rc.iframe.has(pid) || p.buffs.some((f) => f.iframe)) return say('boss', `🛡️ {p:${pid}} is untouchable`, { pid, k: 'dodge' });
+    if (rc.iframe.has(pid) || p.buffs.some((f) => f.iframe)) return say('boss', `🛡️ {p:${pid}} i-frame`, { pid, k: 'dodge' });
     if (!o.ult && rc.block.has(pid)) return say('boss', `🌫️ {p:${pid}} is covered`, { pid, k: 'dodge' });
     if (!o.ult) {
       const r = c.C.hitBy?.(c, amount, o);

@@ -186,7 +186,8 @@ function raidPower(items) {
   for (const [q, it] of Object.entries(items)) { all += SCALE[q]; if (it.ok) got += SCALE[q] * MR.RULES.power(it.ms / 1000); }
   return all ? got / all : 0;
 }
-const fillNames = (t, name) => String(t).replace(/\{p:([\w-]+)\}/g, (m, id) => `<b>${esc(name(id))}</b>`);
+const inlineIcons = (html) => String(html).replace(/\{i:([a-z0-9-]+)\}/g, (m, k) => `<img class="skic sm" src="images/skills/${k}.png" alt="" onerror="this.remove()">`);   // {i:slug} = a skill icon inside a line of text
+const fillNames = (t, name) => inlineIcons(String(t).replace(/\{p:([\w-]+)\}/g, (m, id) => `<b>${esc(name(id))}</b>`));
 const skillIcon = (sk, cls = '') => `<img class="skic ${cls}" src="images/skills/${MR.iconOf(sk)}.png" alt="" onerror="this.style.visibility='hidden'">`;
 
 // ============================== A match (runs on the host) ==============================
@@ -1566,7 +1567,7 @@ function drawBoards(state = game?.state) {
     const tags = [...b.vuln.map((v) => `<span class="bf bad" title="Takes more damage">${esc(v.name)} +${Math.round((v.m - 1) * 100)}% · ${v.n}</span>`),
       ...b.weak.map((v) => `<span class="bf bad" title="Hits softer">${esc(v.name)} −${Math.round((1 - v.m) * 100)}% attack · ${v.n}</span>`),
       b.dots.length ? `<span class="bf bad">🔥 ${b.dots.length} burn${b.dots.length === 1 ? '' : 's'}</span>` : '',
-      (g.round || 0) < b.bindFree ? `<span class="bf">⛓️ resists binds until round ${b.bindFree}</span>` : `<span class="bf good">⛓️ Can be bound now: burst!</span>`, b.enraged ? '<span class="bf ult">😡 Enraged</span>' : ''].join('');
+      (g.round || 0) < b.bindFree ? `<span class="bfi" title="Resists binds for ${b.bindFree - g.round} more round${b.bindFree - g.round === 1 ? '' : 's'}"><img class="skic sm off" src="images/skills/erda-nova.png" alt=""><b>${b.bindFree - g.round}</b></span>` : '', b.enraged ? '<span class="bf ult">😡 Enraged</span>' : ''].join('');
     html += `<div class="pvpboss"><img src="${esc(b.image)}" alt=""><div><b>${esc(b.name)}</b> <small class="diff">${esc(MR.DIFFS[b.diff].name)}</small><div class="bar boss"><i style="width:${pct}%"></i></div>` +
       `<small>${f(b.hp)} / ${f(b.max)} HP · ${Math.round(b.def * 100)}% defense</small>${tags ? `<div class="bfs">${tags}</div>` : ''}</div></div>` +
       (b.move ? `<div class="intent${b.move.k === 'ult' || b.move.k === 'charge' ? ' ult' : b.move.k === 'tired' || b.move.k === 'bound' ? ' good' : ''}"><small>${g.revealing ? 'This round' : 'Its move this round'}</small> ${fillNames(esc(MR.moveText(b.move, b.name)), nameOf)}</div>` : '');
@@ -1581,8 +1582,10 @@ function drawBoards(state = game?.state) {
       const C = MR.cls(st.cls);
       const queued = !g.revealing && g.casts?.[p.id] ? Object.keys(g.casts[p.id]).map((k) => { const sk = MR.skill(st.cls, k); return sk ? skillIcon(sk, 'sm') : ''; }).join('') : '';
       const lines = [C.gauge ? `<span class="gauge" title="${esc(C.trait[1])}">${esc(C.gauge.name)} <b>${st.g}</b>/${C.gauge.max}</span>` : '', st.st && C.stances ? `<span class="gauge">${esc(C.stances[st.st] || '')}</span>` : '',
-        C.status?.(st) ? `<span class="gauge">${esc(C.status(st))}</span>` : ''].join('');
-      const buffs = [...st.buffs.map((f) => `<span class="bf" title="${esc(MR.h.buffWords(f) || f.name)}">${esc(f.name)} · ${f.n}</span>`), ...st.sum.map((x) => `<span class="bf sum" title="Summon">${esc(x.name)} · ${x.n}</span>`)].join('');
+        ...(C.status?.(st) ? String(C.status(st)).split('\n').map((x) => `<span class="gauge st">${inlineIcons(esc(x))}</span>`) : [])].join('');
+      const chip = (ic, name, n, tip, cls) => `<span class="bfi ${cls}" title="${esc(tip)}"><img class="skic sm" src="images/skills/${esc(ic)}.png" alt="${esc(name)}" onerror="this.replaceWith(Object.assign(document.createElement('i'), { textContent: this.alt }))"><b>${n}</b></span>`;
+      const buffs = [...st.buffs.map((f) => chip(f.ic || f.k, f.name, f.n, `${f.name}${MR.h.buffWords(f) ? ': ' + MR.h.buffWords(f) : ''} · ${f.n} round${f.n === 1 ? '' : 's'}`, '')),
+        ...st.sum.map((x) => chip(MR.slug(x.name), x.name, x.n, `${x.name} · ${x.n} round${x.n === 1 ? '' : 's'}`, 'sum'))].join('');
       stat = `<div class="rcwho"><img src="images/classes/${st.cls}.png" alt=""><span>${esc(C.name)}</span></div>` +
         `<div class="bar"><i style="width:${clamp(st.hp / st.maxHp * 100, 0, 100)}%"></i></div><small>${Math.max(0, st.hp).toLocaleString('en-US')} / ${st.maxHp.toLocaleString('en-US')} HP</small>` +
         `<div class="hearts">${st.lives > 0 ? '❤️'.repeat(Math.min(st.lives, 20)) : '🖤'}</div>` +
@@ -1651,7 +1654,7 @@ async function onReveal(r) {
     } else if (st.s === 'skills') {
       // Boss Raid: icons, not sentences. Everyone's buffs and guards first, one player after another, then everyone's damage.
       const sk = r.ev.filter((e) => e.k === 'raid' && e.s === 'skills'), tick = () => new Promise((res) => setTimeout(res, RAID_TICK));
-      const icon = (ic, title) => `<img class="skic sm" src="images/skills/${esc(ic)}.png" alt="" title="${esc(title)}" onerror="this.replaceWith(Object.assign(document.createElement('i'), { className: 'noic', textContent: this.title.slice(0, 14) }))">`;
+      const icon = (ic, title) => `<img class="skic sm" src="images/skills/${esc(ic)}.png" alt="" title="${esc(title)}" onerror="this.replaceWith(Object.assign(document.createElement('i'), { className: 'noic', textContent: this.title }))">`;
       const plain = (e) => fillNames(e.t, name).replace(/<[^>]+>/g, '');
       for (const p of pl) {
         if (!game || game.id !== r.id) return;
@@ -1669,7 +1672,7 @@ async function onReveal(r) {
         const a = sk.find((e) => e.kind === 'atk' && e.pid === p.id), td = box.querySelector(`tr.rdm td[data-pid="${p.id}"]`);
         if (a) {
           party += a.amount;
-          td.innerHTML = `<span class="dps">${a.parts.map((x) => `<span class="dp" title="${esc(x.n)}: ${x.d.toLocaleString('en-US')}">${x.ic ? icon(x.ic, x.n) : `<i class="noic">${esc(x.n.slice(0, 14))}</i>`}<small>${shortNum(x.d)}</small></span>`).join('')}</span><b class="dtot">${a.amount.toLocaleString('en-US')}</b>`;
+          td.innerHTML = `<span class="dps">${a.parts.map((x) => `<span class="dp" title="${esc(x.n)}: ${x.d.toLocaleString('en-US')}">${x.ic ? icon(x.ic, x.n) : `<i class="noic">${esc(x.n)}</i>`}<small>${shortNum(x.d)}</small></span>`).join('')}</span><b class="dtot">${a.amount.toLocaleString('en-US')}</b>`;
           sfx('click');
         } else td.innerHTML = `<span class="none">${r.per[p.id].total > 0 ? 'no damage' : '–'}</span>`;
         box.querySelector('tr.rdm .party').textContent = `party ${party.toLocaleString('en-US')}`;
@@ -1714,7 +1717,13 @@ function evText(e, name, r) {
     case 'random': return `🎲 Random pick: ${n(e.pid)}`;
     case 'point': return `🐢 3+ even rounds: ${n(e.pid)} was the slowest and loses a point`;
     case 'pts': return e.pts ? `⭐ ${n(e.pid)} +${e.pts} point${e.pts === 1 ? '' : 's'}` : '';
-    case 'raid': return `<span class="rev ${e.kind || ''}">${e.ic ? `<img class="skic sm" src="images/skills/${esc(e.ic)}.png" alt="" onerror="this.remove()"> ` : ''}${fillNames(e.t, name)}</span>`;   // (the raid's own words: raid.js)
+    case 'raid': if (e.kind === 'cast' && e.imp && game?.state?.boss) {   // a bind: (class) Name uses (skill) Skill to bind (boss) Boss
+        const b = game.state.boss, cls = game.state.players[e.pid]?.cls, pic = (src) => `<img class="skic sm" src="${esc(src)}" alt="" onerror="this.remove()">`;
+        const who = `${cls ? pic(`images/classes/${cls}.png`) + ' ' : ''}${n(e.pid)} uses ${pic(`images/skills/${e.ic}.png`)} <b>${esc(e.name)}</b>`, boss = `${pic(b.image)} <b>${esc(b.name)}</b>`;
+        return `<span class="rev cast">${/^binds /.test(e.said) ? `${who} to bind ${boss}` : `${who}: ${boss} ${/resists/.test(e.said) ? 'resists' : 'is already bound'}`}</span>`;
+      }
+      if (e.kind === 'cast' && e.ic && e.said != null) return `<span class="rev cast"><img class="skic sm" src="images/skills/${esc(e.ic)}.png" alt="${esc(e.name || '')}" title="${esc(e.name || '')}"> ${n(e.pid)} ${fillNames(e.said, name)}</span>`;
+      return `<span class="rev ${e.kind || ''}">${e.ic ? `<img class="skic sm" src="images/skills/${esc(e.ic)}.png" alt="" onerror="this.remove()"> ` : ''}${fillNames(e.t, name)}</span>`;   // (the raid's own words: raid.js)
     case 'tiebreak': return '⚖️ A draw: a speed tiebreak decides (first right BGM wins)';
   }
   return '';
@@ -1823,7 +1832,7 @@ $('pvpVol').value = bgmVolume();
 $('pvpVol').addEventListener('input', () => { lsSet('mapleWordle:bgmVolume', $('pvpVol').value); if (music.gain) music.gain.gain.value = musicLevel(); });
 
 // ---------- How to play ----------
-$('infoBody').innerHTML = `
+$('infoBody').innerHTML = inlineIcons(`
 <p>A boss BGM plays from the start and loops until the round's time is up. Answer each question once: picking (or
 pressing Enter) locks it in. Nobody sees what's right until the reveal.</p>
 <p><b>Damage</b> for a right answer depends on how fast you locked it in (from when your music started):
@@ -1840,14 +1849,14 @@ more than half the rounds (best of 3, 5 or 7) wins.</li>
 <br><b>Skills</b>: pick them while the music plays. Cooldowns are in rounds (1 minute in the game = 2 rounds).
 <br><b>Boss</b>: it shows its move, you act, then it moves. Round 20 is the last. 0 HP = a life lost.
 <br><b>Bind</b> (Erda Nova, Origin): cancels the boss's move this round, its defense is 0. It resists for 2 rounds after. Origin + Erda Nova together: +20% FD.
-<br><b>Origin</b> (gold): every 12 rounds. Binds, untouchable. <b>Ascent</b> (purple): 2 uses, untouchable, fixed damage.
-<b>Faction skill</b> (green). <b>Aeonian Rise</b>: untouchable. <b>Power Elixir</b>: full heal.
+<br><b>Origin</b> (gold): every 12 rounds. Binds, i-frame. <b>Ascent</b> (purple): 2 uses, i-frame, fixed damage.
+<b>Faction skill</b> (green). {i:aeonian-rise} i-frame. {i:power-elixir} full heal. {i:erda-nova} bind.
 <br><b>FD</b> = final damage: it multiplies everything else.</li>
 <li><b>Free-for-all</b>: each round, everyone loses HP by how far they were behind the round's top damage.</li>
 <li><b>Tournament</b>: a bracket of 1v1 HP matches; a draw goes to a speed tiebreak (fastest right BGM).</li>
 </ul>
 <p>From the 3rd round in a row where nothing changes, the slowest player loses 100 HP / a life. Round 20 is the last
-round: the most HP / lives / points / round wins takes it.</p>`;
+round: the most HP / lives / points / round wins takes it.</p>`);
 $('howBtn').addEventListener('click', () => { $('info').hidden = false; });
 $('infoClose').addEventListener('click', () => { $('info').hidden = true; });
 

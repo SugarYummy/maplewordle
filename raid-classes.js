@@ -66,9 +66,9 @@ const FACTIONS = {
   'explorer-pirate': party("Pirate's Banner", 4, 1, { dmg: 1.12 }),
   'cygnus': m1('Phalanx Charge', 1.2),
   'hero': { name: "Freud's Wisdom", cd: 12, ph: 0, ai: 'buff',
-    desc: () => 'Untouchable 2 rounds. +25% FD 4 rounds',
+    desc: () => 'i-frame 2 rounds. +25% FD 4 rounds',
     bot: (S, pid, x) => (x.inWin && x.know) || (x.mv.k === 'ult' && !x.inWin && !('rise' in x.out)),
-    use: (c) => { c.iframe(c.pid); c.buff(c.pid, { k: 'freuds-guard', n: 2, name: "Freud's Wisdom (untouchable)", iframe: true }); c.buff(c.pid, { k: 'freuds-wisdom', n: 4, name: "Freud's Wisdom", dmg: 1.25 }); return 'untouchable 2 rounds, +25% FD 4 rounds'; } },
+    use: (c) => { c.iframe(c.pid); c.buff(c.pid, { k: 'freuds-guard', n: 2, name: "Freud's Wisdom: i-frame", ic: 'freuds-wisdom', iframe: true }); c.buff(c.pid, { k: 'freuds-wisdom', n: 4, name: "Freud's Wisdom", dmg: 1.25 }); return 'i-frame 2 rounds, +25% FD 4 rounds'; } },
   'resistance': summon('Resistance Infantry', 2, 0.9, 1),
   'demon': { name: 'Defender of the Demon', cd: 4, ph: 0, ai: 'buff', team: true,
     desc: (C) => `Party · 2 rounds: −25% damage taken. ${dn(C, 1)} damage`,
@@ -473,11 +473,11 @@ add('kanna', { name: 'Kanna', role: 'Summoner', hp: 900, basic: 'Soul-Shatter Ta
   start: (c) => { if (c.me.v.haku != null) c.iframe(c.pid); },
   after: (c) => { const v = c.me.v; if (v.haku != null) { c.hit(2.6, { n: 'Haku', free: v.haku }); v.haku = null; } if (c.hasBuff('haku')) v.haku = c.power;
     const p = (c.hasBuff('call-of-unity') ? 0.5 : 0.1) * Math.min(1, c.power), got = [];
-    if (p > 0) for (const sm of c.me.sum.slice()) { const to = SHIKI[sm.name]; if (!to) continue; let n = 0; for (let i = 0; i < 10; i++) if (c.rand() < p) n++; if (n) { c.hit(RES * n, { n: `✨ ${to[1]} ×${n}`, sum: true }); got.push(`${to[1]} ×${n}`); } }
-    v.res = got.join(', '); },
-  status: (me) => [me.v.haku != null ? '🦊 Haku strikes this round: you can’t be touched' : '', me.v.res ? `✨ Resonance last round: ${me.v.res}` : ''].filter(Boolean).join(' · ') || null,
+    if (p > 0) for (const sm of c.me.sum.slice()) { const to = SHIKI[sm.name]; if (!to) continue; let n = 0; for (let i = 0; i < 10; i++) if (c.rand() < p) n++; if (n) { c.hit(RES * n, { n: `✨ ${to[1]} ×${n}`, sum: true }); got.push(`{i:order-${R.slug(to[1])}}×${n}`); } }
+    v.res = got.join(' '); },
+  status: (me) => [me.v.haku != null ? '{i:spirit-hakumenkonmou-juubi} attacks · i-frame' : '', me.v.res ? `Last round: ${me.v.res}` : ''].filter(Boolean).join('\n') || null,
   skills: [summon('Summon Oni', 2, 0.9, 2, { pw: true }), summon('Summon Tengu', 2, 1.3, 1, { pw: true }), summon('Summon Orochi', 4, 2.4, 1, { pw: true }),
-    { name: '[Spirit] Hakumenkonmou Juubi', short: 'Haku', cd: 4, ph: 0, ai: 'burst', desc: (C) => `This round: Shikigami +40%. Next round: untouchable, Haku hits for ${dn(C, 2.6)} × this round's Power`,
+    { name: '[Spirit] Hakumenkonmou Juubi', short: 'Haku', cd: 4, ph: 0, ai: 'burst', desc: (C) => `This round: Shikigami +40%. Next round: i-frame, Haku hits for ${dn(C, 2.6)} × this round's Power`,
       use: (c) => { c.buff(c.pid, { k: 'haku', n: 1, name: 'Haku' }); return 'Shikigami +40% this round; Haku strikes next round'; } },
     { name: 'Call of Unity', cd: 2, ph: 0, ai: 'buff', desc: () => 'This round: Shikigami +15%, Resonance 50%', bot: (S, pid, x) => x.know,
       use: (c) => { c.buff(c.pid, { k: 'call-of-unity', n: 1, name: 'Call of Unity' }); return 'Shikigami +15%, Resonance 50% this round'; } },
