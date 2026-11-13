@@ -116,7 +116,7 @@ R.h = {
   party: (name, cd, n, b, o = {}) => ({ name, cd, ph: 0, ai: 'buff', team: true, ...o,
     desc: () => `Whole party, ${rounds(n)}: ${buffWords(b)}${o.note ? '. ' + o.note : ''}`,
     use: (c) => { c.party({ k: slug(name), n, name, ...b }); return o.then?.(c) || `the party gets ${buffWords(b)} for ${rounds(n)}`; } }),
-  ally: (name, cd, n, b, o = {}) => ({ name, cd, ph: 0, ai: 'buff', target: true, ...o,
+  ally: (name, cd, n, b, o = {}) => ({ name, cd, ph: 0, ai: 'buff', target: true, team: true, ...o,
     desc: () => `One player, ${rounds(n)}: ${buffWords(b)}${o.note ? '. ' + o.note : ''}`,
     use: (c, t) => { const to = c.ally(t); c.buff(to, { k: slug(name), n, name, ...b }); return `{p:${to}} gets ${buffWords(b)} for ${rounds(n)}`; } }),
   // The boss takes more damage from everyone
@@ -281,7 +281,8 @@ R.resolve = (S, inputs, rand = Math.random) => {
     c.me.last = sk.key;
     if (!sk.common) c.me.lastSkill = sk.key;
     c.C.cast?.(c, sk);
-    if (said) say('skills', `{p:${c.pid}} ${sk.ph === 2 ? '' : `uses <b>${sk.name}</b>: `}${said}`, { pid: c.pid, ic: R.iconOf(sk) });
+    // (k: 'cast' + name: the page shows these as icons; imp: worth a line of text too)
+    if (said || sk.ph !== 2) say('skills', `{p:${c.pid}} ${sk.ph === 2 ? '' : `uses <b>${sk.name}</b>${said ? ': ' : ''}`}${said || ''}`, { pid: c.pid, ic: R.iconOf(sk), k: 'cast', name: sk.name, imp: sk.key === 'nova' || !!sk.origin });
   };
   for (const ph of [0, 1]) for (const x of rc.casts) if ((x.sk.ph ?? 2) === ph) run(x);
   if (mv.k === 'shield' && !rc.bound) say('skills', rc.dispel ? `🔰 ${b.name}'s shield is torn away` : R.moveText(mv, b.name), { k: 'bossMove' });
@@ -293,7 +294,8 @@ R.resolve = (S, inputs, rand = Math.random) => {
     for (const s of me.sum) c.hit(s.mult, { n: s.name, free: s.pw ? c.power : 1, sum: true });   // (pw: a summon that follows your Power instead of fighting on its own)
     C.after?.(c);
     const total = c.parts.reduce((a, x) => a + x.d, 0);
-    if (total) say('skills', `{p:${pid}} ${c.parts.map((x) => `${x.n} <b>${fmt(x.d)}</b>`).join(' · ')}${c.parts.length > 1 ? ` = <b>${fmt(total)}</b>` : ''}${c.power > 0 ? '' : ' <small>(wrong answer: only summons)</small>'}`, { pid, k: 'atk', amount: total });
+    const icon = (n) => { const base = n.replace(/^✨ /, '').replace(/ ×\d+$/, ''); if (base === C.basic) return slug(C.basic); if (C.partIcons?.[base]) return C.partIcons[base]; const sk = C.skills.find((x) => x.name === base || x.short === base); return sk ? R.iconOf(sk) : null; };
+    if (total) say('skills', `{p:${pid}} ${c.parts.map((x) => `${x.n} <b>${fmt(x.d)}</b>`).join(' · ')}${c.parts.length > 1 ? ` = <b>${fmt(total)}</b>` : ''}${c.power > 0 ? '' : ' <small>(wrong answer: only summons)</small>'}`, { pid, k: 'atk', amount: total, parts: c.parts.map((x) => ({ n: x.n, d: x.d, ic: icon(x.n) })) });
     else say('skills', `{p:${pid}} ${c.power > 0 ? 'deals no damage' : 'answered wrong: no attack'}`, { pid, k: 'miss' });
     for (const t of c.notes) say('skills', `{p:${pid}} ${t}`, { pid });
     c.notes.length = 0;

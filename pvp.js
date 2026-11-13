@@ -512,14 +512,16 @@ class Match {
 // How long the reveal takes on screen (the host waits that long before the next round).
 const STEP = { answer: 900, scores: 1300, totals: 1100, skills: 1800, boss: 1800, apply: 2300 };
 const stepMs = (st) => st.ms ?? STEP[st.s];
+const RAID_TICK = 260;   // Boss Raid results: the pause between one player's cell and the next
 function revealSteps(r) {
   const steps = [];
   for (const q of QS) if (r.qs[q]) steps.push({ s: 'answer', q }, { s: 'scores', q });
   if (Object.keys(r.qs).length > 1 || r.mode === 'raid') steps.push({ s: 'totals' });
   if (r.mode === 'raid') {   // the party's skills and attacks, then the boss: a moment longer the more there is to read
     const n = (s) => r.ev.filter((e) => e.k === 'raid' && e.s === s).length;
-    if (n('skills')) steps.push({ s: 'skills', ms: Math.min(6500, 1200 + 500 * n('skills')) });
-    if (n('boss')) steps.push({ s: 'boss', ms: Math.min(5000, 1200 + 450 * n('boss')) });
+    const np = Object.keys(r.per).length;   // (skills, then damage: one player after another)
+    if (n('skills')) steps.push({ s: 'skills', ms: 1500 + RAID_TICK * 2 * np });
+    if (n('boss')) steps.push({ s: 'boss', ms: 2200 });
   }
   steps.push({ s: 'apply' });
   return steps;
@@ -1619,6 +1621,7 @@ async function onReveal(r) {
   box.innerHTML = `<h3>${r.state.tb ? 'Tiebreak' : 'Round ' + r.round} results</h3><div class="table-wrap"><table class="pvprev"><thead><tr><th></th>${pl.map((p) => `<th>${esc(p.name)}${p.id === me.id ? ' (you)' : ''}</th>`).join('')}</tr></thead><tbody>` +
     qList.map((q) => `<tr data-q="${q}"><th><span class="qn">${QNAME[q]}</span><span class="ans"></span></th>${pl.map((p) => `<td data-pid="${p.id}"></td>`).join('')}</tr>`).join('') +
     (qList.length > 1 || game.mode === 'raid' ? `<tr class="tot"><th>${game.mode === 'raid' ? 'Power' : 'Total'}</th>${pl.map((p) => `<td data-pid="${p.id}"></td>`).join('')}</tr>` : '') +
+    (game.mode === 'raid' ? `<tr class="rsk"><th>Skills</th>${pl.map((p) => `<td data-pid="${p.id}"></td>`).join('')}</tr><tr class="rdm"><th>Damage<small class="party"></small></th>${pl.map((p) => `<td data-pid="${p.id}"></td>`).join('')}</tr><tr class="rbs"><th>Boss</th>${pl.map((p) => `<td data-pid="${p.id}"></td>`).join('')}</tr>` : '') +
     `</tbody></table></div><div class="apply"></div>`;
   box.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   const pts = game.mode === 'first', speed = game.mode === 'best' || r.state.tb, raid = game.mode === 'raid';
@@ -1646,9 +1649,41 @@ async function onReveal(r) {
     } else if (st.s === 'totals') {
       for (const p of pl) box.querySelector(`tr.tot td[data-pid="${p.id}"]`).innerHTML = `<b>${pts ? '+' + r.per[p.id].pts + ' pts' : raid ? r.per[p.id].total + '%' : r.per[p.id].total + ' dmg'}</b>`;
     } else if (st.s === 'skills') {
-      showEv((e) => e.k === 'raid' && e.s === 'skills');
-      sfx('click');
+      // Boss Raid: icons, not sentences. Everyone's buffs and guards first, one player after another, then everyone's damage.
+      const sk = r.ev.filter((e) => e.k === 'raid' && e.s === 'skills'), tick = () => new Promise((res) => setTimeout(res, RAID_TICK));
+      const icon = (ic, title) => `<img class="skic sm" src="images/skills/${esc(ic)}.png" alt="" title="${esc(title)}" onerror="this.replaceWith(Object.assign(document.createElement('i'), { className: 'noic', textContent: this.title.slice(0, 14) }))">`;
+      const plain = (e) => fillNames(e.t, name).replace(/<[^>]+>/g, '');
+      for (const p of pl) {
+        if (!game || game.id !== r.id) return;
+        const mine = sk.filter((e) => e.kind === 'cast' && e.pid === p.id && !(r.ev.find((x) => x.kind === 'atk' && x.pid === p.id)?.parts || []).some((x) => x.n === e.name));
+        box.querySelector(`tr.rsk td[data-pid="${p.id}"]`).innerHTML = mine.map((e) => icon(e.ic, plain(e))).join('') || '<span class="none">–</span>';
+        if (mine.length) sfx('click');
+        await tick();
+      }
+      for (const [, i] of r.ev.map((e, i) => [e, i]).filter(([e]) => e.k === 'raid' && e.s === 'skills' && (e.kind === 'cast' || e.kind === 'atk' || e.kind === 'miss'))) shownEv.add(i);
+      showEv((e) => e.k === 'raid' && e.s === 'skills' && e.kind === 'bossMove');
+      box.querySelector('.apply').insertAdjacentHTML('beforeend', sk.filter((e) => e.kind === 'cast' && e.imp).map((e) => `<p>${evText(e, name, r)}</p>`).join(''));
+      let party = 0;
+      for (const p of pl) {
+        if (!game || game.id !== r.id) return;
+        const a = sk.find((e) => e.kind === 'atk' && e.pid === p.id), td = box.querySelector(`tr.rdm td[data-pid="${p.id}"]`);
+        if (a) {
+          party += a.amount;
+          td.innerHTML = `<span class="dps">${a.parts.map((x) => `<span class="dp" title="${esc(x.n)}: ${x.d.toLocaleString('en-US')}">${x.ic ? icon(x.ic, x.n) : `<i class="noic">${esc(x.n.slice(0, 14))}</i>`}<small>${shortNum(x.d)}</small></span>`).join('')}</span><b class="dtot">${a.amount.toLocaleString('en-US')}</b>`;
+          sfx('click');
+        } else td.innerHTML = `<span class="none">${r.per[p.id].total > 0 ? 'no damage' : '–'}</span>`;
+        box.querySelector('tr.rdm .party').textContent = `party ${party.toLocaleString('en-US')}`;
+        await tick();
+      }
+      showEv((e) => e.k === 'raid' && e.s === 'skills');   // (what is left: Resonance, Recharge and the like)
+      await new Promise((res) => setTimeout(res, 1500)); continue;
     } else if (st.s === 'boss') {
+      const bs = r.ev.filter((e) => e.k === 'raid' && e.s === 'boss');
+      for (const p of pl) {
+        const mine = bs.filter((e) => e.pid === p.id);
+        box.querySelector(`tr.rbs td[data-pid="${p.id}"]`).innerHTML = mine.map((e) => e.kind === 'bossHit' ? `<b class="hurt" title="${esc(fillNames(e.t, name).replace(/<[^>]+>/g, ''))}">−${e.amount.toLocaleString('en-US')}</b>` : e.kind === 'dodge' ? '<span title="No damage">🛡️</span>' : e.kind === 'life' ? '<span title="Lost a life">💔</span>' : e.kind === 'out' ? '<span title="Out">☠️</span>' : '').join(' ') || '<span class="none">–</span>';
+      }
+      for (const [, i] of r.ev.map((e, i) => [e, i]).filter(([e]) => e.k === 'raid' && e.s === 'boss' && (e.kind === 'bossHit' || e.kind === 'dodge'))) shownEv.add(i);
       showEv((e) => e.k === 'raid' && e.s === 'boss');
     } else if (st.s === 'apply') {
       showEv(() => true);
@@ -1662,6 +1697,7 @@ async function onReveal(r) {
   }
   if (!r.state.over) stopMusic(1.5);
 }
+const shortNum = (x) => (x >= 1e6 ? (x / 1e6).toFixed(2) + 'M' : x >= 1e4 ? Math.round(x / 1e3) + 'k' : x >= 1e3 ? (x / 1e3).toFixed(1) + 'k' : String(x));
 function evText(e, name, r) {
   const n = (id) => `<b>${esc(name(id))}</b>`;
   switch (e.k) {

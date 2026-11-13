@@ -37,7 +37,9 @@ R.TUNE = TUNE; R.ORIGIN = ORIGIN;
 
 // ---------- Helpers ----------
 const lowest = (c, notMe) => c.alive().filter((id) => !notMe || id !== c.pid).sort((x, y) => c.S.players[x].hp / c.S.players[x].maxHp - c.S.players[y].hp / c.S.players[y].maxHp)[0];
-const otherAlly = (S, pid, ids) => { const o = ids.filter((id) => id !== pid); return o.length ? o[Math.floor(Math.random() * o.length)] : pid; };
+// Who a bot gives its one-player buff to: a real player if there is one (the one who has dealt the most so far), else the bot that has
+const otherAlly = (S, pid, ids) => { const o = ids.filter((id) => id !== pid); if (!o.length) return pid; const real = o.filter((id) => !S.players[id].bot), pool = real.length ? real : o;
+  return pool.sort((x, y) => (S.stats?.[y]?.dmg || 0) - (S.stats?.[x]?.dmg || 0))[0]; };
 // A skill that also costs some of the class's gauge
 const spend = (n, word, sk) => ({ ...sk, cost: n,
   ok: (me, S) => me.g >= n && (!sk.ok || sk.ok(me, S)),
@@ -625,7 +627,7 @@ add('zero', { name: 'Zero', role: 'Damage / Support', hp: 1150, basic: 'Giga Cra
     party('Time Distortion', 8, 2, { dmg: 1.12 }),
     atk('Shadow Rain', 10, 3.0)] });
 
-add('lethe', { name: 'Lethe', role: 'Summoner', hp: 900, basic: 'Majeure', fac: 'lethe', origin: { name: 'Dominus: Eye of Eternity', short: 'Eye of Eternity' }, ascent: { name: 'Sovereign Everlasting' },
+add('lethe', { name: 'Lethe', role: 'Summoner', hp: 900, basic: 'Majeure', partIcons: { Vassals: 'majeure' }, fac: 'lethe', origin: { name: 'Dominus: Eye of Eternity', short: 'Eye of Eternity' }, ascent: { name: 'Sovereign Everlasting' },
   trait: ['Vassals', 'You never strike the boss yourself. Majeure drives your vassals (imps, Vargr, Dread Knights): every round you answer right they attack with your Power. Edicts are orders to them. Chains of Command makes all of them hit 50% harder.'],
   mult: (c) => (c.hasBuff('chains-of-command') ? 1.5 : 1),
   basicHit: (c) => { c.hit(1, { n: 'Vassals', sum: true }); },

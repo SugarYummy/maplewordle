@@ -220,6 +220,16 @@ html.dark .intent.good { background: rgba(30, 80, 40, 0.9); }
 .pvprev td .pick { word-break: break-word; }
 .pvprev td .none { opacity: 0.6; font-style: italic; }
 .pvprev .gain { display: block; color: #1b8a2e; font-size: 15px; }
+/* Boss Raid results: skills and damage as icons, a column per player */
+.pvprev tr.rsk td, .pvprev tr.rdm td { vertical-align: top; }
+.pvprev tr.rsk .skic { margin: 1px; }
+.pvprev .dps { display: flex; flex-wrap: wrap; justify-content: center; gap: 3px 5px; }
+.pvprev .dp { display: inline-flex; flex-direction: column; align-items: center; min-width: 26px; }
+.pvprev .dp small { font-size: 10px; opacity: 0.85; }
+.pvprev .noic { font-style: normal; font-size: 10px; line-height: 1.1; max-width: 60px; display: inline-block; background: rgba(0, 0, 0, 0.08); border-radius: 4px; padding: 2px 3px; overflow-wrap: anywhere; }
+.pvprev .dtot { display: block; margin-top: 3px; font-size: 15px; color: #1b8a2e; }
+.pvprev .party { display: block; font-weight: normal; font-size: 11px; opacity: 0.75; }
+.pvprev .hurt { color: #c0392b; }
 .pvprev td.ok { background: rgba(64, 192, 87, 0.13); }
 .pvprev td.no { background: rgba(250, 82, 82, 0.1); }
 .pvprev tr.tot th, .pvprev tr.tot td { border-bottom: 0; font-size: 15px; }
