@@ -3,11 +3,12 @@
 //
 // A round: the boss shows its move; the music plays; everyone answers and picks skills, then ends their turn.
 //   Power   = how well you answered (0 = wrong; right = 50% + up to 50% more for speed). Every attack is x your Power.
-//   Skills  = your class's (raid-classes.js: three skills + its Origin) + three everyone has. A skill used in round r
-//             is back in round r + cd: cd = the skill's cooldown in the game / 30 s (2 minutes = 4 rounds).
-//   Binds   = Erda Nova, every Origin and a few class skills. A bound boss can't move and has NO DEFENSE: the round to
-//             burst. After a bind it can be bound again 3 rounds later (the game: 120 s cooldown, 100 s resistance).
-//             Two binds in the same round keep it bound for 2 rounds.
+//   Skills  = your class's (raid-classes.js: skills every 2 rounds = the game's 1-minute skills, every 4 rounds = its
+//             2-minute burst, its Origin every 12, its Ascent twice a fight, its faction's skill) + three everyone has.
+//             A skill used in round r is back in round r + cd: cd = the cooldown in the game / 30 s.
+//   Binds   = Erda Nova and every Origin. A bind cancels what the boss was about to do THIS round and strips its
+//             defense: the round to burst. It can be bound again 4 rounds later. Origin + Erda Nova in the same round
+//             don't hold it any longer: everyone just hits harder that round.
 //   Order   = buffs and stances, then guards / heals / binds, then everyone attacks (your main attack is free, every
 //             round you're right), summons and burns, then the boss does its move, then cooldowns tick.
 (function (root) {
@@ -23,24 +24,28 @@ R.RULES = {
   cdSeconds: 30,                                   // one round of cooldown = 30 s in the game
   power: (sec) => 0.5 + 0.5 * 0.6 ** (Math.max(0, sec) / 10),   // a right answer: 100% at 0 s, 80% at 10 s, 68% at 20 s
   bossHp: 150000,                                  // per player, Normal
-  attack: (round, grow = 1.13) => 150 * grow ** (round - 1),   // the boss's normal attack (everyone), before its difficulty: it grows every round, so a fight can't be dragged out
-  focus: 2.4,                                      // Focus: one player, x this
+  attack: (round, grow = 1.04) => 220 * grow ** (round - 1),   // the boss's normal attack (everyone), before its difficulty: it grows a little every round
+  focus: 1.7,                                      // Focus: one player, x this
   test: 1.6,                                       // Test: everyone who answered wrong, x this
+  heavy: 2.3, heavyRight: 0.7,                     // Heavy blow: x this if you answered wrong / right (a right answer braces you)
+  seal: 0.8,                                       // Seal: a weaker hit, and nobody can drink a potion next round
   tired: 0.5,                                      // the round after its ultimate: a weak attack...
   groggy: 1.5,                                     // ...and it takes x this damage
-  bossHeal: 0.07, shield: 0.5,
-  enrageAt: 0.3, enrage: 1.3,                      // under 30% HP its attacks hit x1.3
-  pots: 3, potHeal: 0.5,
-  rebind: 3,                                       // a boss bound in round r can be bound again in round r + 3 (the bind cooldown - 1)
+  bossHeal: 0.06, shield: 0.5,
+  enrageAt: 0.3, enrage: 1.25,                     // under 30% HP its attacks hit harder
+  potCd: 2,                                        // Power Elixir: a full heal, as often as you like, with a wait (the game's potion cooldown)
+  rebind: 4,                                       // a boss bound in round r can be bound again in round r + 4 (Erda Nova's cooldown)
   boundDef: 0,                                     // a bound boss's defense x this (0 = none: burst now)
-  originCd: 18,                                    // every class's Origin skill
-  partyHp: 0.06, partyAtk: 0.05,                   // a bigger party: the boss has this much more HP (per player) and attack, per extra player
+  bothBind: 1.2,                                   // bound by an Origin AND by Erda Nova in one round: everyone's damage x this
+  originCd: 12,                                    // every class's Origin: 6 minutes, so every third burst
+  ascentUses: 2, ascentDmg: 60000,                 // every class's Ascent: twice a fight, the same damage for everyone (tools/raid-sim.js chart sets it)
+  partyHp: 0.03, partyAtk: 0.04,                   // a bigger party: the boss has this much more HP (per player) and attack, per extra player
 };
-R.DIFFS = {   // hp, atk: checked with tools/raid-sim.js diff. grow: its attack grows this much a round. ultGap: rounds between ultimates, at least. cap: the last round (the time limit)
-  easy:    { name: 'Easy',    hp: 0.8, atk: 1.0, def: 0.15, grow: 1.1,  ultGap: 5, cap: 20 },
-  normal:  { name: 'Normal',  hp: 1.1, atk: 1.5, def: 0.25, grow: 1.13, ultGap: 4, cap: 20 },
-  hard:    { name: 'Hard',    hp: 1.45, atk: 2.0, def: 0.35, grow: 1.16, ultGap: 4, cap: 18 },
-  extreme: { name: 'Extreme', hp: 1.8, atk: 2.6, def: 0.45, grow: 1.19, ultGap: 3, cap: 16 },
+R.DIFFS = {   // hp, atk: checked with tools/raid-sim.js. grow: its attack grows this much a round. ultGap: rounds between ultimates, at least. cap: the last round (the time limit)
+  easy:    { name: 'Easy',    hp: 1.2, atk: 0.75, def: 0.15, grow: 1.04, ultGap: 6, cap: 13 },
+  normal:  { name: 'Normal',  hp: 1.7, atk: 0.95, def: 0.25, grow: 1.05, ultGap: 5, cap: 13 },
+  hard:    { name: 'Hard',    hp: 2.6, atk: 1.15, def: 0.35, grow: 1.06, ultGap: 4, cap: 13 },
+  extreme: { name: 'Extreme', hp: 3.7, atk: 1.4, def: 0.45, grow: 1.07, ultGap: 4, cap: 13 },
 };
 
 // ---------- Skills everyone has ----------
@@ -49,12 +54,12 @@ const COMMON = [
     desc: () => 'Genesis weapon: you take no damage this round, even from an ultimate',
     use: (c) => { c.iframe(c.pid); return 'is untouchable this round'; } },
   { key: 'nova', name: 'Erda Nova', cd: 4, ph: 1, ai: 'bind', common: true,
-    desc: () => `Bind the boss: it can't move this round (its ultimate still lands) and has no defense: burst now. It can be bound again ${R.RULES.rebind} rounds later. Two binds in one round = bound for 2 rounds`,
-    use: (c) => c.bind() },
-  { key: 'pot', name: 'Power Elixir', cd: 0, ph: 1, ai: 'pot', common: true, icon: 'power-elixir',
-    desc: () => `Heal ${pct(R.RULES.potHeal)} of your HP. ${R.RULES.pots} per fight`,
-    ok: (me) => me.pots > 0,
-    use: (c) => { c.me.pots--; return `drinks it: +${fmt(c.heal(c.pid, R.RULES.potHeal))} HP (${c.me.pots} left)`; } },
+    desc: () => `Bind the boss: whatever it was about to do this round is cancelled, and it has no defense: burst now. It can be bound again ${R.RULES.rebind} rounds later`,
+    use: (c) => c.bind('nova') },
+  { key: 'pot', name: 'Power Elixir', cd: R.RULES.potCd, ph: 1, ai: 'pot', common: true, icon: 'power-elixir',
+    desc: () => 'Heal all your HP (before the boss hits). No limit, but it needs a round to cool down',
+    ok: (me, S) => !(S.boss.sealTil >= S.round),
+    use: (c) => `drinks it: +${fmt(c.heal(c.pid, 1))} HP` },
 ];
 R.COMMON = COMMON;
 
@@ -64,11 +69,19 @@ R.COMMON = COMMON;
 R.add = (key, C) => {
   C.key = key;
   C.skills = (C.skills || []).map((s) => ({ key: slug(s.name), ph: 2, ...s, noReset: s.noReset ?? s.cd >= 10 }));
+  if (C.faction) C.skills.push({ key: slug(C.faction.name), ph: 2, ...C.faction, faction: true, noReset: true });
   if (C.origin) {   // every class's Origin: a huge hit (or summon) that also binds, and you can't be touched while you cast it
     const o = C.origin, mult = () => (o.mult ?? 8) * (C.originK ?? 1);
     C.skills.push({ key: slug(o.name), name: o.name, short: o.short, cd: R.RULES.originCd, ph: 1, ai: 'origin', origin: true, noReset: true, team: true,
-      desc: (K) => `Origin: ${o.summon ? `a summon for ${o.summon} rounds, ${dn(K, mult() / o.summon)} damage a round` : `${dn(K, mult())} damage`}. It binds the boss (no defense: burst now) and you can't be touched this round${o.note ? '. ' + o.note : ''}`,
-      use: (c) => { c.iframe(c.pid); const said = c.bind(); if (o.summon) c.summon(o.name, mult() / o.summon, o.summon); else c.hit(mult(), { n: o.name }); o.then?.(c); return said; } });
+      desc: (K) => `Origin: ${o.summon ? `a summon for ${o.summon} rounds, ${dn(K, mult() / o.summon)} damage a round` : `${dn(K, mult())} damage`}. It binds the boss (its move is cancelled, no defense: burst now) and you can't be touched this round${o.note ? '. ' + o.note : ''}`,
+      use: (c) => { c.iframe(c.pid); const said = c.bind('origin'); if (o.summon) c.summon(o.name, mult() / o.summon, o.summon); else c.hit(mult(), { n: o.name }); o.then?.(c); return said; } });
+  }
+  if (C.ascent) {   // every class's Ascent: twice a fight, the same damage whoever you play, and the boss can't touch you that round
+    const a = C.ascent;
+    C.skills.push({ key: slug(a.name), name: a.name, short: a.short, cd: 0, ph: 1, ai: 'ascent', ascent: true, noReset: true,
+      ok: (me) => me.asc > 0,
+      desc: () => `Ascent: you can't be touched this round, and it deals exactly ${fmt(R.RULES.ascentDmg)} damage: the same for every class, whatever your answer, your buffs or the boss's defense. ${R.RULES.ascentUses} uses a fight`,
+      use: (c) => { c.me.asc--; c.iframe(c.pid); c.hit(1, { n: a.name, flat: R.RULES.ascentDmg }); return `can't be touched this round (${c.me.asc} left)`; } });
   }
   C.byKey = Object.fromEntries([...C.skills, ...COMMON].map((s) => [s.key, s]));
   R.CLASSES[key] = C;
@@ -88,13 +101,13 @@ const rounds = (n) => n === 1 ? 'this round' : `${n} rounds`;
 R.h = {
   dn, pct, fmt, buffWords, rounds,
   // An attack: mult x your main attack
-  atk: (name, cd, mult, o = {}) => ({ name, cd, ph: 2, ai: 'burst', mult, ...o,
+  atk: (name, cd, mult, o = {}) => ({ name, cd, ph: 2, ai: cd >= 3 ? 'burst' : 'atk', mult, ...o,
     desc: (C) => `${dn(C, mult)} damage${o.note ? '. ' + o.note : ''}`,
     use: (c) => { c.hit(mult, { n: name, ...(o.hit || {}) }); return o.then?.(c); } }),
   // A summon: hits every round for n rounds, whatever you answer
   summon: (name, cd, mult, n, o = {}) => ({ name, cd, ph: 2, ai: 'always', ...o,
-    desc: (C) => `Summon, ${n} rounds: ${dn(C, mult)} damage a round, even when your answer is wrong${o.note ? '. ' + o.note : ''}`,
-    use: (c) => { c.summon(name, mult, n); return o.then?.(c) || `calls <b>${name}</b> for ${n + (c.C.summonPlus || 0)} rounds`; } }),
+    desc: (C) => `Summon, ${n + (C.summonPlus || 0) === 1 ? 'this round' : `${n + (C.summonPlus || 0)} rounds`}: ${dn(C, mult)} damage${n + (C.summonPlus || 0) === 1 ? '' : ' a round'}, even when your answer is wrong${o.note ? '. ' + o.note : ''}`,
+    use: (c) => { c.summon(name, mult, n); return o.then?.(c) || `calls <b>${name}</b> for ${n + (c.C.summonPlus || 0) === 1 ? 'this round' : `${n + (c.C.summonPlus || 0)} rounds`}`; } }),
   // A buff on yourself / the whole party / one player you pick
   self: (name, cd, n, b, o = {}) => ({ name, cd, ph: 0, ai: 'buff', ...o,
     desc: () => `You, ${rounds(n)}: ${buffWords(b)}${o.note ? '. ' + o.note : ''}`,
@@ -114,14 +127,14 @@ R.h = {
 // ---------- A fight's state (plain data: it's sent to every player) ----------
 R.newPlayer = (cls, lives) => {
   const C = R.cls(cls);
-  const p = { cls: C.key, hp: C.hp, maxHp: C.hp, lives, out: false, cd: {}, buffs: [], sum: [], g: 0, st: C.stances ? Object.keys(C.stances)[0] : null, pots: R.RULES.pots, v: {}, last: null };
+  const p = { cls: C.key, hp: C.hp, maxHp: C.hp, lives, out: false, cd: {}, buffs: [], sum: [], g: 0, st: C.stances ? Object.keys(C.stances)[0] : null, asc: R.RULES.ascentUses, v: {}, last: null };
   C.init?.(p);
   return p;
 };
 R.newBoss = (name, image, players, diff, hpEach) => {
   const D = R.DIFFS[diff] || R.DIFFS.normal, X = R.RULES, more = Math.min(7, players - 1);
   const hp = Math.round((hpEach || X.bossHp * D.hp) * players * (1 + X.partyHp * more) / 100) * 100;
-  return { name, image, diff: R.DIFFS[diff] ? diff : 'normal', hp, max: hp, def: D.def, atk: +(D.atk * (1 + X.partyAtk * more)).toFixed(3), move: null, last: null, lastUlt: 0, boundTil: 0, bindFree: 0, vuln: [], dots: [], weak: [], enraged: false };
+  return { name, image, diff: R.DIFFS[diff] ? diff : 'normal', hp, max: hp, def: D.def, atk: +(D.atk * (1 + X.partyAtk * more)).toFixed(3), move: null, last: null, lastUlt: 0, bindFree: 0, binds: 0, sealTil: 0, vuln: [], dots: [], weak: [], enraged: false };
 };
 const aliveIds = (S) => Object.keys(S.players).filter((id) => !S.players[id].out);
 R.aliveIds = aliveIds;
@@ -131,12 +144,12 @@ R.pickMove = (S, rand = Math.random) => {
   const b = S.boss, r = S.round, X = R.RULES, D = R.DIFFS[b.diff];
   const base = Math.round(X.attack(r, D.grow) * b.atk * (b.enraged ? X.enrage : 1)), alive = aliveIds(S);
   let mv;
-  if (r <= b.boundTil) { b.move = { k: 'bound' }; return b.move; }   // (still bound: its plans wait)
   if (b.last === 'charge') { mv = { k: 'ult' }; b.lastUlt = r; }
   else if (b.last === 'ult') mv = { k: 'tired', dmg: Math.round(base * X.tired) };
-  else if (r <= 2) mv = { k: 'attack', dmg: base };
+  else if (r <= 1) mv = { k: 'attack', dmg: base };
   else {
-    const w = { attack: 4, focus: alive.length ? 2 : 0, test: 2, charge: r - b.lastUlt >= D.ultGap ? 1.8 : 0, shield: b.last !== 'shield' ? 1 : 0, heal: b.last !== 'heal' && b.hp < b.max * 0.7 ? 0.9 : 0 };
+    const w = { attack: 3, focus: alive.length ? 2 : 0, test: 2, heavy: b.last !== 'heavy' ? 2 : 0, seal: b.last !== 'seal' ? 1.2 : 0, charge: r >= 3 && r - b.lastUlt >= D.ultGap ? 1.6 : 0,
+      shield: b.last !== 'shield' ? 1 : 0, heal: b.last !== 'heal' && b.hp < b.max * 0.7 ? 0.8 : 0 };
     let x = rand() * Object.values(w).reduce((a, v) => a + v, 0), k = 'attack';
     for (const [key, v] of Object.entries(w)) { if ((x -= v) < 0) { k = key; break; } }
     if (k === 'attack') mv = { k, dmg: base };
@@ -145,6 +158,8 @@ R.pickMove = (S, rand = Math.random) => {
       mv = { k, dmg: Math.round(base * X.focus), pid: (taunt.length ? taunt : alive)[Math.floor(rand() * (taunt.length || alive.length))] };
     }
     else if (k === 'test') mv = { k, dmg: Math.round(base * X.test) };
+    else if (k === 'heavy') mv = { k, dmg: Math.round(base * X.heavy), soft: Math.round(base * X.heavyRight) };
+    else if (k === 'seal') mv = { k, dmg: Math.round(base * X.seal) };
     else if (k === 'heal') mv = { k, amount: Math.round(b.max * X.bossHeal) };
     else mv = { k };
   }
@@ -161,7 +176,8 @@ R.moveText = (mv, boss) => {
     case 'charge': return `🌀 ${boss} is charging its ultimate. It hits next round!`;
     case 'ult': return `☄️ ${boss}'s ultimate: everyone who isn't untouchable goes down!`;
     case 'tired': return `😮‍💨 ${boss} is worn out: it takes +${pct(R.RULES.groggy - 1)} damage and only hits for ${fmt(mv.dmg)}`;
-    case 'bound': return `⛓️ ${boss} is still bound: it can't move and has no defense. Burst!`;
+    case 'heavy': return `🔨 ${boss} winds up a heavy blow: ${fmt(mv.dmg)} damage, only ${fmt(mv.soft)} if you answer right`;
+    case 'seal': return `🚫 ${boss} hits everyone for ${fmt(mv.dmg)} and seals potions next round`;
     case 'shield': return `🔰 ${boss} shields itself: half damage this round`;
     case 'heal': return `💗 ${boss} will heal ${fmt(mv.amount)} HP`;
   }
@@ -180,7 +196,7 @@ R.dmgMult = (me) => me.buffs.reduce((m, f) => m * (f.dmg || 1), 1);
 // Returns the events, in order: { s: 'skills' | 'boss' | 'end', t: text with {p:id} names, pid?, amount?, k? }
 R.resolve = (S, inputs, rand = Math.random) => {
   const X = R.RULES, b = S.boss, mv = b.move || { k: 'attack', dmg: 0 }, ev = [], ids = aliveIds(S);
-  const rc = { iframe: new Set(), block: new Set(), bound: mv.k === 'bound', binds: 0, dispel: false, casts: [] };
+  const rc = { iframe: new Set(), block: new Set(), bound: false, kinds: new Set(), both: false, dispel: false, casts: [] };
   const P = (id) => S.players[id];
   const say = (s, t, more) => ev.push({ s, t, ...more });
   S.stats ??= {};
@@ -193,15 +209,19 @@ R.resolve = (S, inputs, rand = Math.random) => {
       alive: () => ids.filter((id) => !P(id).out),
       ally: (t) => (P(t) && !P(t).out ? t : pid),
       hit(mult, o = {}) {
+        if (o.flat) {   // Ascent: always exactly this much, whatever your answer, your buffs or the boss's defense / shield / bind
+          const d = Math.round(o.flat); b.hp = Math.max(0, b.hp - d); c.dealt += d; stat(pid).dmg += d; c.parts.push({ n: o.n, d }); return d;
+        }
         const pw = o.free != null ? o.free : c.power;
         if (pw <= 0 || mult <= 0) return 0;
         let m = R.dmgMult(me) * (C.mult ? C.mult(c, o) : 1), ied = o.ied || 0, taken = 1;
         for (const f of me.buffs) if (f.ied) ied = 1 - (1 - ied) * (1 - f.ied);
         for (const v of b.vuln) taken *= v.m;
         if (mv.k === 'tired') taken *= X.groggy;
-        const shield = mv.k === 'shield' && !rc.dispel && !o.pierce ? X.shield : 1;
+        const shield = mv.k === 'shield' && !rc.dispel && !rc.bound && !o.pierce ? X.shield : 1;
         const def = b.def * (rc.bound ? X.boundDef : 1);
-        const dmg = Math.max(1, Math.round(C.atk * mult * pw * m * taken * shield * (1 - def * (1 - ied)) * (0.96 + rand() * 0.08)));
+        if (rc.both) taken *= X.bothBind;
+        const dmg = Math.max(1, Math.round(C.atk * mult * m * pw * taken * shield * (1 - def * (1 - ied)) * (0.96 + rand() * 0.08)));
         b.hp = Math.max(0, b.hp - dmg);
         c.dealt += dmg; stat(pid).dmg += dmg;
         const same = c.parts.find((x) => x.n === (o.n || C.basic));
@@ -216,17 +236,15 @@ R.resolve = (S, inputs, rand = Math.random) => {
       pay(frac) { const cost = Math.min(me.hp - 1, Math.round(me.maxHp * frac)); me.hp -= Math.max(0, cost); return Math.max(0, cost); },
       iframe(to) { rc.iframe.add(to); },
       block(to) { rc.block.add(to); },   // no damage from anything but an ultimate
-      bind() {
-        if (rc.binds > 0) {   // a second bind in the same round: bound next round too (never more than 2)
-          if (b.boundTil > S.round) return `binds ${b.name} again, but it can't be held any longer`;
-          b.boundTil = S.round + 1;
-          return `holds the bind: ${b.name} stays bound next round too`;
+      bind(kind = 'nova') {
+        if (rc.bound) {   // bound already this round: an Origin on top of Erda Nova (or the other way round) = everyone hits harder
+          if (!rc.kinds.has(kind)) { rc.kinds.add(kind); if (rc.kinds.size === 2) { rc.both = true; return `${b.name} is bound twice over: everyone deals +${pct(X.bothBind - 1)} damage this round`; } }
+          return `${b.name} is bound already`;
         }
-        if (mv.k === 'bound') return `tries to bind ${b.name}, but it is bound already`;
         if (S.round < b.bindFree) { const n = b.bindFree - S.round; return `tries to bind ${b.name}, but it resists (${n} more round${n === 1 ? '' : 's'})`; }
-        rc.bound = true; rc.binds++; b.boundTil = S.round; b.bindFree = S.round + X.rebind;
-        if (mv.k === 'charge') b.last = 'bound';   // (its charge is broken: no ultimate next round)
-        return mv.k === 'ult' ? `binds ${b.name}: no defense this round, but its ultimate can't be stopped` : `binds ${b.name}: it can't move and has no defense. Burst!`;
+        rc.bound = true; rc.kinds.add(kind); b.bindFree = S.round + X.rebind; b.binds = (b.binds || 0) + 1;
+        b.last = 'bound';   // (whatever it was doing is broken off: no ultimate after a cancelled charge, no rest after a cancelled ultimate)
+        return `binds ${b.name}: its move is cancelled and it has no defense. Burst!`;
       },
       dispel() { rc.dispel = true; },   // the boss's shield / heal doesn't happen this round
       vuln(k, m, n, name) { b.vuln = b.vuln.filter((x) => x.k !== k); b.vuln.push({ k, m, n, name }); },
@@ -265,7 +283,7 @@ R.resolve = (S, inputs, rand = Math.random) => {
     if (said) say('skills', `{p:${c.pid}} ${sk.ph === 2 ? '' : `uses <b>${sk.name}</b>: `}${said}`, { pid: c.pid, ic: R.iconOf(sk) });
   };
   for (const ph of [0, 1]) for (const x of rc.casts) if ((x.sk.ph ?? 2) === ph) run(x);
-  if (mv.k === 'shield') say('skills', rc.dispel ? `🔰 ${b.name}'s shield is torn away` : R.moveText(mv, b.name), { k: 'bossMove' });
+  if (mv.k === 'shield' && !rc.bound) say('skills', rc.dispel ? `🔰 ${b.name}'s shield is torn away` : R.moveText(mv, b.name), { k: 'bossMove' });
   // 2. Attacks, one player at a time: main attack, attack skills, summons
   for (const pid of ids) {
     const c = ctxs[pid], me = c.me, C = c.C;
@@ -321,11 +339,12 @@ R.resolve = (S, inputs, rand = Math.random) => {
     if (p.hp <= 0) down(pid);
   };
   if (b.hp > 0) {
-    if (rc.bound && mv.k !== 'ult') say('boss', `⛓️ ${b.name} is bound and can't move${mv.k === 'charge' ? ': its charge is broken' : ''}`, { k: 'bossMove' });
+    if (rc.bound) say('boss', `⛓️ ${b.name} is bound: ${mv.k === 'charge' ? 'its charge is broken' : mv.k === 'ult' ? 'its ultimate is cancelled' : 'its move is cancelled'}`, { k: 'bossMove' });
     else {
       if (mv.k !== 'shield') say('boss', mv.k === 'heal' && rc.dispel ? `💗 ${b.name}'s healing is cut off` : R.moveText(mv, b.name), { k: 'bossMove' });
       const now = ids.filter((id) => !P(id).out);
-      if (mv.k === 'attack' || mv.k === 'tired') for (const id of now) hurt(id, mv.dmg);
+      if (mv.k === 'attack' || mv.k === 'tired' || mv.k === 'seal') for (const id of now) hurt(id, mv.dmg);
+      else if (mv.k === 'heavy') for (const id of now) hurt(id, ctxs[id].power > 0 ? mv.soft : mv.dmg, { heavy: true });
       else if (mv.k === 'ult') for (const id of now) hurt(id, 99999, { ult: true });
       else if (mv.k === 'focus') {
         const t = P(mv.pid) && !P(mv.pid).out ? mv.pid : now[Math.floor(rand() * now.length)];
@@ -334,7 +353,8 @@ R.resolve = (S, inputs, rand = Math.random) => {
         else if (t) hurt(t, mv.dmg, { focus: true });
       }
       else if (mv.k === 'test') { const wrong = now.filter((id) => !(ctxs[id].power > 0)); if (!wrong.length) say('boss', '✅ Everyone answered right: nobody is hurt'); for (const id of wrong) hurt(id, mv.dmg, { test: true }); }
-      else if (mv.k === 'heal' && !rc.dispel) { const before = b.hp; b.hp = Math.min(b.max, b.hp + mv.amount); say('boss', `💗 ${b.name} heals ${fmt(b.hp - before)} HP`, { k: 'bossHeal' }); }
+      if (mv.k === 'seal') b.sealTil = S.round + 1;
+      if (mv.k === 'heal' && !rc.dispel) { const before = b.hp; b.hp = Math.min(b.max, b.hp + mv.amount); say('boss', `💗 ${b.name} heals ${fmt(b.hp - before)} HP`, { k: 'bossHeal' }); }
     }
   }
   // 4. The end of the round: regeneration, then cooldowns and buffs tick down
@@ -347,6 +367,7 @@ R.resolve = (S, inputs, rand = Math.random) => {
     c.C.end?.(c);
     for (const t of c.notes) say('end', `{p:${pid}} ${t}`, { pid });
     c.notes.length = 0;
+    for (const f of me.buffs) if (f.decay && f.dmg) f.dmg = +(f.dmg - f.decay).toFixed(3);   // (a buff that fades round by round: Arcane Overdrive)
     me.buffs = me.buffs.filter((f) => --f.n > 0);
     me.sum = me.sum.filter((s) => --s.n > 0);
     for (const k of Object.keys(me.cd)) if (me.cd[k] > 0) me.cd[k]--;
@@ -359,57 +380,63 @@ R.resolve = (S, inputs, rand = Math.random) => {
 };
 
 // ---------- Bots ----------
-// know: does the bot think its answer is right? (it's usually right about that). It i-frames ultimates, guards and
-// heals when it has to, binds heals, saves bursts for rounds it's sure of and that aren't shielded.
-R.botCasts = (S, pid, know, rand = Math.random) => {
-  const me = S.players[pid], C = R.cls(me.cls), b = S.boss, mv = b.move || {}, out = {};
-  if (!me || me.out) return out;
-  const can = (k) => R.canCast(S, pid, k);
-  const ids = aliveIds(S), X = R.RULES;
-  const incoming = mv.k === 'attack' || mv.k === 'tired' ? mv.dmg : mv.k === 'focus' && mv.pid === pid ? mv.dmg : mv.k === 'test' && !know ? mv.dmg : 0;
-  const bindable = mv.k !== 'bound' && S.round >= b.bindFree;
-  const lethal = incoming >= me.hp;
-  let safe = false;
-  const use = (s, arg = true) => { if (!out[s.key] && can(s.key)) { out[s.key] = arg; return true; } return false; };
-  const all = [...C.skills, ...COMMON];
-  const by = (ai) => all.filter((s) => s.ai === ai && can(s.key));
-  // Staying alive
-  if (mv.k === 'ult') { for (const s of [...by('partyiframe'), ...by('iframe')]) { if (use(s)) { safe = true; break; } } }
-  else if (lethal) {
-    for (const s of [...by('iframe'), ...by('partyiframe'), ...by('guard')]) { if (use(s)) { safe = true; break; } }
-    if (!safe && bindable) for (const s of by('bind')) { if (use(s)) { safe = true; break; } }
+// Bots play as a team. The plan for a round is the same whichever bot asks (so they agree without talking):
+//   - a burst window = a round the boss can be bound in. One bot binds with Erda Nova, ONE bot adds its Origin (they
+//     take turns, window after window, so the Origins are spread over the fight), and every bot unloads its big
+//     skills in that round. Between windows they hold everything with a cooldown of 3+ rounds.
+//   - know: does the bot think its answer is right? (it's usually right about that). A bot that isn't sure keeps its
+//     attacks and its Origin for the next window, but still binds and still buffs the party.
+R.window = (S) => {
+  const b = S.boss, ids = aliveIds(S).filter((id) => S.players[id].bot).sort(), n = ids.length, w = b.binds || 0;
+  const bindable = S.round >= b.bindFree;
+  const ready = (id, pred) => { const C = R.cls(S.players[id].cls); return [...C.skills, ...COMMON].some((sk) => pred(sk) && R.canCast(S, id, sk.key)); };
+  let origin = null, nova = null;
+  if (bindable) {
+    for (let i = 0; i < n && !origin; i++) { const id = ids[(w + i) % n]; if (ready(id, (sk) => sk.origin)) origin = id; }
+    for (let i = 0; i < n && !nova; i++) { const id = ids[(w + 1 + i) % n]; if (ready(id, (sk) => sk.key === 'nova')) nova = id; }
   }
-  if (!safe && mv.k !== 'ult') {
-    if (incoming > me.hp * 0.45) for (const s of by('guard')) { if (use(s)) break; }
-    const after = me.hp - (safe ? 0 : incoming);
-    if (after < me.maxHp * 0.4 || (lethal && !safe)) { const pot = by('pot')[0]; if (pot && me.hp < me.maxHp * 0.75) use(pot); }
+  return { bindable, origin, nova };
+};
+R.botCasts = (S, pid, know, rand = Math.random) => {
+  const me = S.players[pid], out = {};
+  if (!me || me.out) return out;
+  const C = R.cls(me.cls), b = S.boss, mv = b.move || {}, ids = aliveIds(S);
+  const can = (k) => R.canCast(S, pid, k);
+  const use = (sk, arg = true) => { if (!(sk.key in out) && can(sk.key)) { out[sk.key] = arg; return true; } return false; };
+  const all = [...C.skills, ...COMMON];
+  const by = (ai) => all.filter((sk) => sk.ai === ai && can(sk.key));
+  const W = R.window(S), myOrigin = W.origin === pid && know, myNova = W.nova === pid;
+  const inWin = W.bindable && (W.nova != null || myOrigin);   // the boss gets bound this round: its move won't happen
+  if (myNova) use(R.skill(me.cls, 'nova'));
+  if (myOrigin) use(by('origin')[0]);
+  // Staying alive (nothing to fear in a round the boss is bound)
+  const incoming = inWin ? 0 : mv.k === 'attack' || mv.k === 'tired' || mv.k === 'seal' ? mv.dmg : mv.k === 'focus' && mv.pid === pid ? mv.dmg : mv.k === 'test' && !know ? mv.dmg : mv.k === 'heavy' ? (know ? mv.soft : mv.dmg) : 0;
+  const ult = mv.k === 'ult' && !inWin, pot = by('pot')[0];
+  let safe = Object.keys(out).some((k) => R.skill(me.cls, k)?.origin);
+  if (!safe && ult) safe = [...by('iframe'), ...by('ascent')].some((sk) => use(sk));
+  if (!safe && !ult && incoming >= me.hp) {
+    if (pot && incoming < me.maxHp) safe = use(pot);
+    if (!safe) safe = [...by('guard'), ...by('iframe'), ...by('ascent')].some((sk) => use(sk));
+  }
+  if (!safe && !ult) {
+    if (incoming > me.hp * 0.5) for (const sk of by('guard')) { if (use(sk)) break; }
+    if (pot && me.hp - incoming < me.maxHp * 0.4 && me.hp < me.maxHp * 0.85) use(pot);
   }
   const hurtAllies = ids.filter((id) => S.players[id].hp < S.players[id].maxHp * 0.55).length;
-  for (const s of by('heal')) if (hurtAllies >= Math.max(1, Math.ceil(ids.length / 3))) use(s);
-  if (mv.k === 'heal' && bindable) for (const s of [...by('dispel'), ...by('bind')]) { if (use(s)) break; }
-  if (mv.k === 'shield') for (const s of by('dispel')) use(s);
-  // Damage
-  const good = mv.k !== 'shield' || Object.keys(out).some((k) => R.skill(me.cls, k)?.ai === 'dispel');
-  // The burst window: bind when sure of the answer (Origin first, Erda Nova with it for a second bound round, or alone),
-  // and keep the big skills for a bound or worn-out boss when a bind is coming up soon.
-  let window = mv.k === 'bound' || mv.k === 'tired' || Object.keys(out).some((k) => ['bind', 'origin'].includes(R.skill(me.cls, k)?.ai));
-  if (know && good && bindable && mv.k !== 'ult' && !window) {
-    const origin = by('origin')[0], binds = by('bind');
-    const planned = S.bindPlan === S.round;   // (a teammate's bot is binding this round already: don't throw a second bind away)
-    if (origin) { use(origin); if (binds[0] && !planned && rand() < 0.7) use(binds[0]); window = true; S.bindPlan = S.round; }
-    else if (planned) window = true;
-    else if (binds[0]) { use(binds[0]); window = true; S.bindPlan = S.round; }
-  }
-  const myBindIn = Math.min(...all.filter((s) => s.ai === 'bind' || s.ai === 'origin').map((s) => me.cd[s.key] || 0));
-  const bindSoon = !window && Math.max(myBindIn, b.bindFree - S.round) <= 2 && mv.k !== 'bound';
-  const holdForWindow = !window && (mv.k === 'charge' || mv.k === 'ult' || bindSoon);   // (a boss is also weak the round after its ultimate)
-  for (const s of all) {
-    if (!can(s.key) || out[s.key]) continue;
-    const arg = s.target ? (s.pickAlly ? s.pickAlly(S, pid, ids) : pid) : s.options ? (s.pickOption ? s.pickOption(S, pid, { know, mv, ids }) : 0) : true;
-    if (s.bot) { const r = s.bot(S, pid, { know, mv, ids, lethal, out }); if (r != null && r !== false) out[s.key] = r === true ? arg : r; continue; }
-    if (s.ai === 'always') use(s, arg);
-    else if (s.ai === 'buff' || s.ai === 'debuff') { if (good && (know || s.team) && !(holdForWindow && s.cd >= 4) && rand() < 0.85) use(s, arg); }
-    else if (s.ai === 'burst') { if (know && good && !(holdForWindow && s.cd >= 4)) use(s, arg); }
+  for (const sk of by('heal')) if (hurtAllies >= Math.max(1, Math.ceil(ids.length / 3))) use(sk);
+  // Ascent is kept as a second way to dodge; what is left goes out in the third and fourth windows
+  if (inWin && ((me.asc >= 2 && (b.binds || 0) >= 2) || (me.asc === 1 && (b.binds || 0) >= 3))) { const a = by('ascent')[0]; if (a) use(a); }
+  // Damage: small skills whenever they're up, big ones only in a window
+  const shielded = mv.k === 'shield' && !inWin;
+  for (const sk of all) {
+    if (!can(sk.key) || sk.key in out) continue;
+    const arg = sk.target ? (sk.pickAlly ? sk.pickAlly(S, pid, ids) : pid) : sk.options ? (sk.pickOption ? sk.pickOption(S, pid, { know, mv, ids, inWin }) : 0) : true;
+    if (sk.bot) { const r = sk.bot(S, pid, { know, mv, ids, out, inWin, incoming }); if (r != null && r !== false) out[sk.key] = r === true ? arg : r; continue; }
+    const big = sk.cd >= 3;
+    if (big && !inWin) continue;
+    if (sk.ai === 'always') use(sk, arg);
+    else if (sk.ai === 'buff' || sk.ai === 'debuff') { if (know || sk.team) use(sk, arg); }
+    else if (sk.ai === 'burst' || sk.ai === 'atk') { if (know && !shielded) use(sk, arg); }
   }
   return out;
 };

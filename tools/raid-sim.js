@@ -13,7 +13,7 @@ const LEVELS = { easy: { p: 0.5, sec: 14 }, normal: { p: 0.72, sec: 9 }, hard: {
 function fight({ party, level = 'normal', diff = 'normal', lives = 3, seed = 1, log = false, noDeath = false, over = null, rounds = 0, track = null }) {
   const rand = rng(seed), L = LEVELS[level];
   const S = { round: 0, players: {}, stats: {} };
-  party.forEach((cls, i) => { S.players['p' + i] = R.newPlayer(cls, noDeath ? 999 : lives); });
+  party.forEach((cls, i) => { S.players['p' + i] = R.newPlayer(cls, noDeath ? 999 : lives); S.players['p' + i].bot = true; });
   S.boss = R.newBoss('Boss', '', party.length, diff);
   if (over) { const b = S.boss; if (over.hp) { b.hp = b.max = Math.round(b.max * over.hp); } if (over.atk) b.atk *= over.atk; }
   const cap = rounds || (noDeath ? 60 : R.DIFFS[S.boss.diff].cap);
@@ -210,7 +210,7 @@ function measure(k, n, party = [k]) {
   let dmg = 0, burst = 0;
   for (let i = 0; i < n; i++) {
     let b = 0;
-    const f = fight({ party, level: 'hard', diff: 'hard', noDeath: true, over: { hp: 1e6 }, rounds: 11, seed: 3 + i * 7919,
+    const f = fight({ party, level: 'hard', diff: 'hard', noDeath: true, over: { hp: 1e6 }, rounds: 12, seed: 3 + i * 7919,
       track: (S, inp) => { const st = (S.stats.p0 ??= { dmg: 0 }), d = st.dmg - (st._l || 0); st._l = st.dmg; if (Object.keys(inp.p0?.casts || {}).some((c) => R.skill(k, c)?.origin)) b += d; } });
     dmg += f.S.stats.p0?.dmg || 0; burst += b;
   }

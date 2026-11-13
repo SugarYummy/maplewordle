@@ -182,7 +182,10 @@ html.dark .intent.good { background: rgba(30, 80, 40, 0.9); }
 .skhead .sknote { margin-left: auto; font-size: 13px; opacity: 0.75; }
 .skbar { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
 .skbar .sksep { display: none; }
-.skbar.many { grid-template-columns: repeat(4, 1fr); }   /* 7 or 8 skills: two even rows */
+.skbar.many { grid-template-columns: repeat(5, 1fr); }   /* big kits: even rows */
+.pvpscreen .skbar button.asc { border-color: #9a6bd8; box-shadow: inset 0 0 0 1px #9a6bd8; }   /* Ascent */
+.pvpscreen .skbar button.fac { border-color: #3aa76d; box-shadow: inset 0 0 0 1px #3aa76d; }   /* faction skill */
+.bf.good { background: rgba(58, 167, 109, 0.25); }
 .pvpscreen .skbar button.org { border-color: #d9a520; box-shadow: inset 0 0 0 1px #d9a520; }   /* the Origin skill */
 .pvpscreen .skbar button { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 3px; font-size: 12px; line-height: 1.2; min-width: 0; }
 .skbar button b { overflow-wrap: anywhere; }

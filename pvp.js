@@ -200,7 +200,7 @@ class Match {
     for (const p of players) this.state.players[p.id] = { hp: this.startHp, lives: this.mode === 'raid' ? cfg.raidLives : cfg.lives, points: 0, wins: 0, out: false, lc: false };
     if (this.mode === 'raid') {
       const b = DATA.bosses[rnd(DATA.bosses.length)];
-      for (const p of players) Object.assign(this.state.players[p.id], MR.newPlayer(raidClassOk(p.rc) ? p.rc : randomRaidClass(), cfg.raidLives));
+      for (const p of players) Object.assign(this.state.players[p.id], MR.newPlayer(raidClassOk(p.rc) ? p.rc : randomRaidClass(), cfg.raidLives), { bot: !!p.bot });
       this.state.boss = MR.newBoss(b.name, b.image, players.length, cfg.raidDiff);
     }
     this.used = new Set();
@@ -1103,7 +1103,7 @@ function drawRoom() {
 // Boss Raid: your class (its kit, and the list to change it)
 function raidKitHtml(cls) {
   const { C } = MR.kit(cls), f = (x) => x.toLocaleString('en-US');
-  const row = (sk) => `<div class="rcsk">${skillIcon(sk)}<div><b>${esc(sk.name)}</b> <small>${sk.cd ? `every ${sk.cd} rounds` : 'any round'}</small><br>${esc(MR.desc(cls, sk))}</div></div>`;
+  const row = (sk) => `<div class="rcsk">${skillIcon(sk)}<div><b>${esc(sk.name)}</b> <small>${sk.passive ? 'always on' : sk.ascent ? 'twice a fight' : sk.cd ? `every ${sk.cd} rounds` : 'any round'}${sk.origin ? ' · Origin' : sk.faction ? ' · faction skill' : ''}</small><br>${esc(MR.desc(cls, sk))}</div></div>`;
   return `<div class="rchead"><img class="rcpic" src="images/classes/${cls}.png" alt=""><div><b class="rcname">${esc(C.name)}</b> <small>${esc(C.role)} · ${f(C.hp)} HP</small>` +
     `<p class="rctrait"><b>${esc(C.trait[0])}.</b> ${esc(C.trait[1])}</p></div></div>` +
     `<div class="rcskills"><div class="rcsk">${skillIcon({ name: C.basic })}<div><b>${esc(C.basic)}</b> <small>main attack, free every round you answer right</small><br>${f(C.atk)} damage × your Power</div></div>${C.skills.map(row).join('')}</div>` +
@@ -1422,9 +1422,9 @@ function drawSkills() {
   const usable = (sk) => MR.canCast(game.state, me.id, sk.key) && (!sk.cost || spent + sk.cost <= st.g);
   const btn = (sk) => {
     const on = sk.key in mine, cd = st.cd[sk.key] || 0, can = open && (on || usable(sk));
-    const sub = sk.key === 'pot' ? `${st.pots} left` : cd > 0 ? `in ${cd} round${cd === 1 ? '' : 's'}` : sk.cd ? `every ${sk.cd} rounds` : 'any round';
+    const sub = sk.passive ? 'always on' : sk.ascent ? `${st.asc} left` : cd > 0 ? `in ${cd} round${cd === 1 ? '' : 's'}` : sk.cd ? `every ${sk.cd} rounds` : 'any round';
     const arg = !on ? '' : sk.target && mine[sk.key] !== me.id ? ` → ${esc(nameOf(mine[sk.key]))}` : sk.options ? ` → ${esc(sk.options[mine[sk.key]]?.split(':')[0] || '')}` : '';
-    return `<button type="button" data-sk="${sk.key}" class="${on ? 'on' : ''}${can ? '' : ' no'}${game.skDesc === sk.key ? ' sel' : ''}${sk.origin ? ' org' : ''}" aria-disabled="${!can}">` +
+    return `<button type="button" data-sk="${sk.key}" class="${on ? 'on' : ''}${can ? '' : ' no'}${game.skDesc === sk.key ? ' sel' : ''}${sk.origin ? ' org' : sk.ascent ? ' asc' : sk.faction ? ' fac' : ''}" aria-disabled="${!can}">` +
       `<span class="ic">${skillIcon(sk)}${cd > 0 ? `<i class="cd">${cd}</i>` : ''}</span><b>${esc(sk.short || sk.name)}</b><small>${sub}${arg}</small></button>`;
   };
   const d = game.skDesc && MR.skill(st.cls, game.skDesc);
@@ -1564,7 +1564,7 @@ function drawBoards(state = game?.state) {
     const tags = [...b.vuln.map((v) => `<span class="bf bad" title="Takes more damage">${esc(v.name)} +${Math.round((v.m - 1) * 100)}% · ${v.n}</span>`),
       ...b.weak.map((v) => `<span class="bf bad" title="Hits softer">${esc(v.name)} −${Math.round((1 - v.m) * 100)}% attack · ${v.n}</span>`),
       b.dots.length ? `<span class="bf bad">🔥 ${b.dots.length} burn${b.dots.length === 1 ? '' : 's'}</span>` : '',
-      (g.round || 0) < b.bindFree && !(b.move?.k === 'bound') ? `<span class="bf">⛓️ resists binds until round ${b.bindFree}</span>` : '', b.enraged ? '<span class="bf ult">😡 Enraged</span>' : ''].join('');
+      (g.round || 0) < b.bindFree ? `<span class="bf">⛓️ resists binds until round ${b.bindFree}</span>` : `<span class="bf good">⛓️ Can be bound now: burst!</span>`, b.enraged ? '<span class="bf ult">😡 Enraged</span>' : ''].join('');
     html += `<div class="pvpboss"><img src="${esc(b.image)}" alt=""><div><b>${esc(b.name)}</b> <small class="diff">${esc(MR.DIFFS[b.diff].name)}</small><div class="bar boss"><i style="width:${pct}%"></i></div>` +
       `<small>${f(b.hp)} / ${f(b.max)} HP · ${Math.round(b.def * 100)}% defense</small>${tags ? `<div class="bfs">${tags}</div>` : ''}</div></div>` +
       (b.move ? `<div class="intent${b.move.k === 'ult' || b.move.k === 'charge' ? ' ult' : b.move.k === 'tired' || b.move.k === 'bound' ? ' good' : ''}"><small>${g.revealing ? 'This round' : 'Its move this round'}</small> ${fillNames(esc(MR.moveText(b.move, b.name)), nameOf)}</div>` : '');
@@ -1799,18 +1799,20 @@ Phase = that × 0.2, title = that × 0.5. Wrong = 0.</p>
 <li><b>First to N</b>: right answers score points (BGM 1, Phase 0.25, Title 0.5). First to the target score wins.</li>
 <li><b>Speed Duel</b>: just the BGM question. The fastest right answer wins the round (time, not damage). First to win
 more than half the rounds (best of 3, 5 or 7) wins.</li>
-<li><b>Boss Raid</b>: everyone vs one boss, each as a class of their choice (every class has its own trait and
-its real skills, plus three skills everyone has: Aeonian Rise, Erda Nova, Power Elixir). Your answers set your
-<b>Power</b> for the round: wrong = 0%, right = 100% at 0 s, 80% at 10 s, 68% at 20 s. Every attack is × your Power, so
-save your big skills for a track you know. Your main attack is free; skills are picked while the music plays and come
-back after their cooldown: the skill's cooldown in the game ÷ 30 s, in rounds (2 minutes = 4 rounds). Skills go off
-first, then the boss does the move it showed at the start of the round: an attack on everyone, on one player, a test
-(wrong answers get hurt), a shield, a heal, or its ultimate (it charges for a round first; be untouchable, or go down.
-The round after, it is worn out and takes +50% damage). Its attacks grow every round, and the last round is its time
-limit. At 0 HP you lose a life. <b>Binds</b> (Erda Nova, some class skills, every Origin) stop the boss for the round
-and strip its defense: that is the moment to use everything. Two binds in one round hold it for 2 rounds; after that it
-can be bound again 3 rounds later. Your <b>Origin</b> (gold edge) is your biggest skill: it binds, you can't be touched
-while you use it, and it comes back after 18 rounds, so once a fight.</li>
+<li><b>Boss Raid</b>: everyone vs one boss, each as a class of their choice. Your answers set your <b>Power</b> for
+the round: wrong = 0%, right = 100% at 0 s, 80% at 10 s, 68% at 20 s. Every attack is × your Power. Your main attack is
+free; skills are picked while the music plays and come back after their cooldown: the cooldown in the game ÷ 30 s, in
+rounds (1 minute = every 2 rounds, 2 minutes = every 4). Skills go off first, then the boss does the move it showed at
+the start of the round: an attack on everyone or on one player, a test (wrong answers get hurt), a heavy blow (a right
+answer braces you), a potion seal, a shield, a heal, or its ultimate (it charges for a round first; be untouchable, or
+go down). Its attacks grow every round, and round 13 is the last. At 0 HP you lose a life.
+<br><b>Binds</b>: Erda Nova and every Origin bind the boss: what it was about to do that round is cancelled and it has
+no defense, so that is the round to use your 2-minute skills. It can be bound again 4 rounds later. An Origin and an
+Erda Nova in the same round don't hold it longer: everyone hits 20% harder instead.
+<br><b>Origin</b> (gold): your biggest skill, every 12 rounds, and you can't be touched while you use it.
+<b>Ascent</b> (purple): twice a fight; you can't be touched, and it always deals the same damage, whoever you play.
+<b>Faction skill</b> (green): shared by your class's faction. <b>Aeonian Rise</b>: untouchable for a round.
+<b>Power Elixir</b>: a full heal, no limit, with a round to cool down. Bots burst together when the boss can be bound.</li>
 <li><b>Free-for-all</b>: each round, everyone loses HP by how far they were behind the round's top damage.</li>
 <li><b>Tournament</b>: a bracket of 1v1 HP matches; a draw goes to a speed tiebreak (fastest right BGM).</li>
 </ul>
