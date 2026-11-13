@@ -7,7 +7,8 @@
 //             2-minute burst, its Origin every 12, its Ascent twice a fight, its faction's skill) + three everyone has.
 //             A skill used in round r is back in round r + cd: cd = the cooldown in the game / 30 s.
 //   Binds   = Erda Nova and every Origin. A bind cancels what the boss was about to do THIS round and strips its
-//             defense: the round to burst. It can be bound again 4 rounds later. Origin + Erda Nova in the same round
+//             defense: the round to burst. The boss can be bound again 3 rounds later (your own Erda Nova
+//             takes 4: binding early to save yourself leaves the party without its burst). Origin + Erda Nova in the same round
 //             don't hold it any longer: everyone just hits harder that round.
 //   Order   = buffs and stances, then guards / heals / binds, then everyone attacks (your main attack is free, every
 //             round you're right), summons and burns, then the boss does its move, then cooldowns tick.
@@ -34,7 +35,7 @@ R.RULES = {
   bossHeal: 0.06, shield: 0.5,
   enrageAt: 0.3, enrage: 1.25,                     // under 30% HP its attacks hit harder
   potCd: 2,                                        // Power Elixir: a full heal, as often as you like, with a wait (the game's potion cooldown)
-  rebind: 4,                                       // a boss bound in round r can be bound again in round r + 4 (Erda Nova's cooldown)
+  rebind: 3,                                       // a boss bound in round r can be bound again in round r + 3 (the game: 120 s bind cooldown, 100 s resistance), a round before your own Erda Nova is back
   boundDef: 0,                                     // a bound boss's defense x this (0 = none: burst now)
   bothBind: 1.2,                                   // bound by an Origin AND by Erda Nova in one round: everyone's damage x this
   originCd: 12,                                    // every class's Origin: 6 minutes, so every third burst
@@ -42,10 +43,10 @@ R.RULES = {
   partyHp: 0.03, partyAtk: 0.04,                   // a bigger party: the boss has this much more HP (per player) and attack, per extra player
 };
 R.DIFFS = {   // hp, atk: checked with tools/raid-sim.js. grow: its attack grows this much a round. ultGap: rounds between ultimates, at least. cap: the last round (the time limit)
-  easy:    { name: 'Easy',    hp: 1.2, atk: 0.75, def: 0.15, grow: 1.04, ultGap: 6, cap: 13 },
-  normal:  { name: 'Normal',  hp: 1.7, atk: 0.95, def: 0.25, grow: 1.05, ultGap: 5, cap: 13 },
-  hard:    { name: 'Hard',    hp: 2.6, atk: 1.15, def: 0.35, grow: 1.06, ultGap: 4, cap: 13 },
-  extreme: { name: 'Extreme', hp: 3.7, atk: 1.4, def: 0.45, grow: 1.07, ultGap: 4, cap: 13 },
+  easy:    { name: 'Easy',    hp: 1.5, atk: 0.75, def: 0.15, grow: 1.03, ultGap: 6, cap: 20 },
+  normal:  { name: 'Normal',  hp: 2.6, atk: 0.95, def: 0.25, grow: 1.035, ultGap: 5, cap: 20 },
+  hard:    { name: 'Hard',    hp: 3.4, atk: 1.15, def: 0.35, grow: 1.04, ultGap: 4, cap: 20 },
+  extreme: { name: 'Extreme', hp: 4.8, atk: 1.4, def: 0.45, grow: 1.045, ultGap: 4, cap: 20 },
 };
 
 // ---------- Skills everyone has ----------
@@ -54,7 +55,7 @@ const COMMON = [
     desc: () => 'Genesis weapon: you take no damage this round, even from an ultimate',
     use: (c) => { c.iframe(c.pid); return 'is untouchable this round'; } },
   { key: 'nova', name: 'Erda Nova', cd: 4, ph: 1, ai: 'bind', common: true,
-    desc: () => `Bind the boss: whatever it was about to do this round is cancelled, and it has no defense: burst now. It can be bound again ${R.RULES.rebind} rounds later`,
+    desc: () => `Bind the boss: whatever it was about to do this round is cancelled, and it has no defense: burst now. The boss can be bound again ${R.RULES.rebind} rounds later`,
     use: (c) => c.bind('nova') },
   { key: 'pot', name: 'Power Elixir', cd: R.RULES.potCd, ph: 1, ai: 'pot', common: true, icon: 'power-elixir',
     desc: () => 'Heal all your HP (before the boss hits). No limit, but it needs a round to cool down',
@@ -105,9 +106,9 @@ R.h = {
     desc: (C) => `${dn(C, mult)} damage${o.note ? '. ' + o.note : ''}`,
     use: (c) => { c.hit(mult, { n: name, ...(o.hit || {}) }); return o.then?.(c); } }),
   // A summon: hits every round for n rounds, whatever you answer
-  summon: (name, cd, mult, n, o = {}) => ({ name, cd, ph: 2, ai: 'always', ...o,
-    desc: (C) => `Summon, ${n + (C.summonPlus || 0) === 1 ? 'this round' : `${n + (C.summonPlus || 0)} rounds`}: ${dn(C, mult)} damage${n + (C.summonPlus || 0) === 1 ? '' : ' a round'}, even when your answer is wrong${o.note ? '. ' + o.note : ''}`,
-    use: (c) => { c.summon(name, mult, n); return o.then?.(c) || `calls <b>${name}</b> for ${n + (c.C.summonPlus || 0) === 1 ? 'this round' : `${n + (c.C.summonPlus || 0)} rounds`}`; } }),
+  summon: (name, cd, mult, n, o = {}) => ({ name, cd, ph: 2, ai: o.pw ? (cd >= 3 ? 'burst' : 'atk') : 'always', ...o,
+    desc: (C) => { const N = n + (C.summonPlus || 0); return `Summon, ${N === 1 ? 'this round' : `${N} rounds`}: ${dn(C, mult)} damage${N === 1 ? '' : ' a round'}${o.pw ? ' x your Power' : ', even when your answer is wrong'}${o.note ? '. ' + o.note : ''}`; },
+    use: (c) => { const N = n + (c.C.summonPlus || 0); c.summon(name, mult, n, o.pw); return o.then?.(c) || `calls <b>${name}</b> for ${N === 1 ? 'this round' : `${N} rounds`}`; } }),
   // A buff on yourself / the whole party / one player you pick
   self: (name, cd, n, b, o = {}) => ({ name, cd, ph: 0, ai: 'buff', ...o,
     desc: () => `You, ${rounds(n)}: ${buffWords(b)}${o.note ? '. ' + o.note : ''}`,
@@ -186,7 +187,7 @@ R.moveText = (mv, boss) => {
 
 R.canCast = (S, pid, key) => {
   const me = S.players[pid], sk = me && R.skill(me.cls, key);
-  return !!sk && !me.out && !(me.cd[key] > 0) && (!sk.ok || !!sk.ok(me, S));
+  return !!sk && !me.out && !(me.cd[key] > 0 && !sk.free?.(me, S)) && (!sk.ok || !!sk.ok(me, S));   // (free: usable through its cooldown, e.g. a Resonance)
 };
 // Damage a player's attacks get from their buffs (for the page: "x1.4")
 R.dmgMult = (me) => me.buffs.reduce((m, f) => m * (f.dmg || 1), 1);
@@ -254,7 +255,7 @@ R.resolve = (S, inputs, rand = Math.random) => {
         if (mine.length >= max) { mine.sort((x, y) => x.n - y.n)[0].n = n; return; }
         b.dots.push({ k, by: pid, mult, n, name });
       },
-      summon(name, mult, n) { me.sum = me.sum.filter((x) => x.name !== name); me.sum.push({ name, mult, n: n + (C.summonPlus || 0) }); },
+      summon(name, mult, n, pw) { me.sum = me.sum.filter((x) => x.name !== name); me.sum.push({ name, mult, n: n + (C.summonPlus || 0), ...(pw ? { pw: 1 } : {}) }); },
       cdr(to, amount, except) { const p = P(to); if (!p) return; for (const k of Object.keys(p.cd)) if (k !== except && !R.skill(p.cls, k)?.noReset && p.cd[k] > 0) p.cd[k] = Math.max(0, p.cd[k] - amount); },
       note(t) { c.notes.push(t); },
       tell(s, t, more) { say(s, `{p:${pid}} ${t}`, { pid, ...more }); },
@@ -287,9 +288,9 @@ R.resolve = (S, inputs, rand = Math.random) => {
   // 2. Attacks, one player at a time: main attack, attack skills, summons
   for (const pid of ids) {
     const c = ctxs[pid], me = c.me, C = c.C;
-    if (c.power > 0) { if (C.basicHit) C.basicHit(c); else c.hit(1, { n: C.basic, basic: true }); }
+    if (c.power > 0) { if (C.basicHit) C.basicHit(c); else c.hit(C.basicMult ?? 1, { n: C.basic, basic: true }); }
     for (const x of rc.casts) if (x.c === c && (x.sk.ph ?? 2) === 2) run(x);
-    for (const s of me.sum) c.hit(s.mult, { n: s.name, free: 1, sum: true });
+    for (const s of me.sum) c.hit(s.mult, { n: s.name, free: s.pw ? c.power : 1, sum: true });   // (pw: a summon that follows your Power instead of fighting on its own)
     C.after?.(c);
     const total = c.parts.reduce((a, x) => a + x.d, 0);
     if (total) say('skills', `{p:${pid}} ${c.parts.map((x) => `${x.n} <b>${fmt(x.d)}</b>`).join(' · ')}${c.parts.length > 1 ? ` = <b>${fmt(total)}</b>` : ''}${c.power > 0 ? '' : ' <small>(wrong answer: only summons)</small>'}`, { pid, k: 'atk', amount: total });
@@ -388,13 +389,16 @@ R.resolve = (S, inputs, rand = Math.random) => {
 //     attacks and its Origin for the next window, but still binds and still buffs the party.
 R.window = (S) => {
   const b = S.boss, ids = aliveIds(S).filter((id) => S.players[id].bot).sort(), n = ids.length, w = b.binds || 0;
-  const bindable = S.round >= b.bindFree;
+  // (the boss can be bound again after 3 rounds, but everyone's burst needs 4: the bots keep to that rhythm and never bind early)
+  const last = b.botWin === S.round ? b.botWinPrev : b.botWin;
+  const bindable = S.round >= b.bindFree && (last == null || S.round - last >= 4);
   const ready = (id, pred) => { const C = R.cls(S.players[id].cls); return [...C.skills, ...COMMON].some((sk) => pred(sk) && R.canCast(S, id, sk.key)); };
   let origin = null, nova = null;
   if (bindable) {
     for (let i = 0; i < n && !origin; i++) { const id = ids[(w + i) % n]; if (ready(id, (sk) => sk.origin)) origin = id; }
     for (let i = 0; i < n && !nova; i++) { const id = ids[(w + 1 + i) % n]; if (ready(id, (sk) => sk.key === 'nova')) nova = id; }
   }
+  if ((origin || nova) && b.botWin !== S.round) { b.botWinPrev = b.botWin; b.botWin = S.round; }
   return { bindable, origin, nova };
 };
 R.botCasts = (S, pid, know, rand = Math.random) => {

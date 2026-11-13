@@ -31,8 +31,8 @@ const CHART = {
 };
 R.CHART = CHART;
 // From tools/raid-sim.js chart --write
-const TUNE = { 'hero': 0.886, 'paladin': 1.147, 'dark-knight': 1.286, 'bishop': 0.815, 'arch-mage-i-l': 0.861, 'arch-mage-f-p': 1.115, 'dual-blade': 1.278, 'shadower': 1.006, 'night-lord': 1.132, 'pathfinder': 1.078, 'marksman': 0.894, 'bow-master': 1.136, 'cannoneer': 1.058, 'buccaneer': 1.160, 'corsair': 0.902, 'jett': 1.257, 'dawn-warrior': 0.818, 'blaze-wizard': 0.978, 'wind-archer': 0.897, 'night-walker': 0.858, 'thunder-breaker': 0.901, 'mihile': 0.940, 'mercedes': 0.897, 'aran': 1.037, 'phantom': 1.138, 'luminous': 1.091, 'evan': 0.885, 'shade': 0.879, 'battle-mage': 0.916, 'blaster': 1.042, 'mechanic': 0.760, 'wild-hunter': 0.899, 'xenon': 0.998, 'demon-slayer': 1.131, 'demon-avenger': 0.826, 'kaiser': 1.020, 'kain': 1.043, 'cadena': 1.143, 'angelic-buster': 0.824, 'kanna': 0.988, 'hayato': 0.758, 'adele': 0.760, 'ark': 0.858, 'illium': 0.885, 'khali': 1.049, 'hoyoung': 1.268, 'lara': 1.112, 'ren': 1.052, 'lynn': 1.017, 'mo-xuan': 0.983, 'sia-astelle': 0.980, 'erel-light': 1.328, 'kinesis': 1.038, 'zero': 1.220, 'lethe': 0.734, 'beast-tamer': 1.598 };
-const ORIGIN = { 'hero': 0.448, 'paladin': 0.450, 'dark-knight': 0.450, 'bishop': 0.431, 'arch-mage-i-l': 0.431, 'arch-mage-f-p': 0.450, 'dual-blade': 0.450, 'shadower': 0.450, 'night-lord': 0.479, 'pathfinder': 0.450, 'marksman': 0.376, 'bow-master': 0.488, 'cannoneer': 0.450, 'buccaneer': 0.450, 'corsair': 0.395, 'jett': 0.450, 'dawn-warrior': 0.450, 'blaze-wizard': 0.450, 'wind-archer': 0.529, 'night-walker': 0.462, 'thunder-breaker': 0.450, 'mihile': 0.450, 'mercedes': 0.469, 'aran': 0.488, 'phantom': 0.450, 'luminous': 0.450, 'evan': 0.340, 'shade': 0.448, 'battle-mage': 0.436, 'blaster': 0.450, 'mechanic': 0.381, 'wild-hunter': 0.490, 'xenon': 0.460, 'demon-slayer': 0.531, 'demon-avenger': 0.450, 'kaiser': 0.450, 'kain': 0.502, 'cadena': 0.533, 'angelic-buster': 0.450, 'kanna': 0.602, 'hayato': 0.776, 'adele': 0.421, 'ark': 0.450, 'illium': 0.450, 'khali': 0.450, 'hoyoung': 0.445, 'lara': 0.450, 'ren': 0.433, 'lynn': 0.395, 'mo-xuan': 0.407, 'sia-astelle': 0.417, 'erel-light': 0.517, 'kinesis': 0.455, 'zero': 0.310, 'lethe': 0.450, 'beast-tamer': 0.450 };
+const TUNE = { 'hero': 0.897, 'paladin': 1.167, 'dark-knight': 1.303, 'bishop': 0.800, 'arch-mage-i-l': 0.879, 'arch-mage-f-p': 1.137, 'dual-blade': 1.259, 'shadower': 1.007, 'night-lord': 1.134, 'pathfinder': 1.099, 'marksman': 0.932, 'bow-master': 1.134, 'cannoneer': 1.071, 'buccaneer': 1.133, 'corsair': 0.925, 'dawn-warrior': 0.837, 'blaze-wizard': 0.998, 'wind-archer': 0.915, 'night-walker': 0.846, 'thunder-breaker': 0.896, 'mihile': 0.957, 'mercedes': 0.863, 'aran': 0.984, 'phantom': 1.114, 'luminous': 1.089, 'evan': 0.895, 'shade': 0.868, 'battle-mage': 0.929, 'blaster': 1.051, 'mechanic': 0.771, 'wild-hunter': 0.902, 'xenon': 1.011, 'demon-slayer': 1.140, 'demon-avenger': 0.856, 'kaiser': 1.085, 'kain': 1.058, 'cadena': 1.143, 'angelic-buster': 0.834, 'kanna': 1.014, 'hayato': 0.747, 'adele': 0.749, 'ark': 0.830, 'illium': 0.874, 'khali': 1.037, 'hoyoung': 1.251, 'lara': 1.123, 'ren': 1.049, 'lynn': 1.032, 'mo-xuan': 1.008, 'sia-astelle': 0.984, 'erel-light': 1.330, 'kinesis': 1.053, 'zero': 1.223, 'lethe': 0.726 };
+const ORIGIN = { 'hero': 0.448, 'paladin': 0.450, 'dark-knight': 0.450, 'bishop': 0.431, 'arch-mage-i-l': 0.431, 'arch-mage-f-p': 0.450, 'dual-blade': 0.450, 'shadower': 0.450, 'night-lord': 0.479, 'pathfinder': 0.450, 'marksman': 0.376, 'bow-master': 0.488, 'cannoneer': 0.450, 'buccaneer': 0.450, 'corsair': 0.395, 'dawn-warrior': 0.450, 'blaze-wizard': 0.450, 'wind-archer': 0.529, 'night-walker': 0.462, 'thunder-breaker': 0.450, 'mihile': 0.450, 'mercedes': 0.469, 'aran': 0.488, 'phantom': 0.450, 'luminous': 0.450, 'evan': 0.340, 'shade': 0.448, 'battle-mage': 0.436, 'blaster': 0.450, 'mechanic': 0.381, 'wild-hunter': 0.490, 'xenon': 0.460, 'demon-slayer': 0.531, 'demon-avenger': 0.450, 'kaiser': 0.450, 'kain': 0.502, 'cadena': 0.533, 'angelic-buster': 0.450, 'kanna': 0.602, 'hayato': 0.776, 'adele': 0.421, 'ark': 0.450, 'illium': 0.450, 'khali': 0.450, 'hoyoung': 0.445, 'lara': 0.450, 'ren': 0.433, 'lynn': 0.395, 'mo-xuan': 0.407, 'sia-astelle': 0.417, 'erel-light': 0.517, 'kinesis': 0.455, 'zero': 0.310, 'lethe': 0.450 };
 R.TUNE = TUNE; R.ORIGIN = ORIGIN;
 
 // ---------- Helpers ----------
@@ -245,15 +245,6 @@ add('corsair', { name: 'Corsair', role: 'Damage', hp: 1000, basic: 'Rapid Fire',
       use: (c) => { const h = c.heal(c.pid, 0.35); c.buff(c.pid, { k: 'whalers-potion', n: 1, name: "Whaler's Potion", dmg: 1.2 }); return `+${fmt(h)} HP, +20% damage this round`; } },
     m2('Nautilus Assault', 3.0)] });
 
-add('jett', { name: 'Jett', role: 'Damage', hp: 1050, basic: 'Starforce Salvo', fac: 'explorer-pirate', origin: { name: 'Singularity Shock' },
-  trait: ['Slipstream Suit', 'A flying start: while you are at full HP you deal +25% damage.'],
-  mult: (c) => (c.me.hp >= c.me.maxHp ? 1.25 : 1),
-  skills: [m1('Backup Beatdown', 1.4), m1('Starfall', 1.2),
-    { name: 'Bionic Maximizer', cd: 4, ph: 1, ai: 'guard', desc: () => 'Heal 40% HP and take 30% less damage for 2 rounds',
-      use: (c) => { const h = c.heal(c.pid, 0.4); c.buff(c.pid, { k: 'bionic', n: 2, name: 'Bionic Maximizer', taken: 0.7 }); return `+${fmt(h)} HP, 30% less damage taken for 2 rounds`; } },
-    summon('Suborbital Bombardier', 4, 0.9, 2),
-    m2('Planet Buster', 2.8)] });
-
 // ============================== Cygnus Knights ==============================
 add('dawn-warrior', { name: 'Dawn Warrior', role: 'Damage', hp: 1150, basic: 'Luna Divide', fac: 'cygnus', origin: { name: 'Astral Blitz' }, ascent: { name: 'Totality' },
   trait: ['Equinox Cycle', 'Moon and Sun take turns, a round each. Falling Moon: +20% damage. Rising Sun: 20% less damage taken, and a right answer heals 5% HP.'],
@@ -463,16 +454,30 @@ add('angelic-buster', { name: 'Angelic Buster', role: 'Damage / Support', hp: 95
     m2('Sparkle Burst', 2.8), summon('Superstar Spotlight', 4, 0.8, 2), self('Final Contract', 4, 1, { dmg: 1.25 })] });
 
 // ============================== Sengoku ==============================
-add('kanna', { name: 'Kanna', role: 'Summoner (top damage)', hp: 900, basic: 'Soul-Shatter Talisman', fac: 'sengoku', origin: { name: '[Divine Will] Advent of Crimson', short: 'Advent of Crimson' }, ascent: { name: '[Divine Will] Final Rest', short: 'Final Rest' },
-  trait: ['Shikigami', 'Your Shikigami fight on their own every round, even when you answer wrong. Each one that is out (max 4) also adds +10% to your own damage. Keep Oni and Tengu out, add Orochi and Haku for the burst, and unleash them all with True Name Revelation.'],
-  gauge: { name: 'Shikigami', max: 4 },
-  mult: (c, o) => (o.sum ? (c.hasBuff('true-name-revelation') ? 2 : 1) : 1 + 0.1 * Math.min(4, c.me.sum.length)),
-  end: (c) => { c.me.g = Math.min(4, c.me.sum.length); },
-  skills: [summon('Summon Oni', 2, 0.45, 2), summon('Summon Tengu', 2, 0.7, 1),
-    m1('[Order] Pulverizing Strike', 1.2, { short: 'Pulverizing Strike' }),
-    summon('Summon Orochi', 4, 1.1, 1),
-    summon('[Spirit] Hakumenkonmou Juubi', 4, 1.6, 1, { short: 'Haku' }),
-    self('True Name Revelation', 4, 1, { dmg: 1.3 }, { note: 'Your Shikigami hit twice as hard' })] });
+// Kanna: the Shikigami do the damage. An [Order] makes one strike again (its own cooldown). Resonance (Oni -> Tengu
+// -> Orochi -> Oni) is luck on top: every Shikigami that fights in a round can set off free extra Orders in that same
+// round, more of them the better you answered and while Call of Unity is up. It never touches the Orders' cooldowns.
+const SHIKI = { 'Summon Oni': ['Summon Tengu', 'Shade-Fletched Arrow'], 'Summon Tengu': ['Summon Orochi', 'Execute'], 'Summon Orochi': ['Summon Oni', 'Pulverizing Strike'] };   // who sets off whose Order
+const RES = 0.3;   // one Resonance = this much of a main-attack unit
+const order = (name, short, shiki, cdr, mult) => ({ name, short, cd: cdr, ph: 2, ai: 'atk',
+  ok: (me) => me.sum.some((x) => x.name === shiki) || !(me.cd[R.slug(shiki)] > 0),
+  desc: (C) => `${shiki.slice(7)} strikes again: ${dn(C, mult)} damage. ${shiki.slice(7)} must be out this round`,
+  bot: (S, pid, x) => { const me = S.players[pid]; return x.know && (me.sum.some((y) => y.name === shiki) || R.slug(shiki) in x.out); },
+  use: (c) => {
+    if (!c.me.sum.some((x) => x.name === shiki) && !c.rc.casts.some((x) => x.c === c && x.sk.name === shiki)) { c.noCd = true; return `can't order ${shiki.slice(7)}: it isn't out`; }
+    c.hit(mult, { n: short }); return ''; } });
+add('kanna', { name: 'Kanna', role: 'Summoner (top damage)', hp: 900, basic: 'Soul-Shatter Talisman', basicMult: 0.2, fac: 'sengoku', origin: { name: '[Divine Will] Advent of Crimson', short: 'Advent of Crimson' }, ascent: { name: '[Divine Will] Final Rest', short: 'Final Rest' },
+  trait: ['Resonance', 'Your talisman barely scratches: your Shikigami do the damage, at your Power. Every Shikigami that fights this round rolls 10 times for Resonance (10% x your Power each, 50% with Call of Unity): each one is a free extra Order on the spot. Oni sets off Tengu\'s arrow, Tengu sets off Orochi\'s Execute, Orochi sets off Oni\'s strike.'],
+  after: (c) => { const p = (c.hasBuff('call-of-unity') ? 0.5 : 0.1) * Math.min(1, c.power), got = [];
+    if (p > 0) for (const sm of c.me.sum.slice()) { const to = SHIKI[sm.name]; if (!to) continue; let n = 0; for (let i = 0; i < 10; i++) if (c.rand() < p) n++; if (n) { c.hit(RES * n, { n: `✨ ${to[1]} ×${n}` }); got.push(`${to[1]} ×${n}`); } }
+    c.me.v.res = got.join(', '); },
+  status: (me) => (me.v.res ? `✨ Resonance last round: ${me.v.res}` : null),
+  skills: [summon('Summon Oni', 2, 0.9, 2, { pw: true }), summon('Summon Tengu', 2, 1.3, 1, { pw: true }), summon('Summon Orochi', 4, 2.4, 1, { pw: true }),
+    summon('[Spirit] Hakumenkonmou Juubi', 4, 2.6, 1, { short: 'Haku', pw: true }),
+    self('Call of Unity', 2, 1, { dmg: 1.1 }, { note: 'Resonance chance 50% instead of 10%', ai: 'buff', bot: (S, pid, x) => x.know }),
+    order('[Order] Pulverizing Strike', 'Pulverizing Strike', 'Summon Oni', 1, 0.5),
+    order('[Order] Shade-Fletched Arrow', 'Shade-Fletched Arrow', 'Summon Tengu', 2, 0.6),
+    order('[Order] Execute', 'Execute', 'Summon Orochi', 2, 0.9)] });
 
 const battou = (name, short, cdr, base) => ({ name, short, cd: cdr, ph: 2, ai: cdr >= 3 ? 'burst' : 'atk', desc: (C) => `${dn(C, base)} damage + ${dn(C, 0.5)} per Sword Energy (it spends them all, unless you are in Shogetsu Form)`,
   bot: cdr >= 3 ? undefined : (S, pid, x) => x.know && (S.players[pid].g >= 2 || x.inWin),
@@ -616,29 +621,14 @@ add('zero', { name: 'Zero', role: 'Damage / Support', hp: 1150, basic: 'Giga Cra
     party('Time Distortion', 8, 2, { dmg: 1.12 }),
     atk('Shadow Rain', 10, 3.0)] });
 
-add('lethe', { name: 'Lethe', role: 'Summoner', hp: 900, basic: 'Assize', fac: 'lethe', origin: { name: 'Dominus: Eye of Eternity', short: 'Eye of Eternity' }, ascent: { name: 'Sovereign Everlasting' },
-  trait: ['Covenant', 'A pact with your summons: while one is out, your own attacks deal +20% damage. Chains of Command makes them hit 50% harder.'],
-  mult: (c, o) => (o.sum ? (c.hasBuff('chains-of-command') ? 1.5 : 1) : c.me.sum.length ? 1.2 : 1),
-  skills: [m1('Dominus: Pack United', 1.5, { short: 'Pack United' }), m1('Dominus: Dread Onslaught', 1.3, { short: 'Dread Onslaught' }), m1('Edict: Dread Advance', 1.1, { short: 'Dread Advance' }),
-    summon('Dominus: Azrath', 4, 1.0, 2, { short: 'Azrath' }),
-    summon('Chains of Command', 4, 1.4, 1, { note: 'Your summons hit 50% harder this round', then: (c) => { c.buff(c.pid, { k: 'chains-of-command', n: 1, name: 'Chains of Command' }); } }),
+add('lethe', { name: 'Lethe', role: 'Summoner', hp: 900, basic: 'Majeure', fac: 'lethe', origin: { name: 'Dominus: Eye of Eternity', short: 'Eye of Eternity' }, ascent: { name: 'Sovereign Everlasting' },
+  trait: ['Vassals', 'You never strike the boss yourself. Majeure drives your vassals (imps, Vargr, Dread Knights): every round you answer right they attack with your Power. Edicts are orders to them. Chains of Command makes all of them hit 50% harder.'],
+  mult: (c) => (c.hasBuff('chains-of-command') ? 1.5 : 1),
+  basicHit: (c) => { c.hit(1, { n: 'Vassals', sum: true }); },
+  skills: [m1('Dominus: Pack United', 1.5, { short: 'Pack United' }), m1('Dominus: Dread Onslaught', 1.3, { short: 'Dread Onslaught' }), m1('Edict: Dread Advance', 1.2, { short: 'Dread Advance' }), m1('Edict: Rampage', 1.1, { short: 'Rampage' }),
+    summon('Dominus: Azrath', 4, 1.0, 2, { short: 'Azrath', pw: true }),
+    summon('Chains of Command', 4, 1.4, 1, { pw: true, note: 'Every vassal hits 50% harder this round', then: (c) => { c.buff(c.pid, { k: 'chains-of-command', n: 1, name: 'Chains of Command' }); } }),
     self('Dominus: Fel Tempest', 4, 1, { dmg: 1.25 }, { short: 'Fel Tempest' })] });
-
-add('beast-tamer', { name: 'Beast Tamer', role: 'Support (animals)', hp: 950, basic: 'Furious Strikes', origin: { name: 'Aerial Relief' },
-  trait: ['Critters', 'Pick your animal with Critter Select, any round. Bear: you deal +25% damage. Snow Leopard: answers under 8 s deal +45%. Hawk: whole party +10% damage. Cat: whole party heals 5% HP a round.'],
-  stances: { bear: 'Bear', leopard: 'Snow Leopard', hawk: 'Hawk', cat: 'Cat' },
-  mult: (c, o) => (c.me.st === 'bear' ? 1.25 : c.me.st === 'leopard' && o.free == null && c.sec != null && c.sec < 8 ? 1.45 : 1),
-  aura: (c) => { const st = c.me.st; for (const id of c.alive()) c.S.players[id].buffs = c.S.players[id].buffs.filter((f) => f.k !== 'critter'); if (st === 'hawk') c.party({ k: 'critter', n: 1, name: 'Hawk', dmg: 1.1 }); if (st === 'cat') c.party({ k: 'critter', n: 1, name: 'Cat', regen: 0.05 }); },
-  start: (c) => c.C.aura(c),
-  skills: [
-    { name: 'Critter Select', cd: 0, ph: 0, ai: 'stance', options: ['Bear: you +25% damage', 'Snow Leopard: fast answers +45%', 'Hawk: party +10% damage', 'Cat: party heals 5% HP a round'], desc: () => 'Change your animal',
-      bot: (S, pid, x) => { const low = x.ids.filter((id) => S.players[id].hp < S.players[id].maxHp * 0.5).length, want = low * 2 >= x.ids.length && x.ids.length > 1 ? 3 : x.ids.length >= 3 ? 2 : 0; return ['bear', 'leopard', 'hawk', 'cat'][want] !== S.players[pid].st ? want : null; },
-      use: (c, i) => { c.me.st = ['bear', 'leopard', 'hawk', 'cat'][+i] || 'bear'; c.C.aura(c); return `calls the ${c.C.stances[c.me.st]}`; } },
-    m1('Champ Charge', 1.5),
-    { name: 'Meow Card', cd: 2, ph: 0, ai: 'buff', team: true, desc: () => 'Deal the party a card for 2 rounds: 🔴 +15% damage, 🔵 20% less damage taken, 🟢 heal 6% HP a round, or 🟡 all three',
-      use: (c) => { const r = c.rand(), k = r < 0.3 ? 0 : r < 0.6 ? 1 : r < 0.9 ? 2 : 3, f = [{ dmg: 1.15 }, { taken: 0.8 }, { regen: 0.06 }, { dmg: 1.15, taken: 0.8, regen: 0.06 }][k];
-        c.party({ k: 'meow-card', n: 2, name: 'Meow Card', ...f }); return `deals a ${['🔴 red', '🔵 blue', '🟢 green', '🟡 gold'][k]} card`; } },
-    m2('Cub Cavalry', 2.8)] });
 
 // Ascent: the same damage whoever you play = 4 main attacks of the middle class
 { const a = R.ORDER.map((k) => R.cls(k).atk).sort((x, y) => x - y); R.RULES.ascentDmg = Math.round(4 * a[Math.floor(a.length / 2)] / 1000) * 1000; }

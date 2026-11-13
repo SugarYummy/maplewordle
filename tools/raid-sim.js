@@ -210,7 +210,7 @@ function measure(k, n, party = [k]) {
   let dmg = 0, burst = 0;
   for (let i = 0; i < n; i++) {
     let b = 0;
-    const f = fight({ party, level: 'hard', diff: 'hard', noDeath: true, over: { hp: 1e6 }, rounds: 12, seed: 3 + i * 7919,
+    const f = fight({ party, level: 'hard', diff: 'hard', noDeath: true, over: { hp: 1e6 }, rounds: 16, seed: 3 + i * 7919,
       track: (S, inp) => { const st = (S.stats.p0 ??= { dmg: 0 }), d = st.dmg - (st._l || 0); st._l = st.dmg; if (Object.keys(inp.p0?.casts || {}).some((c) => R.skill(k, c)?.origin)) b += d; } });
     dmg += f.S.stats.p0?.dmg || 0; burst += b;
   }
