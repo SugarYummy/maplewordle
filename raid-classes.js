@@ -31,7 +31,7 @@ const CHART = {
 };
 R.CHART = CHART;
 // From tools/raid-sim.js chart --write
-const TUNE = { 'hero': 0.897, 'paladin': 1.167, 'dark-knight': 1.303, 'bishop': 0.800, 'arch-mage-i-l': 0.879, 'arch-mage-f-p': 1.137, 'dual-blade': 1.259, 'shadower': 1.007, 'night-lord': 1.134, 'pathfinder': 1.099, 'marksman': 0.932, 'bow-master': 1.134, 'cannoneer': 1.071, 'buccaneer': 1.133, 'corsair': 0.925, 'dawn-warrior': 0.837, 'blaze-wizard': 0.998, 'wind-archer': 0.915, 'night-walker': 0.846, 'thunder-breaker': 0.896, 'mihile': 0.957, 'mercedes': 0.863, 'aran': 0.984, 'phantom': 1.114, 'luminous': 1.089, 'evan': 0.895, 'shade': 0.868, 'battle-mage': 0.929, 'blaster': 1.051, 'mechanic': 0.771, 'wild-hunter': 0.902, 'xenon': 1.011, 'demon-slayer': 1.140, 'demon-avenger': 0.856, 'kaiser': 1.085, 'kain': 1.058, 'cadena': 1.143, 'angelic-buster': 0.834, 'kanna': 1.014, 'hayato': 0.747, 'adele': 0.749, 'ark': 0.830, 'illium': 0.874, 'khali': 1.037, 'hoyoung': 1.251, 'lara': 1.123, 'ren': 1.049, 'lynn': 1.032, 'mo-xuan': 1.008, 'sia-astelle': 0.984, 'erel-light': 1.330, 'kinesis': 1.053, 'zero': 1.223, 'lethe': 0.726 };
+const TUNE = { 'hero': 0.897, 'paladin': 1.167, 'dark-knight': 1.303, 'bishop': 0.801, 'arch-mage-i-l': 0.879, 'arch-mage-f-p': 1.137, 'dual-blade': 1.259, 'shadower': 1.007, 'night-lord': 1.134, 'pathfinder': 1.099, 'marksman': 0.932, 'bow-master': 1.134, 'cannoneer': 1.073, 'buccaneer': 1.133, 'corsair': 0.926, 'dawn-warrior': 0.837, 'blaze-wizard': 0.997, 'wind-archer': 0.916, 'night-walker': 0.846, 'thunder-breaker': 0.897, 'mihile': 0.957, 'mercedes': 0.863, 'aran': 0.984, 'phantom': 1.113, 'luminous': 1.089, 'evan': 0.894, 'shade': 0.868, 'battle-mage': 0.929, 'blaster': 1.051, 'mechanic': 0.771, 'wild-hunter': 0.902, 'xenon': 1.011, 'demon-slayer': 1.140, 'demon-avenger': 0.856, 'kaiser': 1.085, 'kain': 1.058, 'cadena': 1.142, 'angelic-buster': 0.834, 'kanna': 0.898, 'hayato': 0.747, 'adele': 0.748, 'ark': 0.830, 'illium': 0.873, 'khali': 1.038, 'hoyoung': 1.252, 'lara': 1.123, 'ren': 1.049, 'lynn': 1.032, 'mo-xuan': 1.007, 'sia-astelle': 0.984, 'erel-light': 1.330, 'kinesis': 1.053, 'zero': 1.223, 'lethe': 0.726 };
 const ORIGIN = { 'hero': 0.448, 'paladin': 0.450, 'dark-knight': 0.450, 'bishop': 0.431, 'arch-mage-i-l': 0.431, 'arch-mage-f-p': 0.450, 'dual-blade': 0.450, 'shadower': 0.450, 'night-lord': 0.479, 'pathfinder': 0.450, 'marksman': 0.376, 'bow-master': 0.488, 'cannoneer': 0.450, 'buccaneer': 0.450, 'corsair': 0.395, 'dawn-warrior': 0.450, 'blaze-wizard': 0.450, 'wind-archer': 0.529, 'night-walker': 0.462, 'thunder-breaker': 0.450, 'mihile': 0.450, 'mercedes': 0.469, 'aran': 0.488, 'phantom': 0.450, 'luminous': 0.450, 'evan': 0.340, 'shade': 0.448, 'battle-mage': 0.436, 'blaster': 0.450, 'mechanic': 0.381, 'wild-hunter': 0.490, 'xenon': 0.460, 'demon-slayer': 0.531, 'demon-avenger': 0.450, 'kaiser': 0.450, 'kain': 0.502, 'cadena': 0.533, 'angelic-buster': 0.450, 'kanna': 0.602, 'hayato': 0.776, 'adele': 0.421, 'ark': 0.450, 'illium': 0.450, 'khali': 0.450, 'hoyoung': 0.445, 'lara': 0.450, 'ren': 0.433, 'lynn': 0.395, 'mo-xuan': 0.407, 'sia-astelle': 0.417, 'erel-light': 0.517, 'kinesis': 0.455, 'zero': 0.310, 'lethe': 0.450 };
 R.TUNE = TUNE; R.ORIGIN = ORIGIN;
 
@@ -465,16 +465,22 @@ const order = (name, short, shiki, cdr, mult) => ({ name, short, cd: cdr, ph: 2,
   bot: (S, pid, x) => { const me = S.players[pid]; return x.know && (me.sum.some((y) => y.name === shiki) || R.slug(shiki) in x.out); },
   use: (c) => {
     if (!c.me.sum.some((x) => x.name === shiki) && !c.rc.casts.some((x) => x.c === c && x.sk.name === shiki)) { c.noCd = true; return `can't order ${shiki.slice(7)}: it isn't out`; }
-    c.hit(mult, { n: short }); return ''; } });
-add('kanna', { name: 'Kanna', role: 'Summoner (top damage)', hp: 900, basic: 'Soul-Shatter Talisman', basicMult: 0.2, fac: 'sengoku', origin: { name: '[Divine Will] Advent of Crimson', short: 'Advent of Crimson' }, ascent: { name: '[Divine Will] Final Rest', short: 'Final Rest' },
-  trait: ['Resonance', 'Your talisman barely scratches: your Shikigami do the damage, at your Power. Every Shikigami that fights this round rolls 10 times for Resonance (10% x your Power each, 50% with Call of Unity): each one is a free extra Order on the spot. Oni sets off Tengu\'s arrow, Tengu sets off Orochi\'s Execute, Orochi sets off Oni\'s strike.'],
-  after: (c) => { const p = (c.hasBuff('call-of-unity') ? 0.5 : 0.1) * Math.min(1, c.power), got = [];
-    if (p > 0) for (const sm of c.me.sum.slice()) { const to = SHIKI[sm.name]; if (!to) continue; let n = 0; for (let i = 0; i < 10; i++) if (c.rand() < p) n++; if (n) { c.hit(RES * n, { n: `✨ ${to[1]} ×${n}` }); got.push(`${to[1]} ×${n}`); } }
-    c.me.v.res = got.join(', '); },
-  status: (me) => (me.v.res ? `✨ Resonance last round: ${me.v.res}` : null),
+    c.hit(mult, { n: short, sum: true }); return ''; } });
+add('kanna', { name: 'Kanna', role: 'Summoner', hp: 900, basic: 'Soul-Shatter Talisman', basicMult: 0.2, fac: 'sengoku', origin: { name: '[Divine Will] Advent of Crimson', short: 'Advent of Crimson' }, ascent: { name: '[Divine Will] Final Rest', short: 'Final Rest' },
+  trait: ['Resonance', 'Your talisman barely scratches: your Shikigami do the damage, at your Power. Haku and Call of Unity make them hit harder. Every Shikigami that fights this round rolls 10 times for Resonance (10% x your Power each, 50% with Call of Unity): each one is a free extra Order on the spot. Oni sets off Tengu\'s arrow, Tengu sets off Orochi\'s Execute, Orochi sets off Oni\'s strike.'],
+  // (everything a Shikigami does counts: summons, Orders, Resonance)
+  mult: (c, o) => (o.sum ? (c.hasBuff('haku') ? 1.4 : 1) * (c.hasBuff('call-of-unity') ? 1.15 : 1) : 1),
+  start: (c) => { if (c.me.v.haku != null) c.iframe(c.pid); },
+  after: (c) => { const v = c.me.v; if (v.haku != null) { c.hit(2.6, { n: 'Haku', free: v.haku }); v.haku = null; } if (c.hasBuff('haku')) v.haku = c.power;
+    const p = (c.hasBuff('call-of-unity') ? 0.5 : 0.1) * Math.min(1, c.power), got = [];
+    if (p > 0) for (const sm of c.me.sum.slice()) { const to = SHIKI[sm.name]; if (!to) continue; let n = 0; for (let i = 0; i < 10; i++) if (c.rand() < p) n++; if (n) { c.hit(RES * n, { n: `✨ ${to[1]} ×${n}`, sum: true }); got.push(`${to[1]} ×${n}`); } }
+    v.res = got.join(', '); },
+  status: (me) => [me.v.haku != null ? '🦊 Haku strikes this round: you can’t be touched' : '', me.v.res ? `✨ Resonance last round: ${me.v.res}` : ''].filter(Boolean).join(' · ') || null,
   skills: [summon('Summon Oni', 2, 0.9, 2, { pw: true }), summon('Summon Tengu', 2, 1.3, 1, { pw: true }), summon('Summon Orochi', 4, 2.4, 1, { pw: true }),
-    summon('[Spirit] Hakumenkonmou Juubi', 4, 2.6, 1, { short: 'Haku', pw: true }),
-    self('Call of Unity', 2, 1, { dmg: 1.1 }, { note: 'Resonance chance 50% instead of 10%', ai: 'buff', bot: (S, pid, x) => x.know }),
+    { name: '[Spirit] Hakumenkonmou Juubi', short: 'Haku', cd: 4, ph: 0, ai: 'burst', desc: (C) => `This round your Shikigami hit 40% harder. Next round Haku strikes for ${dn(C, 2.6)} damage at THIS round's Power, and you can't be touched that round`,
+      use: (c) => { c.buff(c.pid, { k: 'haku', n: 1, name: 'Haku' }); return 'Shikigami +40% this round; Haku strikes next round'; } },
+    { name: 'Call of Unity', cd: 2, ph: 0, ai: 'buff', desc: () => 'This round your Shikigami hit 15% harder and the Resonance chance is 50% instead of 10%', bot: (S, pid, x) => x.know,
+      use: (c) => { c.buff(c.pid, { k: 'call-of-unity', n: 1, name: 'Call of Unity' }); return 'Shikigami +15%, Resonance 50% this round'; } },
     order('[Order] Pulverizing Strike', 'Pulverizing Strike', 'Summon Oni', 1, 0.5),
     order('[Order] Shade-Fletched Arrow', 'Shade-Fletched Arrow', 'Summon Tengu', 2, 0.6),
     order('[Order] Execute', 'Execute', 'Summon Orochi', 2, 0.9)] });
