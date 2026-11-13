@@ -1661,8 +1661,8 @@ async function onReveal(r) {
         await tick();
       }
       for (const [, i] of r.ev.map((e, i) => [e, i]).filter(([e]) => e.k === 'raid' && e.s === 'skills' && (e.kind === 'cast' || e.kind === 'atk' || e.kind === 'miss'))) shownEv.add(i);
-      showEv((e) => e.k === 'raid' && e.s === 'skills' && e.kind === 'bossMove');
       box.querySelector('.apply').insertAdjacentHTML('beforeend', sk.filter((e) => e.kind === 'cast' && e.imp).map((e) => `<p>${evText(e, name, r)}</p>`).join(''));
+      showEv((e) => e.k === 'raid' && e.s === 'skills' && e.kind === 'bossMove');
       let party = 0;
       for (const p of pl) {
         if (!game || game.id !== r.id) return;
