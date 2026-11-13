@@ -95,8 +95,8 @@ R.iconOf = (s) => s.icon || slug(s.name);
 R.desc = (cls, s) => { const C = R.cls(cls); return typeof s.desc === 'function' ? s.desc(C) : s.desc || ''; };
 R.kit = (cls) => { const C = R.cls(cls); return { C, skills: [...C.skills, ...COMMON] }; };
 const dn = (C, mult) => fmt(Math.round(C.atk * mult / 100) * 100);
-const buffWords = (b) => [b.dmg ? `${b.dmg >= 1 ? '+' : '-'}${pct(Math.abs(b.dmg - 1))} damage` : '', b.taken != null ? (b.taken < 1 ? `${pct(1 - b.taken)} less damage taken` : `+${pct(b.taken - 1)} damage taken`) : '',
-  b.ied ? `ignore ${pct(b.ied)} of its defense` : '', b.regen ? `heal ${pct(b.regen)} HP a round` : '', b.floor ? `Power at least ${pct(b.floor)} when right` : ''].filter(Boolean).join(', ');
+const buffWords = (b) => [b.dmg ? `${b.dmg >= 1 ? '+' : '−'}${pct(Math.abs(b.dmg - 1))} FD` : '', b.taken != null ? (b.taken < 1 ? `−${pct(1 - b.taken)} damage taken` : `+${pct(b.taken - 1)} damage taken`) : '',
+  b.ied ? `ignore ${pct(b.ied)} DEF` : '', b.regen ? `heal ${pct(b.regen)} a round` : '', b.floor ? `Power at least ${pct(b.floor)}` : ''].filter(Boolean).join(', ');   // (FD = final damage: it multiplies everything else)
 const rounds = (n) => n === 1 ? 'this round' : `${n} rounds`;
 // Ready-made skills for raid-classes.js
 R.h = {
@@ -111,17 +111,17 @@ R.h = {
     use: (c) => { const N = n + (c.C.summonPlus || 0); c.summon(name, mult, n, o.pw); const t = o.then?.(c); return typeof t === 'string' ? t : ''; } }),
   // A buff on yourself / the whole party / one player you pick
   self: (name, cd, n, b, o = {}) => ({ name, cd, ph: 0, ai: 'buff', ...o,
-    desc: () => `You, ${rounds(n)}: ${buffWords(b)}${o.note ? '. ' + o.note : ''}`,
+    desc: () => `${n === 1 ? 'This round' : n + ' rounds'}: ${buffWords(b)}${o.note ? '. ' + o.note : ''}`,
     use: (c) => { c.buff(c.pid, { k: slug(name), n, name, ...b }); return o.then?.(c) || buffWords(b); } }),
   party: (name, cd, n, b, o = {}) => ({ name, cd, ph: 0, ai: 'buff', team: true, ...o,
-    desc: () => `Whole party, ${rounds(n)}: ${buffWords(b)}${o.note ? '. ' + o.note : ''}`,
+    desc: () => `Party · ${rounds(n)}: ${buffWords(b)}${o.note ? '. ' + o.note : ''}`,
     use: (c) => { c.party({ k: slug(name), n, name, ...b }); return o.then?.(c) || `party ${buffWords(b)}`; } }),
   ally: (name, cd, n, b, o = {}) => ({ name, cd, ph: 0, ai: 'buff', target: true, team: true, ...o,
-    desc: () => `One player, ${rounds(n)}: ${buffWords(b)}${o.note ? '. ' + o.note : ''}`,
+    desc: () => `One player · ${rounds(n)}: ${buffWords(b)}${o.note ? '. ' + o.note : ''}`,
     use: (c, t) => { const to = c.ally(t); c.buff(to, { k: slug(name), n, name, ...b }); return `→ {p:${to}} ${buffWords(b)}`; } }),
   // The boss takes more damage from everyone
   expose: (name, cd, n, m, mult = 0, o = {}) => ({ name, cd, ph: mult ? 2 : 1, ai: 'debuff', team: true, ...o,
-    desc: (C) => `${mult ? dn(C, mult) + ' damage. ' : ''}The boss takes +${pct(m - 1)} damage from everyone for ${rounds(n)}${o.note ? '. ' + o.note : ''}`,
+    desc: (C) => `${mult ? dn(C, mult) + ' damage. ' : ''}Boss takes +${pct(m - 1)} damage · ${rounds(n)}${o.note ? '. ' + o.note : ''}`,
     use: (c) => { c.vuln(slug(name), m, n, name); if (mult) c.hit(mult, { n: name }); return o.then?.(c) || `boss takes +${pct(m - 1)} damage`; } }),
 };
 
@@ -285,7 +285,7 @@ R.resolve = (S, inputs, rand = Math.random) => {
     if (said || sk.ph !== 2) say('skills', `{p:${c.pid}} · <b>${sk.short || sk.name}</b>${said ? ' ' + said : ''}`, { pid: c.pid, ic: R.iconOf(sk), k: 'cast', name: sk.name, imp: sk.key === 'nova' || !!sk.origin });
   };
   for (const ph of [0, 1]) for (const x of rc.casts) if ((x.sk.ph ?? 2) === ph) run(x);
-  if (rc.both) say('skills', `⛓️ 2× bind this round: +${pct(X.bothBind - 1)} damage`, { k: 'bossMove' });
+  if (rc.both) say('skills', `⛓️ 2× bind this round: +${pct(X.bothBind - 1)} FD`, { k: 'bossMove' });
   if (mv.k === 'shield' && !rc.bound) say('skills', rc.dispel ? `🔰 ${b.name}'s shield is torn away` : R.moveText(mv, b.name), { k: 'bossMove' });
   // 2. Attacks, one player at a time: main attack, attack skills, summons
   for (const pid of ids) {

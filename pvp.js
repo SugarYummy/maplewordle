@@ -1108,7 +1108,7 @@ function raidKitHtml(cls) {
   const row = (sk) => `<div class="rcsk">${skillIcon(sk)}<div><b>${esc(sk.name)}</b> <small>${sk.passive ? 'always on' : sk.ascent ? 'twice a fight' : sk.cd ? (sk.cd === 1 ? 'every round' : `every ${sk.cd} rounds`) : 'any round'}${sk.origin ? ' · Origin' : sk.faction ? ' · faction skill' : ''}</small><br>${esc(MR.desc(cls, sk))}</div></div>`;
   return `<div class="rchead"><img class="rcpic" src="images/classes/${cls}.png" alt=""><div><b class="rcname">${esc(C.name)}</b> <small>${esc(C.role)} · ${f(C.hp)} HP</small>` +
     `<p class="rctrait"><b>${esc(C.trait[0])}.</b> ${esc(C.trait[1])}</p></div></div>` +
-    `<div class="rcskills"><div class="rcsk">${skillIcon({ name: C.basic })}<div><b>${esc(C.basic)}</b> <small>main attack, free every round you answer right</small><br>${f(Math.round(C.atk * (C.basicMult ?? 1)))} damage × your Power</div></div>${C.skills.map(row).join('')}</div>` +
+    `<div class="rcskills"><div class="rcsk">${skillIcon({ name: C.basic })}<div><b>${esc(C.basic)}</b> <small>main attack</small><br>${f(Math.round(C.atk * (C.basicMult ?? 1)))} × Power</div></div>${C.skills.map(row).join('')}</div>` +
     `<details class="rccommon"><summary>Everyone also has: ${MR.COMMON.map((x) => esc(x.name)).join(', ')}</summary><div class="rcskills">${MR.COMMON.map(row).join('')}</div></details>`;
 }
 let raidPickOpen = false;
@@ -1430,10 +1430,10 @@ function drawSkills() {
       `<span class="ic">${skillIcon(sk)}${cd > 0 ? `<i class="cd">${cd}</i>` : ''}</span><b>${esc(sk.short || sk.name)}</b><small>${sub}${arg}</small></button>`;
   };
   const d = game.skDesc && MR.skill(st.cls, game.skDesc);
-  box.innerHTML = `<div class="skhead"><img class="rcpic sm" src="images/classes/${st.cls}.png" alt=""><div><b>${esc(C.name)}</b> · ${esc(C.basic)}: <b>${f(Math.round(C.atk * (C.basicMult ?? 1)))}</b> × your Power, free every round you answer right` +
+  box.innerHTML = `<div class="skhead"><img class="rcpic sm" src="images/classes/${st.cls}.png" alt=""><div><b>${esc(C.name)}</b> · ${esc(C.basic)}: <b>${f(Math.round(C.atk * (C.basicMult ?? 1)))}</b> × Power` +
       `<br><small><b>${esc(C.trait[0])}.</b> ${esc(C.trait[1])}</small></div><span class="sknote">${note}</span></div>` +
     `<div class="skbar${C.skills.length + MR.COMMON.length > 6 ? ' many' : ''}">${C.skills.map(btn).join('')}<span class="sksep"></span>${MR.COMMON.map(btn).join('')}</div>` +
-    `<p class="skdesc">${d ? `${skillIcon(d, 'sm')} <b>${esc(d.name)}</b>: ${esc(MR.desc(st.cls, d))}` : 'Tap a skill to pick it (tap again to drop it). Its description shows here.'}</p><div class="sktarget" hidden></div>` +
+    `<p class="skdesc">${d ? `${skillIcon(d, 'sm')} <b>${esc(d.name)}</b>: ${esc(MR.desc(st.cls, d))}` : 'Tap a skill to pick it.'}</p><div class="sktarget" hidden></div>` +
     `<p class="skend"><button type="button" id="endTurn" class="pvpbig"${open ? '' : ' disabled'}>${game.ended ? 'Turn ended ✓' : 'End turn ✓'}</button></p>`;
   box.querySelectorAll('[data-sk]').forEach((b) => {
     b.onclick = () => clickSkill(b.dataset.sk);
@@ -1835,21 +1835,14 @@ Phase = that × 0.2, title = that × 0.5. Wrong = 0.</p>
 <li><b>First to N</b>: right answers score points (BGM 1, Phase 0.25, Title 0.5). First to the target score wins.</li>
 <li><b>Speed Duel</b>: just the BGM question. The fastest right answer wins the round (time, not damage). First to win
 more than half the rounds (best of 3, 5 or 7) wins.</li>
-<li><b>Boss Raid</b>: everyone vs one boss, each as a class of their choice. Your answers set your <b>Power</b> for
-the round: wrong = 0%, right = 100% at 0 s, 80% at 10 s, 68% at 20 s. Every attack is × your Power. Your main attack is
-free; skills are picked while the music plays and come back after their cooldown: the cooldown in the game ÷ 30 s, in
-rounds (1 minute = every 2 rounds, 2 minutes = every 4). Skills go off first, then the boss does the move it showed at
-the start of the round: an attack on everyone or on one player, a test (wrong answers get hurt), a heavy blow (a right
-answer braces you), a potion seal, a shield, a heal, or its ultimate (it charges for a round first; be untouchable, or
-go down). Its attacks grow every round, and round 20 is the last. At 0 HP you lose a life.
-<br><b>Binds</b>: Erda Nova and every Origin bind the boss: what it was about to do that round is cancelled and it has
-no defense, so that is the round to use your 2-minute skills. The boss can be bound again 3 rounds later, but your
-own Erda Nova takes 4: binding early to save yourself leaves the party without its burst. An Origin and an
-Erda Nova in the same round don't hold it longer: everyone hits 20% harder instead.
-<br><b>Origin</b> (gold): your biggest skill, every 12 rounds, and you can't be touched while you use it.
-<b>Ascent</b> (purple): twice a fight; you can't be touched, and it always deals the same damage, whoever you play.
-<b>Faction skill</b> (green): shared by your class's faction. <b>Aeonian Rise</b>: untouchable for a round.
-<b>Power Elixir</b>: a full heal, no limit, with a round to cool down. Bots burst together when the boss can be bound.</li>
+<li><b>Boss Raid</b>: everyone vs one boss, each as a class.
+<br><b>Power</b>: wrong answer 0%. Right answer 100% at 0 s, 80% at 10 s, 68% at 20 s. All your damage is × Power.
+<br><b>Skills</b>: pick them while the music plays. Cooldowns are in rounds (1 minute in the game = 2 rounds).
+<br><b>Boss</b>: it shows its move, you act, then it moves. Round 20 is the last. 0 HP = a life lost.
+<br><b>Bind</b> (Erda Nova, Origin): cancels the boss's move this round, its defense is 0. It resists for 2 rounds after. Origin + Erda Nova together: +20% FD.
+<br><b>Origin</b> (gold): every 12 rounds. Binds, untouchable. <b>Ascent</b> (purple): 2 uses, untouchable, fixed damage.
+<b>Faction skill</b> (green). <b>Aeonian Rise</b>: untouchable. <b>Power Elixir</b>: full heal.
+<br><b>FD</b> = final damage: it multiplies everything else.</li>
 <li><b>Free-for-all</b>: each round, everyone loses HP by how far they were behind the round's top damage.</li>
 <li><b>Tournament</b>: a bracket of 1v1 HP matches; a draw goes to a speed tiebreak (fastest right BGM).</li>
 </ul>
